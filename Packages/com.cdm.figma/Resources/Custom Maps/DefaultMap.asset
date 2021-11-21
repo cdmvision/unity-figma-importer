@@ -1,0 +1,288 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a08cf0443c295c4aad0ec7fcc9ddb89, type: 3}
+  m_Name: DefaultMap
+  m_EditorClassIdentifier: 
+  jsonResponse: {fileID: 4900000, guid: fed11ac540807fb4dae2cafce0e6c9bf, type: 3}
+  defaultFont: {fileID: 11400000, guid: 6a84f857bec7e7345843ae29404c57ce, type: 2}
+  componentMap:
+    list:
+    - Key: HoloLens2 Button Collection 5V
+      Value:
+        Prefab: {fileID: 4640305554554984281, guid: 940a822addfc898428785af1d4b0220b,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button Collection 4V
+      Value:
+        Prefab: {fileID: 5909813013237261275, guid: 9db3c1f5a57fb2b40ae4b085f123abfe,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button Collection 3V
+      Value:
+        Prefab: {fileID: 4215703320649419437, guid: 2adb9bf13fbb7694bbf77b35226ff4af,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button Collection 5H
+      Value:
+        Prefab: {fileID: 2166398938546097170, guid: a0fcbf4c54a45dd46b279c4cb162b917,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button Collection 4H
+      Value:
+        Prefab: {fileID: 976942607064069878, guid: 0e3f094e4aaceeb44b70aa90ed66c548,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button Collection 3H
+      Value:
+        Prefab: {fileID: 4857302741068522055, guid: 13a98fb31f16fe6459056db9f73a215d,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: UI Backplate
+      Value:
+        Prefab: {fileID: 7025448980773784322, guid: 021378ec8dbd3e144b68bc5769a858ec,
+          type: 3}
+        ProcessType: 3
+        offset: {x: 0, y: 0, z: 0.01}
+    - Key: Near Menu 3x1
+      Value:
+        Prefab: {fileID: 7545364183608891058, guid: 9a7c24f281a2c3d45a9b8befe608bf77,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Near Menu 3x2
+      Value:
+        Prefab: {fileID: 8839117086356187597, guid: e969038e4d67d9b498de2ef538969506,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Near Menu 3x3
+      Value:
+        Prefab: {fileID: 4505189981193056502, guid: d82e2f09994ad2f4fb43359bfb977f64,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Near Menu 4x1
+      Value:
+        Prefab: {fileID: 3515418990045158255, guid: 40b588bd40632eb41a0af374d91c4fc9,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Near Menu 4x2
+      Value:
+        Prefab: {fileID: 1333129552543361702, guid: 6dfc5f0a5fe04f94ab15177720f4bf05,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Near Menu 2x4
+      Value:
+        Prefab: {fileID: 1333129552543361702, guid: 4cc25867f13a101459aeac0807dc2d30,
+          type: 3}
+        ProcessType: 2
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Slider
+      Value:
+        Prefab: {fileID: 7307063430618434862, guid: bf032ee87cdd3f34682d4db5b8d03e3d,
+          type: 3}
+        ProcessType: 4
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Slate
+      Value:
+        Prefab: {fileID: 7779420039263858270, guid: 937ce507dd7ee334ba569554e24adbdd,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: DialogSmall_192x96
+      Value:
+        Prefab: {fileID: 2680377478557818543, guid: 8e686c90124b8e14cbf8093893109e9a,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: DialogMedium_192x128
+      Value:
+        Prefab: {fileID: 1231799312788918984, guid: a0ef6c45c87675f4abf9738395165413,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: DialogMedium_192x192
+      Value:
+        Prefab: {fileID: 8451469530216736246, guid: 478732197b53dee4694480aac1a7c98c,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: AppBar
+      Value:
+        Prefab: {fileID: 1275815092924048, guid: 83c02591e2867124181bcd3bcb65e288,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Bezier Tooltip
+      Value:
+        Prefab: {fileID: 4014241828956980662, guid: 08b79a69f78da1d4aa8e117f1cbd9cef,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Simple Line Tooltip
+      Value:
+        Prefab: {fileID: 1083549605185280, guid: afaef0108a478c44a9eac26658bc29bf,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Spline Tooltip
+      Value:
+        Prefab: {fileID: 1379707608131922, guid: 44ac04f8e1e21474991e4b59809859f4,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Rotating Orbs
+      Value:
+        Prefab: {fileID: 1877138048077504, guid: 65fa42bb01c733c42b05a4e91628f494,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Indeterminate
+      Value:
+        Prefab: {fileID: 5301351100929939167, guid: 9c4ddc0ec93e1df449e9984dca497355,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Loading Bar
+      Value:
+        Prefab: {fileID: 1993071269674472, guid: 57d2436112e7d424da7e9a8e41c608dc,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Generic Checkbox
+      Value:
+        Prefab: {fileID: 1775492867674862, guid: 6f89876ff9050224f949c0490969219d,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Radio Button
+      Value:
+        Prefab: {fileID: 1713162523614900, guid: 0f83fa6afa56ead46bbd762156f1137e,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Generic Toggle Switch
+      Value:
+        Prefab: {fileID: 1850867357197028, guid: a0dc4a34875700c4aba845405dc43a89,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens1 Button
+      Value:
+        Prefab: {fileID: 1210820392543280, guid: 80cec532ae7b6c1429d0f5494e7dbd8c,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens1 Toggle Button
+      Value:
+        Prefab: {fileID: 1107482477660006, guid: 4b1ffbebacd36694ebea9fb6d437c68f,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: Generic Radio Set
+      Value:
+        Prefab: {fileID: 1856622667495492, guid: 8b83134143223104c9bc3865a565cab3,
+          type: 3}
+        ProcessType: 0
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button 32x32mm
+      Value:
+        Prefab: {fileID: 2204069621426241315, guid: 3f1f46cbecbe08e46a303ccfdb5b498a,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Toggle Button 32x32mm
+      Value:
+        Prefab: {fileID: 6742094791252829599, guid: 64790b91b91094d49942373c4e83c237,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button 48x48mm
+      Value:
+        Prefab: {fileID: 3885370230430447826, guid: 36ff76a9e7929f342915274725573e00,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button 64x64mm
+      Value:
+        Prefab: {fileID: 515269429401333961, guid: 8c57f8f1db3a3a046bd9b36d28c2c4bc,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button 32x96mm
+      Value:
+        Prefab: {fileID: 3126786008848669196, guid: 4f44c0d070528944c9bff425c6932763,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button Circular 32x32mm
+      Value:
+        Prefab: {fileID: 8674287671906198893, guid: e1e3746d5067a614683084937319e0ba,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button Circular 48x48mm
+      Value:
+        Prefab: {fileID: 8422832244188433355, guid: 2ba5d9246f2c88f48a938fa66e6d3eef,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Checkbox Button 32x32mm
+      Value:
+        Prefab: {fileID: 911119104182763932, guid: 73f8e1c35082a4d45827891d41219a18,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Radio Button 32x32mm
+      Value:
+        Prefab: {fileID: 2145483756000022384, guid: 85e78809c1c721c45b5759bb71ddf4d2,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Switch Button 32x32mm
+      Value:
+        Prefab: {fileID: 7534510045860620726, guid: 8d9a1a91bd8236b49be2be0a78fcf5e6,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Checkbox Button 32x96mm
+      Value:
+        Prefab: {fileID: 525527172667512597, guid: bf131ef81694d6b41b6b57098e74066f,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Radio Button 32x96mm
+      Value:
+        Prefab: {fileID: 6177759129608228846, guid: 963058749caf8b4419fbe17c440aaafa,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Switch Button 32x96mm
+      Value:
+        Prefab: {fileID: 611597232779333051, guid: f1dfa3ff1f171964fa0717ff4d0131cb,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
+    - Key: HoloLens2 Button 32x96mm TextOnly
+      Value:
+        Prefab: {fileID: 3126786008848669196, guid: eb36a4319b6be77409716f5a41e6da51,
+          type: 3}
+        ProcessType: 1
+        offset: {x: 0, y: 0, z: 0}
