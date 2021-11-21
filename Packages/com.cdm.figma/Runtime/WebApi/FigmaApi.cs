@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
@@ -10,13 +9,27 @@ namespace Cdm.Figma
     {
         private const string BaseUri = "https://api.figma.com/v1";
 
-        public static string GetFigmaFileUrl(string fileId, string version = null)
+        private static string GetFigmaFileUrl(FigmaFileRequest request)
         {
-            var url = $"{BaseUri}/files/{fileId}";
-
-            if (!string.IsNullOrEmpty(version))
+            var url = $"{BaseUri}/files/{request.fileId}";
+            var firstArg = true;
+            
+            if (!string.IsNullOrEmpty(request.version))
             {
-                url = $"{url}?version={version}";
+                url = $"{url}{(firstArg ? "?" : "&")}version={request.version}";
+                firstArg = false;
+            }
+
+            if (request.depth.HasValue)
+            {
+                url = $"{url}{(firstArg ? "?" : "&")}depth={request.depth.Value}";
+                firstArg = false;
+            }
+            
+            if (request.geometry.HasValue)
+            {
+                url = $"{url}{(firstArg ? "?" : "&")}geometry={request.geometry.Value}";
+                firstArg = false;
             }
 
             return url;
@@ -30,7 +43,7 @@ namespace Cdm.Figma
             if (string.IsNullOrEmpty(fileRequest.fileId))
                 throw new ArgumentException("File ID cannot be empty.");
 
-            var uri = GetFigmaFileUrl(fileRequest.fileId, fileRequest.version);
+            var uri = GetFigmaFileUrl(fileRequest);
             var result = await GetContentAsync(uri, fileRequest.personalAccessToken);
             return result;
         }

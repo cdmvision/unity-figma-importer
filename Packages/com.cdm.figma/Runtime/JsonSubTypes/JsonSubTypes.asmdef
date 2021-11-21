@@ -1,9 +1,7 @@
 {
-    "name": "Cdm.Figma",
-    "rootNamespace": "Cdm.Figma",
-    "references": [
-        "GUID:dbb3c8fd3e762b2489d09f71ce82b374"
-    ],
+    "name": "JsonSubTypes",
+    "rootNamespace": "",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

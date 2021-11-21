@@ -81,7 +81,7 @@ namespace Cdm.Figma
             }
         }
 
-        public RootNode GetDocument(FigmaFileAsset figmaFile)
+        public DocumentNode GetDocument(FigmaFileAsset figmaFile)
         {
             FigmaFile response = BuildFigmaResponse(figmaFile.file.text);
             figmaFile.name = response.name;
@@ -104,7 +104,7 @@ namespace Cdm.Figma
                 {
                     FigmaFileAsset file = new FigmaFileAsset { fileId = t.name, file = t };
                     data.files.Add(file);
-                    RootNode doc = GetDocument(file);
+                    var doc = GetDocument(file);
                     filesChanged = true;
                 }
             }
@@ -148,22 +148,22 @@ namespace Cdm.Figma
             switch (document.type)
             {
                 case NodeType.Canvas:
-                    go = BuildCanvas(document);
+                    go = BuildCanvas((CanvasNode) document);
                     break;
                 case NodeType.Frame:
-                    go = BuildFrame(document);
+                    go = BuildFrame((FrameNode) document);
                     break;
                 case NodeType.Group:
-                    go = BuildGroup(document);
+                    go = BuildGroup((GroupNode) document);
                     break;
                 case NodeType.Instance:
-                    go = BuildInstance(document, parent);
+                    go = BuildInstance((InstanceNode) document, parent);
                     break;
                 case NodeType.Rectangle:
-                    go = BuildRectange(document);
+                    go = BuildRectange((RectangleNode) document);
                     break;
                 case NodeType.Text:
-                    go = BuildText(document);
+                    go = BuildText((TextNode) document);
                     break;
                 case NodeType.Boolean:
                 case NodeType.Component:
@@ -188,11 +188,12 @@ namespace Cdm.Figma
 
             go.transform.SetParent(parent, true);
 
-            if (document.children != null && document.type != NodeType.Instance)
+            var children = document.GetChildren();
+            if (children != null && document.type != NodeType.Instance)
             {
                 if (document.type != NodeType.ComponentSet)
                 {
-                    foreach (Node item in document.children)
+                    foreach (var item in children)
                     {
                         Build(item, go?.transform);
                     }
@@ -200,10 +201,10 @@ namespace Cdm.Figma
             }
 
             // Prevent top-level "Page N" from being turned off
-            if (document.absoluteBoundingBox == null)
+            /*if (document.absoluteBoundingBox == null)
             {
                 go.SetActive(true);
-            }
+            }*/
 
             go.SetActive(!document.visible);
             go.name += $" [{document.type}]";
@@ -215,20 +216,20 @@ namespace Cdm.Figma
             return go;
         }
 
-        private GameObject BuildCanvas(Node document)
+        private GameObject BuildCanvas(CanvasNode document)
         {
             GameObject go = BuildBase(document);
             return go;
         }
 
-        private GameObject BuildFrame(Node document)
+        private GameObject BuildFrame(FrameNode document)
         {
             GameObject go = BuildBase(document);
             SetPosition(document, go);
             return go;
         }
 
-        private GameObject BuildGroup(Node document)
+        private GameObject BuildGroup(GroupNode document)
         {
             GameObject go = BuildBase(document);
             return go;
@@ -239,7 +240,7 @@ namespace Cdm.Figma
             GameObject go = BuildBase(document);
             return go;
         }
-        private GameObject BuildText(Node document, FigmaToolkitCustomMap customMap = null)
+        private GameObject BuildText(TextNode document, FigmaToolkitCustomMap customMap = null)
         {
             if (customMap == null)
             {
@@ -288,7 +289,7 @@ namespace Cdm.Figma
             return go;
         }
 
-        private GameObject BuildInstance(Node node, Transform parent, FigmaToolkitCustomMap customMap = null)
+        private GameObject BuildInstance(InstanceNode node, Transform parent, FigmaToolkitCustomMap customMap = null)
         {
             if (customMap == null)
             {
@@ -332,7 +333,7 @@ namespace Cdm.Figma
 
         private void PostProcess(Node node, CustomMapItem mapItem, GameObject go)
         {
-            switch (mapItem.ProcessType)
+            /*switch (mapItem.ProcessType)
             {
                 case PostProcessType.Default:
                     break;
@@ -341,7 +342,7 @@ namespace Cdm.Figma
                     if (buttonConfig != null)
                     {
                         buttonConfig.MainLabelText = GetText(node);
-                    }*/
+                    }
                     break;
                 case PostProcessType.ButtonCollection:
                     // Get buttons in prefab
@@ -367,7 +368,7 @@ namespace Cdm.Figma
                     {
                         buttonConfigHelpers[i].MainLabelText = nodeTexts[i];
 
-                    }*/
+                    }
                     break;
                 case PostProcessType.Backplate:
                     go.transform.localScale = new Vector3(node.absoluteBoundingBox.width * FigmaSettings.PositionScale, node.absoluteBoundingBox.height * FigmaSettings.PositionScale, go.transform.localScale.z);
@@ -385,15 +386,15 @@ namespace Cdm.Figma
                     break;
                 default:
                     break;
-            }
+            }*/
         }
 
         private void SetPosition(Node document, GameObject go)
         {
-            if (document.absoluteBoundingBox != null)
+            /*if (document.absoluteBoundingBox != null)
             {
                 go.transform.localPosition = document.absoluteBoundingBox.position * FigmaSettings.PositionScale;
-            }
+            }*/
         }
 
         private Vector3 GetTopLeft(GameObject go)
@@ -411,13 +412,16 @@ namespace Cdm.Figma
             {
                 return null;
             }
+            
             if (node.type == NodeType.Text)
             {
-                return node.characters;
+                return ((TextNode) node).characters;
             }
-            if (node.children != null)
+
+            var children = node.GetChildren();
+            if (children != null)
             {
-                foreach (Node child in node.children)
+                foreach (var child in children)
                 {
                     string found = GetText(child);
                     if (found != null)

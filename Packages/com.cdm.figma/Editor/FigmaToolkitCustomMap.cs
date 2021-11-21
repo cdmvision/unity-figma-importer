@@ -70,14 +70,14 @@ namespace Cdm.Figma
                 componentMap.Add(node.name, new CustomMapItem());
             }
 
-            if (node.children != null && node.type != NodeType.ComponentSet)
+            var children = node.GetChildren();
+            if (children != null && node.type != NodeType.ComponentSet)
             {
-                foreach (var child in node.children)
+                foreach (var child in children)
                 {
                     GetComponents(child);
                 }
             }
-
         }
     }
 }
