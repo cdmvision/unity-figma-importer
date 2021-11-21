@@ -7,7 +7,7 @@ namespace Cdm.Figma
     /// A rectangle that expresses a bounding box in absolute coordinates.
     /// </summary>
     [DataContract]
-    public partial class Rectangle
+    public class Rectangle
     {
         /// <summary>
         /// X coordinate of top left corner of the rectangle.

@@ -11,7 +11,7 @@ namespace Cdm.Figma
     /// for more details). GROUP nodes do not have this attribute
     /// </summary>
     [Serializable]
-    public partial class LayoutGrid
+    public class LayoutGrid
     {
         /// <summary>
         /// Positioning of grid as a string enum

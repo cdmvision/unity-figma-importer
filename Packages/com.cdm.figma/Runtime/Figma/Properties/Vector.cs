@@ -1,5 +1,6 @@
 using System;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace Cdm.Figma
 {
@@ -18,7 +19,7 @@ namespace Cdm.Figma
     /// 2d vector offset within the frame.
     /// </summary>
     [Serializable]
-    public partial class Vector
+    public class Vector
     {
         /// <summary>
         /// X coordinate of the vector
@@ -31,5 +32,18 @@ namespace Cdm.Figma
         /// </summary>
         [JsonProperty("y")]
         public float y { get; set; }
+
+        public Vector()
+        {
+        }
+        
+        public Vector(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        
+        public static implicit operator Vector2(Vector v) => new Vector2(v.x, v.y);
+        public static explicit operator Vector(Vector2 v) => new Vector(v.x, v.y);
     }
 }

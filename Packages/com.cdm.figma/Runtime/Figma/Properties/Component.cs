@@ -34,4 +34,17 @@ namespace Cdm.Figma
         [JsonProperty("documentationLinks")]
         public List<DocumentationLink> documentationLinks { get; private set; } = new List<DocumentationLink>();
     }
+    
+    /// <summary>
+    /// Represents a link to documentation for a component.
+    /// </summary>
+    [Serializable]
+    public class DocumentationLink
+    {
+        /// <summary>
+        /// Should be a valid URI (e.g. https://www.figma.com).
+        /// </summary>
+        [JsonProperty("uri")]
+        public string uri { get; set; }
+    }
 }

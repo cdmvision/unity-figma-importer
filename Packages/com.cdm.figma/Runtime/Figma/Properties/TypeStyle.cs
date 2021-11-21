@@ -171,4 +171,87 @@ namespace Cdm.Figma
         [EnumMember(Value = "TOP")]
         Top
     }
+    
+    [Serializable]
+    public enum TextAutoResize
+    {
+        [EnumMember(Value = "NONE")]
+        None,
+        
+        [EnumMember(Value = "HEIGHT")]
+        Height,
+        
+        [EnumMember(Value = "WIDTH_AND_HEIGHT")]
+        WidthAndHeight
+    }
+    
+    [Serializable]
+    public enum TextCase
+    {
+        [EnumMember(Value = "ORIGINAL")]
+        Original,
+        
+        [EnumMember(Value = "UPPER")]
+        Upper,
+        
+        [EnumMember(Value = "LOWER")]
+        Lower,
+        
+        [EnumMember(Value = "TITLE")]
+        Title,
+        
+        [EnumMember(Value = "SMALL_CAPS")]
+        SmallCaps,
+        
+        [EnumMember(Value = "SMALL_CAPS_FORCED")]
+        SmallCapsForced
+    }
+    
+    [Serializable]
+    public enum TextDecoration
+    {
+        [EnumMember(Value = "NONE")]
+        None,
+        
+        [EnumMember(Value = "STRIKETHROUGH")]
+        Strikethrough,
+        
+        [EnumMember(Value = "UNDERLINE")]
+        Underline
+    }
+    
+    /// <summary>
+    /// A link to either a URL or another frame (node) in the document.
+    /// </summary>
+    [Serializable]
+    public class Hyperlink
+    {
+        /// <summary>
+        /// Type of hyperlink.
+        /// </summary>
+        [JsonProperty("type")]
+        public HyperlinkType type { get; set; }
+        
+        /// <summary>
+        /// URL being linked to, if <see cref="HyperlinkType.Url"/> type.
+        /// </summary>
+        [JsonProperty("url")]
+        public string url { get; set; }
+        
+        /// <summary>
+        /// ID of frame hyperlink points to, if <see cref="HyperlinkType.Node"/> type
+        /// </summary>
+        [JsonProperty("nodeID")]
+        public string nodeId { get; set; }
+    }
+
+    [Serializable]
+    public enum HyperlinkType
+    {
+        [EnumMember(Value = "URL")]
+        Url,
+        
+        [EnumMember(Value = "NODE")]
+        Node
+    }
 }

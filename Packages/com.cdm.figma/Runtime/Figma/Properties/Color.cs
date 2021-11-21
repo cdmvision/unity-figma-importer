@@ -32,5 +32,20 @@ namespace Cdm.Figma
         /// </summary>
         [JsonProperty("r")]
         public float r { get; set; }
+
+        public Color()
+        {
+        }
+
+        public Color(float r, float g, float b, float a)
+        {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+
+        public static implicit operator UnityEngine.Color(Color c) => new UnityEngine.Color(c.r, c.g, c.b, c.a);
+        public static explicit operator Color(UnityEngine.Color c) => new Color(c.r, c.g, c.b, c.a);
     }
 }

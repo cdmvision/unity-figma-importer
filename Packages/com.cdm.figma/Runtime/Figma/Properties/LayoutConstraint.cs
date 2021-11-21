@@ -7,7 +7,7 @@ namespace Cdm.Figma
     /// Layout constraint relative to containing Frame.
     /// </summary>
     [DataContract]
-    public partial class LayoutConstraint
+    public class LayoutConstraint
     {
         /// <summary>
         /// Vertical constraint of the layout.

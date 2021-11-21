@@ -9,7 +9,7 @@ namespace Cdm.Figma
     /// corresponding property's panel while editing a file.
     /// </summary>
     [Serializable]
-    public partial class Style
+    public class Style
     {
         /// <summary>
         /// The key of the component.

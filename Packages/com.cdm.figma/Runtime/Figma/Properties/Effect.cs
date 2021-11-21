@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Cdm.Figma
@@ -59,5 +60,21 @@ namespace Cdm.Figma
         /// </summary>
         [JsonProperty("showShadowBehindNode", DefaultValueHandling = DefaultValueHandling.Populate)]
         public bool showShadowBehindNode { get; set; } = false;
+    }
+    
+    [Serializable]
+    public enum EffectType
+    {
+        [EnumMember(Value = "INNER_SHADOW")]
+        InnerShadow,
+        
+        [EnumMember(Value = "DROP_SHADOW")]
+        DropShadow,
+
+        [EnumMember(Value = "LAYER_BLUR")]
+        LayerBlur,
+        
+        [EnumMember(Value = "BACKGROUND_BLUR")]
+        BackgroundBlur,
     }
 }
