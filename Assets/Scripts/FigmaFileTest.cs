@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Cdm.Figma;
 using UnityEngine;
 
@@ -10,8 +8,10 @@ public class FigmaFileTest : MonoBehaviour
     
     async void Start()
     {
+        Debug.Log("Getting figma file...");
         var figmaFile = await FigmaApi.GetFileAsync(new FigmaFileRequest(token, fileId));
-
+        Debug.Log($"Figma file received: {figmaFile.name}");
+        
         TraverseNodes(figmaFile.document);
 
     }

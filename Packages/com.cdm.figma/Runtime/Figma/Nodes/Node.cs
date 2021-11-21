@@ -6,7 +6,6 @@ using Unity.Plastic.Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
-    [Serializable]
     [JsonConverter(typeof(JsonSubtypes), "type")]
     [JsonSubtypes.KnownSubType(typeof(BooleanOperationNode), NodeType.Boolean)]
     [JsonSubtypes.KnownSubType(typeof(CanvasNode), NodeType.Canvas)]
@@ -23,6 +22,7 @@ namespace Cdm.Figma
     [JsonSubtypes.KnownSubType(typeof(StarNode), NodeType.Star)]
     [JsonSubtypes.KnownSubType(typeof(TextNode), NodeType.Text)]
     [JsonSubtypes.KnownSubType(typeof(VectorNode), NodeType.Vector)]
+    [JsonSubtypes.FallBackSubType(typeof(UnsupportedNode))]
     public class Node
     {
         /// <summary>
@@ -46,7 +46,7 @@ namespace Cdm.Figma
         /// <summary>
         /// The type of the node, refer to table below for details.
         /// </summary>
-        [JsonProperty("type", Required = Required.Always)]
+        [JsonProperty("type")]
         public virtual NodeType type { get; private set; }
 
         /// <summary>
@@ -72,6 +72,9 @@ namespace Cdm.Figma
     [Serializable]
     public enum NodeType
     {
+        [EnumMember(Value = "")]
+        Unsupported,
+        
         [EnumMember(Value = "BOOLEAN_OPERATION")]
         Boolean,
 
