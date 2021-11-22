@@ -11,6 +11,9 @@
 /[Mm]emoryCaptures/
 /UserSettings/
 
+# Downloaded figma files
+[Aa]ssets/Resources/Figma/Files/
+
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
 
