@@ -10,7 +10,7 @@
         </ui:VisualElement>
     </ui:GroupBox>
     <ui:GroupBox text="Pages">
-        <ui:ListView focusable="true" binding-path="_pages" virtualization-method="DynamicHeight" show-bound-collection-size="false" name="pagesList" show-alternating-row-backgrounds="ContentOnly" />
+        <ui:ListView focusable="true" binding-path="_pages" show-bound-collection-size="false" name="pagesList" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" />
         <ui:VisualElement style="flex-direction: row-reverse;">
             <ui:Button text="Generate All Pages" display-tooltip-when-elided="true" name="generateAllPages" />
         </ui:VisualElement>

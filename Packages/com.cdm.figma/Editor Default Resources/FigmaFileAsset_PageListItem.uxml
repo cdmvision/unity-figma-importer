@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:VisualElement style="flex-direction: row;">
-        <ui:Label text="Label" display-tooltip-when-elided="true" style="flex-grow: 1; -unity-text-align: middle-left;" />
+    <ui:VisualElement style="flex-direction: row; width: 100%; height: 24px; padding-left: 6px; padding-right: 6px; padding-top: 0; padding-bottom: 0;">
+        <ui:Label text="Label" display-tooltip-when-elided="true" style="flex-grow: 1; -unity-text-align: middle-left; width: 100%; height: 100%;" />
     </ui:VisualElement>
 </ui:UXML>
