@@ -15,7 +15,7 @@ namespace Cdm.Figma
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(VisualTreePath);
             visualTree.CloneTree(root);
 
-            root.Q<Button>("accessTokenHelpButton").clicked += async () =>
+            root.Q<Button>("accessTokenHelpButton").clicked += () =>
             {
                 Application.OpenURL("https://www.figma.com/developers/api#access-tokens");
             };
@@ -25,7 +25,7 @@ namespace Cdm.Figma
                 await ((FigmaImporter) target).GetFilesAsync();
             };
             
-            root.Q<Button>("generateViewsButton").clicked += async () =>
+            root.Q<Button>("generateViewsButton").clicked += () =>
             {
                 Debug.Log("GENERATE VIEWS!!!!");
             };

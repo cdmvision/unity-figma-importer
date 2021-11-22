@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using JsonConverter = Unity.Plastic.Newtonsoft.Json.JsonConverter;
 
 namespace Cdm.Figma
 {
@@ -60,5 +61,7 @@ namespace Cdm.Figma
 
         public static FigmaFile FromText(string json) => 
             JsonConvert.DeserializeObject<FigmaFile>(json, Converter.Settings);
+
+        public string ToText() => JsonConvert.SerializeObject(this, Formatting.Indented, Converter.Settings);
     }
 }

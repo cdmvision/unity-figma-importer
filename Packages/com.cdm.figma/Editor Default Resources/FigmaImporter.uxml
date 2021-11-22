@@ -9,7 +9,7 @@
         <ui:ListView focusable="true" binding-path="_files" show-add-remove-footer="true" virtualization-method="DynamicHeight" show-border="true" show-alternating-row-backgrounds="ContentOnly" show-bound-collection-size="false" />
     </ui:GroupBox>
     <ui:VisualElement style="flex-direction: row-reverse;">
-        <ui:Button text="Generate Views" display-tooltip-when-elided="true" name="generateViewsButton" />
+        <ui:Button text="Generate Pages" display-tooltip-when-elided="true" name="generateViewsButton" />
         <ui:Button text="Download Files" display-tooltip-when-elided="true" name="downloadFilesButton" />
     </ui:VisualElement>
 </ui:UXML>

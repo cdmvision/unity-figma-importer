@@ -66,9 +66,7 @@ namespace Cdm.Figma
             if (responseStream != null)
             {
                 using var streamReader = new StreamReader(responseStream);
-                var result = await streamReader.ReadToEndAsync();
-                var json = Newtonsoft.Json.Linq.JObject.Parse(result);
-                return json.ToString();
+                return await streamReader.ReadToEndAsync();
             }
 
             throw new WebException("Response stream is null");

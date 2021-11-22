@@ -112,7 +112,7 @@ namespace Cdm.Figma
         /// no filters have been applied.
         /// </summary>
         [JsonProperty("filters")]
-        public ImageFilters? filters { get; set; }
+        public ImageFilters filters { get; set; }
 
         /// <summary>
         /// A reference to the GIF embedded in this node, if the image is a GIF.
