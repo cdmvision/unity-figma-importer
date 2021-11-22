@@ -16,7 +16,7 @@ namespace Cdm.Figma
             
             if (!string.IsNullOrEmpty(request.version))
             {
-                url = $"{url}{(firstArg ? "?" : "&")}version={request.version}";
+                url = $"{url}?version={request.version}";
                 firstArg = false;
             }
 

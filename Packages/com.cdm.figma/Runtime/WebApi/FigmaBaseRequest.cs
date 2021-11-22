@@ -2,8 +2,8 @@ namespace Cdm.Figma
 {
     public abstract class FigmaBaseRequest
     {
-        public string fileId { get; private set; }
-        public string personalAccessToken { get; private set; }
+        public string fileId { get; }
+        public string personalAccessToken { get; }
 
         public FigmaBaseRequest(string personalAccessToken, string fileId)
         {

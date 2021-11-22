@@ -1,0 +1,3 @@
+.unity-group-box__label {
+    -unity-font-style: bold;
+}
