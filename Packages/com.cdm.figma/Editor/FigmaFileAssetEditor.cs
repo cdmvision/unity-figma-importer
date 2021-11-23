@@ -6,17 +6,15 @@ namespace Cdm.Figma
 {
     [CustomEditor(typeof(FigmaFileAsset))]
     public class FigmaFileAssetEditor : Editor
-    {
-        private const string VisualTreeFolder = "Packages/com.cdm.figma/Editor Default Resources";
-
+    { 
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{VisualTreeFolder}/FigmaFileAsset.uxml");
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaFileAsset.uxml");
             visualTree.CloneTree(root);
 
             var listItem = 
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{VisualTreeFolder}/FigmaFileAsset_PageListItem.uxml");
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaFileAsset_PageListItem.uxml");
             
             var listView = root.Q<ListView>("pagesList");
             listView.makeItem = () => listItem.Instantiate();

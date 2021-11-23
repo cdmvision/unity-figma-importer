@@ -7,11 +7,15 @@ using UnityEngine.UIElements;
 namespace Cdm.Figma.UIToolkit
 {
     [Serializable]
-    public struct ComponentState
+    public class ComponentState
     {
         public string state;
         public string value;
 
+        public ComponentState()
+        {
+        }
+        
         public ComponentState(string state, string value)
         {
             this.state = state;
@@ -31,6 +35,8 @@ namespace Cdm.Figma.UIToolkit
         [SerializeField]
         private List<ComponentState> _states = new List<ComponentState>();
 
+        public IReadOnlyList<ComponentState> states => _states;
+        
         private void OnEnable()
         {
             if (string.IsNullOrWhiteSpace(_typeId))

@@ -14,7 +14,6 @@ namespace Cdm.Figma
     [CustomEditor(typeof(FigmaImporterTaskFile))]
     public class FigmaImporterEditor : Editor
     {
-        private const string VisualTreeFolder = "Packages/com.cdm.figma/Editor Default Resources";
         private FigmaFileAsset _selectedFile;
         private Editor _fileAssetEditor;
         private VisualElement _fileAssetElement;
@@ -33,7 +32,7 @@ namespace Cdm.Figma
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{VisualTreeFolder}/FigmaImporter.uxml");
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaImporter.uxml");
             visualTree.CloneTree(root);
 
             var settingsGroup = root.Q<VisualElement>("settingsGroup");

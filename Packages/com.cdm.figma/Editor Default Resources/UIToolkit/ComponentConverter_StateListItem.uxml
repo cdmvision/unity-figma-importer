@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="padding-left: 6px; padding-right: 6px; padding-top: 0; padding-bottom: 0;">
+        <ui:TextField picking-mode="Ignore" label="Text Field" value="filler text" text="filler text" />
+    </ui:VisualElement>
+</ui:UXML>
