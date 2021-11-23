@@ -4,8 +4,9 @@ using UnityEngine;
 namespace Cdm.Figma
 {
     [Serializable]
-    public struct FigmaFilePage
+    public class FigmaFilePage
     {
+        public bool enabled = true;
         public string id;
         public string name;
     }

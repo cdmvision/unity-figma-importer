@@ -22,15 +22,34 @@ namespace Cdm.Figma
             listView.makeItem = () => listItem.Instantiate();
             listView.bindItem = (e, i) =>
             {
-                e.Q<Label>().text = ((FigmaFileAsset) target).pages[i].name;
+                var page = ((FigmaFileAsset) target).pages[i];
+                var toggle = e.Q<Toggle>();
+                toggle.label = page.name;
+                toggle.value = page.enabled;
+                toggle.RegisterValueChangedCallback(change =>
+                {
+                    page.enabled = change.newValue;
+                    EditorUtility.SetDirty(target);
+                });
             };
-            
+
             root.Q<Button>("copyContentButton").clicked += () =>
             {
                 var file = ((FigmaFileAsset) target);
                 if (file.content != null)
                 {
                     GUIUtility.systemCopyBuffer = file.content.text;   
+                }
+            };
+            
+            root.Q<Button>("exportFileButton").clicked += () => 
+            {
+                var file = (FigmaFileAsset) target;
+                var path = EditorUtility.SaveFilePanel("Export Figma File", "", $"{file.id}.json", "json");
+                
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    System.IO.File.WriteAllText(path, file.content.text);    
                 }
             };
             

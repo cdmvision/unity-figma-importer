@@ -1,10 +1,10 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -14,14 +14,26 @@ namespace Cdm.Figma
     [CustomEditor(typeof(FigmaImporterTaskFile))]
     public class FigmaImporterEditor : Editor
     {
-        private const string VisualTreePath = "Packages/com.cdm.figma/Editor Default Resources/FigmaImporter.uxml";
+        private const string VisualTreeFolder = "Packages/com.cdm.figma/Editor Default Resources";
+        private FigmaFileAsset _selectedFile;
+        private Editor _fileAssetEditor;
+        private VisualElement _fileAssetElement;
         private int _progressGetFilesId;
         private int _progressImportFilesId;
+
+        private void OnDisable()
+        {
+            if (_fileAssetEditor != null)
+            {
+                DestroyImmediate(_fileAssetEditor);
+                _fileAssetEditor = null;
+            }
+        }
         
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(VisualTreePath);
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{VisualTreeFolder}/FigmaImporter.uxml");
             visualTree.CloneTree(root);
 
             var settingsGroup = root.Q<VisualElement>("settingsGroup");
@@ -47,7 +59,37 @@ namespace Cdm.Figma
                 await ImportFilesAsync((FigmaImporterTaskFile) target);
             };
             
+            var fileListView = root.Q<ListView>("filesList");
+            fileListView.onSelectionChange += objects =>
+            {
+                if (_fileAssetEditor != null)
+                {
+                    root.Remove(_fileAssetElement);
+                    DestroyImmediate(_fileAssetEditor);
+                }
+                
+                var selectedItem = (SerializedProperty) objects.LastOrDefault();
+                if (selectedItem != null)
+                {
+                    PopulatePageList(root, selectedItem.stringValue);    
+                }
+            };
             return root;
+        }
+
+        private void PopulatePageList(VisualElement root, string fileId)
+        {
+            var assetPath = GetFigmaAssetPath((FigmaImporterTaskFile) target, fileId);
+            if (System.IO.File.Exists(assetPath))
+            {
+                _selectedFile = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
+
+                _fileAssetEditor = CreateEditor(_selectedFile);
+                _fileAssetElement = _fileAssetEditor.CreateInspectorGUI();
+                _fileAssetElement.Bind(_fileAssetEditor.serializedObject);
+                
+                root.Add(_fileAssetElement);
+            }
         }
 
         private async Task ImportFilesAsync(FigmaImporterTaskFile taskFile)
