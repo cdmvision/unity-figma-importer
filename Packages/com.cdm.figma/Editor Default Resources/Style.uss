@@ -1,0 +1,13 @@
+.unity-group-box__label {
+    -unity-font-style: bold;
+}
+
+.link {
+    -unity-text-align: middle-right;
+    -unity-font-style: italic;
+    font-size: 10;
+}
+
+.link:hover {
+    color: yellow;
+}
