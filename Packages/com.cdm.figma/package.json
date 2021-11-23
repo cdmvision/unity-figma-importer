@@ -6,5 +6,8 @@
   "author": "CDM Vision",
   "description": "Unity Figma Importer turns your Figma design into Unity UI Elements and can generate code and layout files to create Unity apps.",
   "type": "tool",
-  "hideInEditor": false
+  "hideInEditor": false,
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "2.0.2"
+  }
 }

@@ -4,7 +4,9 @@
       "version": "file:com.cdm.figma",
       "depth": 0,
       "source": "embedded",
-      "dependencies": {}
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.2"
+      }
     },
     "com.unity.collab-proxy": {
       "version": "1.13.5",
@@ -56,8 +58,8 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
-      "version": "2.0.0",
-      "depth": 1,
+      "version": "2.0.2",
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
