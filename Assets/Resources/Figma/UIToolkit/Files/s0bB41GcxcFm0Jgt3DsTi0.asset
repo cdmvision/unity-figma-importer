@@ -1,0 +1,947 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72fc8585b3a94b84ae2c5c2548e327de, type: 3}
+  m_Name: s0bB41GcxcFm0Jgt3DsTi0
+  m_EditorClassIdentifier: 
+  _id: s0bB41GcxcFm0Jgt3DsTi0
+  _title: Test
+  _version: 1320970605
+  _lastModified: 2021-11-24 01:27:12Z
+  _thumbnail: {fileID: 0}
+  _content: {fileID: 5854620972275689788}
+  _pages:
+  - enabled: 1
+    id: 0:1
+    name: Page 1
+--- !u!49 &5854620972275689788
+TextAsset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Test
+  m_Script: "{\r\n  \"document\": {\r\n    \"id\": \"0:0\",\r\n    \"name\": \"Document\",\r\n   
+    \"type\": \"DOCUMENT\",\r\n    \"children\": [\r\n      {\r\n        \"id\":
+    \"0:1\",\r\n        \"name\": \"Page 1\",\r\n        \"type\": \"CANVAS\",\r\n       
+    \"children\": [\r\n          {\r\n            \"id\": \"1:3\",\r\n           
+    \"name\": \"Frame 1\",\r\n            \"type\": \"FRAME\",\r\n            \"blendMode\":
+    \"PASS_THROUGH\",\r\n            \"children\": [\r\n              {\r\n               
+    \"id\": \"4:51\",\r\n                \"name\": \"Generic Toggle Switch &TrackingToggle\",\r\n               
+    \"type\": \"INSTANCE\",\r\n                \"blendMode\": \"PASS_THROUGH\",\r\n               
+    \"children\": [\r\n                  {\r\n                    \"id\": \"I4:51;4:16\",\r\n                   
+    \"name\": \"Label\",\r\n                    \"type\": \"TEXT\",\r\n                   
+    \"blendMode\": \"PASS_THROUGH\",\r\n                    \"absoluteBoundingBox\":
+    {\r\n                      \"x\": -674.0,\r\n                      \"y\": -431.0,\r\n                     
+    \"width\": 24.0,\r\n                      \"height\": 27.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"SCALE\",\r\n                      \"horizontal\": \"SCALE\"\r\n                   
+    },\r\n                    \"fills\": [\r\n                      {\r\n                       
+    \"blendMode\": \"NORMAL\",\r\n                        \"type\": \"SOLID\",\r\n                       
+    \"color\": {\r\n                          \"r\": 0.94509804248809814,\r\n                         
+    \"g\": 0.47058823704719543,\r\n                          \"b\": 0.7137255072593689,\r\n                         
+    \"a\": 1.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"strokes\": [],\r\n                    \"strokeWeight\":
+    0.20062315464019775,\r\n                    \"strokeAlign\": \"OUTSIDE\",\r\n                   
+    \"styles\": {\r\n                      \"fill\": \"23:22\"\r\n                   
+    },\r\n                    \"effects\": [],\r\n                    \"characters\":
+    \"Off\",\r\n                    \"style\": {\r\n                      \"fontFamily\":
+    \"Abel\",\r\n                      \"fontPostScriptName\": \"Abel-Regular\",\r\n                     
+    \"fontWeight\": 400,\r\n                      \"textAutoResize\": \"WIDTH_AND_HEIGHT\",\r\n                     
+    \"fontSize\": 21.5,\r\n                      \"textAlignHorizontal\": \"LEFT\",\r\n                     
+    \"textAlignVertical\": \"CENTER\",\r\n                      \"letterSpacing\":
+    0.0,\r\n                      \"lineHeightPx\": 25.1953125,\r\n                     
+    \"lineHeightPercent\": 100.0,\r\n                      \"lineHeightUnit\": \"INTRINSIC_%\"\r\n                   
+    },\r\n                    \"characterStyleOverrides\": [],\r\n                   
+    \"styleOverrideTable\": {}\r\n                  },\r\n                  {\r\n                   
+    \"id\": \"I4:51;4:17\",\r\n                    \"name\": \"Switch\",\r\n                   
+    \"type\": \"GROUP\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"children\": [\r\n                      {\r\n                        \"id\":
+    \"I4:51;4:18\",\r\n                        \"name\": \"SwitchBackplate\",\r\n                       
+    \"type\": \"RECTANGLE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -752.0,\r\n                         
+    \"y\": -440.0,\r\n                          \"width\": 67.0,\r\n                         
+    \"height\": 45.0\r\n                        },\r\n                        \"constraints\":
+    {\r\n                          \"vertical\": \"CENTER\",\r\n                         
+    \"horizontal\": \"LEFT\"\r\n                        },\r\n                       
+    \"fills\": [\r\n                          {\r\n                            \"blendMode\":
+    \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.21960784494876862,\r\n                             
+    \"g\": 0.21568627655506134,\r\n                              \"b\": 0.20392157137393951,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokeWeight\": 5.0,\r\n                       
+    \"strokeAlign\": \"INSIDE\",\r\n                        \"styles\": {\r\n                         
+    \"fill\": \"4:3\",\r\n                          \"stroke\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"cornerRadius\":
+    26.081010818481445\r\n                      },\r\n                      {\r\n                       
+    \"id\": \"I4:51;4:19\",\r\n                        \"name\": \"Off\",\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -737.0,\r\n                         
+    \"y\": -426.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"SCALE\",\r\n                          \"horizontal\": \"SCALE\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      },\r\n                     
+    {\r\n                        \"id\": \"I4:51;4:20\",\r\n                       
+    \"name\": \"On\",\r\n                        \"visible\": false,\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -716.0,\r\n                         
+    \"y\": -426.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"CENTER\",\r\n                          \"horizontal\": \"LEFT\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"absoluteBoundingBox\": {\r\n                     
+    \"x\": -752.0,\r\n                      \"y\": -440.0,\r\n                     
+    \"width\": 67.0,\r\n                      \"height\": 45.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"TOP\",\r\n                      \"horizontal\": \"LEFT\"\r\n                   
+    },\r\n                    \"clipsContent\": false,\r\n                    \"background\":
+    [],\r\n                    \"fills\": [],\r\n                    \"strokes\":
+    [],\r\n                    \"strokeWeight\": 1.0,\r\n                    \"strokeAlign\":
+    \"INSIDE\",\r\n                    \"backgroundColor\": {\r\n                     
+    \"r\": 0.0,\r\n                      \"g\": 0.0,\r\n                      \"b\":
+    0.0,\r\n                      \"a\": 0.0\r\n                    },\r\n                   
+    \"effects\": []\r\n                  }\r\n                ],\r\n               
+    \"absoluteBoundingBox\": {\r\n                  \"x\": -752.0,\r\n                 
+    \"y\": -440.0,\r\n                  \"width\": 119.0,\r\n                  \"height\":
+    45.0\r\n                },\r\n                \"preserveRatio\": true,\r\n               
+    \"constraints\": {\r\n                  \"vertical\": \"TOP\",\r\n                 
+    \"horizontal\": \"LEFT\"\r\n                },\r\n                \"layoutAlign\":
+    \"INHERIT\",\r\n                \"layoutGrow\": 0.0,\r\n                \"clipsContent\":
+    false,\r\n                \"background\": [],\r\n                \"fills\": [],\r\n               
+    \"strokes\": [],\r\n                \"strokeWeight\": 0.20062315464019775,\r\n               
+    \"strokeAlign\": \"INSIDE\",\r\n                \"backgroundColor\": {\r\n                 
+    \"r\": 0.0,\r\n                  \"g\": 0.0,\r\n                  \"b\": 0.0,\r\n                 
+    \"a\": 0.0\r\n                },\r\n                \"effects\": [],\r\n               
+    \"componentId\": \"4:15\"\r\n              }\r\n            ],\r\n           
+    \"absoluteBoundingBox\": {\r\n              \"x\": -760.0,\r\n              \"y\":
+    -448.0,\r\n              \"width\": 500.0,\r\n              \"height\": 500.0\r\n           
+    },\r\n            \"constraints\": {\r\n              \"vertical\": \"TOP\",\r\n             
+    \"horizontal\": \"LEFT\"\r\n            },\r\n            \"clipsContent\": true,\r\n           
+    \"background\": [\r\n              {\r\n                \"blendMode\": \"NORMAL\",\r\n               
+    \"type\": \"SOLID\",\r\n                \"color\": {\r\n                  \"r\":
+    1.0,\r\n                  \"g\": 1.0,\r\n                  \"b\": 1.0,\r\n                 
+    \"a\": 1.0\r\n                }\r\n              }\r\n            ],\r\n           
+    \"fills\": [\r\n              {\r\n                \"blendMode\": \"NORMAL\",\r\n               
+    \"type\": \"SOLID\",\r\n                \"color\": {\r\n                  \"r\":
+    1.0,\r\n                  \"g\": 1.0,\r\n                  \"b\": 1.0,\r\n                 
+    \"a\": 1.0\r\n                }\r\n              }\r\n            ],\r\n           
+    \"strokes\": [],\r\n            \"strokeWeight\": 1.0,\r\n            \"strokeAlign\":
+    \"INSIDE\",\r\n            \"backgroundColor\": {\r\n              \"r\": 1.0,\r\n             
+    \"g\": 1.0,\r\n              \"b\": 1.0,\r\n              \"a\": 1.0\r\n           
+    },\r\n            \"layoutMode\": \"VERTICAL\",\r\n            \"counterAxisSizingMode\":
+    \"FIXED\",\r\n            \"itemSpacing\": 12.0,\r\n            \"primaryAxisSizingMode\":
+    \"FIXED\",\r\n            \"paddingLeft\": 8.0,\r\n            \"paddingRight\":
+    8.0,\r\n            \"paddingTop\": 8.0,\r\n            \"paddingBottom\": 8.0,\r\n           
+    \"effects\": []\r\n          },\r\n          {\r\n            \"id\": \"11:7\",\r\n           
+    \"name\": \"Frame 2\",\r\n            \"type\": \"FRAME\",\r\n            \"blendMode\":
+    \"PASS_THROUGH\",\r\n            \"children\": [],\r\n            \"absoluteBoundingBox\":
+    {\r\n              \"x\": -1155.0,\r\n              \"y\": -525.0,\r\n             
+    \"width\": 100.0,\r\n              \"height\": 100.0\r\n            },\r\n           
+    \"constraints\": {\r\n              \"vertical\": \"TOP\",\r\n              \"horizontal\":
+    \"LEFT\"\r\n            },\r\n            \"clipsContent\": true,\r\n           
+    \"background\": [\r\n              {\r\n                \"blendMode\": \"NORMAL\",\r\n               
+    \"type\": \"SOLID\",\r\n                \"color\": {\r\n                  \"r\":
+    1.0,\r\n                  \"g\": 1.0,\r\n                  \"b\": 1.0,\r\n                 
+    \"a\": 1.0\r\n                }\r\n              }\r\n            ],\r\n           
+    \"fills\": [\r\n              {\r\n                \"blendMode\": \"NORMAL\",\r\n               
+    \"type\": \"SOLID\",\r\n                \"color\": {\r\n                  \"r\":
+    1.0,\r\n                  \"g\": 1.0,\r\n                  \"b\": 1.0,\r\n                 
+    \"a\": 1.0\r\n                }\r\n              }\r\n            ],\r\n           
+    \"strokes\": [],\r\n            \"strokeWeight\": 1.0,\r\n            \"strokeAlign\":
+    \"INSIDE\",\r\n            \"backgroundColor\": {\r\n              \"r\": 1.0,\r\n             
+    \"g\": 1.0,\r\n              \"b\": 1.0,\r\n              \"a\": 1.0\r\n           
+    },\r\n            \"effects\": []\r\n          },\r\n          {\r\n           
+    \"id\": \"4:14\",\r\n            \"name\": \"Generic Toggle Switch\",\r\n           
+    \"type\": \"COMPONENT_SET\",\r\n            \"blendMode\": \"PASS_THROUGH\",\r\n           
+    \"children\": [\r\n              {\r\n                \"id\": \"34:7\",\r\n               
+    \"name\": \"State=Default/Off\",\r\n                \"type\": \"COMPONENT\",\r\n               
+    \"blendMode\": \"PASS_THROUGH\",\r\n                \"children\": [\r\n                 
+    {\r\n                    \"id\": \"34:8\",\r\n                    \"name\": \"Label\",\r\n                   
+    \"type\": \"TEXT\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"absoluteBoundingBox\": {\r\n                      \"x\": -1093.0,\r\n                     
+    \"y\": -665.0,\r\n                      \"width\": 24.0,\r\n                     
+    \"height\": 27.0\r\n                    },\r\n                    \"constraints\":
+    {\r\n                      \"vertical\": \"SCALE\",\r\n                     
+    \"horizontal\": \"SCALE\"\r\n                    },\r\n                    \"fills\":
+    [\r\n                      {\r\n                        \"blendMode\": \"NORMAL\",\r\n                       
+    \"type\": \"SOLID\",\r\n                        \"color\": {\r\n                         
+    \"r\": 1.0,\r\n                          \"g\": 1.0,\r\n                         
+    \"b\": 1.0,\r\n                          \"a\": 1.0\r\n                       
+    }\r\n                      }\r\n                    ],\r\n                   
+    \"strokes\": [],\r\n                    \"strokeWeight\": 0.20062315464019775,\r\n                   
+    \"strokeAlign\": \"OUTSIDE\",\r\n                    \"styles\": {\r\n                     
+    \"fill\": \"4:2\"\r\n                    },\r\n                    \"effects\":
+    [],\r\n                    \"characters\": \"Off\",\r\n                    \"style\":
+    {\r\n                      \"fontFamily\": \"Abel\",\r\n                     
+    \"fontPostScriptName\": \"Abel-Regular\",\r\n                      \"fontWeight\":
+    400,\r\n                      \"textAutoResize\": \"WIDTH_AND_HEIGHT\",\r\n                     
+    \"fontSize\": 21.5,\r\n                      \"textAlignHorizontal\": \"LEFT\",\r\n                     
+    \"textAlignVertical\": \"CENTER\",\r\n                      \"letterSpacing\":
+    0.0,\r\n                      \"lineHeightPx\": 25.1953125,\r\n                     
+    \"lineHeightPercent\": 100.0,\r\n                      \"lineHeightUnit\": \"INTRINSIC_%\"\r\n                   
+    },\r\n                    \"characterStyleOverrides\": [],\r\n                   
+    \"styleOverrideTable\": {}\r\n                  },\r\n                  {\r\n                   
+    \"id\": \"34:9\",\r\n                    \"name\": \"Switch\",\r\n                   
+    \"type\": \"GROUP\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"children\": [\r\n                      {\r\n                        \"id\":
+    \"34:10\",\r\n                        \"name\": \"SwitchBackplate\",\r\n                       
+    \"type\": \"RECTANGLE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -1171.0,\r\n                         
+    \"y\": -674.0,\r\n                          \"width\": 67.0,\r\n                         
+    \"height\": 45.0\r\n                        },\r\n                        \"constraints\":
+    {\r\n                          \"vertical\": \"CENTER\",\r\n                         
+    \"horizontal\": \"LEFT\"\r\n                        },\r\n                       
+    \"fills\": [\r\n                          {\r\n                            \"blendMode\":
+    \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.21960784494876862,\r\n                             
+    \"g\": 0.21568627655506134,\r\n                              \"b\": 0.20392157137393951,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokeWeight\": 5.0,\r\n                       
+    \"strokeAlign\": \"INSIDE\",\r\n                        \"styles\": {\r\n                         
+    \"fill\": \"4:3\",\r\n                          \"stroke\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"cornerRadius\":
+    26.081010818481445\r\n                      },\r\n                      {\r\n                       
+    \"id\": \"34:11\",\r\n                        \"name\": \"Off\",\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -1156.0,\r\n                         
+    \"y\": -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"SCALE\",\r\n                          \"horizontal\": \"SCALE\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      },\r\n                     
+    {\r\n                        \"id\": \"34:12\",\r\n                        \"name\":
+    \"On\",\r\n                        \"visible\": false,\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -1135.0,\r\n                         
+    \"y\": -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"CENTER\",\r\n                          \"horizontal\": \"LEFT\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"absoluteBoundingBox\": {\r\n                     
+    \"x\": -1171.0,\r\n                      \"y\": -674.0,\r\n                     
+    \"width\": 67.0,\r\n                      \"height\": 45.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"TOP\",\r\n                      \"horizontal\": \"LEFT\"\r\n                   
+    },\r\n                    \"clipsContent\": false,\r\n                    \"background\":
+    [],\r\n                    \"fills\": [],\r\n                    \"strokes\":
+    [],\r\n                    \"strokeWeight\": 1.0,\r\n                    \"strokeAlign\":
+    \"INSIDE\",\r\n                    \"backgroundColor\": {\r\n                     
+    \"r\": 0.0,\r\n                      \"g\": 0.0,\r\n                      \"b\":
+    0.0,\r\n                      \"a\": 0.0\r\n                    },\r\n                   
+    \"effects\": []\r\n                  }\r\n                ],\r\n               
+    \"absoluteBoundingBox\": {\r\n                  \"x\": -1171.0,\r\n                 
+    \"y\": -674.0,\r\n                  \"width\": 119.0,\r\n                  \"height\":
+    45.0\r\n                },\r\n                \"preserveRatio\": true,\r\n               
+    \"constraints\": {\r\n                  \"vertical\": \"TOP\",\r\n                 
+    \"horizontal\": \"LEFT\"\r\n                },\r\n                \"layoutAlign\":
+    \"INHERIT\",\r\n                \"layoutGrow\": 0.0,\r\n                \"clipsContent\":
+    false,\r\n                \"background\": [],\r\n                \"fills\": [],\r\n               
+    \"strokes\": [],\r\n                \"strokeWeight\": 0.20062315464019775,\r\n               
+    \"strokeAlign\": \"INSIDE\",\r\n                \"backgroundColor\": {\r\n                 
+    \"r\": 0.0,\r\n                  \"g\": 0.0,\r\n                  \"b\": 0.0,\r\n                 
+    \"a\": 0.0\r\n                },\r\n                \"effects\": []\r\n             
+    },\r\n              {\r\n                \"id\": \"4:15\",\r\n               
+    \"name\": \"State=Hover/Off\",\r\n                \"type\": \"COMPONENT\",\r\n               
+    \"blendMode\": \"PASS_THROUGH\",\r\n                \"children\": [\r\n                 
+    {\r\n                    \"id\": \"4:16\",\r\n                    \"name\": \"Label\",\r\n                   
+    \"type\": \"TEXT\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"absoluteBoundingBox\": {\r\n                      \"x\": -866.0,\r\n                     
+    \"y\": -665.0,\r\n                      \"width\": 24.0,\r\n                     
+    \"height\": 27.0\r\n                    },\r\n                    \"constraints\":
+    {\r\n                      \"vertical\": \"SCALE\",\r\n                     
+    \"horizontal\": \"SCALE\"\r\n                    },\r\n                    \"fills\":
+    [\r\n                      {\r\n                        \"blendMode\": \"NORMAL\",\r\n                       
+    \"type\": \"SOLID\",\r\n                        \"color\": {\r\n                         
+    \"r\": 1.0,\r\n                          \"g\": 1.0,\r\n                         
+    \"b\": 1.0,\r\n                          \"a\": 1.0\r\n                       
+    }\r\n                      }\r\n                    ],\r\n                   
+    \"strokes\": [],\r\n                    \"strokeWeight\": 0.20062315464019775,\r\n                   
+    \"strokeAlign\": \"OUTSIDE\",\r\n                    \"styles\": {\r\n                     
+    \"fill\": \"4:2\"\r\n                    },\r\n                    \"effects\":
+    [],\r\n                    \"characters\": \"Off\",\r\n                    \"style\":
+    {\r\n                      \"fontFamily\": \"Abel\",\r\n                     
+    \"fontPostScriptName\": \"Abel-Regular\",\r\n                      \"fontWeight\":
+    400,\r\n                      \"textAutoResize\": \"WIDTH_AND_HEIGHT\",\r\n                     
+    \"fontSize\": 21.5,\r\n                      \"textAlignHorizontal\": \"LEFT\",\r\n                     
+    \"textAlignVertical\": \"CENTER\",\r\n                      \"letterSpacing\":
+    0.0,\r\n                      \"lineHeightPx\": 25.1953125,\r\n                     
+    \"lineHeightPercent\": 100.0,\r\n                      \"lineHeightUnit\": \"INTRINSIC_%\"\r\n                   
+    },\r\n                    \"characterStyleOverrides\": [],\r\n                   
+    \"styleOverrideTable\": {}\r\n                  },\r\n                  {\r\n                   
+    \"id\": \"4:17\",\r\n                    \"name\": \"Switch\",\r\n                   
+    \"type\": \"GROUP\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"children\": [\r\n                      {\r\n                        \"id\":
+    \"4:18\",\r\n                        \"name\": \"SwitchBackplate\",\r\n                       
+    \"type\": \"RECTANGLE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -944.0,\r\n                         
+    \"y\": -674.0,\r\n                          \"width\": 67.0,\r\n                         
+    \"height\": 45.0\r\n                        },\r\n                        \"constraints\":
+    {\r\n                          \"vertical\": \"CENTER\",\r\n                         
+    \"horizontal\": \"LEFT\"\r\n                        },\r\n                       
+    \"fills\": [\r\n                          {\r\n                            \"blendMode\":
+    \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.21960784494876862,\r\n                             
+    \"g\": 0.21568627655506134,\r\n                              \"b\": 0.20392157137393951,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokeWeight\": 5.0,\r\n                       
+    \"strokeAlign\": \"INSIDE\",\r\n                        \"styles\": {\r\n                         
+    \"fill\": \"4:3\",\r\n                          \"stroke\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"cornerRadius\":
+    26.081010818481445\r\n                      },\r\n                      {\r\n                       
+    \"id\": \"4:19\",\r\n                        \"name\": \"Off\",\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -929.0,\r\n                         
+    \"y\": -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"SCALE\",\r\n                          \"horizontal\": \"SCALE\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      },\r\n                     
+    {\r\n                        \"id\": \"4:20\",\r\n                        \"name\":
+    \"On\",\r\n                        \"visible\": false,\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -908.0,\r\n                         
+    \"y\": -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"CENTER\",\r\n                          \"horizontal\": \"LEFT\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"absoluteBoundingBox\": {\r\n                     
+    \"x\": -944.0,\r\n                      \"y\": -674.0,\r\n                     
+    \"width\": 67.0,\r\n                      \"height\": 45.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"TOP\",\r\n                      \"horizontal\": \"LEFT\"\r\n                   
+    },\r\n                    \"clipsContent\": false,\r\n                    \"background\":
+    [],\r\n                    \"fills\": [],\r\n                    \"strokes\":
+    [],\r\n                    \"strokeWeight\": 1.0,\r\n                    \"strokeAlign\":
+    \"INSIDE\",\r\n                    \"backgroundColor\": {\r\n                     
+    \"r\": 0.0,\r\n                      \"g\": 0.0,\r\n                      \"b\":
+    0.0,\r\n                      \"a\": 0.0\r\n                    },\r\n                   
+    \"effects\": []\r\n                  }\r\n                ],\r\n               
+    \"absoluteBoundingBox\": {\r\n                  \"x\": -944.0,\r\n                 
+    \"y\": -674.0,\r\n                  \"width\": 119.0,\r\n                  \"height\":
+    45.0\r\n                },\r\n                \"preserveRatio\": true,\r\n               
+    \"constraints\": {\r\n                  \"vertical\": \"TOP\",\r\n                 
+    \"horizontal\": \"LEFT\"\r\n                },\r\n                \"layoutAlign\":
+    \"INHERIT\",\r\n                \"layoutGrow\": 0.0,\r\n                \"clipsContent\":
+    false,\r\n                \"background\": [],\r\n                \"fills\": [],\r\n               
+    \"strokes\": [],\r\n                \"strokeWeight\": 0.20062315464019775,\r\n               
+    \"strokeAlign\": \"INSIDE\",\r\n                \"backgroundColor\": {\r\n                 
+    \"r\": 0.0,\r\n                  \"g\": 0.0,\r\n                  \"b\": 0.0,\r\n                 
+    \"a\": 0.0\r\n                },\r\n                \"effects\": []\r\n             
+    },\r\n              {\r\n                \"id\": \"4:21\",\r\n               
+    \"name\": \"State=Press/Off\",\r\n                \"type\": \"COMPONENT\",\r\n               
+    \"blendMode\": \"PASS_THROUGH\",\r\n                \"children\": [\r\n                 
+    {\r\n                    \"id\": \"4:22\",\r\n                    \"name\": \"Label\",\r\n                   
+    \"type\": \"TEXT\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"absoluteBoundingBox\": {\r\n                      \"x\": -639.0,\r\n                     
+    \"y\": -665.0,\r\n                      \"width\": 24.0,\r\n                     
+    \"height\": 27.0\r\n                    },\r\n                    \"constraints\":
+    {\r\n                      \"vertical\": \"SCALE\",\r\n                     
+    \"horizontal\": \"SCALE\"\r\n                    },\r\n                    \"fills\":
+    [\r\n                      {\r\n                        \"blendMode\": \"NORMAL\",\r\n                       
+    \"type\": \"SOLID\",\r\n                        \"color\": {\r\n                         
+    \"r\": 1.0,\r\n                          \"g\": 1.0,\r\n                         
+    \"b\": 1.0,\r\n                          \"a\": 1.0\r\n                       
+    }\r\n                      }\r\n                    ],\r\n                   
+    \"strokes\": [],\r\n                    \"strokeWeight\": 0.20062315464019775,\r\n                   
+    \"strokeAlign\": \"OUTSIDE\",\r\n                    \"styles\": {\r\n                     
+    \"fill\": \"4:2\"\r\n                    },\r\n                    \"effects\":
+    [],\r\n                    \"characters\": \"Off\",\r\n                    \"style\":
+    {\r\n                      \"fontFamily\": \"Abel\",\r\n                     
+    \"fontPostScriptName\": \"Abel-Regular\",\r\n                      \"fontWeight\":
+    400,\r\n                      \"textAutoResize\": \"WIDTH_AND_HEIGHT\",\r\n                     
+    \"fontSize\": 21.5,\r\n                      \"textAlignHorizontal\": \"LEFT\",\r\n                     
+    \"textAlignVertical\": \"CENTER\",\r\n                      \"letterSpacing\":
+    0.0,\r\n                      \"lineHeightPx\": 25.1953125,\r\n                     
+    \"lineHeightPercent\": 100.0,\r\n                      \"lineHeightUnit\": \"INTRINSIC_%\"\r\n                   
+    },\r\n                    \"characterStyleOverrides\": [],\r\n                   
+    \"styleOverrideTable\": {}\r\n                  },\r\n                  {\r\n                   
+    \"id\": \"4:23\",\r\n                    \"name\": \"Switch\",\r\n                   
+    \"type\": \"GROUP\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"children\": [\r\n                      {\r\n                        \"id\":
+    \"4:24\",\r\n                        \"name\": \"SwitchBackplate\",\r\n                       
+    \"type\": \"RECTANGLE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -717.0,\r\n                         
+    \"y\": -674.0,\r\n                          \"width\": 67.0,\r\n                         
+    \"height\": 45.0\r\n                        },\r\n                        \"constraints\":
+    {\r\n                          \"vertical\": \"CENTER\",\r\n                         
+    \"horizontal\": \"LEFT\"\r\n                        },\r\n                       
+    \"fills\": [\r\n                          {\r\n                            \"blendMode\":
+    \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.42352941632270813,\r\n                             
+    \"g\": 0.41568627953529358,\r\n                              \"b\": 0.40000000596046448,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.96249997615814209,\r\n                             
+    \"g\": 0.95287495851516724,\r\n                              \"b\": 0.92640620470047,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokeWeight\": 5.0,\r\n                       
+    \"strokeAlign\": \"INSIDE\",\r\n                        \"styles\": {\r\n                         
+    \"fill\": \"4:5\",\r\n                          \"stroke\": \"4:6\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"cornerRadius\":
+    26.081010818481445\r\n                      },\r\n                      {\r\n                       
+    \"id\": \"4:25\",\r\n                        \"name\": \"Off\",\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -702.0,\r\n                         
+    \"y\": -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"SCALE\",\r\n                          \"horizontal\": \"SCALE\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      },\r\n                     
+    {\r\n                        \"id\": \"4:26\",\r\n                        \"name\":
+    \"On\",\r\n                        \"visible\": false,\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -681.0,\r\n                         
+    \"y\": -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"CENTER\",\r\n                          \"horizontal\": \"LEFT\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.96249997615814209,\r\n                             
+    \"g\": 0.95287495851516724,\r\n                              \"b\": 0.92640620470047,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:6\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"absoluteBoundingBox\": {\r\n                     
+    \"x\": -717.0,\r\n                      \"y\": -674.0,\r\n                     
+    \"width\": 67.0,\r\n                      \"height\": 45.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"TOP\",\r\n                      \"horizontal\": \"LEFT\"\r\n                   
+    },\r\n                    \"clipsContent\": false,\r\n                    \"background\":
+    [],\r\n                    \"fills\": [],\r\n                    \"strokes\":
+    [],\r\n                    \"strokeWeight\": 1.0,\r\n                    \"strokeAlign\":
+    \"INSIDE\",\r\n                    \"backgroundColor\": {\r\n                     
+    \"r\": 0.0,\r\n                      \"g\": 0.0,\r\n                      \"b\":
+    0.0,\r\n                      \"a\": 0.0\r\n                    },\r\n                   
+    \"effects\": []\r\n                  }\r\n                ],\r\n               
+    \"absoluteBoundingBox\": {\r\n                  \"x\": -717.0,\r\n                 
+    \"y\": -674.0,\r\n                  \"width\": 119.0,\r\n                  \"height\":
+    45.0\r\n                },\r\n                \"preserveRatio\": true,\r\n               
+    \"constraints\": {\r\n                  \"vertical\": \"TOP\",\r\n                 
+    \"horizontal\": \"LEFT\"\r\n                },\r\n                \"layoutAlign\":
+    \"INHERIT\",\r\n                \"layoutGrow\": 0.0,\r\n                \"clipsContent\":
+    false,\r\n                \"background\": [],\r\n                \"fills\": [],\r\n               
+    \"strokes\": [],\r\n                \"strokeWeight\": 0.20062315464019775,\r\n               
+    \"strokeAlign\": \"INSIDE\",\r\n                \"backgroundColor\": {\r\n                 
+    \"r\": 0.0,\r\n                  \"g\": 0.0,\r\n                  \"b\": 0.0,\r\n                 
+    \"a\": 0.0\r\n                },\r\n                \"effects\": []\r\n             
+    },\r\n              {\r\n                \"id\": \"4:27\",\r\n               
+    \"name\": \"State=Default/On\",\r\n                \"type\": \"COMPONENT\",\r\n               
+    \"blendMode\": \"PASS_THROUGH\",\r\n                \"children\": [\r\n                 
+    {\r\n                    \"id\": \"4:28\",\r\n                    \"name\": \"Label\",\r\n                   
+    \"type\": \"TEXT\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"absoluteBoundingBox\": {\r\n                      \"x\": -412.0,\r\n                     
+    \"y\": -665.0,\r\n                      \"width\": 24.0,\r\n                     
+    \"height\": 27.0\r\n                    },\r\n                    \"constraints\":
+    {\r\n                      \"vertical\": \"SCALE\",\r\n                     
+    \"horizontal\": \"SCALE\"\r\n                    },\r\n                    \"fills\":
+    [\r\n                      {\r\n                        \"blendMode\": \"NORMAL\",\r\n                       
+    \"type\": \"SOLID\",\r\n                        \"color\": {\r\n                         
+    \"r\": 1.0,\r\n                          \"g\": 1.0,\r\n                         
+    \"b\": 1.0,\r\n                          \"a\": 1.0\r\n                       
+    }\r\n                      }\r\n                    ],\r\n                   
+    \"strokes\": [],\r\n                    \"strokeWeight\": 0.20062315464019775,\r\n                   
+    \"strokeAlign\": \"OUTSIDE\",\r\n                    \"styles\": {\r\n                     
+    \"fill\": \"4:2\"\r\n                    },\r\n                    \"effects\":
+    [],\r\n                    \"characters\": \"Off\",\r\n                    \"style\":
+    {\r\n                      \"fontFamily\": \"Abel\",\r\n                     
+    \"fontPostScriptName\": \"Abel-Regular\",\r\n                      \"fontWeight\":
+    400,\r\n                      \"textAutoResize\": \"WIDTH_AND_HEIGHT\",\r\n                     
+    \"fontSize\": 21.5,\r\n                      \"textAlignHorizontal\": \"LEFT\",\r\n                     
+    \"textAlignVertical\": \"CENTER\",\r\n                      \"letterSpacing\":
+    0.0,\r\n                      \"lineHeightPx\": 25.1953125,\r\n                     
+    \"lineHeightPercent\": 100.0,\r\n                      \"lineHeightUnit\": \"INTRINSIC_%\"\r\n                   
+    },\r\n                    \"characterStyleOverrides\": [],\r\n                   
+    \"styleOverrideTable\": {}\r\n                  },\r\n                  {\r\n                   
+    \"id\": \"4:29\",\r\n                    \"name\": \"Switch\",\r\n                   
+    \"type\": \"GROUP\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"children\": [\r\n                      {\r\n                        \"id\":
+    \"4:30\",\r\n                        \"name\": \"SwitchBackplate\",\r\n                       
+    \"type\": \"RECTANGLE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -490.0,\r\n                         
+    \"y\": -674.0,\r\n                          \"width\": 67.0,\r\n                         
+    \"height\": 45.0\r\n                        },\r\n                        \"constraints\":
+    {\r\n                          \"vertical\": \"CENTER\",\r\n                         
+    \"horizontal\": \"LEFT\"\r\n                        },\r\n                       
+    \"fills\": [\r\n                          {\r\n                            \"blendMode\":
+    \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.29803922772407532,\r\n                             
+    \"g\": 0.29411765933036804,\r\n                              \"b\": 0.28627452254295349,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokeWeight\": 5.0,\r\n                       
+    \"strokeAlign\": \"INSIDE\",\r\n                        \"styles\": {\r\n                         
+    \"fill\": \"4:7\",\r\n                          \"stroke\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"cornerRadius\":
+    26.081010818481445\r\n                      },\r\n                      {\r\n                       
+    \"id\": \"4:31\",\r\n                        \"name\": \"Off\",\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -475.0,\r\n                         
+    \"y\": -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"CENTER\",\r\n                          \"horizontal\": \"LEFT\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      },\r\n                     
+    {\r\n                        \"id\": \"4:32\",\r\n                        \"name\":
+    \"On\",\r\n                        \"visible\": false,\r\n                       
+    \"type\": \"ELLIPSE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -454.0,\r\n                         
+    \"y\": -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"SCALE\",\r\n                          \"horizontal\": \"SCALE\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"absoluteBoundingBox\": {\r\n                     
+    \"x\": -490.0,\r\n                      \"y\": -674.0,\r\n                     
+    \"width\": 67.0,\r\n                      \"height\": 45.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"TOP\",\r\n                      \"horizontal\": \"LEFT\"\r\n                   
+    },\r\n                    \"clipsContent\": false,\r\n                    \"background\":
+    [],\r\n                    \"fills\": [],\r\n                    \"strokes\":
+    [],\r\n                    \"strokeWeight\": 1.0,\r\n                    \"strokeAlign\":
+    \"INSIDE\",\r\n                    \"backgroundColor\": {\r\n                     
+    \"r\": 0.0,\r\n                      \"g\": 0.0,\r\n                      \"b\":
+    0.0,\r\n                      \"a\": 0.0\r\n                    },\r\n                   
+    \"effects\": []\r\n                  }\r\n                ],\r\n               
+    \"absoluteBoundingBox\": {\r\n                  \"x\": -490.0,\r\n                 
+    \"y\": -674.0,\r\n                  \"width\": 119.0,\r\n                  \"height\":
+    45.0\r\n                },\r\n                \"preserveRatio\": true,\r\n               
+    \"constraints\": {\r\n                  \"vertical\": \"TOP\",\r\n                 
+    \"horizontal\": \"LEFT\"\r\n                },\r\n                \"layoutAlign\":
+    \"INHERIT\",\r\n                \"layoutGrow\": 0.0,\r\n                \"clipsContent\":
+    false,\r\n                \"background\": [],\r\n                \"fills\": [],\r\n               
+    \"strokes\": [],\r\n                \"strokeWeight\": 0.20062315464019775,\r\n               
+    \"strokeAlign\": \"INSIDE\",\r\n                \"backgroundColor\": {\r\n                 
+    \"r\": 0.0,\r\n                  \"g\": 0.0,\r\n                  \"b\": 0.0,\r\n                 
+    \"a\": 0.0\r\n                },\r\n                \"effects\": []\r\n             
+    },\r\n              {\r\n                \"id\": \"4:33\",\r\n               
+    \"name\": \"State=Hover/On\",\r\n                \"type\": \"COMPONENT\",\r\n               
+    \"blendMode\": \"PASS_THROUGH\",\r\n                \"children\": [\r\n                 
+    {\r\n                    \"id\": \"4:34\",\r\n                    \"name\": \"Label
+    #Toggle_On\",\r\n                    \"type\": \"TEXT\",\r\n                   
+    \"blendMode\": \"PASS_THROUGH\",\r\n                    \"absoluteBoundingBox\":
+    {\r\n                      \"x\": -185.0,\r\n                      \"y\": -665.0,\r\n                     
+    \"width\": 22.0,\r\n                      \"height\": 27.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"SCALE\",\r\n                      \"horizontal\": \"SCALE\"\r\n                   
+    },\r\n                    \"fills\": [\r\n                      {\r\n                       
+    \"blendMode\": \"NORMAL\",\r\n                        \"type\": \"SOLID\",\r\n                       
+    \"color\": {\r\n                          \"r\": 1.0,\r\n                         
+    \"g\": 1.0,\r\n                          \"b\": 1.0,\r\n                         
+    \"a\": 1.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"strokes\": [],\r\n                    \"strokeWeight\":
+    0.20062315464019775,\r\n                    \"strokeAlign\": \"OUTSIDE\",\r\n                   
+    \"styles\": {\r\n                      \"fill\": \"4:2\"\r\n                   
+    },\r\n                    \"effects\": [],\r\n                    \"characters\":
+    \"On\",\r\n                    \"style\": {\r\n                      \"fontFamily\":
+    \"Abel\",\r\n                      \"fontPostScriptName\": \"Abel-Regular\",\r\n                     
+    \"fontWeight\": 400,\r\n                      \"textAutoResize\": \"WIDTH_AND_HEIGHT\",\r\n                     
+    \"fontSize\": 21.5,\r\n                      \"textAlignHorizontal\": \"LEFT\",\r\n                     
+    \"textAlignVertical\": \"CENTER\",\r\n                      \"letterSpacing\":
+    0.0,\r\n                      \"lineHeightPx\": 25.1953125,\r\n                     
+    \"lineHeightPercent\": 100.0,\r\n                      \"lineHeightUnit\": \"INTRINSIC_%\"\r\n                   
+    },\r\n                    \"layoutVersion\": 3,\r\n                    \"characterStyleOverrides\":
+    [],\r\n                    \"styleOverrideTable\": {}\r\n                  },\r\n                 
+    {\r\n                    \"id\": \"4:35\",\r\n                    \"name\": \"Switch\",\r\n                   
+    \"type\": \"GROUP\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"children\": [\r\n                      {\r\n                        \"id\":
+    \"4:36\",\r\n                        \"name\": \"SwitchBackplate\",\r\n                       
+    \"type\": \"RECTANGLE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -263.0,\r\n                         
+    \"y\": -674.0,\r\n                          \"width\": 67.0,\r\n                         
+    \"height\": 45.0\r\n                        },\r\n                        \"constraints\":
+    {\r\n                          \"vertical\": \"CENTER\",\r\n                         
+    \"horizontal\": \"LEFT\"\r\n                        },\r\n                       
+    \"fills\": [\r\n                          {\r\n                            \"blendMode\":
+    \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.16862745583057404,\r\n                             
+    \"g\": 0.59607845544815063,\r\n                              \"b\": 0.729411780834198,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.23137255012989044,\r\n                             
+    \"g\": 0.50980395078659058,\r\n                              \"b\": 0.58039218187332153,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokeWeight\": 5.0,\r\n                       
+    \"strokeAlign\": \"INSIDE\",\r\n                        \"styles\": {\r\n                         
+    \"fill\": \"4:8\",\r\n                          \"stroke\": \"4:9\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"cornerRadius\":
+    26.081010818481445\r\n                      },\r\n                      {\r\n                       
+    \"id\": \"4:37\",\r\n                        \"name\": \"Off\",\r\n                       
+    \"visible\": false,\r\n                        \"type\": \"ELLIPSE\",\r\n                       
+    \"blendMode\": \"PASS_THROUGH\",\r\n                        \"absoluteBoundingBox\":
+    {\r\n                          \"x\": -248.0,\r\n                          \"y\":
+    -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"CENTER\",\r\n                          \"horizontal\": \"LEFT\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.96249997615814209,\r\n                             
+    \"g\": 0.95287495851516724,\r\n                              \"b\": 0.92640620470047,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:6\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      },\r\n                     
+    {\r\n                        \"id\": \"4:38\",\r\n                        \"name\":
+    \"On\",\r\n                        \"type\": \"ELLIPSE\",\r\n                       
+    \"blendMode\": \"PASS_THROUGH\",\r\n                        \"absoluteBoundingBox\":
+    {\r\n                          \"x\": -227.0,\r\n                          \"y\":
+    -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"SCALE\",\r\n                          \"horizontal\": \"SCALE\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.7137255072593689,\r\n                             
+    \"g\": 0.70196080207824707,\r\n                              \"b\": 0.66274511814117432,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:4\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"absoluteBoundingBox\": {\r\n                     
+    \"x\": -263.0,\r\n                      \"y\": -674.0,\r\n                     
+    \"width\": 67.0,\r\n                      \"height\": 45.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"TOP\",\r\n                      \"horizontal\": \"LEFT\"\r\n                   
+    },\r\n                    \"clipsContent\": false,\r\n                    \"background\":
+    [],\r\n                    \"fills\": [],\r\n                    \"strokes\":
+    [],\r\n                    \"strokeWeight\": 1.0,\r\n                    \"strokeAlign\":
+    \"INSIDE\",\r\n                    \"backgroundColor\": {\r\n                     
+    \"r\": 0.0,\r\n                      \"g\": 0.0,\r\n                      \"b\":
+    0.0,\r\n                      \"a\": 0.0\r\n                    },\r\n                   
+    \"effects\": []\r\n                  }\r\n                ],\r\n               
+    \"absoluteBoundingBox\": {\r\n                  \"x\": -263.0,\r\n                 
+    \"y\": -674.0,\r\n                  \"width\": 119.0,\r\n                  \"height\":
+    45.0\r\n                },\r\n                \"preserveRatio\": true,\r\n               
+    \"constraints\": {\r\n                  \"vertical\": \"TOP\",\r\n                 
+    \"horizontal\": \"LEFT\"\r\n                },\r\n                \"layoutAlign\":
+    \"INHERIT\",\r\n                \"layoutGrow\": 0.0,\r\n                \"clipsContent\":
+    false,\r\n                \"background\": [],\r\n                \"fills\": [],\r\n               
+    \"strokes\": [],\r\n                \"strokeWeight\": 0.20062315464019775,\r\n               
+    \"strokeAlign\": \"INSIDE\",\r\n                \"backgroundColor\": {\r\n                 
+    \"r\": 0.0,\r\n                  \"g\": 0.0,\r\n                  \"b\": 0.0,\r\n                 
+    \"a\": 0.0\r\n                },\r\n                \"effects\": []\r\n             
+    },\r\n              {\r\n                \"id\": \"4:39\",\r\n               
+    \"name\": \"State=Press/On\",\r\n                \"type\": \"COMPONENT\",\r\n               
+    \"blendMode\": \"PASS_THROUGH\",\r\n                \"children\": [\r\n                 
+    {\r\n                    \"id\": \"4:40\",\r\n                    \"name\": \"Label\",\r\n                   
+    \"type\": \"TEXT\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"absoluteBoundingBox\": {\r\n                      \"x\": 42.0,\r\n                     
+    \"y\": -665.0,\r\n                      \"width\": 22.0,\r\n                     
+    \"height\": 27.0\r\n                    },\r\n                    \"constraints\":
+    {\r\n                      \"vertical\": \"SCALE\",\r\n                     
+    \"horizontal\": \"SCALE\"\r\n                    },\r\n                    \"fills\":
+    [\r\n                      {\r\n                        \"blendMode\": \"NORMAL\",\r\n                       
+    \"type\": \"SOLID\",\r\n                        \"color\": {\r\n                         
+    \"r\": 1.0,\r\n                          \"g\": 1.0,\r\n                         
+    \"b\": 1.0,\r\n                          \"a\": 1.0\r\n                       
+    }\r\n                      }\r\n                    ],\r\n                   
+    \"strokes\": [],\r\n                    \"strokeWeight\": 0.20062315464019775,\r\n                   
+    \"strokeAlign\": \"OUTSIDE\",\r\n                    \"styles\": {\r\n                     
+    \"fill\": \"4:2\"\r\n                    },\r\n                    \"effects\":
+    [],\r\n                    \"characters\": \"On\",\r\n                    \"style\":
+    {\r\n                      \"fontFamily\": \"Abel\",\r\n                     
+    \"fontPostScriptName\": \"Abel-Regular\",\r\n                      \"fontWeight\":
+    400,\r\n                      \"textAutoResize\": \"WIDTH_AND_HEIGHT\",\r\n                     
+    \"fontSize\": 21.5,\r\n                      \"textAlignHorizontal\": \"LEFT\",\r\n                     
+    \"textAlignVertical\": \"CENTER\",\r\n                      \"letterSpacing\":
+    0.0,\r\n                      \"lineHeightPx\": 25.1953125,\r\n                     
+    \"lineHeightPercent\": 100.0,\r\n                      \"lineHeightUnit\": \"INTRINSIC_%\"\r\n                   
+    },\r\n                    \"characterStyleOverrides\": [],\r\n                   
+    \"styleOverrideTable\": {}\r\n                  },\r\n                  {\r\n                   
+    \"id\": \"4:41\",\r\n                    \"name\": \"Switch\",\r\n                   
+    \"type\": \"GROUP\",\r\n                    \"blendMode\": \"PASS_THROUGH\",\r\n                   
+    \"children\": [\r\n                      {\r\n                        \"id\":
+    \"4:42\",\r\n                        \"name\": \"SwitchBackplate\",\r\n                       
+    \"type\": \"RECTANGLE\",\r\n                        \"blendMode\": \"PASS_THROUGH\",\r\n                       
+    \"absoluteBoundingBox\": {\r\n                          \"x\": -36.0,\r\n                         
+    \"y\": -674.0,\r\n                          \"width\": 67.0,\r\n                         
+    \"height\": 45.0\r\n                        },\r\n                        \"constraints\":
+    {\r\n                          \"vertical\": \"CENTER\",\r\n                         
+    \"horizontal\": \"LEFT\"\r\n                        },\r\n                       
+    \"fills\": [\r\n                          {\r\n                            \"blendMode\":
+    \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.364705890417099,\r\n                             
+    \"g\": 0.81176471710205078,\r\n                              \"b\": 0.9529411792755127,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.83137255907058716,\r\n                             
+    \"g\": 0.9843137264251709,\r\n                              \"b\": 0.97254902124404907,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokeWeight\": 5.0,\r\n                       
+    \"strokeAlign\": \"INSIDE\",\r\n                        \"styles\": {\r\n                         
+    \"fill\": \"4:10\",\r\n                          \"stroke\": \"4:11\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"cornerRadius\":
+    26.081010818481445\r\n                      },\r\n                      {\r\n                       
+    \"id\": \"4:43\",\r\n                        \"name\": \"Off\",\r\n                       
+    \"visible\": false,\r\n                        \"type\": \"ELLIPSE\",\r\n                       
+    \"blendMode\": \"PASS_THROUGH\",\r\n                        \"absoluteBoundingBox\":
+    {\r\n                          \"x\": -21.0,\r\n                          \"y\":
+    -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"SCALE\",\r\n                          \"horizontal\": \"SCALE\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.82352942228317261,\r\n                             
+    \"g\": 0.80784314870834351,\r\n                              \"b\": 0.76470589637756348,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"effects\": [],\r\n                        \"arcData\": {\r\n                         
+    \"startingAngle\": 0.0,\r\n                          \"endingAngle\": 6.2831854820251465,\r\n                         
+    \"innerRadius\": 0.0\r\n                        }\r\n                      },\r\n                     
+    {\r\n                        \"id\": \"4:44\",\r\n                        \"name\":
+    \"On\",\r\n                        \"type\": \"ELLIPSE\",\r\n                       
+    \"blendMode\": \"PASS_THROUGH\",\r\n                        \"absoluteBoundingBox\":
+    {\r\n                          \"x\": 0.0,\r\n                          \"y\":
+    -660.0,\r\n                          \"width\": 18.0,\r\n                         
+    \"height\": 18.0\r\n                        },\r\n                        \"preserveRatio\":
+    true,\r\n                        \"constraints\": {\r\n                         
+    \"vertical\": \"CENTER\",\r\n                          \"horizontal\": \"LEFT\"\r\n                       
+    },\r\n                        \"fills\": [\r\n                          {\r\n                           
+    \"blendMode\": \"NORMAL\",\r\n                            \"type\": \"SOLID\",\r\n                           
+    \"color\": {\r\n                              \"r\": 0.96249997615814209,\r\n                             
+    \"g\": 0.95287495851516724,\r\n                              \"b\": 0.92640620470047,\r\n                             
+    \"a\": 1.0\r\n                            }\r\n                          }\r\n                       
+    ],\r\n                        \"strokes\": [],\r\n                        \"strokeWeight\":
+    0.20062315464019775,\r\n                        \"strokeAlign\": \"INSIDE\",\r\n                       
+    \"styles\": {\r\n                          \"fill\": \"4:6\"\r\n                       
+    },\r\n                        \"effects\": [],\r\n                        \"arcData\":
+    {\r\n                          \"startingAngle\": 0.0,\r\n                         
+    \"endingAngle\": 6.2831854820251465,\r\n                          \"innerRadius\":
+    0.0\r\n                        }\r\n                      }\r\n                   
+    ],\r\n                    \"absoluteBoundingBox\": {\r\n                     
+    \"x\": -36.0,\r\n                      \"y\": -674.0,\r\n                     
+    \"width\": 67.0,\r\n                      \"height\": 45.0\r\n                   
+    },\r\n                    \"constraints\": {\r\n                      \"vertical\":
+    \"TOP\",\r\n                      \"horizontal\": \"LEFT\"\r\n                   
+    },\r\n                    \"clipsContent\": false,\r\n                    \"background\":
+    [],\r\n                    \"fills\": [],\r\n                    \"strokes\":
+    [],\r\n                    \"strokeWeight\": 1.0,\r\n                    \"strokeAlign\":
+    \"INSIDE\",\r\n                    \"backgroundColor\": {\r\n                     
+    \"r\": 0.0,\r\n                      \"g\": 0.0,\r\n                      \"b\":
+    0.0,\r\n                      \"a\": 0.0\r\n                    },\r\n                   
+    \"effects\": []\r\n                  }\r\n                ],\r\n               
+    \"absoluteBoundingBox\": {\r\n                  \"x\": -36.0,\r\n                 
+    \"y\": -674.0,\r\n                  \"width\": 119.0,\r\n                  \"height\":
+    45.0\r\n                },\r\n                \"preserveRatio\": true,\r\n               
+    \"constraints\": {\r\n                  \"vertical\": \"TOP\",\r\n                 
+    \"horizontal\": \"LEFT\"\r\n                },\r\n                \"layoutAlign\":
+    \"INHERIT\",\r\n                \"layoutGrow\": 0.0,\r\n                \"clipsContent\":
+    false,\r\n                \"background\": [],\r\n                \"fills\": [],\r\n               
+    \"strokes\": [],\r\n                \"strokeWeight\": 0.20062315464019775,\r\n               
+    \"strokeAlign\": \"INSIDE\",\r\n                \"backgroundColor\": {\r\n                 
+    \"r\": 0.0,\r\n                  \"g\": 0.0,\r\n                  \"b\": 0.0,\r\n                 
+    \"a\": 0.0\r\n                },\r\n                \"effects\": []\r\n             
+    }\r\n            ],\r\n            \"absoluteBoundingBox\": {\r\n             
+    \"x\": -1171.0,\r\n              \"y\": -674.0,\r\n              \"width\": 1254.0,\r\n             
+    \"height\": 45.0\r\n            },\r\n            \"constraints\": {\r\n             
+    \"vertical\": \"TOP\",\r\n              \"horizontal\": \"LEFT\"\r\n           
+    },\r\n            \"clipsContent\": true,\r\n            \"background\": [],\r\n           
+    \"fills\": [],\r\n            \"strokes\": [\r\n              {\r\n               
+    \"blendMode\": \"NORMAL\",\r\n                \"type\": \"SOLID\",\r\n               
+    \"color\": {\r\n                  \"r\": 0.48235294222831726,\r\n                 
+    \"g\": 0.3803921639919281,\r\n                  \"b\": 1.0,\r\n                 
+    \"a\": 1.0\r\n                }\r\n              }\r\n            ],\r\n           
+    \"cornerRadius\": 0.99867719411849976,\r\n            \"rectangleCornerRadii\":
+    [\r\n              0.0,\r\n              0.0,\r\n              0.0,\r\n             
+    0.0\r\n            ],\r\n            \"strokeWeight\": 2.0,\r\n            \"strokeAlign\":
+    \"INSIDE\",\r\n            \"backgroundColor\": {\r\n              \"r\": 0.0,\r\n             
+    \"g\": 0.0,\r\n              \"b\": 0.0,\r\n              \"a\": 0.0\r\n           
+    },\r\n            \"layoutMode\": \"HORIZONTAL\",\r\n            \"itemSpacing\":
+    108.0,\r\n            \"effects\": []\r\n          }\r\n        ],\r\n       
+    \"backgroundColor\": {\r\n          \"r\": 0.89803922176361084,\r\n         
+    \"g\": 0.89803922176361084,\r\n          \"b\": 0.89803922176361084,\r\n         
+    \"a\": 1.0\r\n        },\r\n        \"prototypeStartNodeID\": null,\r\n       
+    \"flowStartingPoints\": [],\r\n        \"prototypeDevice\": {\r\n          \"type\":
+    \"NONE\",\r\n          \"rotation\": \"NONE\"\r\n        }\r\n      }\r\n   
+    ]\r\n  },\r\n  \"components\": {\r\n    \"4:15\": {\r\n      \"key\": \"dde061bec1d092912de4dd6866f39a395630a6ee\",\r\n     
+    \"name\": \"State=Hover/Off\",\r\n      \"description\": \"\",\r\n      \"componentSetId\":
+    \"4:14\",\r\n      \"documentationLinks\": []\r\n    },\r\n    \"34:7\": {\r\n     
+    \"key\": \"b4bb93ac83d266168e0b0baef3306b16f39f4354\",\r\n      \"name\": \"State=Default/Off\",\r\n     
+    \"description\": \"\",\r\n      \"componentSetId\": \"4:14\",\r\n      \"documentationLinks\":
+    []\r\n    },\r\n    \"4:21\": {\r\n      \"key\": \"db09fded09a2377a3e4a6ac3e6402a3cbc197b0b\",\r\n     
+    \"name\": \"State=Press/Off\",\r\n      \"description\": \"\",\r\n      \"componentSetId\":
+    \"4:14\",\r\n      \"documentationLinks\": []\r\n    },\r\n    \"4:27\": {\r\n     
+    \"key\": \"200540c6c0af8e589411535568107bad989d90b7\",\r\n      \"name\": \"State=Default/On\",\r\n     
+    \"description\": \"\",\r\n      \"componentSetId\": \"4:14\",\r\n      \"documentationLinks\":
+    []\r\n    },\r\n    \"4:33\": {\r\n      \"key\": \"162dce223bc43e7efff49e8c95e93ac16c4be3b4\",\r\n     
+    \"name\": \"State=Hover/On\",\r\n      \"description\": \"\",\r\n      \"componentSetId\":
+    \"4:14\",\r\n      \"documentationLinks\": []\r\n    },\r\n    \"4:39\": {\r\n     
+    \"key\": \"00de02ad097b2ff00f552ab185c0e5ea7cc86ade\",\r\n      \"name\": \"State=Press/On\",\r\n     
+    \"description\": \"\",\r\n      \"componentSetId\": \"4:14\",\r\n      \"documentationLinks\":
+    []\r\n    }\r\n  },\r\n  \"componentSets\": {\r\n    \"4:14\": {\r\n      \"key\":
+    \"07a07aaaa98f6bc9760421c9b78dd69d7eb5c164\",\r\n      \"name\": \"Generic Toggle
+    Switch\",\r\n      \"description\": \"\"\r\n    }\r\n  },\r\n  \"schemaVersion\":
+    0,\r\n  \"styles\": {\r\n    \"23:22\": {\r\n      \"key\": \"a1ba621ea4fad3f116c190a964cdaa99a3a07d46\",\r\n     
+    \"name\": \"Fuschia/80\",\r\n      \"styleType\": \"FILL\",\r\n      \"description\":
+    \"\"\r\n    },\r\n    \"4:3\": {\r\n      \"key\": \"9c0a96afe294983ff5187825568564083a00610b\",\r\n     
+    \"name\": \"HoloLens1/ToggleFillDefaultOff\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    },\r\n    \"4:4\": {\r\n      \"key\": \"495fb5c5c3c084cbdaf11fa791d35b323f924b0f\",\r\n     
+    \"name\": \"HoloLens1/ButtonStrokeDefault\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    },\r\n    \"4:2\": {\r\n      \"key\": \"e781205d9b4bf443cd312767ad386d028ce50b8a\",\r\n     
+    \"name\": \"LabelTextColor\",\r\n      \"styleType\": \"FILL\",\r\n      \"description\":
+    \"\"\r\n    },\r\n    \"4:5\": {\r\n      \"key\": \"164a08fbf16c365fd10a6a70723df9664882defe\",\r\n     
+    \"name\": \"HoloLens1/ToggleFillHoverOff\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    },\r\n    \"4:6\": {\r\n      \"key\": \"2d4a3e496d0978b090c92e183f692e91ffea5efa\",\r\n     
+    \"name\": \"HoloLens1/ButtonStrokeHover\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    },\r\n    \"4:7\": {\r\n      \"key\": \"543e6558bdbff8831512d23882fdf31e120cc4dd\",\r\n     
+    \"name\": \"HoloLens1/TogglePressOffFill\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    },\r\n    \"4:8\": {\r\n      \"key\": \"bdacb2a5422c545da394286e5c90376a93064917\",\r\n     
+    \"name\": \"HoloLens1/ToggleFillDefaultOn\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    },\r\n    \"4:9\": {\r\n      \"key\": \"fb2a12615cba4d851259eefa1ab99d0a5ce7d04f\",\r\n     
+    \"name\": \"HoloLens1/ToggleStrokeDefaultOn\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    },\r\n    \"4:10\": {\r\n      \"key\": \"aa6a5b1776469b06a3f424098f2537a4d3bd7892\",\r\n     
+    \"name\": \"HoloLens1/ToggleFillHoverOn\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    },\r\n    \"4:11\": {\r\n      \"key\": \"3b4a4371113658cbcaf455da314250fb426d4962\",\r\n     
+    \"name\": \"HoloLens1/ToggleStrokeHoverOn\",\r\n      \"styleType\": \"FILL\",\r\n     
+    \"description\": \"\"\r\n    }\r\n  },\r\n  \"name\": \"Test\",\r\n  \"lastModified\":
+    \"2021-11-23T22:27:12Z\",\r\n  \"thumbnailUrl\": \"https://s3-alpha-sig.figma.com/thumbnails/b7d996dc-85e7-4886-8a7d-d04d704cacc3?Expires=1638748800&Signature=HinY~BHm2damT~3LiFQJwWHkNhWaG8dtXK9sZTp1V1DfKjsYRSTlMhJSGQ6W51otnxxbJ4~deSy1VJdpQxqszDq0EWBUyMsnrb1wERc-~~ZMVMCP4SQJoGZaum7B8bCrP~OVddBrM5z6tOfaMj05gQ8XJgBpmvhRLeNob7Ccx9d7tFfuT5aG-euWTtxRQooWTT2S3y7i4ofTMv3rYN7fW~Ur27Xj3aTq8h3SdvrJPOYOrFipWyGJvHn7Z3BPVybVQ9XqS1wjZWs3X08gKCzyIrLnC0vJSHky7lstkjWEf6Kg88Xl3NHKsa5KpSM7~Vl3R-L2NJm5V7K1Aaa8EWniPg__&Key-Pair-Id=APKAINTVSUGEWH5XD5UA\",\r\n 
+    \"version\": \"1320970605\",\r\n  \"role\": \"owner\",\r\n  \"editorType\": \"figma\"\r\n}"

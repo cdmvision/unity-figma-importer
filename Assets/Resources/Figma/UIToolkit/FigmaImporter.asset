@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45350a2930fc4fa08166bb7a68f76e3c, type: 3}
+  m_Name: FigmaImporter
+  m_EditorClassIdentifier: 
+  _typePrefix: '/t:'
+  _bindingPrefix: '/b:'
+  _localizationPrefix: '/l:'
+  _converters:
+  - {fileID: 11400000, guid: f48fec70b79c79e428e040d86df61aca, type: 2}
+  - {fileID: 11400000, guid: 55791860d26d5d44aa0d0f5cf5551d8a, type: 2}
