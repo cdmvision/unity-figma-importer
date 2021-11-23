@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5e294c245ca94b81bfe0651436e63d19, type: 3}
-  m_Name: FigmaImporter
+  m_Name: FigmaImporterTaskFile
   m_EditorClassIdentifier: 
   _personalAccessToken: 276161-7e9afdbe-d019-46b3-8eb7-7f36f24d2ee9
   _assetsPath: Resources/Figma/Files
   _files:
   - s0bB41GcxcFm0Jgt3DsTi0
   - ixMc5uz5PsE1Lg8nlyJRAJ
+  _importer: {fileID: 11400000, guid: 8aac9ab21c7153b48ad3521df4e7611f, type: 2}

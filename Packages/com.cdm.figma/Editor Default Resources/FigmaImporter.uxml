@@ -1,15 +1,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:GroupBox text="Settings">
+    <ui:GroupBox text="Settings" name="settingsGroup">
         <ui:TextField picking-mode="Ignore" label="Personal Access Token" binding-path="_personalAccessToken" tooltip="Enter your Figma personal access token" />
         <ui:Button text="Click here for help generating access tokens" display-tooltip-when-elided="true" name="accessTokenHelpButton" />
         <ui:VisualElement style="height: 8px;" />
         <ui:TextField picking-mode="Ignore" label="Assets Path" binding-path="_assetsPath" />
     </ui:GroupBox>
-    <ui:GroupBox text="Files">
+    <ui:GroupBox text="File IDs">
         <ui:ListView focusable="true" binding-path="_files" show-add-remove-footer="true" virtualization-method="DynamicHeight" show-border="true" show-alternating-row-backgrounds="ContentOnly" show-bound-collection-size="false" />
     </ui:GroupBox>
     <ui:VisualElement style="flex-direction: row-reverse;">
-        <ui:Button text="Generate Pages" display-tooltip-when-elided="true" name="generateViewsButton" />
+        <ui:Button text="Import Files" display-tooltip-when-elided="true" name="generateViewsButton" />
         <ui:Button text="Download Files" display-tooltip-when-elided="true" name="downloadFilesButton" />
     </ui:VisualElement>
 </ui:UXML>

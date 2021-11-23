@@ -51,7 +51,7 @@ namespace Cdm.Figma
         public static async Task<FigmaFile> GetFileAsync(FigmaFileRequest fileRequest)
         {
             var result = await GetFileAsTextAsync(fileRequest);
-            return FigmaFile.FromText(result);
+            return FigmaFile.FromString(result);
         }
 
         private static async Task<string> GetContentAsync(string requestUri, string personalAccessToken)

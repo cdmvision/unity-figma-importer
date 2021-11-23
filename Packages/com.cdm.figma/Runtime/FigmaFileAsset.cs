@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Cdm.Figma
@@ -74,6 +73,11 @@ namespace Cdm.Figma
         {
             get => _pages;
             internal set => _pages = value;
+        }
+
+        public FigmaFile GetFile()
+        {
+            return content == null ? null : FigmaFile.FromString(content.text);
         }
     }
 }

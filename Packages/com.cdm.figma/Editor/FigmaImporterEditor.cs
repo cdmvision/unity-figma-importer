@@ -4,16 +4,19 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
+using UnityEditor.Rendering;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma
 {
-    [CustomEditor(typeof(FigmaImporter))]
+    [CustomEditor(typeof(FigmaImporterTaskFile))]
     public class FigmaImporterEditor : Editor
     {
         private const string VisualTreePath = "Packages/com.cdm.figma/Editor Default Resources/FigmaImporter.uxml";
-        private int _progressId;
+        private int _progressGetFilesId;
+        private int _progressImportFilesId;
         
         public override VisualElement CreateInspectorGUI()
         {
@@ -21,6 +24,14 @@ namespace Cdm.Figma
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(VisualTreePath);
             visualTree.CloneTree(root);
 
+            var settingsGroup = root.Q<VisualElement>("settingsGroup");
+            
+            var importerField = new ObjectField("Importer");
+            importerField.objectType = typeof(FigmaImporter);
+            importerField.allowSceneObjects = false;
+            importerField.bindingPath = "_importer";
+            settingsGroup.Add(importerField);
+            
             root.Q<Button>("accessTokenHelpButton").clicked += () =>
             {
                 Application.OpenURL("https://www.figma.com/developers/api#access-tokens");
@@ -28,52 +39,100 @@ namespace Cdm.Figma
             
             root.Q<Button>("downloadFilesButton").clicked += async () =>
             {
-                await GetFilesAsync((FigmaImporter) target);
+                await GetFilesAsync((FigmaImporterTaskFile) target);
             };
             
-            root.Q<Button>("generateViewsButton").clicked += () =>
+            root.Q<Button>("generateViewsButton").clicked += async () =>
             {
-                Debug.Log("GENERATE VIEWS!!!!");
+                await ImportFilesAsync((FigmaImporterTaskFile) target);
             };
             
             return root;
         }
-        
-        public async Task GetFilesAsync(FigmaImporter importer)
+
+        private async Task ImportFilesAsync(FigmaImporterTaskFile taskFile)
         {
+            if (taskFile.importer == null)
+            {
+                Debug.LogError($"{nameof(FigmaImporter)} cannot be empty.");
+                return;
+            }
+
             try
             {
-                _progressId = Progress.Start($"Downloading Figma files");
+                _progressImportFilesId = Progress.Start($"Importing Figma files");
                 
-                var fileCount = importer.files.Count;
+                var fileCount = taskFile.fileIds.Count;
                 for (var i = 0; i < fileCount; i++)
-                {
-                    var fileId = importer.files[i];
-                
-                    Progress.Report(_progressId, i, fileCount, $"File: {fileId}");
+                { 
+                    var fileId = taskFile.fileIds[i];
+                    Progress.Report(_progressImportFilesId, i, fileCount, $"File: {fileId}");
+
+                    var assetPath = GetFigmaAssetPath(taskFile, fileId);
+                    if (System.IO.File.Exists(assetPath))
+                    {
+                        var fileAsset = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
+                        if (fileAsset != null)
+                        {
+                            await taskFile.importer.ImportFileAsync(fileAsset.GetFile());    
+                        }
+                        else
+                        {
+                            Debug.LogError($"File asset could not be loaded: {assetPath}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"File '{fileId}' asset does not exist. Please download it before importing.");   
+                    }
                     
-                    var fileContent = await FigmaApi.GetFileAsTextAsync(
-                        new FigmaFileRequest(importer.personalAccessToken, fileId));
-                    SaveFigmaFile(importer, fileId, fileContent);
-                
-                    Progress.Report(_progressId, i + 1, fileCount, $"File: {fileId}");
+                    Progress.Report(_progressImportFilesId, i + 1, fileCount, $"File: {fileId}");
                 }
-                
-                Progress.Finish(_progressId);
+
+                Progress.Finish(_progressImportFilesId);
             }
             catch (Exception e)
             {
-                Progress.Finish(_progressId, Progress.Status.Failed);
+                Progress.Finish(_progressImportFilesId, Progress.Status.Failed);
                 Debug.LogError(e);
             }
         }
         
-        private void SaveFigmaFile(FigmaImporter importer, string fileId, string fileContent)
+        private async Task GetFilesAsync(FigmaImporterTaskFile taskFile)
         {
-            var directory = Path.Combine("Assets", importer.assetsPath);
+            try
+            {
+                _progressGetFilesId = Progress.Start($"Downloading Figma files");
+                
+                var fileCount = taskFile.fileIds.Count;
+                for (var i = 0; i < fileCount; i++)
+                {
+                    var fileId = taskFile.fileIds[i];
+                
+                    Progress.Report(_progressGetFilesId, i, fileCount, $"File: {fileId}");
+                    
+                    var fileContent = await FigmaApi.GetFileAsTextAsync(
+                        new FigmaFileRequest(taskFile.personalAccessToken, fileId));
+                    SaveFigmaFile(taskFile, fileId, fileContent);
+                
+                    Progress.Report(_progressGetFilesId, i + 1, fileCount, $"File: {fileId}");
+                }
+                
+                Progress.Finish(_progressGetFilesId);
+            }
+            catch (Exception e)
+            {
+                Progress.Finish(_progressGetFilesId, Progress.Status.Failed);
+                Debug.LogError(e);
+            }
+        }
+        
+        private void SaveFigmaFile(FigmaImporterTaskFile taskFile, string fileId, string fileContent)
+        {
+            var directory = Path.Combine("Assets", taskFile.assetsPath);
             Directory.CreateDirectory(directory);
 
-            var figmaFile = FigmaFile.FromText(fileContent);
+            var figmaFile = FigmaFile.FromString(fileContent);
 
             var figmaAsset = CreateInstance<FigmaFileAsset>();
             figmaAsset.id = fileId;
@@ -96,8 +155,8 @@ namespace Cdm.Figma
             }
 
             figmaAsset.pages = pages;
-
-            var figmaAssetPath = Path.Combine(directory, $"{fileId}.asset");
+            
+            var figmaAssetPath = GetFigmaAssetPath(taskFile, fileId);
             AssetDatabase.DeleteAsset(figmaAssetPath);
             AssetDatabase.CreateAsset(figmaAsset, figmaAssetPath);
             
@@ -108,5 +167,8 @@ namespace Cdm.Figma
             
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
         }
+        
+        private static string GetFigmaAssetPath(FigmaImporterTaskFile taskFile, string fileId) 
+            => Path.Combine("Assets", taskFile.assetsPath,  $"{fileId}.asset");
     }
 }

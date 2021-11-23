@@ -59,9 +59,27 @@ namespace Cdm.Figma
         [JsonProperty("schemaVersion")]
         public int schemaVersion { get; set; }
 
-        public static FigmaFile FromText(string json) => 
+        public static FigmaFile FromString(string json) => 
             JsonConvert.DeserializeObject<FigmaFile>(json, Converter.Settings);
 
-        public string ToText() => JsonConvert.SerializeObject(this, Formatting.Indented, Converter.Settings);
+        public override string ToString()
+        {
+            return ToString("N");
+        }
+        
+        public string ToString(string format)
+        {
+            if (string.IsNullOrEmpty(format)) format = "N";
+
+            switch (format.ToUpperInvariant())
+            {
+                case "I":
+                    return JsonConvert.SerializeObject(this, Formatting.Indented, Converter.Settings);
+                case "N":
+                    return JsonConvert.SerializeObject(this, Formatting.None, Converter.Settings);
+                default:
+                    throw new FormatException($"The {format} format string is not supported.");
+            }
+        }
     }
 }
