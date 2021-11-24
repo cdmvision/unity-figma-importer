@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,21 +5,12 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [Serializable]
-    public class ComponentState
+    public static class ComponentState
     {
-        public string state;
-        public string value;
-
-        public ComponentState()
-        {
-        }
-        
-        public ComponentState(string state, string value)
-        {
-            this.state = state;
-            this.value = value;
-        }
+        public const string Default = "Default";
+        public const string Hover = "Hover";
+        public const string Press = "Press";
+        public const string Disabled = "Disabled";
     }
     
     public abstract class ComponentConverter : ScriptableObject, IComponentConverter
@@ -31,27 +21,46 @@ namespace Cdm.Figma.UIToolkit
         private string _typeId;
 
         public string typeId => _typeId;
-        
-        [SerializeField]
-        private List<ComponentState> _states = new List<ComponentState>();
 
-        public IReadOnlyList<ComponentState> states => _states;
+        [SerializeField]
+        private List<ComponentProperty> _properties = new List<ComponentProperty>();
+
+        public IReadOnlyList<ComponentProperty> properties => _properties;
         
         private void OnEnable()
         {
             if (string.IsNullOrWhiteSpace(_typeId))
             {
                 _typeId = GetDefaultTypeId();
+                
+#if UNITY_EDITOR
+                UnityEditor.EditorUtility.SetDirty(this);
+#endif
             }
             
-            if (!_states.Any())
+            if (!_properties.Any())
             {
-                _states.AddRange(GetStates());
+                _properties.AddRange(GetVariants());
+                
+#if UNITY_EDITOR
+                UnityEditor.EditorUtility.SetDirty(this);
+#endif
             }
         }
 
+        private void Reset()
+        {
+            _typeId = GetDefaultTypeId();
+            _properties.Clear();
+            _properties.AddRange(GetVariants());
+            
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(this);
+#endif
+        }
+
         protected abstract string GetDefaultTypeId();
-        protected abstract ISet<ComponentState> GetStates();
+        protected abstract ISet<ComponentProperty> GetVariants();
         
         public bool CanConvert(UIToolkitFigmaImporter importer, FigmaFile file, Node node)
         {

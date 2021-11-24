@@ -13,12 +13,14 @@ MonoBehaviour:
   m_Name: ButtonConverter
   m_EditorClassIdentifier: 
   _typeId: Button
-  _states:
-  - state: Default
-    value: Default
-  - state: Hover
-    value: Hover
-  - state: Press
-    value: Press
-  - state: Disabled
-    value: Disabled
+  _properties:
+  - key: State
+    variants:
+    - key: Default
+      value: Default
+    - key: Hover
+      value: Hover
+    - key: Press
+      value: Press
+    - key: Disabled
+      value: Disabled

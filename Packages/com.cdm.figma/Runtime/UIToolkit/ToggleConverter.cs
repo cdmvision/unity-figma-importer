@@ -4,6 +4,12 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
+    public static class ToggleState
+    {
+        public const string On = "On";
+        public const string Off = "Off";
+    }
+    
     [CreateAssetMenu(fileName = nameof(ToggleConverter), menuName = AssetMenuRoot + "Toggle")]
     public class ToggleConverter : ComponentConverter
     {
@@ -24,19 +30,31 @@ namespace Cdm.Figma.UIToolkit
         {
             return "Toggle";
         }
-
-        protected override ISet<ComponentState> GetStates()
+        
+        protected override ISet<ComponentProperty> GetVariants()
         {
-            return new HashSet<ComponentState>()
+            return new HashSet<ComponentProperty>()
             {
-                new ComponentState(States.DefaultOn, States.DefaultOn),
-                new ComponentState(States.HoverOn, States.HoverOn),
-                new ComponentState(States.PressOn, States.PressOn),
-                new ComponentState(States.DisabledOn, States.DisabledOn),
-                new ComponentState(States.DefaultOff, States.DefaultOff),
-                new ComponentState(States.HoverOff, States.HoverOff),
-                new ComponentState(States.PressOff, States.PressOff),
-                new ComponentState(States.DisabledOff, States.DisabledOff)
+                new ComponentProperty()
+                {
+                    key = "State",
+                    variants = new ComponentVariant[]
+                    {
+                        new ComponentVariant(ComponentState.Default, ComponentState.Default),
+                        new ComponentVariant(ComponentState.Hover, ComponentState.Hover),
+                        new ComponentVariant(ComponentState.Press, ComponentState.Press),
+                        new ComponentVariant(ComponentState.Disabled, ComponentState.Disabled),
+                    }
+                },
+                new ComponentProperty()
+                {
+                    key = "Checked",
+                    variants = new ComponentVariant[]
+                    {
+                        new ComponentVariant(ToggleState.On, ToggleState.On),
+                        new ComponentVariant(ToggleState.Off, ToggleState.Off),
+                    }
+                }
             };
         }
 

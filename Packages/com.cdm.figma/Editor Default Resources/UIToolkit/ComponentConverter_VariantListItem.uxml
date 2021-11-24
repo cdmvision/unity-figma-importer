@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <ui:VisualElement style="padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px; border-left-color: rgb(32, 32, 32); border-right-color: rgb(32, 32, 32); border-top-color: rgb(32, 32, 32); border-bottom-color: rgb(32, 32, 32); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; margin-left: 1px; margin-right: 1px; margin-top: 1px; margin-bottom: 1px;">
+        <ui:TextField picking-mode="Ignore" label="Key" />
+        <ui:VisualElement style="height: 4px;" />
+        <ui:ListView focusable="true" show-bound-collection-size="false" virtualization-method="DynamicHeight" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -4,7 +4,7 @@
         <ui:TextField picking-mode="Ignore" label="Type ID" readonly="true" binding-path="_typeId" />
         <ui:VisualElement style="align-items: flex-end; flex-direction: row-reverse;" />
     </ui:GroupBox>
-    <ui:GroupBox text="States">
-        <ui:ListView binding-path="_states" show-bound-collection-size="false" name="stateList" virtualization-method="DynamicHeight" show-border="false" />
+    <ui:GroupBox text="Properties/Variants">
+        <ui:ListView binding-path="_properties" virtualization-method="DynamicHeight" show-bound-collection-size="false" name="variantList" selection-type="None" />
     </ui:GroupBox>
 </ui:UXML>

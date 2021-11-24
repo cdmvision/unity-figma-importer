@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: ToggleConverter
   m_EditorClassIdentifier: 
   _typeId: Toggle
-  _states:
-  - state: Default/On
-    value: Default/On
-  - state: Hover/On
-    value: Hover/On
-  - state: Press/On
-    value: Press/On
-  - state: Disabled/On
-    value: Disabled/On
-  - state: Default/Off
-    value: Default/Off
-  - state: Hover/Off
-    value: Hover/Off
-  - state: Press/Off
-    value: Press/Off
-  - state: Disabled/Off
-    value: Disabled/Off
+  _properties:
+  - key: State
+    variants:
+    - key: Default
+      value: Default
+    - key: Hover
+      value: Hover
+    - key: Press
+      value: Press
+    - key: Disabled
+      value: Disabled
+  - key: Checked
+    variants:
+    - key: On
+      value: On
+    - key: Off
+      value: Off
