@@ -90,6 +90,17 @@ namespace Cdm.Figma
                 root.Add(_fileAssetElement);
             }
         }
+        
+        
+        public override bool HasPreviewGUI()
+        {
+            return _fileAssetEditor != null && _fileAssetEditor.HasPreviewGUI();
+        }
+
+        public override void DrawPreview(Rect previewArea)
+        {
+            _fileAssetEditor.DrawPreview(previewArea);
+        }
 
         private async Task ImportFilesAsync(FigmaImporterTaskFile taskFile)
         {
@@ -154,7 +165,11 @@ namespace Cdm.Figma
                     
                     var fileContent = await FigmaApi.GetFileAsTextAsync(
                         new FigmaFileRequest(taskFile.personalAccessToken, fileId));
-                    SaveFigmaFile(taskFile, fileId, fileContent);
+
+                    var file = FigmaFile.FromString(fileContent);
+                    var thumbnail = await FigmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
+                    
+                    SaveFigmaFile(taskFile, file, fileId, fileContent, thumbnail);
                 
                     Progress.Report(_progressGetFilesId, i + 1, fileCount, $"File: {fileId}");
                 }
@@ -168,21 +183,23 @@ namespace Cdm.Figma
             }
         }
         
-        private void SaveFigmaFile(FigmaImporterTaskFile taskFile, string fileId, string fileContent)
+        private void SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
+            string fileContent, byte[] thumbnail)
         {
             var directory = Path.Combine("Assets", taskFile.assetsPath);
             Directory.CreateDirectory(directory);
-
-            var figmaFile = FigmaFile.FromString(fileContent);
-
+            
             var figmaAsset = CreateInstance<FigmaFileAsset>();
             figmaAsset.id = fileId;
             figmaAsset.title = figmaFile.name;
             figmaAsset.version = figmaFile.version;
             figmaAsset.lastModified = figmaFile.lastModified.ToString("u");
             figmaAsset.content = new TextAsset(JObject.Parse(fileContent).ToString(Formatting.Indented));
-            figmaAsset.content.name = figmaFile.name ?? fileId;
-
+            figmaAsset.content.name = "File";
+            figmaAsset.thumbnail = new Texture2D(1, 1);
+            figmaAsset.thumbnail.name = "Thumbnail";
+            figmaAsset.thumbnail.LoadImage(thumbnail);
+            
             var canvases = figmaFile.document.children;
             var pages = new FigmaFilePage[canvases.Length];
             
@@ -196,13 +213,16 @@ namespace Cdm.Figma
             }
 
             figmaAsset.pages = pages;
-            
+
             var figmaAssetPath = GetFigmaAssetPath(taskFile, fileId);
             AssetDatabase.DeleteAsset(figmaAssetPath);
             AssetDatabase.CreateAsset(figmaAsset, figmaAssetPath);
             
             AssetDatabase.AddObjectToAsset(figmaAsset.content, figmaAsset);
             AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(figmaAsset.content));
+            
+            AssetDatabase.AddObjectToAsset(figmaAsset.thumbnail, figmaAsset);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(figmaAsset.thumbnail));
             
             AssetDatabase.Refresh();
             

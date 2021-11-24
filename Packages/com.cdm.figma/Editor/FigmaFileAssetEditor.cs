@@ -6,21 +6,25 @@ namespace Cdm.Figma
 {
     [CustomEditor(typeof(FigmaFileAsset))]
     public class FigmaFileAssetEditor : Editor
-    { 
+    {
         public override VisualElement CreateInspectorGUI()
         {
-            var root = new VisualElement();
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaFileAsset.uxml");
-            visualTree.CloneTree(root);
+            var fileAsset = ((FigmaFileAsset) target);
 
-            var listItem = 
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaFileAsset_PageListItem.uxml");
+            var root = new VisualElement();
+            var visualTree =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaFileAsset.uxml");
+            visualTree.CloneTree(root);
             
+            var listItem =
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                    $"{PackageUtils.VisualTreeFolder}/FigmaFileAsset_PageListItem.uxml");
+
             var listView = root.Q<ListView>("pagesList");
             listView.makeItem = () => listItem.Instantiate();
             listView.bindItem = (e, i) =>
             {
-                var page = ((FigmaFileAsset) target).pages[i];
+                var page = fileAsset.pages[i];
                 var toggle = e.Q<Toggle>();
                 toggle.label = page.name;
                 toggle.value = page.enabled;
@@ -33,25 +37,46 @@ namespace Cdm.Figma
 
             root.Q<Button>("copyContentButton").clicked += () =>
             {
-                var file = ((FigmaFileAsset) target);
-                if (file.content != null)
+                if (fileAsset.content != null)
                 {
-                    GUIUtility.systemCopyBuffer = file.content.text;   
+                    GUIUtility.systemCopyBuffer = fileAsset.content.text;
                 }
             };
-            
-            root.Q<Button>("exportFileButton").clicked += () => 
+
+            root.Q<Button>("exportFileButton").clicked += () =>
             {
-                var file = (FigmaFileAsset) target;
-                var path = EditorUtility.SaveFilePanel("Export Figma File", "", $"{file.id}.json", "json");
-                
+                var path = EditorUtility.SaveFilePanel("Export Figma File", "", $"{fileAsset.id}.json", "json");
+
                 if (!string.IsNullOrWhiteSpace(path))
                 {
-                    System.IO.File.WriteAllText(path, file.content.text);    
+                    System.IO.File.WriteAllText(path, fileAsset.content.text);
                 }
             };
-            
+
             return root;
+        }
+
+        public override bool HasPreviewGUI()
+        {
+            var fileAsset = ((FigmaFileAsset) target);
+            return fileAsset != null && fileAsset.thumbnail != null;
+        }
+
+        public override void DrawPreview(Rect previewArea)
+        {
+            var thumbnail = ((FigmaFileAsset) target).thumbnail;
+
+            var widthRatio = previewArea.width / thumbnail.width;
+            var heightRatio = previewArea.height / thumbnail.height;
+            var ratio = widthRatio > heightRatio ? heightRatio : widthRatio;
+            
+            var newWidth = thumbnail.width * ratio;
+            var newHeight = thumbnail.height * ratio;
+            var newX = previewArea.x + (previewArea.width - newWidth) * 0.5f;
+            var newY = previewArea.y + (previewArea.height - newHeight) * 0.5f;
+            
+            var newPreviewArea = new Rect(newX, newY, newWidth, newHeight);
+            GUI.DrawTexture(newPreviewArea, ((FigmaFileAsset) target).thumbnail);
         }
     }
 }

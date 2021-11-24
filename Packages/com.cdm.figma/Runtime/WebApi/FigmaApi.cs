@@ -54,6 +54,24 @@ namespace Cdm.Figma
             return FigmaFile.FromString(result);
         }
 
+        public static async Task<byte[]> GetThumbnailImageAsync(string thumbnailUrl)
+        {
+            var httpWebRequest = (HttpWebRequest) WebRequest.Create(thumbnailUrl);
+            httpWebRequest.ContentType = "image/png";
+            httpWebRequest.Method = "GET";
+
+            var httpResponse = (HttpWebResponse) await httpWebRequest.GetResponseAsync();
+            var responseStream = httpResponse.GetResponseStream();
+            if (responseStream != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await responseStream.CopyToAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
+
+            throw new WebException("Response stream is null");
+        }
+
         private static async Task<string> GetContentAsync(string requestUri, string personalAccessToken)
         {
             var httpWebRequest = (HttpWebRequest) WebRequest.Create(requestUri);

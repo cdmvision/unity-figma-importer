@@ -13,6 +13,7 @@
 
 # Downloaded figma files
 [Aa]ssets/Resources/Figma/Files/
+[Aa]ssets/Resources/Figma/UIToolkit/Files/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
