@@ -1,9 +1,10 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Packages/com.cdm.figma/Editor%20Default%20Resources/Style.uss?fileID=7433441132597879392&amp;guid=273b1e4f0a689b542b301e64df41e3b5&amp;type=3#Style" />
-    <ui:GroupBox text="Settings" name="settingsGroup">
+    <ui:GroupBox text="Settings">
         <ui:TextField picking-mode="Ignore" label="Personal Access Token" binding-path="_personalAccessToken" tooltip="Enter your Figma personal access token" />
         <ui:Button text="Click here for help generating access tokens" display-tooltip-when-elided="true" name="accessTokenHelpButton" class="link" style="background-color: rgba(0, 0, 0, 0); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
         <ui:VisualElement style="height: 8px;" />
+        <uie:ObjectField allow-scene-objects="false" binding-path="_importer" type="Cdm.Figma.FigmaImporter, Cdm.Figma" label="Importer" />
         <ui:TextField picking-mode="Ignore" label="Assets Path" binding-path="_assetsPath" />
     </ui:GroupBox>
     <ui:GroupBox text="File IDs">

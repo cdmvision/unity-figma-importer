@@ -34,14 +34,6 @@ namespace Cdm.Figma
             var root = new VisualElement();
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaImporter.uxml");
             visualTree.CloneTree(root);
-
-            var settingsGroup = root.Q<VisualElement>("settingsGroup");
-            
-            var importerField = new ObjectField("Importer");
-            importerField.objectType = typeof(FigmaImporter);
-            importerField.allowSceneObjects = false;
-            importerField.bindingPath = "_importer";
-            settingsGroup.Add(importerField);
             
             root.Q<Button>("accessTokenHelpButton").clicked += () =>
             {
