@@ -12,7 +12,7 @@ namespace Cdm.Figma.UIToolkit
         public new const string AssetMenuRoot = FigmaImporter.AssetMenuRoot + "UI Toolkit/";
 
         [SerializeField]
-        private string _typePrefix = "/t:";
+        private string _typePrefix = "@type:";
 
         public string typePrefix
         {
@@ -21,7 +21,7 @@ namespace Cdm.Figma.UIToolkit
         }
         
         [SerializeField]
-        private string _bindingPrefix = "/b:";
+        private string _bindingPrefix = "@id:";
 
         public string bindingPrefix
         {
@@ -30,7 +30,7 @@ namespace Cdm.Figma.UIToolkit
         }
         
         [SerializeField]
-        private string _localizationPrefix = "/l:";
+        private string _localizationPrefix = "@lang:";
 
         public string localizationPrefix
         {
