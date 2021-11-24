@@ -110,8 +110,10 @@ namespace Cdm.Figma
                 for (var i = 0; i < fileCount; i++)
                 { 
                     var fileId = taskFile.fileIds[i];
+                    
                     Progress.Report(_progressImportFilesId, i, fileCount, $"File: {fileId}");
-
+                    EditorUtility.DisplayProgressBar("Importing Figma files", $"File: {fileId}", (float) i / fileCount);
+                    
                     var assetPath = GetFigmaAssetPath(taskFile, fileId);
                     if (System.IO.File.Exists(assetPath))
                     {
@@ -130,6 +132,7 @@ namespace Cdm.Figma
                         Debug.LogWarning($"File '{fileId}' asset does not exist. Please download it before importing.");   
                     }
                     
+                    EditorUtility.DisplayProgressBar("Importing Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
                     Progress.Report(_progressImportFilesId, i + 1, fileCount, $"File: {fileId}");
                 }
 
@@ -154,6 +157,7 @@ namespace Cdm.Figma
                     var fileId = taskFile.fileIds[i];
                 
                     Progress.Report(_progressGetFilesId, i, fileCount, $"File: {fileId}");
+                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) i / fileCount);
                     
                     var fileContent = await FigmaApi.GetFileAsTextAsync(
                         new FigmaFileRequest(taskFile.personalAccessToken, fileId));
@@ -163,9 +167,11 @@ namespace Cdm.Figma
                     
                     SaveFigmaFile(taskFile, file, fileId, fileContent, thumbnail);
                 
+                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
                     Progress.Report(_progressGetFilesId, i + 1, fileCount, $"File: {fileId}");
                 }
                 
+                EditorUtility.ClearProgressBar();
                 Progress.Finish(_progressGetFilesId);
             }
             catch (Exception e)
