@@ -17,8 +17,6 @@ namespace Cdm.Figma
         private FigmaFileAsset _selectedFile;
         private Editor _fileAssetEditor;
         private VisualElement _fileAssetElement;
-        private int _progressGetFilesId;
-        private int _progressImportFilesId;
 
         private void OnDisable()
         {
@@ -104,23 +102,20 @@ namespace Cdm.Figma
 
             try
             {
-                _progressImportFilesId = Progress.Start($"Importing Figma files");
-                
                 var fileCount = taskFile.fileIds.Count;
                 for (var i = 0; i < fileCount; i++)
-                { 
+                {
                     var fileId = taskFile.fileIds[i];
-                    
-                    Progress.Report(_progressImportFilesId, i, fileCount, $"File: {fileId}");
+
                     EditorUtility.DisplayProgressBar("Importing Figma files", $"File: {fileId}", (float) i / fileCount);
-                    
+
                     var assetPath = GetFigmaAssetPath(taskFile, fileId);
                     if (System.IO.File.Exists(assetPath))
                     {
                         var fileAsset = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
                         if (fileAsset != null)
                         {
-                            await taskFile.importer.ImportFileAsync(fileAsset.GetFile());    
+                            await taskFile.importer.ImportFileAsync(fileAsset.GetFile());
                         }
                         else
                         {
@@ -129,19 +124,21 @@ namespace Cdm.Figma
                     }
                     else
                     {
-                        Debug.LogWarning($"File '{fileId}' asset does not exist. Please download it before importing.");   
+                        Debug.LogWarning($"File '{fileId}' asset does not exist. Please download it before importing.");
                     }
-                    
-                    EditorUtility.DisplayProgressBar("Importing Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
-                    Progress.Report(_progressImportFilesId, i + 1, fileCount, $"File: {fileId}");
+
+                    EditorUtility.DisplayProgressBar("Importing Figma files", $"File: {fileId}",
+                        (float) (i + 1) / fileCount);
                 }
 
-                Progress.Finish(_progressImportFilesId);
             }
             catch (Exception e)
             {
-                Progress.Finish(_progressImportFilesId, Progress.Status.Failed);
                 Debug.LogError(e);
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
             }
         }
         
@@ -149,14 +146,11 @@ namespace Cdm.Figma
         {
             try
             {
-                _progressGetFilesId = Progress.Start($"Downloading Figma files");
-                
                 var fileCount = taskFile.fileIds.Count;
                 for (var i = 0; i < fileCount; i++)
                 {
                     var fileId = taskFile.fileIds[i];
                 
-                    Progress.Report(_progressGetFilesId, i, fileCount, $"File: {fileId}");
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) i / fileCount);
                     
                     var fileContent = await FigmaApi.GetFileAsTextAsync(
@@ -168,20 +162,19 @@ namespace Cdm.Figma
                     SaveFigmaFile(taskFile, file, fileId, fileContent, thumbnail);
                 
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
-                    Progress.Report(_progressGetFilesId, i + 1, fileCount, $"File: {fileId}");
                 }
-                
-                EditorUtility.ClearProgressBar();
-                Progress.Finish(_progressGetFilesId);
             }
             catch (Exception e)
             {
-                Progress.Finish(_progressGetFilesId, Progress.Status.Failed);
                 Debug.LogError(e);
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
             }
         }
         
-        private void SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
+        private static void SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
             string fileContent, byte[] thumbnail)
         {
             var directory = Path.Combine("Assets", taskFile.assetsPath);
