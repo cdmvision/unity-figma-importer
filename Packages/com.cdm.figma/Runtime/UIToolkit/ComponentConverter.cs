@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
@@ -13,10 +12,8 @@ namespace Cdm.Figma.UIToolkit
         public const string Disabled = "Disabled";
     }
     
-    public abstract class ComponentConverter : ScriptableObject, IComponentConverter
+    public abstract class ComponentConverter : NodeConverter
     {
-        protected const string AssetMenuRoot = UIToolkitFigmaImporter.AssetMenuRoot + "Converters/";
-        
         [SerializeField]
         private string _typeId;
 
@@ -62,11 +59,9 @@ namespace Cdm.Figma.UIToolkit
         protected abstract string GetDefaultTypeId();
         protected abstract ISet<ComponentProperty> GetVariants();
         
-        public bool CanConvert(UIToolkitFigmaImporter importer, FigmaFile file, Node node)
+        public override bool CanConvert(FigmaImporter importer, FigmaFile file, Node node)
         {
             return node?.name.Contains($"{importer.typePrefix}{typeId}") ?? false;
         }
-
-        public abstract VisualTreeAsset Convert(UIToolkitFigmaImporter importer, FigmaFile file, Node node);
     }
 }

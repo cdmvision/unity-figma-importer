@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Xml;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
@@ -45,7 +45,7 @@ namespace Cdm.Figma.UIToolkit
             };
         }
 
-        public override VisualTreeAsset Convert(UIToolkitFigmaImporter importer, FigmaFile file, Node node)
+        public override XmlElement Convert(FigmaImporter importer, FigmaFile file, Node node)
         {
             throw new System.NotImplementedException();
         }
