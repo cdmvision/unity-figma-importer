@@ -1,5 +1,6 @@
 ﻿using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace Cdm.Figma
 {
@@ -43,6 +44,11 @@ namespace Cdm.Figma
             this.g = g;
             this.b = b;
             this.a = a;
+        }
+
+        public override string ToString()
+        {
+            return $"#{ColorUtility.ToHtmlStringRGBA((UnityEngine.Color) this)}";
         }
 
         public static implicit operator UnityEngine.Color(Color c) => new UnityEngine.Color(c.r, c.g, c.b, c.a);
