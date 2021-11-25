@@ -59,6 +59,10 @@ namespace Cdm.Figma.UIToolkit
 
         public List<ComponentConverter> componentConverters => _componentConverters;
 
+        private List<ComponentSetNode> _componentSets = new List<ComponentSetNode>();
+
+        public IReadOnlyList<ComponentSetNode> componentSets => _componentSets;
+        
         public override async Task ImportFileAsync(FigmaFile file)
         {
             if (file == null)
@@ -67,11 +71,23 @@ namespace Cdm.Figma.UIToolkit
             var assetsDirectory = Path.Combine("Assets", assetsPath);
             Directory.CreateDirectory(assetsDirectory);
 
+            // TODO: collect component set!
+            // _componentSets
+            
             var pages = file.document.children;
 
             foreach (var page in pages)
             {
-                var pageXml = new XDocument();
+                var xml = new XDocument();
+                var root = new XElement("UXML");
+                root.SetAttributeValue("xmlns", "UnityEngine.UIElements");
+                root.SetAttributeValue("xmlns", "UnityEditor.UIElements");
+                root.SetAttributeValue("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+                root.SetAttributeValue("engine", "UnityEngine.UIElements");
+                root.SetAttributeValue("noNamespaceSchemaLocation", "../../UIElementsSchema/UIElements.xsd");
+                root.Add();
+                xml.Add(root);
+
                 // TODO: xml definition
                 // TODO: generate page xml.
 
@@ -80,24 +96,28 @@ namespace Cdm.Figma.UIToolkit
                 {
                     if (TryConvertNode(file, node, out var element))
                     {
-                        pageXml.Add(element);
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Node [{node.id}, {node.name}] could not be converted.");
+                        xml.Add(element);
                     }
                 }
 
-                var documentPath = Path.Combine(assetsDirectory, $"{page.id}.uxml");
-                using var fileStream = System.IO.File.Create(documentPath);
-                using var xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
-                await pageXml.SaveAsync(xmlWriter, CancellationToken.None);
-                
-                Debug.Log($"UI document has been saved to: {documentPath}");
+                await Task.Run(() =>
+                {
+                    var documentPath = Path.Combine(assetsDirectory, $"{page.name}.uxml");
+                    using var fileStream = System.IO.File.Create(documentPath);
+                    using var xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
+                    xmlWriter.Formatting = Formatting.Indented;
+                    xml.Save(xmlWriter);
+                    
+                    Debug.Log($"UI document has been saved to: {documentPath}");
+                });
             }
+            
+#if UNITY_EDITOR
+            UnityEditor.AssetDatabase.Refresh();
+#endif
         }
 
-        internal bool TryConvertNode(FigmaFile file, Node node, out XmlElement element)
+        internal bool TryConvertNode(FigmaFile file, Node node, out XElement element)
         {
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(this, file, node));

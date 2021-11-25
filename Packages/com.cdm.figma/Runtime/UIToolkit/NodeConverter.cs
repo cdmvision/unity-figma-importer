@@ -1,4 +1,4 @@
-using System.Xml;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
@@ -8,7 +8,7 @@ namespace Cdm.Figma.UIToolkit
         protected const string AssetMenuRoot = FigmaImporter.AssetMenuRoot + "Converters/";
         
         public abstract bool CanConvert(FigmaImporter importer, FigmaFile file, Node node);
-        public abstract XmlElement Convert(FigmaImporter importer, FigmaFile file, Node node);
+        public abstract XElement Convert(FigmaImporter importer, FigmaFile file, Node node);
     }
 
     public abstract class NodeConverter<TNodeType> : NodeConverter where TNodeType : Node

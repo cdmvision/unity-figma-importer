@@ -1,4 +1,4 @@
-using System.Xml;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
@@ -6,7 +6,7 @@ namespace Cdm.Figma.UIToolkit
     [CreateAssetMenu(fileName = nameof(TextNodeConverter), menuName = AssetMenuRoot + "Text", order = 20)]
     public class TextNodeConverter : NodeConverter<TextNode>
     {
-        public override XmlElement Convert(FigmaImporter importer, FigmaFile file, Node node)
+        public override XElement Convert(FigmaImporter importer, FigmaFile file, Node node)
         {
             throw new System.NotImplementedException();
         }

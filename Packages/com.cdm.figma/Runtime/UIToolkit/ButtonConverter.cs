@@ -1,18 +1,14 @@
+using System;
 using System.Collections.Generic;
-using System.Xml;
+using System.Linq;
+using System.Xml.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(ButtonConverter), menuName = AssetMenuRoot + "Button")]
+    [CreateAssetMenu(fileName = nameof(ButtonConverter), menuName = AssetMenuRoot + "Button", order = 0)]
     public class ButtonConverter : ComponentConverter
     {
-        public VisualTreeAsset Convert(FigmaFile file, Node node)
-        {
-            throw new System.NotImplementedException();
-        }
-
         protected override string GetDefaultTypeId()
         {
             return "Button";
@@ -36,9 +32,50 @@ namespace Cdm.Figma.UIToolkit
             };
         }
 
-        public override XmlElement Convert(FigmaImporter importer, FigmaFile file, Node node)
+        public override XElement Convert(FigmaImporter importer, FigmaFile file, Node node)
         {
-            throw new System.NotImplementedException();
+            var instanceNode = (InstanceNode) node;
+            
+            if (file.components.TryGetValue(instanceNode.componentId, out var component))
+            {
+                var componentSet = importer.componentSets.FirstOrDefault(c => c.id == component.componentSetId);
+                if (componentSet != null)
+                {
+                    var variants = componentSet.children;
+                    foreach (var variant in variants)
+                    {
+                        var componentVariant = (ComponentNode) variant;
+                        
+                        // TODO: Check variant property: componentVariant.name
+                        // State=Default
+
+                        foreach (var property in properties)
+                        {
+                            foreach (var propertyVariant in property.variants)
+                            {
+                                if ($"{property.key}={propertyVariant.value}" == componentVariant.name)
+                                {
+                                    if (propertyVariant.key == ComponentState.Default)
+                                    {
+                                        
+                                    }
+                                    else if (propertyVariant.key == ComponentState.Hover)
+                                    {
+                                        
+                                    }
+                                    // TODO: rest of it
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError("Component set does not exist!");
+                }
+            }
+
+            throw new NotImplementedException();
         }
     }
 }

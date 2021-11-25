@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Xml;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
@@ -45,7 +45,7 @@ namespace Cdm.Figma.UIToolkit
             };
         }
 
-        public override XmlElement Convert(FigmaImporter importer, FigmaFile file, Node node)
+        public override XElement Convert(FigmaImporter importer, FigmaFile file, Node node)
         {
             throw new System.NotImplementedException();
         }

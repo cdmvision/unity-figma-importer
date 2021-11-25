@@ -61,7 +61,18 @@ namespace Cdm.Figma.UIToolkit
         
         public override bool CanConvert(FigmaImporter importer, FigmaFile file, Node node)
         {
-            return node?.name.Contains($"{importer.typePrefix}{typeId}") ?? false;
+            if (node.GetType() != typeof(InstanceNode))
+                return false;
+
+            var instanceNode = (InstanceNode) node;
+
+            if (file.components.TryGetValue(instanceNode.componentId, out var component))
+            {
+                var tokens = component.description.Split(" ");
+                return tokens.Any(token => token == $"{importer.typePrefix}{typeId}");
+            }
+
+            return false;
         }
     }
 }

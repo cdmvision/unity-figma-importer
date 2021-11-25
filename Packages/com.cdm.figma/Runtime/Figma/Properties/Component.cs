@@ -27,6 +27,9 @@ namespace Cdm.Figma
         /// </summary>
         [JsonProperty("description")]
         public string description { get; set; }
+        
+        [JsonProperty("componentSetId")]
+        public string componentSetId { get; set; } = null;
 
         /// <summary>
         /// The documentation links for this component.

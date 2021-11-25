@@ -1,12 +1,12 @@
-using System.Xml;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(RectangleNodeConverter), menuName = AssetMenuRoot + "Rectangle", order = 21)]
+    [CreateAssetMenu(fileName = nameof(RectangleNodeConverter), menuName = AssetMenuRoot + "Rectangle", order = 20)]
     public class RectangleNodeConverter : NodeConverter<RectangleNode>
     {
-        public override XmlElement Convert(FigmaImporter importer, FigmaFile file, Node node)
+        public override XElement Convert(FigmaImporter importer, FigmaFile file, Node node)
         {
             var rectangleNode = (RectangleNode) node;
             // TODO: Implement
