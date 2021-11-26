@@ -2,6 +2,7 @@
     "name": "Cdm.Figma",
     "rootNamespace": "Cdm.Figma",
     "references": [
+        "GUID:68550284b645f4b9894995579f34290a",
         "GUID:dbb3c8fd3e762b2489d09f71ce82b374"
     ],
     "includePlatforms": [],

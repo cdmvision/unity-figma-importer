@@ -30,6 +30,8 @@ namespace Cdm.Figma
                 throw new ArgumentException("File ID cannot be empty.");
 
             var uri = GetFileRequestUrl(fileRequest);
+            Debug.Log(uri);
+            
             var result = await GetContentAsync(uri, fileRequest.personalAccessToken);
             return result;
         }
@@ -69,6 +71,7 @@ namespace Cdm.Figma
             // Get image download URLs.
             var uri = GetImageRequestUrl(imageRequest);
             Debug.Log(uri);
+            
             var result = await GetContentAsync(uri, imageRequest.personalAccessToken);
 
             var response = JsonConvert.DeserializeObject<FigmaImageResponse>(result);

@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Cdm.Figma.Utils;
+using UnityEngine.UIElements;
 
 namespace Cdm.Figma
 {
@@ -75,6 +78,15 @@ namespace Cdm.Figma
             get => _pages;
             internal set => _pages = value;
         }
+
+        [SerializeField]
+        private SerializableDictionary<string, string> _vectorGraphics = new SerializableDictionary<string, string>();
+
+        /// <summary>
+        /// Contains node ID as key and its imported vector graphics path as value.
+        /// You can use like url("project:///Assets/vector_path"); in the style definition.
+        /// </summary>
+        public IDictionary<string, string> vectorGraphics => _vectorGraphics;
 
         public FigmaFile GetFile()
         {

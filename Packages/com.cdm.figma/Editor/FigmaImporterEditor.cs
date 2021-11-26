@@ -168,12 +168,12 @@ namespace Cdm.Figma
                     var file = FigmaFile.FromString(fileContent);
                     var thumbnail = await FigmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
                     
-                    // Save Vector nodes as graphic asset.
-                    await SaveVectorGraphicsAsync(taskFile, file, fileId);
-
                     // Save figma file asset.
-                    SaveFigmaFile(taskFile, file, fileId, fileContent, thumbnail);
-                
+                    var fileAsset = SaveFigmaFile(taskFile, file, fileId, fileContent, thumbnail);
+                    
+                    // Save Vector nodes as graphic asset.
+                    await SaveVectorGraphicsAsync(taskFile, file, fileId, fileAsset);
+
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
                 }
             }
@@ -188,7 +188,7 @@ namespace Cdm.Figma
         }
 
         private static async Task SaveVectorGraphicsAsync(
-            FigmaImporterTaskFile taskFile, FigmaFile file, string fileId)
+            FigmaImporterTaskFile taskFile, FigmaFile file, string fileId, FigmaFileAsset fileAsset)
         {
             var nodes = new List<VectorNode>();
             file.document.Traverse(node =>
@@ -219,7 +219,8 @@ namespace Cdm.Figma
             {
                 if (graphic.Value != null)
                 {
-                    var fileName = $"{graphic.Key.Replace(":", "_").Replace(";", "-")}.svg";
+                    var fileName = $"{graphic.Key.Replace(":", "-").Replace(";", "_")}.svg";
+                    
                     var path = Path.Combine(Application.dataPath, taskFile.graphicsPath, fileName);
                     await File.WriteAllBytesAsync(path, graphic.Value);
 
@@ -232,6 +233,9 @@ namespace Cdm.Figma
                     
                     EditorUtility.SetDirty(svgImporter);
                     svgImporter.SaveAndReimport();
+
+                    var resourcePath = Path.Combine(taskFile.graphicsPath, fileName).Replace("\\", "/");
+                    fileAsset.vectorGraphics.Add(graphic.Key, resourcePath);
                 }
                 else
                 {
@@ -239,10 +243,11 @@ namespace Cdm.Figma
                 }
             }
             
-            
+            EditorUtility.SetDirty(fileAsset);
+            AssetDatabase.SaveAssetIfDirty(fileAsset);
         }
         
-        private static void SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
+        private static FigmaFileAsset SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
             string fileContent, byte[] thumbnail)
         {
             var directory = Path.Combine("Assets", taskFile.assetsPath);
@@ -297,6 +302,7 @@ namespace Cdm.Figma
             AssetDatabase.Refresh();
             
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
+            return figmaAsset;
         }
         
         private static string GetFigmaAssetPath(FigmaImporterTaskFile taskFile, string fileId) 
