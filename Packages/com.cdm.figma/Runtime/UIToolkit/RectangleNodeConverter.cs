@@ -6,7 +6,7 @@ namespace Cdm.Figma.UIToolkit
     [CreateAssetMenu(fileName = nameof(RectangleNodeConverter), menuName = AssetMenuRoot + "Rectangle", order = 20)]
     public class RectangleNodeConverter : NodeConverter<RectangleNode>
     {
-        public override XElement Convert(FigmaImporter importer, FigmaFile file, Node node)
+        public override XElement Convert(Node node, NodeConvertArgs args)
         {
             var rectangleNode = (RectangleNode) node;
             // TODO: Implement

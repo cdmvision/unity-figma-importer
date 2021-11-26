@@ -7,13 +7,13 @@ namespace Cdm.Figma.UIToolkit
     {
         protected const string AssetMenuRoot = FigmaImporter.AssetMenuRoot + "Converters/";
         
-        public abstract bool CanConvert(FigmaImporter importer, FigmaFile file, Node node);
-        public abstract XElement Convert(FigmaImporter importer, FigmaFile file, Node node);
+        public abstract bool CanConvert(Node node, NodeConvertArgs args);
+        public abstract XElement Convert(Node node, NodeConvertArgs args);
     }
 
     public abstract class NodeConverter<TNodeType> : NodeConverter where TNodeType : Node
     {
-        public override bool CanConvert(FigmaImporter importer, FigmaFile file, Node node)
+        public override bool CanConvert(Node node, NodeConvertArgs args)
         {
             return node.GetType() == typeof(TNodeType);
         }

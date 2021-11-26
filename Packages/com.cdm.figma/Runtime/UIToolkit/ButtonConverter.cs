@@ -32,13 +32,13 @@ namespace Cdm.Figma.UIToolkit
             };
         }
 
-        public override XElement Convert(FigmaImporter importer, FigmaFile file, Node node)
+        public override XElement Convert(Node node, NodeConvertArgs args)
         {
             var instanceNode = (InstanceNode) node;
             
-            if (file.components.TryGetValue(instanceNode.componentId, out var component))
+            if (args.file.components.TryGetValue(instanceNode.componentId, out var component))
             {
-                var componentSet = importer.componentSets.FirstOrDefault(c => c.id == component.componentSetId);
+                var componentSet = args.importer.componentSets.FirstOrDefault(c => c.id == component.componentSetId);
                 if (componentSet != null)
                 {
                     var variants = componentSet.children;

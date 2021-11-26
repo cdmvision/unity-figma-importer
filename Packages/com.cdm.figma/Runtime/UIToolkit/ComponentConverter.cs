@@ -59,17 +59,17 @@ namespace Cdm.Figma.UIToolkit
         protected abstract string GetDefaultTypeId();
         protected abstract ISet<ComponentProperty> GetVariants();
         
-        public override bool CanConvert(FigmaImporter importer, FigmaFile file, Node node)
+        public override bool CanConvert(Node node, NodeConvertArgs args)
         {
             if (node.GetType() != typeof(InstanceNode))
                 return false;
 
             var instanceNode = (InstanceNode) node;
 
-            if (file.components.TryGetValue(instanceNode.componentId, out var component))
+            if (args.file.components.TryGetValue(instanceNode.componentId, out var component))
             {
                 var tokens = component.description.Split(" ");
-                return tokens.Any(token => token == $"{importer.typePrefix}{typeId}");
+                return tokens.Any(token => token == $"{args.importer.typePrefix}{typeId}");
             }
 
             return false;

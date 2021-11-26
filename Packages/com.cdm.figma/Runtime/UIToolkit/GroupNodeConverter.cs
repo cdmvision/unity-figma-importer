@@ -6,7 +6,7 @@ namespace Cdm.Figma.UIToolkit
     [CreateAssetMenu(fileName = nameof(GroupNodeConverter), menuName = AssetMenuRoot + "Group", order = 20)]
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
-        public override XElement Convert(FigmaImporter importer, FigmaFile file, Node node)
+        public override XElement Convert(Node node, NodeConvertArgs args)
         {
             var groupNode = (GroupNode) node;
             var groupXml = new XElement("VisualElement");
@@ -17,7 +17,7 @@ namespace Cdm.Figma.UIToolkit
 
             foreach (var child in children)
             {
-                if (importer.TryConvertNode(file, child, out var childElement))
+                if (args.importer.TryConvertNode(child, args, out var childElement))
                 {
                     groupXml.Add(childElement);
                 }
