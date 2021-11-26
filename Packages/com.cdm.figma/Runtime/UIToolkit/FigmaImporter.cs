@@ -79,6 +79,7 @@ namespace Cdm.Figma.UIToolkit
             
             XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
             XNamespace ui = "UnityEngine.UIElements";
+            XNamespace uie = "UnityEditor.UIElements";
 
             var pages = file.document.children;
 
@@ -98,11 +99,17 @@ namespace Cdm.Figma.UIToolkit
                 var visualElement = new XElement(ui + nameof(VisualElement));
                 visualElement.Add(new XAttribute("style", $"background-color: {page.backgroundColor}; flex-grow: 1;"));
                 root.Add(visualElement);
+
+                var args = new NodeConvertArgs(this, file, new XNamespaces()
+                {
+                    engine = ui,
+                    editor = uie
+                });
                 
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
-                    if (TryConvertNode(file, node, out var element))
+                    if (TryConvertNode(node, args, out var element))
                     {
                         root.Add(element);
                     }
@@ -125,21 +132,21 @@ namespace Cdm.Figma.UIToolkit
 #endif
         }
 
-        internal bool TryConvertNode(FigmaFile file, Node node, out XElement element)
+        internal bool TryConvertNode(Node node, NodeConvertArgs args, out XElement element)
         {
             // Try with component converters first.
-            var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(this, file, node));
+            var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (componentConverter != null)
             {
-                element = componentConverter.Convert(this, file, node);
+                element = componentConverter.Convert(node, args);
                 return true;
             }
             
             // Try with node converters.
-            var nodeConverter = nodeConverters.FirstOrDefault(c => c.CanConvert(this, file, node));
+            var nodeConverter = nodeConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (nodeConverter != null)
             {
-                element = nodeConverter.Convert(this, file, node);
+                element = nodeConverter.Convert(node, args);
                 return true;
             }
             

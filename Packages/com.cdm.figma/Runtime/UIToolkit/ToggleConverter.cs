@@ -45,7 +45,7 @@ namespace Cdm.Figma.UIToolkit
             };
         }
 
-        public override XElement Convert(FigmaImporter importer, FigmaFile file, Node node)
+        public override XElement Convert(Node node, NodeConvertArgs args)
         {
             throw new System.NotImplementedException();
         }
