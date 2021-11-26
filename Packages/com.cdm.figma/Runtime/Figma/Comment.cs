@@ -1,65 +1,65 @@
 using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-/// <summary>
+    /// <summary>
     /// A comment or reply left by a user
     /// </summary>
-    [Serializable]
-    public partial class Comment
+    [DataContract]
+    public class Comment
     {
         /// <summary>
         /// Unique identifier for comment.
         /// </summary>
-        [JsonProperty("id", Required = Required.Always)]
+        [DataMember(Name = "id", IsRequired = true)]
         public string id { get; set; }
-        
-        [JsonProperty("client_meta")]
+
+        [DataMember(Name = "client_meta")]
         public CommentMetadata metadata { get; set; }
 
         /// <summary>
         /// The time at which the comment was left
         /// </summary>
-        [JsonProperty("created_at")]
+        [DataMember(Name = "created_at")]
         public DateTimeOffset createdAt { get; set; }
 
         /// <summary>
         /// The file in which the comment lives
         /// </summary>
-        [JsonProperty("file_key")]
+        [DataMember(Name = "file_key")]
         public string fileKey { get; set; }
-        
+
         /// <summary>
         /// (MISSING IN DOCS)
         /// The content of the comment
         /// </summary>
-        [JsonProperty("message")]
+        [DataMember(Name = "message")]
         public string message { get; set; }
 
         /// <summary>
         /// Only set for top level comments. The number displayed with the
         /// comment in the UI
         /// </summary>
-        [JsonProperty("order_id")]
+        [DataMember(Name = "order_id")]
         public float orderId { get; set; }
 
         /// <summary>
         /// If present, the id of the comment to which this is the reply
         /// </summary>
-        [JsonProperty("parent_id")]
+        [DataMember(Name = "parent_id")]
         public string parentId { get; set; }
 
         /// <summary>
         /// If set, when the comment was resolved
         /// </summary>
-        [JsonProperty("resolved_at")]
+        [DataMember(Name = "resolved_at")]
         public DateTimeOffset? resolvedAt { get; set; }
 
         /// <summary>
         /// The user who left the comment
         /// </summary>
-        [JsonProperty("user")]
+        [DataMember(Name = "user")]
         public User user { get; set; }
     }
 }

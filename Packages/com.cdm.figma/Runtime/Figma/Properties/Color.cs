@@ -1,5 +1,4 @@
 ﻿using System.Runtime.Serialization;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Cdm.Figma
@@ -13,25 +12,25 @@ namespace Cdm.Figma
         /// <summary>
         /// Alpha channel value, between 0 and 1.
         /// </summary>
-        [JsonProperty("a")]
+        [DataMember(Name = "a")]
         public float a { get; set; }
 
         /// <summary>
         /// Blue channel value, between 0 and 1.
         /// </summary>
-        [JsonProperty("b")]
+        [DataMember(Name = "b")]
         public float b { get; set; }
 
         /// <summary>
         /// Green channel value, between 0 and 1.
         /// </summary>
-        [JsonProperty("g")]
+        [DataMember(Name = "g")]
         public float g { get; set; }
 
         /// <summary>
         /// Red channel value, between 0 and 1.
         /// </summary>
-        [JsonProperty("r")]
+        [DataMember(Name = "r")]
         public float r { get; set; }
 
         public Color()

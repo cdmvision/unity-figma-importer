@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
@@ -12,103 +10,103 @@ namespace Cdm.Figma
     /// section for more information).
     /// Map from ID to TypeStyle for looking up style overrides.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public partial class TypeStyle
     {
         /// <summary>
         /// Font family of text (standard name)
         /// </summary>
-        [JsonProperty("fontFamily")]
+        [DataMember(Name = "fontFamily")]
         public string fontFamily { get; set; }
 
         /// <summary>
         /// PostScript font name
         /// </summary>
-        [JsonProperty("fontPostScriptName")]
+        [DataMember(Name = "fontPostScriptName")]
         public string fontPostScriptName { get; set; }
 
         /// <summary>
         /// Space between paragraphs in px, 0 if not present.
         /// </summary>
-        [JsonProperty("paragraphSpacing")]
+        [DataMember(Name = "paragraphSpacing")]
         public float paragraphSpacing { get; set; }
 
         /// <summary>
         /// Paragraph indentation in px, 0 if not present.
         /// </summary>
-        [JsonProperty("paragraphIndent")]
+        [DataMember(Name = "paragraphIndent")]
         public float paragraphIndent { get; set; }
 
         /// <summary>
         /// Space between list items in px, 0 if not present.
         /// </summary>
-        [JsonProperty("listSpacing")]
+        [DataMember(Name = "listSpacing")]
         public float listSpacing { get; set; }
 
         /// <summary>
         /// Whether or not text is italicized.
         /// </summary>
-        [JsonProperty("italic")]
+        [DataMember(Name = "italic")]
         public bool italic { get; set; }
 
         /// <summary>
         /// Numeric font weight.
         /// </summary>
-        [JsonProperty("fontWeight")]
+        [DataMember(Name = "fontWeight")]
         public float fontWeight { get; set; }
 
         /// <summary>
         /// Font size in px.
         /// </summary>
-        [JsonProperty("fontSize")]
+        [DataMember(Name = "fontSize")]
         public float fontSize { get; set; }
 
         /// <summary>
         /// Text casing applied to the node, default is the <see cref="TextCase.Original"/> casing.
         /// </summary>
-        [JsonProperty("textCase")]
+        [DataMember(Name = "textCase")]
         public TextCase textCase { get; set; } = TextCase.Original;
 
         /// <summary>
         /// Text decoration applied to the node, default is <see cref="TextDecoration.None"/>.
         /// </summary>
-        [JsonProperty("textDecoration")]
+        [DataMember(Name = "textDecoration")]
         public TextDecoration textDecoration { get; set; } = TextDecoration.None;
 
         /// <summary>
         /// Dimensions along which text will auto resize, default is that the text does not auto-resize.
         /// </summary>
-        [JsonProperty("textAutoResize")]
+        [DataMember(Name = "textAutoResize")]
         public TextAutoResize textAutoResize { get; set; } = TextAutoResize.None;
 
         /// <summary>
         /// Horizontal text alignment as string enum
         /// </summary>
-        [JsonProperty("textAlignHorizontal")]
+        [DataMember(Name = "textAlignHorizontal")]
         public TextAlignHorizontal textAlignHorizontal { get; set; } = TextAlignHorizontal.Left;
 
         /// <summary>
         /// Vertical text alignment as string enum
         /// </summary>
-        [JsonProperty("textAlignVertical")]
+        [DataMember(Name = "textAlignVertical")]
         public TextAlignVertical textAlignVertical { get; set; } = TextAlignVertical.Top;
 
         /// <summary>
         /// Space between characters in px
         /// </summary>
-        [JsonProperty("letterSpacing")]
+        [DataMember(Name = "letterSpacing")]
         public float letterSpacing { get; set; }
 
         /// <summary>
         /// Paints applied to characters.
         /// </summary>
-        [JsonProperty("fills")]
+        [DataMember(Name = "fills")]
         public List<Paint> fills { get; private set; } = new List<Paint>();
 
         /// <summary>
         /// Link to a URL or frame.
         /// </summary>
-        [JsonProperty("hyperlink")]
+        [DataMember(Name = "hyperlink")]
         public Hyperlink hyperlink { get; set; }
 
         /// <summary>
@@ -116,19 +114,19 @@ namespace Cdm.Figma
         /// Note that some flags aren't reflected here. For example, SMCP (small caps) is still represented
         /// by the <see cref="textCase"/> field.
         /// </summary>
-        [JsonProperty("opentypeFlags")]
+        [DataMember(Name = "opentypeFlags")]
         public Dictionary<string, int> opentypeFlags { get; private set; } = new Dictionary<string, int>();
 
         /// <summary>
         /// Line height in px.
         /// </summary>
-        [JsonProperty("lineHeightPx")]
+        [DataMember(Name = "lineHeightPx")]
         public float lineHeightPx { get; set; }
 
         /// <summary>
         /// Line height as a percentage of the font size. Only returned when lineHeightPercent is not 100.
         /// </summary>
-        [JsonProperty("lineHeightPercentFontSize")]
+        [DataMember(Name = "lineHeightPercentFontSize")]
         public float lineHeightPercentFontSize { get; set; } = 100;
 
         /// <summary>
@@ -139,11 +137,11 @@ namespace Cdm.Figma
         /// <item>FONT_SIZE_%</item>
         /// <item>INTRINSIC_%</item>
         /// </list>
-        [JsonProperty("lineHeightUnit")]
+        [DataMember(Name = "lineHeightUnit")]
         public string lineHeightUnit { get; set; }
     }
 
-    [Serializable]
+    [DataContract]
     public enum TextAlignHorizontal
     {
         [EnumMember(Value = "CENTER")]
@@ -159,7 +157,7 @@ namespace Cdm.Figma
         Right
     }
 
-    [Serializable]
+    [DataContract]
     public enum TextAlignVertical
     {
         [EnumMember(Value = "BOTTOM")]
@@ -172,7 +170,7 @@ namespace Cdm.Figma
         Top
     }
     
-    [Serializable]
+    [DataContract]
     public enum TextAutoResize
     {
         [EnumMember(Value = "NONE")]
@@ -185,7 +183,7 @@ namespace Cdm.Figma
         WidthAndHeight
     }
     
-    [Serializable]
+    [DataContract]
     public enum TextCase
     {
         [EnumMember(Value = "ORIGINAL")]
@@ -207,7 +205,7 @@ namespace Cdm.Figma
         SmallCapsForced
     }
     
-    [Serializable]
+    [DataContract]
     public enum TextDecoration
     {
         [EnumMember(Value = "NONE")]
@@ -223,29 +221,29 @@ namespace Cdm.Figma
     /// <summary>
     /// A link to either a URL or another frame (node) in the document.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public class Hyperlink
     {
         /// <summary>
         /// Type of hyperlink.
         /// </summary>
-        [JsonProperty("type")]
+        [DataMember(Name = "type")]
         public HyperlinkType type { get; set; }
         
         /// <summary>
         /// URL being linked to, if <see cref="HyperlinkType.Url"/> type.
         /// </summary>
-        [JsonProperty("url")]
+        [DataMember(Name = "url")]
         public string url { get; set; }
         
         /// <summary>
         /// ID of frame hyperlink points to, if <see cref="HyperlinkType.Node"/> type
         /// </summary>
-        [JsonProperty("nodeID")]
+        [DataMember(Name = "nodeID")]
         public string nodeId { get; set; }
     }
 
-    [Serializable]
+    [DataContract]
     public enum HyperlinkType
     {
         [EnumMember(Value = "URL")]

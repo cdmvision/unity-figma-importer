@@ -1,42 +1,41 @@
-using System;
-using Unity.Plastic.Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class EllipseNode : VectorNode
     {
-        public override NodeType type => NodeType.Ellipse;
+        public override string type => NodeType.Ellipse;
         
         /// <summary>
         /// Start and end angles of the ellipse measured clockwise from the x axis, plus the inner radius for donuts.
         /// </summary>
-        [JsonProperty("arcData")]
+        [DataMember(Name = "arcData")]
         public ArcData arcData { get; set; }
     }
     
     /// <summary>
     /// Information about the arc properties of an ellipse. 0° is the x axis and increasing angles rotate clockwise.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public class ArcData
     {
         /// <summary>
         /// Start of the sweep in radians.
         /// </summary>
-        [JsonProperty("startingAngle")]
+        [DataMember(Name = "startingAngle")]
         public float startingAngle { get; set; }
         
         /// <summary>
         /// End of the sweep in radians.
         /// </summary>
-        [JsonProperty("endingAngle")]
+        [DataMember(Name = "endingAngle")]
         public float endingAngle { get; set; }
         
         /// <summary>
         /// Inner radius value between 0 and 1.
         /// </summary>
-        [JsonProperty("innerRadius")]
+        [DataMember(Name = "innerRadius")]
         public float innerRadius { get; set; }
     }
 }

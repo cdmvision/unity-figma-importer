@@ -1,15 +1,14 @@
-using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
-    public partial class Project
+    [DataContract]
+    public class Project
     {
-        [JsonProperty("id", Required = Required.Always)]
+        [DataMember(Name = "id", IsRequired = true)]
         public float id { get; set; }
 
-        [JsonProperty("name")]
+        [DataMember(Name = "name")]
         public string name { get; set; }
     }
 }

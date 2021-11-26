@@ -1,6 +1,4 @@
-using System;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
@@ -13,51 +11,51 @@ namespace Cdm.Figma
     ///
     /// An array of export settings representing images to export from the canvas
     /// </summary>
-    [Serializable]
-    public partial class ExportSetting
+    [DataContract]
+    public class ExportSetting
     {
         /// <summary>
         /// Constraint that determines sizing of exported asset.
         /// </summary>
-        [JsonProperty("constraint")]
+        [DataMember(Name = "constraint")]
         public Constraint constraint { get; set; }
 
         /// <summary>
         /// Image type.
         /// </summary>
-        [JsonProperty("format")]
+        [DataMember(Name = "format")]
         public ImageFormat format { get; set; }
 
         /// <summary>
         /// File suffix to append to all filenames.
         /// </summary>
-        [JsonProperty("suffix")]
+        [DataMember(Name = "suffix")]
         public string suffix { get; set; }
     }
     
     /// <summary>
     /// Sizing constraint for exports.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public class Constraint
     {
         /// <summary>
         /// Type of constraint to apply.
         /// </summary>
-        [JsonProperty("type")]
+        [DataMember(Name = "type")]
         public ConstraintType type { get; set; }
 
         /// <summary>
         /// See type property for effect of this field.
         /// </summary>
-        [JsonProperty("value")]
+        [DataMember(Name = "value")]
         public float value { get; set; }
     }
     
     /// <summary>
     /// Type of constraint to apply.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public enum ConstraintType
     {
         /// <summary>
@@ -82,7 +80,7 @@ namespace Cdm.Figma
     /// <summary>
     /// Image format.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public enum ImageFormat
     {
         [EnumMember(Value = "JPG")]

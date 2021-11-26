@@ -1,30 +1,28 @@
-using System;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class BooleanOperationNode : VectorNode
     {
-        public override NodeType type => NodeType.Boolean;
+        public override string type => NodeType.Boolean;
 
         /// <summary>
         /// A list of nodes that are being boolean operated on.
         /// </summary>
-        [JsonProperty("children")]
+        [DataMember(Name = "children")]
         public Node[] children { get; set; }
         
         /// <summary>
         /// Indicates the type of boolean operation applied.
         /// </summary>
-        [JsonProperty("booleanOperation")]
+        [DataMember(Name = "booleanOperation")]
         public BooleanOperation operation { get; set; }
 
         public override Node[] GetChildren() => children;
     }
 
-    [Serializable]
+    [DataContract]
     public enum BooleanOperation
     {
         [EnumMember(Value = "UNION")]

@@ -1,44 +1,42 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class VectorNode : Node
     {
-        public override NodeType type => NodeType.Vector;
+        public override string type => NodeType.Vector;
         
         /// <summary>
         /// If true, layer is locked and cannot be edited.
         /// </summary>
-        [JsonProperty("locked")]
+        [DataMember(Name = "locked")]
         public bool locked { get; private set; } = false;
         
         /// <summary>
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
-        [JsonProperty("exportSettings")]
+        [DataMember(Name = "exportSettings")]
         public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>();
         
         /// <summary>
         /// How this node blends with nodes behind it in the scene.
         /// </summary>
-        [JsonProperty("blendMode")]
+        [DataMember(Name = "blendMode")]
         public BlendMode? blendMode { get; set; }
         
         /// <summary>
         /// Keep height and width constrained to same ratio.
         /// </summary>
-        [JsonProperty("preserveRatio")]
+        [DataMember(Name = "preserveRatio")]
         public bool preserveRatio { get; set; } = false;
         
         /// <summary>
         /// Determines if the layer should stretch along the parent’s counter axis. This property is only provided for
         /// direct children of auto-layout frames.
         /// </summary>
-        [JsonProperty("layoutAlign")]
+        [DataMember(Name = "layoutAlign")]
         public LayoutAlign layoutAlign { get; set; }
 
         /// <summary>
@@ -46,49 +44,49 @@ namespace Cdm.Figma
         /// Determines whether a layer should stretch along the parent’s primary axis. A 0 corresponds to a fixed size
         /// and 1 corresponds to stretch.
         /// </summary>
-        [JsonProperty("layoutGrow")]
+        [DataMember(Name = "layoutGrow")]
         public int layoutGrow { get; set; } = 0;
         
         /// <summary>
         /// Horizontal and vertical layout constraints for node.
         /// </summary>
-        [JsonProperty("constraints")]
+        [DataMember(Name = "constraints")]
         public LayoutConstraint constraints { get; set; }
         
         /// <summary>
         /// Node ID of node to transition to in prototyping.
         /// </summary>
-        [JsonProperty("transitionNodeID")]
+        [DataMember(Name = "transitionNodeID")]
         public string transitionNodeId { get; set; } = null;
 
         /// <summary>
         /// The duration of the prototyping transition on this node (in milliseconds).
         /// </summary>
-        [JsonProperty("transitionDuration")]
+        [DataMember(Name = "transitionDuration")]
         public float? transitionDuration { get; set; } = null;
 
         /// <summary>
         /// The easing curve used in the prototyping transition on this node.
         /// </summary>
-        [JsonProperty("transitionEasing")]
+        [DataMember(Name = "transitionEasing")]
         public EasingType? transitionEasing { get; set; } = null;
 
         /// <summary>
         /// Opacity of the node.
         /// </summary>
-        [JsonProperty("opacity")]
+        [DataMember(Name = "opacity")]
         public float opacity { get; set; } = 1f;
 
         /// <summary>
         /// Bounding box of the node in absolute space coordinates.
         /// </summary>
-        [JsonProperty("absoluteBoundingBox")]
+        [DataMember(Name = "absoluteBoundingBox")]
         public Rectangle absoluteBoundingBox { get; set; }
         
         /// <summary>
         /// A list of effects attached to this node.
         /// </summary>
-        [JsonProperty("effects")]
+        [DataMember(Name = "effects")]
         public List<Effect> effects { get; private set; } = new List<Effect>();
         
         /// <summary>
@@ -97,7 +95,7 @@ namespace Cdm.Figma
         ///
         /// Only present if geometry=paths is passed.
         /// </summary>
-        [JsonProperty("size")]
+        [DataMember(Name = "size")]
         public Vector size { get; set; }
         
         /// <summary>
@@ -105,50 +103,50 @@ namespace Cdm.Figma
         /// The bottom row of the matrix is implicitly always (0, 0, 1). Use to transform coordinates in geometry.
         /// Only present if geometry=paths is passed.
         /// </summary>
-        [JsonProperty("relativeTransform")]
+        [DataMember(Name = "relativeTransform")]
         public AffineTransform relativeTransform { get; set; }
         
         /// <summary>
         /// Does this node mask sibling nodes in front of it?
         /// </summary>
-        [JsonProperty("isMask")]
+        [DataMember(Name = "isMask")]
         public bool isMask { get; set; } = false;
         
         /// <summary>
         /// An array of fill paints applied to the node.
         /// </summary>
-        [JsonProperty("fills")]
+        [DataMember(Name = "fills")]
         public List<Paint> fills { get; private set; } = new List<Paint>();
         
         // TODO:
         /// <summary>
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object fill.
         /// </summary>
-        //[JsonProperty("fillGeometry")]
+        //[DataMember(Name = "fillGeometry")]
         //public List<Path> fillGeometry { get; private set; } = new List<Path>();
         
         /// <summary>
         /// An array of stroke paints applied to the node.
         /// </summary>
-        [JsonProperty("strokes")]
+        [DataMember(Name = "strokes")]
         public List<Paint> strokes { get; private set; } = new List<Paint>();
         
         /// <summary>
         /// The weight of strokes on the node.
         /// </summary>
-        [JsonProperty("strokeWeight")]
+        [DataMember(Name = "strokeWeight")]
         public float? strokeWeight { get; set; }
 
         /// <summary>
         /// The stroke cap type.
         /// </summary>
-        [JsonProperty("strokeCap")]
+        [DataMember(Name = "strokeCap")]
         public StrokeCap strokeCap { get; set; } = StrokeCap.None;
         
         /// <summary>
         /// The stroke join type.
         /// </summary>
-        [JsonProperty("strokeCap")]
+        [DataMember(Name = "strokeJoin")]
         public StrokeJoin strokeJoin { get; set; } = StrokeJoin.Miter;
         
         /// <summary>
@@ -156,7 +154,7 @@ namespace Cdm.Figma
         /// path follows. For example a value of [1, 2] indicates that the path has a dash of length 1 followed
         /// by a gap of length 2, repeated.
         /// </summary>
-        [JsonProperty("strokeDashes")]
+        [DataMember(Name = "strokeDashes")]
         public float[] strokeDashes { get; set; }
 
         /// <summary>
@@ -164,31 +162,41 @@ namespace Cdm.Figma
         /// below which <see cref="strokeJoin"/>  will be set to <see cref="StrokeJoin.Bevel"/> to avoid super
         /// sharp corners. By default this is 28.96 degrees.
         /// </summary>
-        [JsonProperty("strokeMiterAngle")]
+        [DataMember(Name = "strokeMiterAngle")]
         public float strokeMiterAngle { get; set; } = 28.96f;
         
         // TODO:
         /// <summary>
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object stroke.
         /// </summary>
-        //[JsonProperty("strokeGeometry")]
+        //[DataMember(Name = "strokeGeometry")]
         //public List<Path> strokeGeometry { get; private set; } = new List<Path>();
         
         /// <summary>
         /// Position of stroke relative to vector outline.
         /// </summary>
-        [JsonProperty("strokeAlign")]
+        [DataMember(Name = "strokeAlign")]
         public StrokeAlign? strokeAlign { get; set; }
 
         /// <summary>
         /// A mapping of a <see cref="StyleType"/>> to style ID (see <see cref="Style"/>) of styles present on this node. The style ID can be used
         /// to look up more information about the style in the top-level styles field.
         /// </summary>
-        [JsonProperty("styles")]
+        [DataMember(Name = "styles")]
         public Dictionary<StyleType, string> styles { get; private set; } = new Dictionary<StyleType, string>();
+        
+        [DataContract]
+        public enum StyleType
+        {
+            [EnumMember(Value = "fill")]
+            Fill,
+        
+            [EnumMember(Value = "stroke")]
+            Stroke,
+        }
     }
 
-    [Serializable]
+    [DataContract]
     public enum StrokeCap
     {
         [EnumMember(Value = "NONE")]
@@ -207,7 +215,7 @@ namespace Cdm.Figma
         TriangleArrow
     }
     
-    [Serializable]
+    [DataContract]
     public enum StrokeJoin
     {
         [EnumMember(Value = "MITER")]

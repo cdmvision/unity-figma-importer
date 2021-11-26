@@ -1,123 +1,126 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using JsonSubTypes;
 using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [JsonConverter(typeof(JsonSubtypes), "type")]
+    [JsonSubtypes.KnownSubType(typeof(FrameNode), NodeType.Frame)]
+    [JsonSubtypes.FallBackSubType(typeof(GroupNode))]
+    [DataContract]
     public class GroupNode : Node
     {
-        public override NodeType type => NodeType.Group;
+        public override string type => NodeType.Group;
         
         /// <summary>
         /// A list of nodes that are direct children of this node.
         /// </summary>
-        [JsonProperty("children")]
+        [DataMember(Name = "children")]
         public Node[] children { get; set; }
 
         /// <summary>
         /// If true, layer is locked and cannot be edited.
         /// </summary>
-        [JsonProperty("locked")]
+        [DataMember(Name = "locked")]
         public bool locked { get; private set; } = false;
 
         /// <summary>
         /// An array of fill paints applied to the node.
         /// </summary>
-        [JsonProperty("fills")]
+        [DataMember(Name = "fills")]
         public List<Paint> fills { get; private set; } = new List<Paint>();
 
         /// <summary>
         /// An array of stroke paints applied to the node.
         /// </summary>
-        [JsonProperty("strokes")]
+        [DataMember(Name = "strokes")]
         public List<Paint> strokes { get; private set; } = new List<Paint>();
 
         /// <summary>
         /// The weight of strokes on the node.
         /// </summary>
-        [JsonProperty("strokeWeight")]
+        [DataMember(Name = "strokeWeight")]
         public float? strokeWeight { get; set; }
 
         /// <summary>
         /// Position of stroke relative to vector outline.
         /// </summary>
-        [JsonProperty("strokeAlign")]
+        [DataMember(Name = "strokeAlign")]
         public StrokeAlign? strokeAlign { get; set; }
 
         /// <summary>
         /// Radius of each corner of the frame if a single radius is set for all corners.
         /// </summary>
-        [JsonProperty("cornerRadius")]
+        [DataMember(Name = "cornerRadius")]
         public float? cornerRadius { get; set; }
 
         /// <summary>
         /// Array of length 4 of the radius of each corner of the frame, starting in the top left and
         /// proceeding clockwise.
         /// </summary>
-        [JsonProperty("rectangleCornerRadii")]
+        [DataMember(Name = "rectangleCornerRadii")]
         public float[] rectangleCornerRadii { get; set; }
 
         /// <summary>
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
-        [JsonProperty("exportSettings")]
+        [DataMember(Name = "exportSettings")]
         public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>();
 
         /// <summary>
         /// How this node blends with nodes behind it in the scene.
         /// </summary>
-        [JsonProperty("blendMode")]
+        [DataMember(Name = "blendMode")]
         public BlendMode? blendMode { get; set; }
 
         /// <summary>
         /// Keep height and width constrained to same ratio.
         /// </summary>
-        [JsonProperty("preserveRatio")]
+        [DataMember(Name = "preserveRatio")]
         public bool preserveRatio { get; set; } = false;
 
         /// <summary>
         /// Horizontal and vertical layout constraints for node.
         /// </summary>
-        [JsonProperty("constraints")]
+        [DataMember(Name = "constraints")]
         public LayoutConstraint constraints { get; set; }
 
         /// <summary>
         /// Determines if the layer should stretch along the parent’s counter axis. This property is only provided for
         /// direct children of auto-layout frames.
         /// </summary>
-        [JsonProperty("layoutAlign")]
+        [DataMember(Name = "layoutAlign")]
         public LayoutAlign layoutAlign { get; set; }
 
         /// <summary>
         /// Node ID of node to transition to in prototyping.
         /// </summary>
-        [JsonProperty("transitionNodeID")]
+        [DataMember(Name = "transitionNodeID")]
         public string transitionNodeId { get; set; } = null;
 
         /// <summary>
         /// The duration of the prototyping transition on this node (in milliseconds).
         /// </summary>
-        [JsonProperty("transitionDuration")]
+        [DataMember(Name = "transitionDuration")]
         public float? transitionDuration { get; set; } = null;
 
         /// <summary>
         /// The easing curve used in the prototyping transition on this node.
         /// </summary>
-        [JsonProperty("transitionEasing")]
+        [DataMember(Name = "transitionEasing")]
         public EasingType? transitionEasing { get; set; } = null;
 
         /// <summary>
         /// Opacity of the node.
         /// </summary>
-        [JsonProperty("opacity")]
+        [DataMember(Name = "opacity")]
         public float opacity { get; set; } = 1f;
 
         /// <summary>
         /// Bounding box of the node in absolute space coordinates.
         /// </summary>
-        [JsonProperty("absoluteBoundingBox")]
+        [DataMember(Name = "absoluteBoundingBox")]
         public Rectangle absoluteBoundingBox { get; set; }
 
         /// <summary>
@@ -126,7 +129,7 @@ namespace Cdm.Figma
         ///
         /// Only present if geometry=paths is passed.
         /// </summary>
-        [JsonProperty("size")]
+        [DataMember(Name = "size")]
         public Vector size { get; set; }
 
         /// <summary>
@@ -134,81 +137,81 @@ namespace Cdm.Figma
         /// The bottom row of the matrix is implicitly always (0, 0, 1). Use to transform coordinates in geometry.
         /// Only present if geometry=paths is passed.
         /// </summary>
-        [JsonProperty("relativeTransform")]
+        [DataMember(Name = "relativeTransform")]
         public AffineTransform relativeTransform { get; set; }
 
         /// <summary>
         /// Whether or not this node clip content outside of its bounds.
         /// </summary>
-        [JsonProperty("clipsContent")]
+        [DataMember(Name = "clipsContent")]
         public bool clipsContent { get; set; } = false;
 
         /// <summary>
         /// Whether this layer uses auto-layout to position its children.
         /// </summary>
-        [JsonProperty("layoutMode")]
+        [DataMember(Name = "layoutMode")]
         public LayoutMode layoutMode { get; set; }
 
         /// <summary>
         /// Whether the primary axis has a fixed length (determined by the user) or an automatic length
         /// (determined by the layout engine). This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("primaryAxisSizingMode")]
+        [DataMember(Name = "primaryAxisSizingMode")]
         public AxisSizingMode primaryAxisSizingMode { get; set; } = AxisSizingMode.Auto;
 
         /// <summary>
         /// Whether the counter axis has a fixed length (determined by the user) or an automatic length
         /// (determined by the layout engine). This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("counterAxisSizingMode")]
+        [DataMember(Name = "counterAxisSizingMode")]
         public AxisSizingMode counterAxisSizingMode { get; set; } = AxisSizingMode.Auto;
 
         /// <summary>
         /// Determines how the auto-layout frame’s children should be aligned in the primary axis direction.
         /// This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("primaryAxisAlignItems")]
+        [DataMember(Name = "primaryAxisAlignItems")]
         public PrimaryAxisAlignItems primaryAxisAlignItems { get; set; } = PrimaryAxisAlignItems.Min;
 
         /// <summary>
         /// Determines how the auto-layout frame’s children should be aligned in the counter axis direction.
         /// This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("counterAxisAlignItems")]
+        [DataMember(Name = "counterAxisAlignItems")]
         public CounterAxisAlignItems counterAxisAlignItems { get; set; } = CounterAxisAlignItems.Min;
 
         /// <summary>
         /// The padding between the left border of the frame and its children.
         /// This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("paddingLeft")]
+        [DataMember(Name = "paddingLeft")]
         public float paddingLeft { get; set; } = 0f;
 
         /// <summary>
         /// The padding between the right border of the frame and its children.
         /// This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("paddingRight")]
+        [DataMember(Name = "paddingRight")]
         public float paddingRight { get; set; } = 0f;
 
         /// <summary>
         /// The padding between the top border of the frame and its children.
         /// This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("paddingTop")]
+        [DataMember(Name = "paddingTop")]
         public float paddingTop { get; set; } = 0f;
 
         /// <summary>
         /// The padding between the bottom border of the frame and its children.
         /// This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("paddingBottom")]
+        [DataMember(Name = "paddingBottom")]
         public float paddingBottom { get; set; } = 0f;
 
         /// <summary>
         /// The distance between children of the frame. This property is only applicable for auto-layout frames.
         /// </summary>
-        [JsonProperty("itemSpacing")]
+        [DataMember(Name = "itemSpacing")]
         public float itemSpacing { get; set; } = 0f;
 
         /// <summary>
@@ -216,31 +219,31 @@ namespace Cdm.Figma
         /// The frame can either scroll vertically, horizontally, or in both directions to the extents of the content
         /// contained within it. This behavior can be observed in a prototype.
         /// </summary>
-        [JsonProperty("layoutGrids")]
+        [DataMember(Name = "layoutGrids")]
         public OverflowDirection overflowDirection { get; set; } = OverflowDirection.None;
         
         /// <summary>
         /// A list of effects attached to this node.
         /// </summary>
-        [JsonProperty("effects")]
+        [DataMember(Name = "effects")]
         public List<Effect> effects { get; private set; } = new List<Effect>();
         
         /// <summary>
         /// Does this node mask sibling nodes in front of it?
         /// </summary>
-        [JsonProperty("isMask")]
+        [DataMember(Name = "isMask")]
         public bool isMask { get; set; } = false;
         
         /// <summary>
         /// Does this mask ignore fill style (like gradients) and effects?
         /// </summary>
-        [JsonProperty("isMaskOutline")]
+        [DataMember(Name = "isMaskOutline")]
         public bool isMaskOutline { get; set; } = false;
         
         public override Node[] GetChildren() => children;
     }
 
-    [Serializable]
+    [DataContract]
     public enum OverflowDirection
     {
         [EnumMember(Value = "NONE")]
@@ -256,7 +259,7 @@ namespace Cdm.Figma
         HorizontalAndVerticalScrolling
     }
 
-    [Serializable]
+    [DataContract]
     public enum PrimaryAxisAlignItems
     {
         [EnumMember(Value = "MIN")]
@@ -272,7 +275,7 @@ namespace Cdm.Figma
         SpaceBetween
     }
 
-    [Serializable]
+    [DataContract]
     public enum CounterAxisAlignItems
     {
         [EnumMember(Value = "MIN")]
@@ -285,7 +288,7 @@ namespace Cdm.Figma
         Max
     }
 
-    [Serializable]
+    [DataContract]
     public enum AxisSizingMode
     {
         [EnumMember(Value = "AUTO")]
@@ -295,7 +298,7 @@ namespace Cdm.Figma
         Fixed
     }
 
-    [Serializable]
+    [DataContract]
     public enum LayoutMode
     {
         [EnumMember(Value = "NONE")]
@@ -312,7 +315,7 @@ namespace Cdm.Figma
     /// In horizontal auto-layout frames, "MIN" and "MAX" correspond to "TOP" and "BOTTOM".
     /// In vertical auto-layout frames, "MIN" and "MAX" correspond to "LEFT" and "RIGHT".
     /// </summary>
-    [Serializable]
+    [DataContract]
     public enum LayoutAlign
     {
         [EnumMember(Value = "INHERIT")]
@@ -331,7 +334,7 @@ namespace Cdm.Figma
         Max,
     }
 
-    [Serializable]
+    [DataContract]
     public enum StrokeAlign
     {
         /// <summary>

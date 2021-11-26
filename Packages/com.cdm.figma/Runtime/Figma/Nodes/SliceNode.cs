@@ -1,24 +1,23 @@
-using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class SliceNode : Node
     {
-        public override NodeType type => NodeType.Slice;
+        public override string type => NodeType.Slice;
         
         /// <summary>
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
-        [JsonProperty("exportSettings")]
+        [DataMember(Name = "exportSettings")]
         public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>(); 
         
         /// <summary>
         /// Bounding box of the node in absolute space coordinates.
         /// </summary>
-        [JsonProperty("absoluteBoundingBox")]
+        [DataMember(Name = "absoluteBoundingBox")]
         public Rectangle absoluteBoundingBox { get; set; }
         
         /// <summary>
@@ -27,7 +26,7 @@ namespace Cdm.Figma
         ///
         /// Only present if geometry=paths is passed.
         /// </summary>
-        [JsonProperty("size")]
+        [DataMember(Name = "size")]
         public Vector size { get; set; }
         
         /// <summary>
@@ -35,7 +34,7 @@ namespace Cdm.Figma
         /// The bottom row of the matrix is implicitly always (0, 0, 1). Use to transform coordinates in geometry.
         /// Only present if geometry=paths is passed.
         /// </summary>
-        [JsonProperty("relativeTransform")]
+        [DataMember(Name = "relativeTransform")]
         public AffineTransform relativeTransform { get; set; }
     }
 }

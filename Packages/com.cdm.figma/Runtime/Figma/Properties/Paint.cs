@@ -1,34 +1,31 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Cdm.Figma
 {
     /// <summary>
     /// A solid color, gradient, or image texture that can be applied as fills or strokes.
     /// </summary>
-    [Serializable]
-    public partial class Paint
+    [DataContract]
+    public class Paint
     {
         /// <summary>
         /// Type of paint as a string enum
         /// </summary>
-        [JsonProperty("type")]
+        [DataMember(Name = "type")]
         public PaintType type { get; set; }
         
         /// <summary>
         /// Is the paint enabled?
         /// </summary>
-        [JsonProperty("visible", DefaultValueHandling = DefaultValueHandling.Populate)]
+        [DataMember(Name = "visible")]
         public bool visible { get; set; } = true;
 
         /// <summary>
         /// Overall opacity of paint (colors within the paint can also have opacity
         /// values which would blend with this)
         /// </summary>
-        [JsonProperty("opacity")]
+        [DataMember(Name = "opacity")]
         public float opacity { get; set; } = 1f;
 
         #region For solid paints
@@ -36,7 +33,7 @@ namespace Cdm.Figma
         /// <summary>
         /// Solid color of the paint.
         /// </summary>
-        [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "color")]
         public Color color { get; set; }
 
         #endregion
@@ -47,7 +44,7 @@ namespace Cdm.Figma
         /// For gradient paints; how this node blends with nodes behind it in the scene.
         /// </summary>
         /// <seealso cref="BlendMode"/>
-        [JsonProperty("blendMode", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "blendMode")]
         public BlendMode blendMode { get; set; }
 
         /// <summary>
@@ -60,7 +57,7 @@ namespace Cdm.Figma
         /// third handle position determines the width of the gradient (only
         /// relevant for non-linear gradients).
         /// </summary>
-        [JsonProperty("gradientHandlePositions", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "gradientHandlePositions")]
         public List<Vector> gradientHandlePositions { get; private set; } = new List<Vector>();
 
         /// <summary>
@@ -68,7 +65,7 @@ namespace Cdm.Figma
         /// anchored there. Colors along the gradient are interpolated smoothly
         /// between neighboring gradient stops.
         /// </summary>
-        [JsonProperty("gradientStops", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "gradientStops")]
         public List<ColorStop> gradientStops { get; private set; } = new List<ColorStop>();
 
         #endregion
@@ -78,52 +75,52 @@ namespace Cdm.Figma
         /// <summary>
         /// Image scaling mode.
         /// </summary>
-        [JsonProperty("scaleMode", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "scaleMode")]
         public ScaleMode scaleMode { get; set; }
         
         /// <summary>
         /// Affine transform applied to the image, only present if <see cref="scaleMode"/> is
         /// <see cref="ScaleMode.Stretch"/>
         /// </summary>
-        [JsonProperty("imageTransform", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "imageTransform")]
         public AffineTransform imageTransform { get; set; }
         
         /// <summary>
         /// Amount image is scaled by in tiling, only present if <see cref="scaleMode"/> is
         /// <see cref="ScaleMode.Tile"/>.
         /// </summary>
-        [JsonProperty("scalingFactor")]
+        [DataMember(Name = "scalingFactor")]
         public float scalingFactor { get; set; }
         
         /// <summary>
         /// Image rotation, in degrees.
         /// </summary>
-        [JsonProperty("rotation")]
+        [DataMember(Name = "rotation")]
         public float rotation { get; set; }
         
         /// <summary>
         /// A reference to an image embedded in this node.
         /// </summary>
-        [JsonProperty("imageRef")]
+        [DataMember(Name = "imageRef")]
         public string imageRef { get; set; }
 
         /// <summary>
         /// Defines what image filters have been applied to this paint, if any. If this property is not defined,
         /// no filters have been applied.
         /// </summary>
-        [JsonProperty("filters")]
+        [DataMember(Name = "filters")]
         public ImageFilters filters { get; set; }
 
         /// <summary>
         /// A reference to the GIF embedded in this node, if the image is a GIF.
         /// </summary>
-        [JsonProperty("gifRef")]
+        [DataMember(Name = "gifRef")]
         public string gifRef { get; set; }
         
         #endregion
     }
     
-    [Serializable]
+    [DataContract]
     public enum PaintType
     {
         [EnumMember(Value = "SOLID")]
@@ -148,7 +145,7 @@ namespace Cdm.Figma
         Emoji,
     }
     
-    [Serializable]
+    [DataContract]
     public enum ScaleMode
     {
         [EnumMember(Value = "FILL")]
@@ -167,28 +164,28 @@ namespace Cdm.Figma
     /// <summary>
     /// Defines the image filters applied to an image paint. All values are from -1 to 1.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public class ImageFilters
     {
-        [JsonProperty("exposure")]
+        [DataMember(Name = "exposure")]
         public float exposure { get; set; }
 
-        [JsonProperty("contrast")]
+        [DataMember(Name = "contrast")]
         public float contrast { get; set; }
 
-        [JsonProperty("saturation")]
+        [DataMember(Name = "saturation")]
         public float saturation { get; set; }
 
-        [JsonProperty("temperature")]
+        [DataMember(Name = "temperature")]
         public float temperature { get; set; }
 
-        [JsonProperty("tint")]
+        [DataMember(Name = "tint")]
         public float tint { get; set; }
 
-        [JsonProperty("highlights")]
+        [DataMember(Name = "highlights")]
         public float highlights { get; set; }
 
-        [JsonProperty("shadows")]
+        [DataMember(Name = "shadows")]
         public float shadows { get; set; }
     }
     
@@ -199,19 +196,19 @@ namespace Cdm.Figma
     /// anchored there. Colors along the gradient are interpolated smoothly
     /// between neighboring gradient stops.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public class ColorStop
     {
         /// <summary>
         /// Value between 0 and 1 representing position along gradient axis.
         /// </summary>
-        [JsonProperty("position")]
+        [DataMember(Name = "position")]
         public float position { get; set; }
         
         /// <summary>
         /// Color attached to corresponding position.
         /// </summary>
-        [JsonProperty("color")]
+        [DataMember(Name = "color")]
         public Color color { get; set; }
     }
 }

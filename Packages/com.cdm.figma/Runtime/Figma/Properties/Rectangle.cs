@@ -1,5 +1,4 @@
 ﻿using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
@@ -12,28 +11,25 @@ namespace Cdm.Figma
         /// <summary>
         /// X coordinate of top left corner of the rectangle.
         /// </summary>
-        [JsonProperty("x")]
+        [DataMember(Name = "x")]
         public float x { get; set; }
 
         /// <summary>
         /// Y coordinate of top left corner of the rectangle.
         /// </summary>
-        [JsonProperty("y")]
+        [DataMember(Name = "y")]
         public float y { get; set; }
         
         /// <summary>
         /// Width of the rectangle
         /// </summary>
-        [JsonProperty("width")]
+        [DataMember(Name = "width")]
         public float width { get; set; }
         
         /// <summary>
         /// Height of the rectangle.
         /// </summary>
-        [JsonProperty("height")]
+        [DataMember(Name = "height")]
         public float height { get; set; }
-
-        // TODO: ?
-        public UnityEngine.Vector3 position => new(x, -y);
     }
 }

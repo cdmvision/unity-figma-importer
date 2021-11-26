@@ -1,5 +1,4 @@
-using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
@@ -8,13 +7,13 @@ namespace Cdm.Figma
     ///
     /// A description of a user
     /// </summary>
-    [Serializable]
-    public partial class User
+    [DataContract]
+    public class User
     {
-        [JsonProperty("handle")]
+        [DataMember(Name = "handle")]
         public string handle { get; set; }
 
-        [JsonProperty("img_url")]
+        [DataMember(Name = "img_url")]
         public string imageUrl { get; set; }
     }
 }

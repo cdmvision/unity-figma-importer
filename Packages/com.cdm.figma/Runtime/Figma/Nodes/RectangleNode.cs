@@ -1,24 +1,23 @@
-using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class RectangleNode : VectorNode
     {
-        public override NodeType type => NodeType.Rectangle;
+        public override string type => NodeType.Rectangle;
         
         /// <summary>
         /// Radius of each corner of the frame if a single radius is set for all corners.
         /// </summary>
-        [JsonProperty("cornerRadius")]
+        [DataMember(Name = "cornerRadius")]
         public float? cornerRadius { get; set; }
         
         /// <summary>
         /// Array of length 4 of the radius of each corner of the frame, starting in the top left and
         /// proceeding clockwise.
         /// </summary>
-        [JsonProperty("rectangleCornerRadii")]
+        [DataMember(Name = "rectangleCornerRadii")]
         public float[] rectangleCornerRadii { get; set; }
     }
 }

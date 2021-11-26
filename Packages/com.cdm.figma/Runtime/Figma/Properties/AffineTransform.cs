@@ -1,4 +1,4 @@
-using System;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
@@ -11,7 +11,7 @@ namespace Cdm.Figma
     /// The form of the matrix is given as an array of 2 arrays of 3 numbers each.
     /// E.g. the identity matrix would be [[1, 0, 0], [0, 1, 0]]
     /// </summary>
-    [Serializable]
+    [DataContract]
     public class AffineTransform
     {
         public float[][] values { get; set; }

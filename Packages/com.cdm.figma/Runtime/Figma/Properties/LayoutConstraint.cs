@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
@@ -22,7 +21,7 @@ namespace Cdm.Figma
         public Horizontal horizontal { get; set; }
     }
 
-    [Serializable]
+    [DataContract]
     public enum Horizontal
     {
         /// <summary>
@@ -56,7 +55,7 @@ namespace Cdm.Figma
         Scale
     }
 
-    [Serializable]
+    [DataContract]
     public enum Vertical
     {
         /// <summary>

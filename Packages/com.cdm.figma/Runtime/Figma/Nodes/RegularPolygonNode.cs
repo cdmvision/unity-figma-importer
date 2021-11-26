@@ -1,10 +1,10 @@
-using System;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class RegularPolygonNode : VectorNode
     {
-        public override NodeType type => NodeType.RegularPolygon;
+        public override string type => NodeType.RegularPolygon;
     }
 }
