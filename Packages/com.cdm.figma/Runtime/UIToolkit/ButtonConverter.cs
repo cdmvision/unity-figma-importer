@@ -38,7 +38,7 @@ namespace Cdm.Figma.UIToolkit
             
             if (args.file.components.TryGetValue(instanceNode.componentId, out var component))
             {
-                var componentSet = args.importer.componentSets.FirstOrDefault(c => c.id == component.componentSetId);
+                var componentSet = args.componentSets.FirstOrDefault(c => c.id == component.componentSetId);
                 if (componentSet != null)
                 {
                     var variants = componentSet.children;
