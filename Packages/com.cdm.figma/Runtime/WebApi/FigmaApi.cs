@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Unity.Plastic.Newtonsoft.Json;
+using UnityEngine;
 
 namespace Cdm.Figma
 {
@@ -67,6 +68,7 @@ namespace Cdm.Figma
             
             // Get image download URLs.
             var uri = GetImageRequestUrl(imageRequest);
+            Debug.Log(uri);
             var result = await GetContentAsync(uri, imageRequest.personalAccessToken);
 
             var response = JsonConvert.DeserializeObject<FigmaImageResponse>(result);
@@ -120,9 +122,9 @@ namespace Cdm.Figma
                 firstArg = false;
             }
             
-            if (request.geometry.HasValue)
+            if (!string.IsNullOrEmpty(request.geometry))
             {
-                url = $"{url}{(firstArg ? "?" : "&")}geometry={request.geometry.Value}";
+                url = $"{url}{(firstArg ? "?" : "&")}geometry={request.geometry}";
                 firstArg = false;
             }
 
@@ -149,9 +151,9 @@ namespace Cdm.Figma
                 url = $"{url}&scale={request.scale.Value}";
             }
             
-            url = $"{url}&svg_include_id={request.svgIncludeId}";
-            url = $"{url}&svg_simplify_stroke={request.svgSimplifyStroke}";
-            url = $"{url}&use_absolute_bounds={request.useAbsoluteBounds}";
+            url = $"{url}&svg_include_id={request.svgIncludeId.ToString().ToLower()}";
+            url = $"{url}&svg_simplify_stroke={request.svgSimplifyStroke.ToString().ToLower()}";
+            url = $"{url}&use_absolute_bounds={request.useAbsoluteBounds.ToString().ToLower()}";
             return url;
         }
         

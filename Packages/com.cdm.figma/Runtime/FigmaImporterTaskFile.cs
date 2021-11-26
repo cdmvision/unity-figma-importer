@@ -21,6 +21,11 @@ namespace Cdm.Figma
         private string _assetsPath = "Resources/Figma/Files";
 
         public string assetsPath => _assetsPath;
+        
+        [SerializeField]
+        private string _graphicsPath = "Resources/Figma/Graphics";
+
+        public string graphicsPath => _graphicsPath;
 
         [SerializeField]
         private List<string> _files = new List<string>();

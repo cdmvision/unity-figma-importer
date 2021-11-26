@@ -17,7 +17,7 @@ namespace Cdm.Figma
         /// <summary>
         /// Set to "paths" to export vector data.
         /// </summary>
-        public int? geometry { get; set; }
+        public string geometry { get; set; }
 
         public FigmaFileRequest(string personalAccessToken, string fileId)
             : base(personalAccessToken, fileId)

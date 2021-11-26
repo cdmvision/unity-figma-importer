@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -69,7 +70,7 @@ namespace Cdm.Figma
         private void PopulatePageList(VisualElement root, string fileId)
         {
             var assetPath = GetFigmaAssetPath((FigmaImporterTaskFile) target, fileId);
-            if (System.IO.File.Exists(assetPath))
+            if (File.Exists(assetPath))
             {
                 _selectedFile = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
 
@@ -110,7 +111,7 @@ namespace Cdm.Figma
                     EditorUtility.DisplayProgressBar("Importing Figma files", $"File: {fileId}", (float) i / fileCount);
 
                     var assetPath = GetFigmaAssetPath(taskFile, fileId);
-                    if (System.IO.File.Exists(assetPath))
+                    if (File.Exists(assetPath))
                     {
                         var fileAsset = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
                         if (fileAsset != null)
@@ -158,11 +159,18 @@ namespace Cdm.Figma
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) i / fileCount);
                     
                     var fileContent = await FigmaApi.GetFileAsTextAsync(
-                        new FigmaFileRequest(taskFile.personalAccessToken, fileId));
+                        new FigmaFileRequest(taskFile.personalAccessToken, fileId)
+                        {
+                            //geometry = "paths"
+                        });
 
                     var file = FigmaFile.FromString(fileContent);
                     var thumbnail = await FigmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
                     
+                    // Save Vector nodes as graphic asset.
+                    await SaveVectorGraphicsAsync(taskFile, file, fileId);
+
+                    // Save figma file asset.
                     SaveFigmaFile(taskFile, file, fileId, fileContent, thumbnail);
                 
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
@@ -175,6 +183,49 @@ namespace Cdm.Figma
             finally
             {
                 EditorUtility.ClearProgressBar();
+            }
+        }
+
+        private static async Task SaveVectorGraphicsAsync(
+            FigmaImporterTaskFile taskFile, FigmaFile file, string fileId)
+        {
+            var nodes = new List<VectorNode>();
+            file.document.Traverse(node =>
+            {
+                if (node.visible)
+                {
+                    nodes.Add((VectorNode) node);    
+                }
+                return true;
+            }, NodeType.Vector);
+
+            if (!nodes.Any())
+                return;
+            
+            var graphics = 
+                await FigmaApi.GetImageAsync(new FigmaImageRequest(taskFile.personalAccessToken, fileId)
+                {
+                    ids = nodes.Select(x => x.id).ToArray(),
+                    format = "svg",
+                    svgIncludeId = false,
+                    svgSimplifyStroke = true
+                });
+            
+            var directory = Path.Combine("Assets", taskFile.graphicsPath);
+            Directory.CreateDirectory(directory);
+
+            foreach (var graphic in graphics)
+            {
+                if (graphic.Value != null)
+                {
+                    var fileName = $"{graphic.Key.Replace(":", "_").Replace(";", "-")}.svg";
+                    var path = Path.Combine(Application.dataPath, taskFile.graphicsPath, fileName);
+                    await File.WriteAllBytesAsync(path, graphic.Value);
+                }
+                else
+                {
+                    Debug.LogWarning($"Graphic could not be rendered: {graphic.Key}");
+                }
             }
         }
         

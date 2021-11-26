@@ -80,7 +80,11 @@ namespace Cdm.Figma.UIToolkit
             var pages = file.document.children;
             foreach (var page in pages)
             {
-                CollectComponentSets(page, conversionArgs.componentSets);
+                page.Traverse(node =>
+                {
+                    conversionArgs.componentSets.Add((ComponentSetNode) node);
+                    return true;
+                }, NodeType.ComponentSet);
             }
             
             // Generate all pages.
@@ -147,25 +151,6 @@ namespace Cdm.Figma.UIToolkit
             
             element = null;
             return false;
-        }
-
-        private static void CollectComponentSets(Node node, List<ComponentSetNode> ctx)
-        {
-            if (node is ComponentSetNode componentSet)
-            {
-                ctx.Add(componentSet);
-            }
-            else
-            {
-                var children = node.GetChildren();
-                if (children != null)
-                {
-                    foreach (var child in children)
-                    {
-                        CollectComponentSets(child, ctx);
-                    }
-                }
-            }
         }
     }
 }

@@ -118,12 +118,11 @@ namespace Cdm.Figma
         [DataMember(Name = "fills")]
         public List<Paint> fills { get; private set; } = new List<Paint>();
         
-        // TODO:
         /// <summary>
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object fill.
         /// </summary>
-        //[DataMember(Name = "fillGeometry")]
-        //public List<Path> fillGeometry { get; private set; } = new List<Path>();
+        [DataMember(Name = "fillGeometry")]
+        public Path[] fillGeometry { get; set; }
         
         /// <summary>
         /// An array of stroke paints applied to the node.
@@ -165,12 +164,11 @@ namespace Cdm.Figma
         [DataMember(Name = "strokeMiterAngle")]
         public float strokeMiterAngle { get; set; } = 28.96f;
         
-        // TODO:
         /// <summary>
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object stroke.
         /// </summary>
-        //[DataMember(Name = "strokeGeometry")]
-        //public List<Path> strokeGeometry { get; private set; } = new List<Path>();
+        [DataMember(Name = "strokeGeometry")]
+        public Path[] strokeGeometry { get; set; }
         
         /// <summary>
         /// Position of stroke relative to vector outline.
@@ -184,6 +182,16 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "styles")]
         public Dictionary<StyleType, string> styles { get; private set; } = new Dictionary<StyleType, string>();
+        
+        [DataContract]
+        public class Path
+        {
+            [DataMember]
+            public string path;
+            
+            [DataMember]
+            public string windingRule;
+        }
         
         [DataContract]
         public enum StyleType
