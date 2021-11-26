@@ -11,6 +11,6 @@
         </ui:VisualElement>
     </ui:GroupBox>
     <ui:GroupBox text="Pages">
-        <ui:ListView focusable="true" binding-path="_pages" show-bound-collection-size="false" name="pagesList" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" />
+        <ui:ListView focusable="true" binding-path="_pages" show-bound-collection-size="false" name="pagesList" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" show-border="true" />
     </ui:GroupBox>
 </ui:UXML>

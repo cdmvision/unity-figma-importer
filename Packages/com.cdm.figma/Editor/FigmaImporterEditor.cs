@@ -184,6 +184,11 @@ namespace Cdm.Figma
             var directory = Path.Combine("Assets", taskFile.assetsPath);
             Directory.CreateDirectory(directory);
             
+            var figmaAssetPath = GetFigmaAssetPath(taskFile, fileId);
+
+            var oldFigmaAsset = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(figmaAssetPath);
+            var oldPages = oldFigmaAsset != null ? oldFigmaAsset.pages : new FigmaFilePage[0];
+            
             var figmaAsset = CreateInstance<FigmaFileAsset>();
             figmaAsset.id = fileId;
             figmaAsset.title = figmaFile.name;
@@ -205,11 +210,17 @@ namespace Cdm.Figma
                     id = canvases[i].id,
                     name = canvases[i].name
                 };
+
+                var oldPage = oldPages.FirstOrDefault(x => x.id == pages[i].id);
+                if (oldPage != null)
+                {
+                    pages[i].enabled = oldPage.enabled;
+                }
             }
 
             figmaAsset.pages = pages;
 
-            var figmaAssetPath = GetFigmaAssetPath(taskFile, fileId);
+            
             AssetDatabase.DeleteAsset(figmaAssetPath);
             AssetDatabase.CreateAsset(figmaAsset, figmaAssetPath);
             
