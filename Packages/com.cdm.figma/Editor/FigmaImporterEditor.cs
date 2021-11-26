@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Unity.VectorGraphics.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -221,12 +222,24 @@ namespace Cdm.Figma
                     var fileName = $"{graphic.Key.Replace(":", "_").Replace(";", "-")}.svg";
                     var path = Path.Combine(Application.dataPath, taskFile.graphicsPath, fileName);
                     await File.WriteAllBytesAsync(path, graphic.Value);
+
+                    var assetPath = Path.Combine("Assets", taskFile.graphicsPath, fileName);
+                    AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+                    
+                    var svgImporter = (SVGImporter) AssetImporter.GetAtPath(assetPath);
+                    svgImporter.PreserveSVGImageAspect = true;
+                    svgImporter.SvgType = SVGType.UIToolkit;
+                    
+                    EditorUtility.SetDirty(svgImporter);
+                    svgImporter.SaveAndReimport();
                 }
                 else
                 {
                     Debug.LogWarning($"Graphic could not be rendered: {graphic.Key}");
                 }
             }
+            
+            
         }
         
         private static void SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
