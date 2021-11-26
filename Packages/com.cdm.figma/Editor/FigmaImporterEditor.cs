@@ -119,7 +119,8 @@ namespace Cdm.Figma
                         {
                             var options = new FigmaImportOptions
                             {
-                                pages = fileAsset.pages.Where(p => p.enabled).Select(p => p.id).ToArray()
+                                pages = fileAsset.pages.Where(p => p.enabled).Select(p => p.id).ToArray(),
+                                assets = fileAsset.assets
                             };
                             await taskFile.importer.ImportFileAsync(fileAsset.GetFile(), options);
                         }
@@ -235,7 +236,7 @@ namespace Cdm.Figma
                     svgImporter.SaveAndReimport();
 
                     var resourcePath = Path.Combine(taskFile.graphicsPath, fileName).Replace("\\", "/");
-                    fileAsset.vectorGraphics.Add(graphic.Key, resourcePath);
+                    fileAsset.assets.Add(graphic.Key, resourcePath);
                 }
                 else
                 {

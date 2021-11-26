@@ -75,7 +75,8 @@ namespace Cdm.Figma.UIToolkit
 
             var conversionArgs = new NodeConvertArgs(this, file);
             conversionArgs.namespaces = new XNamespaces(ui, uie);
-
+            conversionArgs.assets = options.assets;
+            
             // Collect all component sets from all pages.
             var pages = file.document.children;
             foreach (var page in pages)

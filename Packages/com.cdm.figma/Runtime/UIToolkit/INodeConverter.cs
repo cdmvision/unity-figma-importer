@@ -15,7 +15,10 @@ namespace Cdm.Figma.UIToolkit
         public FigmaFile file { get; }
         public XNamespaces namespaces { get; set; }
         public List<ComponentSetNode> componentSets { get; } = new List<ComponentSetNode>();
-
+        
+        /// <inheritdoc cref="FigmaImportOptions.assets"/>
+        public IDictionary<string, string> assets { get; set; } = new Dictionary<string, string>();
+        
         public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
         {
             this.importer = importer;

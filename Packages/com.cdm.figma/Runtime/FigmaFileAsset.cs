@@ -80,13 +80,10 @@ namespace Cdm.Figma
         }
 
         [SerializeField]
-        private SerializableDictionary<string, string> _vectorGraphics = new SerializableDictionary<string, string>();
+        private SerializableDictionary<string, string> _assets = new SerializableDictionary<string, string>();
 
-        /// <summary>
-        /// Contains node ID as key and its imported vector graphics path as value.
-        /// You can use like url("project:///Assets/vector_path"); in the style definition.
-        /// </summary>
-        public IDictionary<string, string> vectorGraphics => _vectorGraphics;
+        /// <inheritdoc cref="FigmaImportOptions.assets"/>
+        public IDictionary<string, string> assets => _assets;
 
         public FigmaFile GetFile()
         {
