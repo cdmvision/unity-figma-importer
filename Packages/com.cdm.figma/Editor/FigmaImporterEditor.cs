@@ -115,7 +115,11 @@ namespace Cdm.Figma
                         var fileAsset = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
                         if (fileAsset != null)
                         {
-                            await taskFile.importer.ImportFileAsync(fileAsset.GetFile());
+                            var options = new FigmaImportOptions
+                            {
+                                pages = fileAsset.pages.Where(p => p.enabled).Select(p => p.id).ToArray()
+                            };
+                            await taskFile.importer.ImportFileAsync(fileAsset.GetFile(), options);
                         }
                         else
                         {

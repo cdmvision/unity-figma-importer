@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
@@ -63,40 +64,47 @@ namespace Cdm.Figma.UIToolkit
 
         public IReadOnlyList<ComponentSetNode> componentSets => _componentSets;
         
-        public override async Task ImportFileAsync(FigmaFile file)
+        public override async Task ImportFileAsync(FigmaFile file, FigmaImportOptions options = null)
         {
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
 
+            options ??= new FigmaImportOptions();
+            
             var assetsDirectory = Path.Combine("Assets", assetsPath);
             Directory.CreateDirectory(assetsDirectory);
 
             // TODO: collect component set!
             // _componentSets
             
+            XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
+            XNamespace ui = "UnityEngine.UIElements";
+
             var pages = file.document.children;
 
             foreach (var page in pages)
             {
+                if (options.pages != null && options.pages.All(p => p != page.id))
+                    continue;
+                
                 var xml = new XDocument();
-                var root = new XElement("UXML");
-                root.SetAttributeValue("xmlns", "UnityEngine.UIElements");
-                root.SetAttributeValue("xmlns", "UnityEditor.UIElements");
-                root.SetAttributeValue("xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                root.SetAttributeValue("engine", "UnityEngine.UIElements");
-                root.SetAttributeValue("noNamespaceSchemaLocation", "../../UIElementsSchema/UIElements.xsd");
-                root.Add();
+                var root = new XElement(ui + "UXML");
+                root.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
+                root.Add(new XAttribute(XNamespace.Xmlns + nameof(ui), ui.NamespaceName));
+                root.Add(new XAttribute(xsi + "noNamespaceSchemaLocation", "../../../../../UIElementsSchema/UIElements.xsd"));
                 xml.Add(root);
-
-                // TODO: xml definition
-                // TODO: generate page xml.
-
+                
+                // Add root visual element.
+                var visualElement = new XElement(ui + nameof(VisualElement));
+                visualElement.Add(new XAttribute("style", $"background-color: {page.backgroundColor}; flex-grow: 1;"));
+                root.Add(visualElement);
+                
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
                     if (TryConvertNode(file, node, out var element))
                     {
-                        xml.Add(element);
+                        root.Add(element);
                     }
                 }
 
