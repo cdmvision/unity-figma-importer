@@ -1,10 +1,10 @@
-using System;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class ComponentNode : FrameNode
     {
-        public override NodeType type => NodeType.Component;
+        public override string type => NodeType.Component;
     }
 }

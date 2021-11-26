@@ -1,24 +1,23 @@
-using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class TextNode : VectorNode
     {
-        public override NodeType type => NodeType.Text;
+        public override string type => NodeType.Text;
         
         /// <summary>
         /// Text contained within a text box.
         /// </summary>
-        [JsonProperty("characters")]
+        [DataMember(Name = "characters")]
         public string characters { get; set; }
         
         /// <summary>
         /// Style of text including font family and weight.
         /// </summary>
-        [JsonProperty("style")]
+        [DataMember(Name = "style")]
         public TypeStyle style { get; set; }
         
         /// <summary>
@@ -26,13 +25,13 @@ namespace Cdm.Figma
         /// <see cref="styleOverrideTable"/> defined below and maps to the corresponding character in the characters
         /// field. Elements with value 0 have the default type style.
         /// </summary>
-        [JsonProperty("characterStyleOverrides")]
+        [DataMember(Name = "characterStyleOverrides")]
         public int[] characterStyleOverrides { get; set; }
 
         /// <summary>
         /// Map from ID to <see cref="TypeStyle"/> for looking up style overrides.
         /// </summary>
-        [JsonProperty("styleOverrideTable")]
+        [DataMember(Name = "styleOverrideTable")]
         public Dictionary<int, TypeStyle> styleOverrideTable { get; private set; } = new Dictionary<int, TypeStyle>();
     }
 }

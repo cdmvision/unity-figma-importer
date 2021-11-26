@@ -1,5 +1,4 @@
-using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
@@ -19,31 +18,31 @@ namespace Cdm.Figma
     ///
     /// A relative offset within a frame
     /// </summary>
-    [Serializable]
+    [DataContract]
     public partial class CommentMetadata
     {
         /// <summary>
         /// X coordinate of the vector.
         /// </summary>
-        [JsonProperty("x", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "x")]
         public float? x { get; set; }
 
         /// <summary>
         /// Y coordinate of the vector.
         /// </summary>
-        [JsonProperty("y", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "y")]
         public float? y { get; set; }
 
         /// <summary>
         /// Unique id specifying the frame.
         /// </summary>
-        [JsonProperty("node_id", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "node_id")]
         public string[] nodeId { get; set; }
 
         /// <summary>
         /// 2d vector offset within the frame.
         /// </summary>
-        [JsonProperty("node_offset", NullValueHandling = NullValueHandling.Ignore)]
+        [DataMember(Name = "node_offset")]
         public Vector nodeOffset { get; set; }
     }
 }

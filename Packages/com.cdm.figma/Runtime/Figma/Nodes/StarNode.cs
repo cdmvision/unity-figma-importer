@@ -1,10 +1,10 @@
-using System;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class StarNode : VectorNode
     {
-        public override NodeType type => NodeType.Star;
+        public override string type => NodeType.Star;
     }
 }

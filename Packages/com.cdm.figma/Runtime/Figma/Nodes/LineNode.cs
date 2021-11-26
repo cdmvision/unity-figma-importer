@@ -1,10 +1,10 @@
-using System;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class LineNode : VectorNode
     {
-        public override NodeType type => NodeType.Line;
+        public override string type => NodeType.Line;
     }
 }

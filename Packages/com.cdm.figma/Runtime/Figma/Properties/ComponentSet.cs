@@ -1,27 +1,26 @@
-using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
-    [Serializable]
+    [DataContract]
     public class ComponentSet
     {
         /// <summary>
         /// The key of the component.
         /// </summary>
-        [JsonProperty("key", Required = Required.Always)]
+        [DataMember(Name = "key", IsRequired = true)]
         public string key { get; set; }
 
         /// <summary>
         /// The name of the component.
         /// </summary>
-        [JsonProperty("name")]
+        [DataMember(Name = "name")]
         public string name { get; set; }
 
         /// <summary>
         /// The description of the component as entered in the editor
         /// </summary>
-        [JsonProperty("description")]
+        [DataMember(Name = "description")]
         public string description { get; set; }
     }
 }

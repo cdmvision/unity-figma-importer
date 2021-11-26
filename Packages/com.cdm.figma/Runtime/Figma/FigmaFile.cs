@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using JsonConverter = Unity.Plastic.Newtonsoft.Json.JsonConverter;
+using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
@@ -16,47 +15,47 @@ namespace Cdm.Figma
     /// metadata available on components is the name of the component, but more properties will
     /// be forthcoming.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public class FigmaFile
     {
-        [JsonProperty("name")]
+        [DataMember(Name = "name")]
         public string name { get; set; }
         
-        [JsonProperty("version")]
+        [DataMember(Name = "version")]
         public string version { get; set; }
         
-        [JsonProperty("role")]
+        [DataMember(Name = "role")]
         public string role { get; set; }
         
-        [JsonProperty("thumbnailUrl")]
+        [DataMember(Name = "thumbnailUrl")]
         public string thumbnailUrl { get; set; }
         
-        [JsonProperty("editorType")]
+        [DataMember(Name = "editorType")]
         public string editorType { get; set; }
         
-        [JsonProperty("lastModified")]
+        [DataMember(Name = "lastModified")]
         public DateTime lastModified { get; set; }
 
         /// <summary>
         /// The root node within the document.
         /// </summary>
-        [JsonProperty("document")]
+        [DataMember(Name = "document")]
         public DocumentNode document { get; set; }
         
         /// <summary>
         /// The components key contains a mapping from node IDs to component metadata.
         /// This is to help you determine which components each instance comes from.
         /// </summary>
-        [JsonProperty("components")]
+        [DataMember(Name = "components")]
         public Dictionary<string, Component> components { get; set; } = new Dictionary<string, Component>();
         
-        [JsonProperty("componentSets")]
+        [DataMember(Name = "componentSets")]
         public Dictionary<string, ComponentSet> componentSets { get; set; } = new Dictionary<string, ComponentSet>();
         
-        [JsonProperty("styles")]
+        [DataMember(Name = "styles")]
         public Dictionary<string, Style> styles { get; set; } = new Dictionary<string, Style>();
         
-        [JsonProperty("schemaVersion")]
+        [DataMember(Name = "schemaVersion")]
         public int schemaVersion { get; set; }
 
         public static FigmaFile FromString(string json) => 

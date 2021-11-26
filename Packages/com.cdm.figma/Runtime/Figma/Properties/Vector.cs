@@ -1,5 +1,4 @@
-using System;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 using UnityEngine;
 
 namespace Cdm.Figma
@@ -18,19 +17,19 @@ namespace Cdm.Figma
     ///
     /// 2d vector offset within the frame.
     /// </summary>
-    [Serializable]
+    [DataContract]
     public class Vector
     {
         /// <summary>
         /// X coordinate of the vector
         /// </summary>
-        [JsonProperty("x")]
+        [DataMember(Name = "x")]
         public float x { get; set; }
 
         /// <summary>
         /// Y coordinate of the vector
         /// </summary>
-        [JsonProperty("y")]
+        [DataMember(Name = "y")]
         public float y { get; set; }
 
         public Vector()
