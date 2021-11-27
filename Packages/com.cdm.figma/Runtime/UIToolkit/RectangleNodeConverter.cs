@@ -25,6 +25,7 @@ namespace Cdm.Figma.UIToolkit
             string styleAttributes = "";
             
             /*positioning and size*/
+            styleAttributes += "position: absolute; ";
             var absoluteBoundingBox = node.absoluteBoundingBox;
             var width = absoluteBoundingBox.width;
             styleAttributes += "width: " + width + "px; ";
@@ -63,6 +64,26 @@ namespace Cdm.Figma.UIToolkit
                     styleAttributes += "border-radius: " + cornerRadius + "px; ";
                 }
             }
+            
+            var strokes = node.strokes;
+            if (strokes.Count > 0)
+            {
+                var strokeWeight = node.strokeWeight;
+                if (strokeWeight.HasValue)
+                {
+                    styleAttributes += "border-width: " + strokeWeight + "px; ";
+                }
+
+                foreach (var stroke in strokes)
+                {
+                    //Probably we will use only one color (for stroke color), but it can change in the future.
+                    //TODO: Implement when strokes have more than one stroke color.
+                    styleAttributes += "border-color: rgba(";
+                    var strokeColor = stroke.color;
+                    styleAttributes += strokeColor.r * 255 + "," + strokeColor.g * 255 + "," + strokeColor.b * 255 +
+                                       "," + strokeColor.a + "); ";
+                }
+            }
             /*shaping*/
             
             /*color*/
@@ -78,6 +99,11 @@ namespace Cdm.Figma.UIToolkit
                 styleAttributes += bgColor.r*255 + "," + bgColor.g*255 + "," + bgColor.b*255 + "," + bgColor.a + ");";
             }
             /*color*/
+            
+            /*effects*/
+            var effects = node.effects;
+            //TODO: Implement effects, find equivalent (uxml) to them.
+            /*effects*/
  
             return styleAttributes;
         }
