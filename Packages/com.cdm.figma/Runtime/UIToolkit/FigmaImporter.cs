@@ -102,16 +102,17 @@ namespace Cdm.Figma.UIToolkit
                 xml.Add(root);
                 
                 // Add root visual element.
-                var visualElement = new XElement(ui + nameof(VisualElement));
-                visualElement.Add(new XAttribute("style", $"background-color: {page.backgroundColor}; flex-grow: 1;"));
-                root.Add(visualElement);
+
+                var pageElement = XmlFactory.NewElement<VisualElement>(page, conversionArgs)
+                    .Style($"background-color: {page.backgroundColor}; flex-grow: 1;");
+                root.Add(pageElement);
                 
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
                     if (TryConvertNode(node, conversionArgs, out var element))
                     {
-                        root.Add(element);
+                        pageElement.Add(element);
                     }
                 }
 

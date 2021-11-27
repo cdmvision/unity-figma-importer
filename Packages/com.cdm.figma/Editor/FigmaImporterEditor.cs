@@ -163,7 +163,7 @@ namespace Cdm.Figma
                     var fileContent = await FigmaApi.GetFileAsTextAsync(
                         new FigmaFileRequest(taskFile.personalAccessToken, fileId)
                         {
-                            //geometry = "paths"
+                            geometry = "paths"
                         });
 
                     var file = FigmaFile.FromString(fileContent);

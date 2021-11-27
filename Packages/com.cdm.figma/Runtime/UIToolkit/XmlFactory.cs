@@ -1,0 +1,109 @@
+using System.Linq;
+using System.Xml.Linq;
+using Cdm.Figma.UIToolkit;
+
+namespace Cdm.Figma
+{
+    public static class XmlFactory
+    {
+        /// <summary>
+        /// Gets the <see cref="Node.id"/> of the <paramref name="node"/> as XML attribute.
+        /// </summary>
+        public static XAttribute GetNodeId(Node node)
+        {
+            return new XAttribute("nodeId", node.id);
+        }
+        
+        /// <summary>
+        /// Gets the <see cref="Node.name"/> of the <paramref name="node"/> as XML attribute.
+        /// </summary>
+        public static XAttribute GetNodeName(Node node)
+        {
+            return new XAttribute("nodeName", node.name);
+        }
+        
+        /// <summary>
+        /// Gets binding identifier as XML attribute for the node if exist.
+        /// </summary>
+        public static XAttribute GetBindingId(Node node, NodeConvertArgs args)
+        {
+            var id = GetSpecialId(node, args.importer.bindingPrefix);
+            if (!string.IsNullOrEmpty(id))
+            {
+                return new XAttribute("name", id);
+            }
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Gets localization identifier as XML attribute for the node if exist.
+        /// </summary>
+        public static XAttribute GetLocalizationId(Node node, NodeConvertArgs args)
+        {
+            var id = GetSpecialId(node, args.importer.localizationPrefix);
+            if (!string.IsNullOrEmpty(id))
+            {
+                return new XAttribute("lang", id);
+            }
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the XElement class with the specified name and content.
+        /// </summary>
+        public static XElement NewElement(NodeConvertArgs args, string name, params object[] content)
+        {
+            return new XElement(args.namespaces.engine + name, content);
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the XElement class with the specified type and content.
+        /// </summary>
+        public static XElement NewElement<T>(NodeConvertArgs args, params object[] content)
+        {
+            return new XElement(args.namespaces.engine + typeof(T).Name, content);
+        }
+        
+        /// <summary>
+        /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
+        /// </summary>
+        public static XElement NewElement<T>(Node node, NodeConvertArgs args)
+        {
+            var element = NewElement<T>(args, GetNodeId(node), GetNodeName(node));
+
+            var bindingId = GetBindingId(node, args);
+            if (bindingId != null)
+            {
+                element.Add(bindingId);
+            }
+            
+            var localizationId = GetLocalizationId(node, args);
+            if (localizationId != null)
+            {
+                element.Add(localizationId);
+            }
+            
+            return element;
+        }
+
+        public static XAttribute NewStyle(string style)
+        {
+            return new XAttribute("style", style);
+        }
+
+        public static XElement Style(this XElement element, string style)
+        {
+            element.Add(NewStyle(style));
+            return element;
+        }
+
+        private static string GetSpecialId(Node node, string prefix)
+        {
+            var tokens = node.name.Split(" ");
+            var token = tokens.FirstOrDefault(t => t.StartsWith(prefix));
+            return token?.Replace(prefix, "");
+        }
+    }
+}
