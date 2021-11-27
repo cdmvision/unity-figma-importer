@@ -10,12 +10,15 @@ namespace Cdm.Figma.UIToolkit
     [CreateAssetMenu(fileName = nameof(VectorNodeConverter), menuName = AssetMenuRoot + "Vector", order = 20)]
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
+        public static XElement Convert(VectorNode node, NodeConvertArgs args)
+        {
+            var style = BuildStyle(node, args);
+            return XmlFactory.NewElement<VisualElement>(node, args).Style(style);
+        }
+        
         public override XElement Convert(Node node, NodeConvertArgs args)
         {
-            var vectorNode = (VectorNode) node;
-            var style = BuildStyle(vectorNode, args);
-            
-            return XmlFactory.NewElement<VisualElement>(node, args).Style(style);
+            return Convert((VectorNode) node, args);
         }
 
         private static string BuildStyle(VectorNode node, NodeConvertArgs args)

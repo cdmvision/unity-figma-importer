@@ -199,7 +199,7 @@ namespace Cdm.Figma
                     nodes.Add((VectorNode) node);    
                 }
                 return true;
-            }, NodeType.Vector);
+            }, NodeType.Vector, NodeType.Line, NodeType.RegularPolygon, NodeType.Star);
 
             if (!nodes.Any())
                 return;

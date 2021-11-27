@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Xml.Linq;
 using Cdm.Figma.UIToolkit;
+using UnityEngine;
 
 namespace Cdm.Figma
 {
@@ -71,18 +72,27 @@ namespace Cdm.Figma
         /// </summary>
         public static XElement NewElement<T>(Node node, NodeConvertArgs args)
         {
-            var element = NewElement<T>(args, GetNodeId(node), GetNodeName(node));
-
+            var element = NewElement<T>(args, GetNodeId(node));
+            
+            var name = GetNodeName(node);
+            element.Add(name);
+            
             var bindingId = GetBindingId(node, args);
             if (bindingId != null)
             {
                 element.Add(bindingId);
+                
+                // Remove binding identifier from node name?
+                //name.Value = name.Value.Replace($"{args.importer.bindingPrefix}{bindingId.Value}", "");
             }
             
             var localizationId = GetLocalizationId(node, args);
             if (localizationId != null)
             {
                 element.Add(localizationId);
+                
+                // Remove localization identifier from node name?
+                //name.Value = name.Value.Replace($"{args.importer.localizationPrefix}{localizationId.Value}", "");
             }
             
             return element;
