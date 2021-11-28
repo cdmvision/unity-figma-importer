@@ -18,4 +18,7 @@ MonoBehaviour:
   _assetsPath: Resources/Figma/UIToolkit/Documents
   _nodeConverters:
   - {fileID: 11400000, guid: d9df3eff2176f75409109282abb8d6f5, type: 2}
+  - {fileID: 11400000, guid: 8dae3d4f38d2b0c4ea41512a73de134a, type: 2}
+  - {fileID: 11400000, guid: 1229a78bd8bcec240830dc19b730a7f0, type: 2}
+  - {fileID: 11400000, guid: 8b9c43ef19efc4a488ea2279d166f49d, type: 2}
   _componentConverters: []
