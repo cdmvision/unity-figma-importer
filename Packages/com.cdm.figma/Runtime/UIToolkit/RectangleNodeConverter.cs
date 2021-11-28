@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,22 +13,15 @@ namespace Cdm.Figma.UIToolkit
         public override XElement Convert(Node node, NodeConvertArgs args)
         {
             var rectangleNode = (RectangleNode) node;
-            var styleAttributes = BuildStyle(rectangleNode);
-            var rectangleElement =
-                new XElement(args.namespaces.engine + nameof(VisualElement),
-                    new XAttribute("name", rectangleNode.name),
-                    new XAttribute("style", styleAttributes));
-
-            Debug.Log($"Rectangle XML element: {rectangleElement}");
-            return rectangleElement;
+            var styleAttributes = BuildStyle(rectangleNode, args);
+            return XmlFactory.NewElement<VisualElement>(rectangleNode, args).Style(styleAttributes);
         }
 
-        private string BuildStyle(RectangleNode node)
+        private string BuildStyle(RectangleNode node, NodeConvertArgs args)
         {
             string styleAttributes = "";
-            
             /*positioning and size*/
-            
+            //TODO: Implement responsive (Figma design should change for this)
             styleAttributes += "position: absolute; ";
             var absoluteBoundingBox = node.absoluteBoundingBox;
             var relativeTransform = node.relativeTransform;
@@ -92,32 +87,24 @@ namespace Cdm.Figma.UIToolkit
                 {
                     styleAttributes += "border-width: " + strokeWeight + "px; ";
                 }
-
-                foreach (var stroke in strokes)
-                {
-                    //Probably we will use only one color (for stroke color), but it can change in the future.
-                    //TODO: Implement when strokes have more than one stroke color.
-                    styleAttributes += "border-color: rgba(";
-                    var strokeColor = stroke.color;
-                    styleAttributes += strokeColor.r * 255 + "," + strokeColor.g * 255 + "," + strokeColor.b * 255 +
-                                       "," + strokeColor.a + "); ";
-                }
-                
+                var strokeColor = BlendColor(strokes);
+                styleAttributes += "border-color: rgba(";
+                var strokeColorBlended = strokeColor.color;
+                styleAttributes += strokeColorBlended.r*255 + "," + strokeColorBlended.g*255 + "," + strokeColorBlended.b*255 + "," + strokeColorBlended.a + "); ";
                 //TODO: Implement dashed strokes
             }
             /*shaping*/
             
             /*color*/
             var fills = node.fills;
-            foreach (var fill in fills)
+            if (fills.Count > 0)
             {
-                //Probably we will use only one color (for background color), but it can change in the future,
-                //If fills have more than one fill color, then Blend Type must be checked. 
-                //TODO: Implement when fills have more than one fill color.
+                var fillColor = BlendColor(fills);
                 styleAttributes += "background-color: rgba(";
-                var bgColor = fill.color;
+                var fillColorBlended = fillColor.color;
+                
                 //Figma stores rgb values in [0,1], change it to [0,255] (except alpha).
-                styleAttributes += bgColor.r*255 + "," + bgColor.g*255 + "," + bgColor.b*255 + "," + bgColor.a + "); ";
+                styleAttributes += fillColorBlended.r*255 + "," + fillColorBlended.g*255 + "," + fillColorBlended.b*255 + "," + fillColorBlended.a + "); ";
             }
             /*color*/
             
@@ -128,5 +115,36 @@ namespace Cdm.Figma.UIToolkit
  
             return styleAttributes;
         }
+
+        private Paint BlendColor(List<Paint> paints)
+        {
+            //TODO: Change blend mode.
+            
+            if (paints.Count == 1)
+            {
+                return paints[0]; //base color
+            }
+
+            for (int i = 0; i < paints.Count-1; ++i)
+            {
+                paints[i+1] = BlendTwoColors(paints[i+1], paints[i]);
+            }
+            return paints[paints.Count-1];
+        }
+
+        private Paint BlendTwoColors(Paint addedColor, Paint baseColor)
+        {
+            Paint mix = new Paint();
+            mix.color = new Color();
+            mix.color.a = 1 - (1 - addedColor.opacity) * (1 - baseColor.opacity); 
+            mix.color.r = (float) Math.Round((addedColor.color.r * addedColor.opacity / mix.color.a) 
+                                             + (baseColor.color.r * baseColor.opacity * (1 - addedColor.opacity) / mix.color.a)); 
+            mix.color.g = (float) Math.Round((addedColor.color.g * addedColor.opacity / mix.color.a) 
+                                             + (baseColor.color.g * baseColor.opacity * (1 - addedColor.opacity) / mix.color.a)); 
+            mix.color.b = (float) Math.Round((addedColor.color.b * addedColor.opacity / mix.color.a) 
+                                             + (baseColor.color.b * baseColor.opacity * (1 - addedColor.opacity) / mix.color.a));
+            return mix;
+        }
     }
+    
 }
