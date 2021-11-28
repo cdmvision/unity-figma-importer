@@ -1,3 +1,4 @@
+using System;
 using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -25,12 +26,30 @@ namespace Cdm.Figma.UIToolkit
             string styleAttributes = "";
             
             /*positioning and size*/
+            
             styleAttributes += "position: absolute; ";
             var absoluteBoundingBox = node.absoluteBoundingBox;
-            var width = absoluteBoundingBox.width;
-            styleAttributes += "width: " + width + "px; ";
-            var height = absoluteBoundingBox.height;
-            styleAttributes += "height: " + height + "px; ";
+            var relativeTransform = node.relativeTransform;
+            var relativeTranformValues = relativeTransform.values;
+            var m00 = relativeTranformValues[0][0];
+            var m10 = relativeTranformValues[1][0];
+            var rotation = Math.Atan2(m10, m00);
+            var rotationDeg = (180 / Math.PI) * rotation;
+            if (rotationDeg != 0)
+            {
+                var sizeX = node.size.x;
+                var sizeY = node.size.y;
+                styleAttributes += "rotate: " + rotationDeg + "deg; ";
+                styleAttributes += "width: " + sizeX + "px; ";
+                styleAttributes += "height: " + sizeY + "px; ";
+            }
+            else
+            {
+                var width = absoluteBoundingBox.width;
+                styleAttributes += "width: " + width + "px; ";
+                var height = absoluteBoundingBox.height;
+                styleAttributes += "height: " + height + "px; ";
+            }
             
             var xValue = absoluteBoundingBox.x;
             var yValue = absoluteBoundingBox.y;
@@ -83,6 +102,8 @@ namespace Cdm.Figma.UIToolkit
                     styleAttributes += strokeColor.r * 255 + "," + strokeColor.g * 255 + "," + strokeColor.b * 255 +
                                        "," + strokeColor.a + "); ";
                 }
+                
+                //TODO: Implement dashed strokes
             }
             /*shaping*/
             
@@ -96,7 +117,7 @@ namespace Cdm.Figma.UIToolkit
                 styleAttributes += "background-color: rgba(";
                 var bgColor = fill.color;
                 //Figma stores rgb values in [0,1], change it to [0,255] (except alpha).
-                styleAttributes += bgColor.r*255 + "," + bgColor.g*255 + "," + bgColor.b*255 + "," + bgColor.a + ");";
+                styleAttributes += bgColor.r*255 + "," + bgColor.g*255 + "," + bgColor.b*255 + "," + bgColor.a + "); ";
             }
             /*color*/
             
