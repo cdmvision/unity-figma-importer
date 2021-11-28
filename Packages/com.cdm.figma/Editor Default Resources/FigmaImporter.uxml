@@ -6,6 +6,7 @@
         <ui:VisualElement style="height: 8px;" />
         <uie:ObjectField allow-scene-objects="false" binding-path="_importer" type="Cdm.Figma.FigmaImporter, Cdm.Figma" label="Importer" />
         <ui:TextField picking-mode="Ignore" label="Assets Path" binding-path="_assetsPath" />
+        <ui:TextField picking-mode="Ignore" label="Graphics Path" binding-path="_graphicsPath" />
     </ui:GroupBox>
     <ui:GroupBox text="File IDs">
         <ui:ListView focusable="true" binding-path="_files" show-add-remove-footer="true" virtualization-method="DynamicHeight" show-border="true" show-alternating-row-backgrounds="ContentOnly" show-bound-collection-size="false" name="filesList" />

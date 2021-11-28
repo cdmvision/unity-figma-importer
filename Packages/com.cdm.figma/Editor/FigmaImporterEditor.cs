@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Unity.VectorGraphics.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -69,7 +71,7 @@ namespace Cdm.Figma
         private void PopulatePageList(VisualElement root, string fileId)
         {
             var assetPath = GetFigmaAssetPath((FigmaImporterTaskFile) target, fileId);
-            if (System.IO.File.Exists(assetPath))
+            if (File.Exists(assetPath))
             {
                 _selectedFile = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
 
@@ -110,14 +112,15 @@ namespace Cdm.Figma
                     EditorUtility.DisplayProgressBar("Importing Figma files", $"File: {fileId}", (float) i / fileCount);
 
                     var assetPath = GetFigmaAssetPath(taskFile, fileId);
-                    if (System.IO.File.Exists(assetPath))
+                    if (File.Exists(assetPath))
                     {
                         var fileAsset = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
                         if (fileAsset != null)
                         {
                             var options = new FigmaImportOptions
                             {
-                                pages = fileAsset.pages.Where(p => p.enabled).Select(p => p.id).ToArray()
+                                pages = fileAsset.pages.Where(p => p.enabled).Select(p => p.id).ToArray(),
+                                assets = fileAsset.assets
                             };
                             await taskFile.importer.ImportFileAsync(fileAsset.GetFile(), options);
                         }
@@ -158,13 +161,20 @@ namespace Cdm.Figma
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) i / fileCount);
                     
                     var fileContent = await FigmaApi.GetFileAsTextAsync(
-                        new FigmaFileRequest(taskFile.personalAccessToken, fileId));
+                        new FigmaFileRequest(taskFile.personalAccessToken, fileId)
+                        {
+                            geometry = "paths"
+                        });
 
                     var file = FigmaFile.FromString(fileContent);
                     var thumbnail = await FigmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
                     
-                    SaveFigmaFile(taskFile, file, fileId, fileContent, thumbnail);
-                
+                    // Save figma file asset.
+                    var fileAsset = SaveFigmaFile(taskFile, file, fileId, fileContent, thumbnail);
+                    
+                    // Save Vector nodes as graphic asset.
+                    await SaveVectorGraphicsAsync(taskFile, file, fileId, fileAsset);
+
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
                 }
             }
@@ -177,12 +187,77 @@ namespace Cdm.Figma
                 EditorUtility.ClearProgressBar();
             }
         }
+
+        private static async Task SaveVectorGraphicsAsync(
+            FigmaImporterTaskFile taskFile, FigmaFile file, string fileId, FigmaFileAsset fileAsset)
+        {
+            var nodes = new List<VectorNode>();
+            file.document.Traverse(node =>
+            {
+                if (node.visible)
+                {
+                    nodes.Add((VectorNode) node);    
+                }
+                return true;
+            }, NodeType.Vector, NodeType.Line, NodeType.RegularPolygon, NodeType.Star);
+
+            if (!nodes.Any())
+                return;
+            
+            var graphics = 
+                await FigmaApi.GetImageAsync(new FigmaImageRequest(taskFile.personalAccessToken, fileId)
+                {
+                    ids = nodes.Select(x => x.id).ToArray(),
+                    format = "svg",
+                    svgIncludeId = false,
+                    svgSimplifyStroke = true
+                });
+            
+            var directory = Path.Combine("Assets", taskFile.graphicsPath);
+            Directory.CreateDirectory(directory);
+
+            foreach (var graphic in graphics)
+            {
+                if (graphic.Value != null)
+                {
+                    var fileName = $"{graphic.Key.Replace(":", "-").Replace(";", "_")}.svg";
+                    
+                    var path = Path.Combine(Application.dataPath, taskFile.graphicsPath, fileName);
+                    await File.WriteAllBytesAsync(path, graphic.Value);
+
+                    var assetPath = Path.Combine("Assets", taskFile.graphicsPath, fileName);
+                    AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+                    
+                    var svgImporter = (SVGImporter) AssetImporter.GetAtPath(assetPath);
+                    svgImporter.PreserveSVGImageAspect = true;
+                    svgImporter.SvgType = SVGType.UIToolkit;
+                    
+                    EditorUtility.SetDirty(svgImporter);
+                    svgImporter.SaveAndReimport();
+
+                    var resourcePath = Path.Combine(taskFile.graphicsPath, fileName).Replace("\\", "/");
+                    fileAsset.assets.Add(graphic.Key, resourcePath);
+                }
+                else
+                {
+                    Debug.LogWarning($"Graphic could not be rendered: {graphic.Key}");
+                }
+            }
+            
+            EditorUtility.SetDirty(fileAsset);
+            AssetDatabase.SaveAssetIfDirty(fileAsset);
+        }
         
-        private static void SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
+        private static FigmaFileAsset SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
             string fileContent, byte[] thumbnail)
         {
             var directory = Path.Combine("Assets", taskFile.assetsPath);
             Directory.CreateDirectory(directory);
+            
+            var figmaAssetPath = GetFigmaAssetPath(taskFile, fileId);
+
+            var oldFigmaAsset = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(figmaAssetPath);
+            var oldPages = oldFigmaAsset != null ? oldFigmaAsset.pages : new FigmaFilePage[0];
             
             var figmaAsset = CreateInstance<FigmaFileAsset>();
             figmaAsset.id = fileId;
@@ -205,11 +280,17 @@ namespace Cdm.Figma
                     id = canvases[i].id,
                     name = canvases[i].name
                 };
+
+                var oldPage = oldPages.FirstOrDefault(x => x.id == pages[i].id);
+                if (oldPage != null)
+                {
+                    pages[i].enabled = oldPage.enabled;
+                }
             }
 
             figmaAsset.pages = pages;
 
-            var figmaAssetPath = GetFigmaAssetPath(taskFile, fileId);
+            
             AssetDatabase.DeleteAsset(figmaAssetPath);
             AssetDatabase.CreateAsset(figmaAsset, figmaAssetPath);
             
@@ -222,6 +303,7 @@ namespace Cdm.Figma
             AssetDatabase.Refresh();
             
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
+            return figmaAsset;
         }
         
         private static string GetFigmaAssetPath(FigmaImporterTaskFile taskFile, string fileId) 

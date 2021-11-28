@@ -15,6 +15,7 @@
 [Aa]ssets/Resources/Figma/Files/
 [Aa]ssets/Resources/Figma/UIToolkit/Documents/
 [Aa]ssets/Resources/Figma/UIToolkit/Files/
+[Aa]ssets/Resources/Figma/UIToolkit/Graphics/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta

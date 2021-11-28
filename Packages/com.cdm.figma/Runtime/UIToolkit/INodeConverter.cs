@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace Cdm.Figma.UIToolkit
@@ -12,13 +13,16 @@ namespace Cdm.Figma.UIToolkit
     {
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
-        public XNamespaces namespaces { get; }
-
-        public NodeConvertArgs(FigmaImporter importer, FigmaFile file, XNamespaces namespaces)
+        public XNamespaces namespaces { get; set; }
+        public List<ComponentSetNode> componentSets { get; } = new List<ComponentSetNode>();
+        
+        /// <inheritdoc cref="FigmaImportOptions.assets"/>
+        public IDictionary<string, string> assets { get; set; } = new Dictionary<string, string>();
+        
+        public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
         {
             this.importer = importer;
             this.file = file;
-            this.namespaces = namespaces;
         }
     }
     
@@ -26,5 +30,15 @@ namespace Cdm.Figma.UIToolkit
     {
         public XNamespace engine;
         public XNamespace editor;
+
+        public XNamespaces()
+        {
+        }
+
+        public XNamespaces(XNamespace engine, XNamespace editor)
+        {
+            this.engine = engine;
+            this.editor = editor;
+        }
     }
 }

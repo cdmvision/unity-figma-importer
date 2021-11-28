@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Cdm.Figma.Utils;
+using UnityEngine.UIElements;
 
 namespace Cdm.Figma
 {
@@ -75,6 +78,12 @@ namespace Cdm.Figma
             get => _pages;
             internal set => _pages = value;
         }
+
+        [SerializeField]
+        private SerializableDictionary<string, string> _assets = new SerializableDictionary<string, string>();
+
+        /// <inheritdoc cref="FigmaImportOptions.assets"/>
+        public IDictionary<string, string> assets => _assets;
 
         public FigmaFile GetFile()
         {
