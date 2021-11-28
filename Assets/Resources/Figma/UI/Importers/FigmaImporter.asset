@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd568d3503944bf78eb85c9bec447339, type: 3}
+  m_Name: FigmaImporter
+  m_EditorClassIdentifier: 
+  _typePrefix: '@type:'
+  _bindingPrefix: '@id:'
+  _localizationPrefix: '@lang:'
+  _assetsPath: Resources/Figma/UI/Prefabs
+  _nodeConverters:
+  - {fileID: 11400000, guid: 0fc588855d564d841be5b9399cedd76b, type: 2}
+  - {fileID: 11400000, guid: bc8bc1a6f949dcd489df7172737efd9e, type: 2}
+  - {fileID: 11400000, guid: e565550faa80fa0449d87849e7a9f4b2, type: 2}
+  - {fileID: 11400000, guid: b9cf0c84f76b6af49bdbbb6c1d1ea81d, type: 2}
+  - {fileID: 11400000, guid: e23f7b96e6711bf468ec29b66e69264e, type: 2}
+  - {fileID: 11400000, guid: c17ac6d683c9ea0448f453947610acec, type: 2}
+  - {fileID: 11400000, guid: c0ab7c94a430395489c08f87776eacbb, type: 2}
+  - {fileID: 11400000, guid: f29e1d0bff85a834b84062e07b7af849, type: 2}
+  - {fileID: 11400000, guid: bb349d4ccc992fe4ca630703ac1cf4ff, type: 2}
