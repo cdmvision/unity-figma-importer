@@ -31,7 +31,6 @@ namespace Cdm.Figma.UIToolkit
             
             var rotation = Math.Atan2(m10, m00);
             var rotationDeg = (180 / Math.PI) * rotation;
-            float xValue, yValue;
             if (rotationDeg != 0)
             {
                 var sizeX = node.size.x;
@@ -39,9 +38,7 @@ namespace Cdm.Figma.UIToolkit
                 styleAttributes += "rotate: " + rotationDeg + "deg; ";
                 styleAttributes += "width: " + sizeX + "px; ";
                 styleAttributes += "height: " + sizeY + "px; ";
-                xValue = relativeTranformValues[0][2];
-                yValue = relativeTranformValues[1][2];
-                
+
             }
             else
             {
@@ -49,10 +46,10 @@ namespace Cdm.Figma.UIToolkit
                 styleAttributes += "width: " + width + "px; ";
                 var height = absoluteBoundingBox.height;
                 styleAttributes += "height: " + height + "px; ";
-                xValue = absoluteBoundingBox.x;
-                yValue = absoluteBoundingBox.y;
             }
-            
+
+            var xValue = relativeTranformValues[0][2];
+            var yValue = relativeTranformValues[1][2];
             var constraints = node.constraints;
             var constraintX = constraints.horizontal;
             //Constraints are stored as "Top" or "Left" etc..
