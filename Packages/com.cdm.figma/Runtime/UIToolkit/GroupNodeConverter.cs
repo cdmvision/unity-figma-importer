@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(GroupNodeConverter), menuName = AssetMenuRoot + "Group", order = 20)]
+    [CreateAssetMenu(fileName = nameof(GroupNodeConverter), menuName = AssetMenuRoot + "Group", order = AssetMenuOrder)]
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
         public override XElement Convert(Node node, NodeConvertArgs args)

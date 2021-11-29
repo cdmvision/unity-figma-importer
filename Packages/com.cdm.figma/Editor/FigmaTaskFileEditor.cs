@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Unity.VectorGraphics.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -13,13 +12,26 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma
 {
-    [CustomEditor(typeof(FigmaImporterTaskFile))]
-    public class FigmaImporterEditor : Editor
+    public abstract class FigmaTaskFileEditor : Editor
     {
         private FigmaFileAsset _selectedFile;
         private Editor _fileAssetEditor;
         private VisualElement _fileAssetElement;
 
+        protected abstract string GetImplementationName();
+        
+        /// <summary>
+        /// Get node types that will be downloaded as graphic.
+        /// </summary>
+        /// <seealso cref="NodeType"/>
+        protected abstract string[] GetNodeGraphicTypes();
+        
+        /// <summary>
+        /// This is called after node graphic was downloaded.
+        /// </summary>
+        /// <param name="assetPath"></param>
+        protected abstract void ImportGraphic(string assetPath);
+        
         private void OnDisable()
         {
             if (_fileAssetEditor != null)
@@ -32,8 +44,11 @@ namespace Cdm.Figma
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaImporter.uxml");
+            var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+                $"{PackageUtils.VisualTreeFolder}/FigmaTaskFile.uxml");
             visualTree.CloneTree(root);
+
+            root.Q<Label>("title").text = $"{GetImplementationName()} Figma Task File";
             
             root.Q<Button>("accessTokenHelpButton").clicked += () =>
             {
@@ -42,12 +57,12 @@ namespace Cdm.Figma
             
             root.Q<Button>("downloadFilesButton").clicked += async () =>
             {
-                await GetFilesAsync((FigmaImporterTaskFile) target);
+                await GetFilesAsync((FigmaTaskFile) target);
             };
             
             root.Q<Button>("generateViewsButton").clicked += async () =>
             {
-                await ImportFilesAsync((FigmaImporterTaskFile) target);
+                await ImportFilesAsync((FigmaTaskFile) target);
             };
             
             var fileListView = root.Q<ListView>("filesList");
@@ -70,7 +85,7 @@ namespace Cdm.Figma
 
         private void PopulatePageList(VisualElement root, string fileId)
         {
-            var assetPath = GetFigmaAssetPath((FigmaImporterTaskFile) target, fileId);
+            var assetPath = GetFigmaAssetPath((FigmaTaskFile) target, fileId);
             if (File.Exists(assetPath))
             {
                 _selectedFile = AssetDatabase.LoadAssetAtPath<FigmaFileAsset>(assetPath);
@@ -94,9 +109,9 @@ namespace Cdm.Figma
             _fileAssetEditor.DrawPreview(previewArea);
         }
 
-        private async Task ImportFilesAsync(FigmaImporterTaskFile taskFile)
+        private async Task ImportFilesAsync(FigmaTaskFile taskFile)
         {
-            if (taskFile.importer == null)
+            if (taskFile.GetImporter() == null)
             {
                 Debug.LogError($"{nameof(FigmaImporter)} cannot be empty.");
                 return;
@@ -122,7 +137,7 @@ namespace Cdm.Figma
                                 pages = fileAsset.pages.Where(p => p.enabled).Select(p => p.id).ToArray(),
                                 assets = fileAsset.assets
                             };
-                            await taskFile.importer.ImportFileAsync(fileAsset.GetFile(), options);
+                            await taskFile.GetImporter().ImportFileAsync(fileAsset.GetFile(), options);
                         }
                         else
                         {
@@ -149,7 +164,7 @@ namespace Cdm.Figma
             }
         }
         
-        private async Task GetFilesAsync(FigmaImporterTaskFile taskFile)
+        private async Task GetFilesAsync(FigmaTaskFile taskFile)
         {
             try
             {
@@ -188,9 +203,10 @@ namespace Cdm.Figma
             }
         }
 
-        private static async Task SaveVectorGraphicsAsync(
-            FigmaImporterTaskFile taskFile, FigmaFile file, string fileId, FigmaFileAsset fileAsset)
+        private async Task SaveVectorGraphicsAsync(
+            FigmaTaskFile taskFile, FigmaFile file, string fileId, FigmaFileAsset fileAsset)
         {
+            var nodeGraphicTypes = GetNodeGraphicTypes();
             var nodes = new List<VectorNode>();
             file.document.Traverse(node =>
             {
@@ -199,7 +215,7 @@ namespace Cdm.Figma
                     nodes.Add((VectorNode) node);    
                 }
                 return true;
-            }, NodeType.Vector, NodeType.Line, NodeType.RegularPolygon, NodeType.Star);
+            }, nodeGraphicTypes);
 
             if (!nodes.Any())
                 return;
@@ -227,13 +243,8 @@ namespace Cdm.Figma
 
                     var assetPath = Path.Combine("Assets", taskFile.graphicsPath, fileName);
                     AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
-                    
-                    var svgImporter = (SVGImporter) AssetImporter.GetAtPath(assetPath);
-                    svgImporter.PreserveSVGImageAspect = true;
-                    svgImporter.SvgType = SVGType.UIToolkit;
-                    
-                    EditorUtility.SetDirty(svgImporter);
-                    svgImporter.SaveAndReimport();
+
+                    ImportGraphic(assetPath);
 
                     var resourcePath = Path.Combine(taskFile.graphicsPath, fileName).Replace("\\", "/");
                     fileAsset.assets.Add(graphic.Key, resourcePath);
@@ -247,8 +258,8 @@ namespace Cdm.Figma
             EditorUtility.SetDirty(fileAsset);
             AssetDatabase.SaveAssetIfDirty(fileAsset);
         }
-        
-        private static FigmaFileAsset SaveFigmaFile(FigmaImporterTaskFile taskFile, FigmaFile figmaFile, string fileId, 
+
+        private static FigmaFileAsset SaveFigmaFile(FigmaTaskFile taskFile, FigmaFile figmaFile, string fileId, 
             string fileContent, byte[] thumbnail)
         {
             var directory = Path.Combine("Assets", taskFile.assetsPath);
@@ -306,7 +317,7 @@ namespace Cdm.Figma
             return figmaAsset;
         }
         
-        private static string GetFigmaAssetPath(FigmaImporterTaskFile taskFile, string fileId) 
+        private static string GetFigmaAssetPath(FigmaTaskFile taskFile, string fileId) 
             => Path.Combine("Assets", taskFile.assetsPath,  $"{fileId}.asset");
     }
 }
