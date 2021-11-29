@@ -3,9 +3,8 @@ using UnityEngine;
 
 namespace Cdm.Figma
 {
-    [CreateAssetMenu(fileName = nameof(FigmaImporterTaskFile), 
-        menuName = FigmaImporter.AssetMenuRoot + "Figma Importer Task File", order = 0)]
-    public class FigmaImporterTaskFile : ScriptableObject
+
+    public abstract class FigmaTaskFile : ScriptableObject
     {
         [SerializeField]
         private string _personalAccessToken;
@@ -15,7 +14,6 @@ namespace Cdm.Figma
             get => _personalAccessToken;
             set => _personalAccessToken = value;
         }
-
 
         [SerializeField]
         private string _assetsPath = "Resources/Figma/Files";
@@ -32,13 +30,20 @@ namespace Cdm.Figma
 
         public List<string> fileIds => _files;
 
-        [SerializeField]
-        private FigmaImporter _importer;
+        public abstract IFigmaImporter GetImporter();
+    }
 
-        public FigmaImporter importer
+    public abstract class FigmaTaskFile<TImporter> : FigmaTaskFile where TImporter : FigmaImporter
+    {
+        [SerializeField]
+        private TImporter _importer;
+
+        public TImporter importer
         {
             get => _importer;
             set => _importer = value;
         }
+        
+        public override IFigmaImporter GetImporter() => importer;
     }
 }

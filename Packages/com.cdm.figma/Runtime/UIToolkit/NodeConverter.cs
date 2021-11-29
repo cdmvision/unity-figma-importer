@@ -5,7 +5,8 @@ namespace Cdm.Figma.UIToolkit
 {
     public abstract class NodeConverter : ScriptableObject, INodeConverter
     {
-        protected const string AssetMenuRoot = FigmaImporter.AssetMenuRoot + "Converters/";
+        protected const string AssetMenuRoot = FigmaImporter.AssetMenuRoot;
+        protected const int AssetMenuOrder = 20;
         
         public abstract bool CanConvert(Node node, NodeConvertArgs args);
         public abstract XElement Convert(Node node, NodeConvertArgs args);

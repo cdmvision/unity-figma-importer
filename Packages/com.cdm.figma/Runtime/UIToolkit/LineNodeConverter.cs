@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(LineNodeConverter), menuName = AssetMenuRoot + "Line", order = 20)]
+    [CreateAssetMenu(fileName = nameof(LineNodeConverter), menuName = AssetMenuRoot + "Line", order = AssetMenuOrder)]
     public class LineNodeConverter : NodeConverter<LineNode>
     {
         public override XElement Convert(Node node, NodeConvertArgs args)

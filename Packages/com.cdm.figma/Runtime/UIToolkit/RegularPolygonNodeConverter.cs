@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Cdm.Figma.UIToolkit
 {
     [CreateAssetMenu(fileName = nameof(RegularPolygonNodeConverter), 
-        menuName = AssetMenuRoot + "Regular Polygon", order = 20)]
+        menuName = AssetMenuRoot + "Regular Polygon", order = AssetMenuOrder)]
     public class RegularPolygonNodeConverter : NodeConverter<RegularPolygonNode>
     {
         public override XElement Convert(Node node, NodeConvertArgs args)

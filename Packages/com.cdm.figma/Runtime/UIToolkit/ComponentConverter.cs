@@ -14,6 +14,8 @@ namespace Cdm.Figma.UIToolkit
     
     public abstract class ComponentConverter : NodeConverter
     {
+        protected new const int AssetMenuOrder = NodeConverter.AssetMenuOrder + 20;
+        
         [SerializeField]
         private string _typeId;
 

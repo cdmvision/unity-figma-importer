@@ -10,7 +10,7 @@ namespace Cdm.Figma.UIToolkit
         public const string Off = "Off";
     }
     
-    [CreateAssetMenu(fileName = nameof(ToggleConverter), menuName = AssetMenuRoot + "Toggle")]
+    [CreateAssetMenu(fileName = nameof(ToggleConverter), menuName = AssetMenuRoot + "Toggle", order = AssetMenuOrder)]
     public class ToggleConverter : ComponentConverter
     {
         protected override string GetDefaultTypeId()
