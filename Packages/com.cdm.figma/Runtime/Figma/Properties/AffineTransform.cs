@@ -39,6 +39,6 @@ namespace Cdm.Figma
         /// <summary>
         /// Gets 2D rotation angle in degrees.
         /// </summary>
-        public float GetRotationAngle() => Mathf.Rad2Deg * Mathf.Atan2(values[0][0], values[1][0]);
+        public float GetRotationAngle() => Mathf.Rad2Deg * Mathf.Atan2(values[1][0], values[0][0]);
     }
 }

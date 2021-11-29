@@ -10,7 +10,7 @@ namespace Cdm.Figma.UIToolkit
 
         protected override string[] GetNodeGraphicTypes()
         {
-            return new[] {NodeType.Vector, NodeType.Line, NodeType.RegularPolygon, NodeType.Star};
+            return new[] {NodeType.Vector, NodeType.Ellipse, NodeType.Line, NodeType.RegularPolygon, NodeType.Star};
         }
 
         protected override void ImportGraphic(string assetPath)
