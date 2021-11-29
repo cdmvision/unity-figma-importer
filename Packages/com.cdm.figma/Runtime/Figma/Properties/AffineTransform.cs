@@ -1,4 +1,5 @@
 using System.Runtime.Serialization;
+using UnityEngine;
 
 namespace Cdm.Figma
 {
@@ -24,5 +25,15 @@ namespace Cdm.Figma
         {
             this.values = values;
         }
+
+        /// <summary>
+        /// Gets 2D position in Unity space.
+        /// </summary>
+        public Vector2 GetPosition() => new Vector2(values[0][2], -values[1][2]);
+
+        /// <summary>
+        /// Gets 2D rotation in degrees.
+        /// </summary>
+        public float GetRotation() => Mathf.Rad2Deg * Mathf.Atan2(values[0][0], values[1][0]);
     }
 }
