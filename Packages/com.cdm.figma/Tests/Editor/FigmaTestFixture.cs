@@ -9,8 +9,47 @@ using NUnit.Framework;
 namespace Cdm.Figma.Tests
 {
     [TestFixture]
-    public class FigmaSerializationTestFixture
+    public class FigmaTestFixture
     {
+        [Test]
+        public void BuildNodeHierarchy()
+        {
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("File.json"));
+            var file = FigmaFile.FromString(json.text);
+
+            file.BuildHierarchy();
+
+            file.document.Traverse(node =>
+            {
+                switch (node.type)
+                {
+                    case NodeType.Document:
+                        Assert.False(node.hasParent);
+                        break;
+
+                    case NodeType.Boolean:
+                    case NodeType.Canvas:
+                    case NodeType.Component:
+                    case NodeType.ComponentSet:
+                    case NodeType.Frame:
+                    case NodeType.Group:
+                    case NodeType.Instance:
+                    case NodeType.Vector:
+                    case NodeType.Ellipse:
+                    case NodeType.Line:
+                    case NodeType.Rectangle:
+                    case NodeType.RegularPolygon:
+                    case NodeType.Slice:
+                    case NodeType.Star:
+                    case NodeType.Text:
+                        Assert.True(node.hasParent);
+                        break;
+                }
+
+                return true;
+            });
+        }
+
         [Test]
         public void NodeDeserializationByType()
         {
@@ -19,7 +58,7 @@ namespace Cdm.Figma.Tests
 
             Assert.NotNull(file);
             Assert.NotNull(file.document);
-            
+
             CheckNodeTypes(file.document);
         }
 
@@ -53,7 +92,7 @@ namespace Cdm.Figma.Tests
             {
                 Assert.Fail($"Unknown node type: {node.type}");
             }
-            
+
             var children = node.GetChildren();
             if (children != null)
             {
@@ -74,12 +113,12 @@ namespace Cdm.Figma.Tests
                 {EffectType.LayerBlur, typeof(LayerBlurEffect)},
                 {EffectType.BackgroundBlur, typeof(BackgroundBlurEffect)}
             };
-            
+
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("Effects.json"));
             var effects = JsonConvert.DeserializeObject<Effect[]>(json.text, JsonSerializerHelper.CreateSettings());
-            
+
             Assert.NotNull(effects);
-            
+
             foreach (var effect in effects)
             {
                 if (effectTypes.TryGetValue(effect.type, out var type))
@@ -92,7 +131,7 @@ namespace Cdm.Figma.Tests
                 }
             }
         }
-        
+
         [Test]
         public void PaintDeserializationByType()
         {
@@ -105,12 +144,12 @@ namespace Cdm.Figma.Tests
                 {PaintType.GradientDiamond, typeof(DiamondGradientPaint)},
                 {PaintType.Image, typeof(ImagePaint)}
             };
-            
+
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("Paints.json"));
             var paints = JsonConvert.DeserializeObject<Paint[]>(json.text, JsonSerializerHelper.CreateSettings());
-            
+
             Assert.NotNull(paints);
-            
+
             foreach (var paint in paints)
             {
                 if (paintTypes.TryGetValue(paint.type, out var type))

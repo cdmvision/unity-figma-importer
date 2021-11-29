@@ -77,6 +77,9 @@ namespace Cdm.Figma.UIToolkit
             conversionArgs.namespaces = new XNamespaces(ui, uie);
             conversionArgs.assets = options.assets;
             
+            // Build node hierarchy.
+            file.BuildHierarchy();
+            
             // Collect all component sets from all pages.
             var pages = file.document.children;
             foreach (var page in pages)

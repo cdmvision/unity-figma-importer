@@ -58,6 +58,24 @@ namespace Cdm.Figma
         [DataMember(Name = "schemaVersion")]
         public int schemaVersion { get; set; }
 
+        public void BuildHierarchy()
+        {
+            BuildHierarchy(document);
+        }
+        
+        private static void BuildHierarchy(Node node)
+        {
+            if (node.hasChildren)
+            {
+                foreach (var child in node.GetChildren())
+                {
+                    child.parent = node;
+                    
+                    BuildHierarchy(child);
+                }
+            }
+        }
+        
         public static FigmaFile FromString(string json) => 
             JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.Settings);
 
