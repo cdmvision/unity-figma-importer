@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Cdm.Figma.UI
 {
     [CreateAssetMenu(fileName = nameof(RegularPolygonNodeConverter), 
-        menuName = AssetMenuRoot + "Regular Polygon", order = 20)]
+        menuName = AssetMenuRoot + "Regular Polygon", order = AssetMenuOrder)]
     public class RegularPolygonNodeConverter : NodeConverter<RegularPolygonNode>
     {
         public override NodeObject Convert(Node node, NodeConvertArgs args)

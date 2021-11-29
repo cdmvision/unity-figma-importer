@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
-    [CreateAssetMenu(fileName = nameof(RectangleNodeConverter), menuName = AssetMenuRoot + "Rectangle", order = 20)]
+    [CreateAssetMenu(fileName = nameof(RectangleNodeConverter), 
+        menuName = AssetMenuRoot + "Rectangle", order = AssetMenuOrder)]
     public class RectangleNodeConverter : NodeConverter<RectangleNode>
     {
         public override NodeObject Convert(Node node, NodeConvertArgs args)

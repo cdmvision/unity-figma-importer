@@ -82,13 +82,14 @@ namespace Cdm.Figma.UI
 
                 var nodeObject = NodeObject.NewNodeObject(page, conversionArgs);
                 var canvas = nodeObject.gameObject.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
                     if (TryConvertNode(node, conversionArgs, out var childNode))
                     {
-                        childNode.transform.parent = canvas.transform;
+                        childNode.transform.SetParent(canvas.transform);
                     }
                 }
             }

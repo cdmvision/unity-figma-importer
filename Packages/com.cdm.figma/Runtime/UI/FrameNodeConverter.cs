@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
-    [CreateAssetMenu(fileName = nameof(FrameNodeConverter), menuName = AssetMenuRoot + "Frame", order = 20)]
+    [CreateAssetMenu(fileName = nameof(FrameNodeConverter), menuName = AssetMenuRoot + "Frame", order = AssetMenuOrder)]
     public class FrameNodeConverter : NodeConverter<FrameNode>
     {
         public static NodeObject Convert(FrameNode node, NodeConvertArgs args)

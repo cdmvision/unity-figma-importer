@@ -50,6 +50,8 @@ namespace Cdm.Figma.UI
             get => _localizationId;
             set => _localizationId = value;
         }
+        
+        public RectTransform rectTransform { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
@@ -62,8 +64,10 @@ namespace Cdm.Figma.UI
             nodeObject.nodeId = node.id;
             nodeObject.nodeName = node.name;
             nodeObject.nodeType = node.type;
+            nodeObject.rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();
             nodeObject.gameObject.SetActive(node.visible);
-            
+
+
             var bindingId = GetSpecialId(node, args.importer.bindingPrefix);
             if (!string.IsNullOrEmpty(bindingId))
             {
@@ -77,7 +81,7 @@ namespace Cdm.Figma.UI
                 
                 nodeObject.localizationId = localizationId;
             }
-            
+
             return nodeObject;
         }
         

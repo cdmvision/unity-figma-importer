@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
-    [CreateAssetMenu(fileName = nameof(InstanceNodeConverter), menuName = AssetMenuRoot + "Instance", order = 20)]
+    [CreateAssetMenu(fileName = nameof(InstanceNodeConverter), 
+        menuName = AssetMenuRoot + "Instance", order = AssetMenuOrder)]
     public class InstanceNodeConverter : NodeConverter<InstanceNode>
     {
         public override NodeObject Convert(Node node, NodeConvertArgs args)
