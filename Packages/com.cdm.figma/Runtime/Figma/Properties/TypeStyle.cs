@@ -11,7 +11,7 @@ namespace Cdm.Figma
     /// Map from ID to TypeStyle for looking up style overrides.
     /// </summary>
     [DataContract]
-    public partial class TypeStyle
+    public class TypeStyle
     {
         /// <summary>
         /// Font family of text (standard name)

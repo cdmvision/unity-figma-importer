@@ -27,7 +27,7 @@ namespace Cdm.Figma.Tests
         {
             var nodes = new Dictionary<string, Type>()
             {
-                {NodeType.Boolean, typeof(BooleanOperationNode)},
+                {NodeType.Boolean, typeof(BooleanNode)},
                 {NodeType.Canvas, typeof(CanvasNode)},
                 {NodeType.Component, typeof(ComponentNode)},
                 {NodeType.ComponentSet, typeof(ComponentSetNode)},

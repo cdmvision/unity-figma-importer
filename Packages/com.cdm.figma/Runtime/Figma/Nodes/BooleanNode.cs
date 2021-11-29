@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Cdm.Figma
 {
     [DataContract]
-    public class BooleanOperationNode : VectorNode
+    public class BooleanNode : VectorNode
     {
         public override string type => NodeType.Boolean;
 

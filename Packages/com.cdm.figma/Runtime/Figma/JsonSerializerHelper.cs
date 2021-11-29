@@ -47,7 +47,7 @@ namespace Cdm.Figma
         {
             return JsonSubtypesConverterBuilder
                 .Of<Node>("type")
-                .RegisterSubtype<BooleanOperationNode>(NodeType.Boolean)
+                .RegisterSubtype<BooleanNode>(NodeType.Boolean)
                 .RegisterSubtype<CanvasNode>(NodeType.Canvas)
                 .RegisterSubtype<ComponentNode>(NodeType.Component)
                 .RegisterSubtype<ComponentSetNode>(NodeType.ComponentSet)
