@@ -21,44 +21,34 @@ namespace Cdm.Figma.UIToolkit
         private string BuildStyle(RectangleNode node, NodeConvertArgs args)
         {
             string styleAttributes = "";
-            /*positioning and size*/
-            //TODO: Implement responsive (Figma design should change for this)
-            styleAttributes += "position: absolute; ";
-            var absoluteBoundingBox = node.absoluteBoundingBox;
-            var relativeTransform = node.relativeTransform;
-            var relativeTranformValues = relativeTransform.values;
-            var m00 = relativeTranformValues[0][0];
-            var m10 = relativeTranformValues[1][0];
             
-            var rotation = Math.Atan2(m10, m00);
-            var rotationDeg = (180 / Math.PI) * rotation;
-            if (rotationDeg != 0)
-            {
-                var sizeX = node.size.x;
-                var sizeY = node.size.y;
-                styleAttributes += "rotate: " + rotationDeg + "deg; ";
-                styleAttributes += "width: " + sizeX + "px; ";
-                styleAttributes += "height: " + sizeY + "px; ";
-
-            }
-            else
-            {
-                var width = absoluteBoundingBox.width;
-                styleAttributes += "width: " + width + "px; ";
-                var height = absoluteBoundingBox.height;
-                styleAttributes += "height: " + height + "px; ";
-            }
-
-            var xValue = relativeTranformValues[0][2];
-            var yValue = relativeTranformValues[1][2];
-            var constraints = node.constraints;
-            var constraintX = constraints.horizontal;
-            //Constraints are stored as "Top" or "Left" etc..
-            //Using toLower because uxml expects "top" or "left" etc...
-            styleAttributes += constraintX.ToString().ToLower() + ": " + xValue + "px; ";   
-            var constraintY = constraints.vertical;
-            styleAttributes += constraintY.ToString().ToLower() + ": " + yValue + "px; ";
             /*positioning and size*/
+            //TODO: Implement responsive 
+            styleAttributes += "position: absolute; ";
+            var relativeTransform = node.relativeTransform;
+            var position = relativeTransform.GetPosition();
+            var rotation = relativeTransform.GetRotationAngle();
+            styleAttributes += "width: " + node.size.x + "px; ";
+            styleAttributes += "height: " + node.size.y + "px; ";
+            if (rotation != 0.0f)
+            {
+                styleAttributes += "rotate: " + rotation + "deg; ";
+            }
+            var constraintX = node.constraints.horizontal;
+            styleAttributes += constraintX.ToString().ToLower() + ": " + position.x + "px; ";   //Left, Top... ==> left, top...
+            var constraintY = node.constraints.vertical;
+            styleAttributes += constraintY.ToString().ToLower() + ": " + position.y + "px; ";
+            /*positioning and size*/
+            
+            /*color*/
+            var fills = node.fills;
+            if (fills.Count > 0)
+            {
+                var fillColor = BlendColor(fills);
+                var fillColorBlended = fillColor.color;
+                styleAttributes += "background-color: " + fillColorBlended.ToString().Substring(0,7) + "; ";
+            }
+            /*color*/
             
             /*shaping*/
             var cornerRadius = node.cornerRadius;
@@ -91,31 +81,11 @@ namespace Cdm.Figma.UIToolkit
                     styleAttributes += "border-width: " + strokeWeight + "px; ";
                 }
                 var strokeColor = BlendColor(strokes);
-                styleAttributes += "border-color: rgba(";
                 var strokeColorBlended = strokeColor.color;
-                styleAttributes += strokeColorBlended.r*255 + "," + strokeColorBlended.g*255 + "," + strokeColorBlended.b*255 + "," + strokeColorBlended.a + "); ";
-                //TODO: Implement dashed strokes
+                styleAttributes += "border-color: " + strokeColorBlended.ToString().Substring(0,7) + "; ";
             }
             /*shaping*/
             
-            /*color*/
-            var fills = node.fills;
-            if (fills.Count > 0)
-            {
-                var fillColor = BlendColor(fills);
-                styleAttributes += "background-color: rgba(";
-                var fillColorBlended = fillColor.color;
-                
-                //Figma stores rgb values in [0,1], change it to [0,255] (except alpha).
-                styleAttributes += fillColorBlended.r*255 + "," + fillColorBlended.g*255 + "," + fillColorBlended.b*255 + "," + fillColorBlended.a + "); ";
-            }
-            /*color*/
-            
-            /*effects*/
-            var effects = node.effects;
-            //TODO: Implement effects, find equivalent (uxml) to them.
-            /*effects*/
- 
             return styleAttributes;
         }
 
