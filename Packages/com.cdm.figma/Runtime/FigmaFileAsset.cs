@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Cdm.Figma.Utils;
-using UnityEngine.UIElements;
 
 namespace Cdm.Figma
 {

@@ -7,7 +7,8 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(VectorNodeConverter), menuName = AssetMenuRoot + "Vector", order = 20)]
+    [CreateAssetMenu(fileName = nameof(VectorNodeConverter), 
+        menuName = AssetMenuRoot + "Vector", order = AssetMenuOrder)]
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
         public static XElement Convert(VectorNode node, NodeConvertArgs args)
