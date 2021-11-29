@@ -29,7 +29,7 @@ namespace Cdm.Figma
         /// <summary>
         /// Gets the 2D position in Unity space.
         /// </summary>
-        public Vector2 GetPosition() => new Vector2(values[0][2], -values[1][2]);
+        public Vector2 GetPosition() => new Vector2(values[0][2], values[1][2]);
 
         /// <summary>
         /// Gets the 2D rotation as <see cref="Quaternion"/>.
