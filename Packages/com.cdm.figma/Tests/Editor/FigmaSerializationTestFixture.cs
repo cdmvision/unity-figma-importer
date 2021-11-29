@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
@@ -10,14 +11,15 @@ namespace Cdm.Figma.Tests
         [Test]
         public void NodeDeserializationByType()
         {
-            var testFile = 
-                AssetDatabase.LoadAssetAtPath<TextAsset>("Packages/com.cdm.figma/Tests/Editor/TestResources/TestFile.json");
+            var testFile =
+                AssetDatabase.LoadAssetAtPath<TextAsset>(
+                    "Packages/com.cdm.figma/Tests/Editor/TestResources/TestFile.json");
 
             var figmaFile = FigmaFile.FromString(testFile.text);
 
             CheckNodeTypes(figmaFile.document);
         }
-        
+
         private static void CheckNodeTypes(Node node)
         {
             switch (node.type)
@@ -79,9 +81,58 @@ namespace Cdm.Figma.Tests
             if (children != null)
             {
                 foreach (var child in children)
-                { 
+                {
                     CheckNodeTypes(child);
-                }    
+                }
+            }
+        }
+
+        [Test]
+        public void EffectDeserializationByType()
+        {
+            const string json = @"[
+                                {
+                                    'type': 'BACKGROUND_BLUR',
+                                    'visible': true,
+                                },
+                                {
+                                    'type': 'LAYER_BLUR',
+                                    'visible': true,
+                                },
+                                {
+                                    'type': 'INNER_SHADOW',
+                                    'visible': true,
+                                },
+                                {
+                                    'type': 'DROP_SHADOW',
+                                    'visible': true,
+                                },
+                            ]";
+
+            var effects = JsonConvert.DeserializeObject<Effect[]>(json, JsonSerializerHelper.CreateSettings());
+            
+            Assert.NotNull(effects);
+            
+            foreach (var effect in effects)
+            {
+                switch (effect.type)
+                {
+                    case EffectType.BackgroundBlur:
+                        Assert.True(effect is BackgroundBlurEffect, "BackgroundBlur");
+                        break;
+                    case EffectType.LayerBlur:
+                        Assert.True(effect is LayerBlurEffect, "LayerBlur");
+                        break;
+                    case EffectType.DropShadow:
+                        Assert.True(effect is DropShadowEffect, "DropShadow");
+                        break;
+                    case EffectType.InnerShadow:
+                        Assert.True(effect is InnerShadowEffect, "InnerShadow");
+                        break;
+                    default:
+                        Assert.True(false, "Unknown effect");
+                        break;
+                }
             }
         }
     }

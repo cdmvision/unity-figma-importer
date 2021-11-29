@@ -59,7 +59,7 @@ namespace Cdm.Figma
         public int schemaVersion { get; set; }
 
         public static FigmaFile FromString(string json) => 
-            JsonConvert.DeserializeObject<FigmaFile>(json, Converter.Settings);
+            JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.Settings);
 
         public override string ToString()
         {
@@ -73,9 +73,9 @@ namespace Cdm.Figma
             switch (format.ToUpperInvariant())
             {
                 case "I":
-                    return JsonConvert.SerializeObject(this, Formatting.Indented, Converter.Settings);
+                    return JsonConvert.SerializeObject(this, Formatting.Indented, JsonSerializerHelper.Settings);
                 case "N":
-                    return JsonConvert.SerializeObject(this, Formatting.None, Converter.Settings);
+                    return JsonConvert.SerializeObject(this, Formatting.None, JsonSerializerHelper.Settings);
                 default:
                     throw new FormatException($"The {format} format string is not supported.");
             }
