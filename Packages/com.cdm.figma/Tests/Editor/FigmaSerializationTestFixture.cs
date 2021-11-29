@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEditor;
@@ -22,61 +24,35 @@ namespace Cdm.Figma.Tests
 
         private static void CheckNodeTypes(Node node)
         {
-            switch (node.type)
+            var nodes = new Dictionary<string, Type>()
             {
-                case NodeType.Boolean:
-                    Assert.True(node is BooleanOperationNode, "BooleanOperationNode");
-                    break;
-                case NodeType.Canvas:
-                    Assert.True(node is CanvasNode, "CanvasNode");
-                    break;
-                case NodeType.Component:
-                    Assert.True(node is ComponentNode, "ComponentNode");
-                    break;
-                case NodeType.ComponentSet:
-                    Assert.True(node is ComponentSetNode, "ComponentSetNode");
-                    break;
-                case NodeType.Document:
-                    Assert.True(node is DocumentNode, "DocumentNode");
-                    break;
-                case NodeType.Ellipse:
-                    Assert.True(node is EllipseNode, "EllipseNode");
-                    break;
-                case NodeType.Frame:
-                    Assert.True(node is FrameNode, "FrameNode");
-                    break;
-                case NodeType.Group:
-                    Assert.True(node is GroupNode, "GroupNode");
-                    break;
-                case NodeType.Instance:
-                    Assert.True(node is InstanceNode, "InstanceNode");
-                    break;
-                case NodeType.Line:
-                    Assert.True(node is LineNode, "LineNode");
-                    break;
-                case NodeType.Rectangle:
-                    Assert.True(node is RectangleNode, "RectangleNode");
-                    break;
-                case NodeType.RegularPolygon:
-                    Assert.True(node is RegularPolygonNode, "RegularPolygonNode");
-                    break;
-                case NodeType.Slice:
-                    Assert.True(node is SliceNode, "SliceNode");
-                    break;
-                case NodeType.Star:
-                    Assert.True(node is StarNode, "StarNode");
-                    break;
-                case NodeType.Text:
-                    Assert.True(node is TextNode, "TextNode");
-                    break;
-                case NodeType.Vector:
-                    Assert.True(node is VectorNode, "VectorNode");
-                    break;
-                default:
-                    Assert.True(false, "Unknown node");
-                    break;
-            }
+                {NodeType.Boolean, typeof(BooleanOperationNode)},
+                {NodeType.Canvas, typeof(CanvasNode)},
+                {NodeType.Component, typeof(ComponentNode)},
+                {NodeType.ComponentSet, typeof(ComponentSetNode)},
+                {NodeType.Document, typeof(DocumentNode)},
+                {NodeType.Ellipse, typeof(EllipseNode)},
+                {NodeType.Frame, typeof(FrameNode)},
+                {NodeType.Group, typeof(GroupNode)},
+                {NodeType.Instance, typeof(InstanceNode)},
+                {NodeType.Line, typeof(LineNode)},
+                {NodeType.Rectangle, typeof(RectangleNode)},
+                {NodeType.RegularPolygon, typeof(RegularPolygonNode)},
+                {NodeType.Slice, typeof(SliceNode)},
+                {NodeType.Star, typeof(StarNode)},
+                {NodeType.Text, typeof(TextNode)},
+                {NodeType.Vector, typeof(VectorNode)},
+            };
 
+            if (nodes.TryGetValue(node.type, out var type))
+            {
+                Assert.True(node.GetType() == type, node.type);
+            }
+            else
+            {
+                Assert.Fail($"Unknown node type: {node.type}");
+            }
+            
             var children = node.GetChildren();
             if (children != null)
             {
@@ -109,29 +85,27 @@ namespace Cdm.Figma.Tests
                                 },
                             ]";
 
+            var effectTypes = new Dictionary<string, Type>()
+            {
+                {EffectType.InnerShadow, typeof(InnerShadowEffect)},
+                {EffectType.DropShadow, typeof(DropShadowEffect)},
+                {EffectType.LayerBlur, typeof(LayerBlurEffect)},
+                {EffectType.BackgroundBlur, typeof(BackgroundBlurEffect)}
+            };
+            
             var effects = JsonConvert.DeserializeObject<Effect[]>(json, JsonSerializerHelper.CreateSettings());
             
             Assert.NotNull(effects);
             
             foreach (var effect in effects)
             {
-                switch (effect.type)
+                if (effectTypes.TryGetValue(effect.type, out var type))
                 {
-                    case EffectType.BackgroundBlur:
-                        Assert.True(effect is BackgroundBlurEffect, "BackgroundBlur");
-                        break;
-                    case EffectType.LayerBlur:
-                        Assert.True(effect is LayerBlurEffect, "LayerBlur");
-                        break;
-                    case EffectType.DropShadow:
-                        Assert.True(effect is DropShadowEffect, "DropShadow");
-                        break;
-                    case EffectType.InnerShadow:
-                        Assert.True(effect is InnerShadowEffect, "InnerShadow");
-                        break;
-                    default:
-                        Assert.True(false, "Unknown effect");
-                        break;
+                    Assert.True(effect.GetType() == type, effect.type);
+                }
+                else
+                {
+                    Assert.Fail($"Unknown effect type: {effect.type}");
                 }
             }
         }
