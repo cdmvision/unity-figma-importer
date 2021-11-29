@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEditor;
@@ -13,13 +14,13 @@ namespace Cdm.Figma.Tests
         [Test]
         public void NodeDeserializationByType()
         {
-            var testFile =
-                AssetDatabase.LoadAssetAtPath<TextAsset>(
-                    "Packages/com.cdm.figma/Tests/Editor/TestResources/TestFile.json");
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("File.json"));
+            var file = FigmaFile.FromString(json.text);
 
-            var figmaFile = FigmaFile.FromString(testFile.text);
-
-            CheckNodeTypes(figmaFile.document);
+            Assert.NotNull(file);
+            Assert.NotNull(file.document);
+            
+            CheckNodeTypes(file.document);
         }
 
         private static void CheckNodeTypes(Node node)
@@ -66,25 +67,6 @@ namespace Cdm.Figma.Tests
         [Test]
         public void EffectDeserializationByType()
         {
-            const string json = @"[
-                                {
-                                    'type': 'BACKGROUND_BLUR',
-                                    'visible': true,
-                                },
-                                {
-                                    'type': 'LAYER_BLUR',
-                                    'visible': true,
-                                },
-                                {
-                                    'type': 'INNER_SHADOW',
-                                    'visible': true,
-                                },
-                                {
-                                    'type': 'DROP_SHADOW',
-                                    'visible': true,
-                                },
-                            ]";
-
             var effectTypes = new Dictionary<string, Type>()
             {
                 {EffectType.InnerShadow, typeof(InnerShadowEffect)},
@@ -93,7 +75,8 @@ namespace Cdm.Figma.Tests
                 {EffectType.BackgroundBlur, typeof(BackgroundBlurEffect)}
             };
             
-            var effects = JsonConvert.DeserializeObject<Effect[]>(json, JsonSerializerHelper.CreateSettings());
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("Effects.json"));
+            var effects = JsonConvert.DeserializeObject<Effect[]>(json.text, JsonSerializerHelper.CreateSettings());
             
             Assert.NotNull(effects);
             
@@ -108,6 +91,42 @@ namespace Cdm.Figma.Tests
                     Assert.Fail($"Unknown effect type: {effect.type}");
                 }
             }
+        }
+        
+        [Test]
+        public void PaintDeserializationByType()
+        {
+            var paintTypes = new Dictionary<string, Type>()
+            {
+                {PaintType.Solid, typeof(SolidPaint)},
+                {PaintType.GradientLinear, typeof(LinearGradientPaint)},
+                {PaintType.GradientRadial, typeof(RadialGradientPaint)},
+                {PaintType.GradientAngular, typeof(AngularGradientPaint)},
+                {PaintType.GradientDiamond, typeof(DiamondGradientPaint)},
+                {PaintType.Image, typeof(ImagePaint)}
+            };
+            
+            var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("Paints.json"));
+            var paints = JsonConvert.DeserializeObject<Paint[]>(json.text, JsonSerializerHelper.CreateSettings());
+            
+            Assert.NotNull(paints);
+            
+            foreach (var paint in paints)
+            {
+                if (paintTypes.TryGetValue(paint.type, out var type))
+                {
+                    Assert.True(paint.GetType() == type, paint.type);
+                }
+                else
+                {
+                    Assert.Fail($"Unknown paint type: {paint.type}");
+                }
+            }
+        }
+
+        private static string GetFilePath(string fileName)
+        {
+            return Path.Combine("Packages/com.cdm.figma/Tests/Editor/TestResources/", fileName);
         }
     }
 }

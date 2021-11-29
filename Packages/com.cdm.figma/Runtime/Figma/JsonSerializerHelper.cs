@@ -36,7 +36,8 @@ namespace Cdm.Figma
                     new IsoDateTimeConverter {DateTimeStyles = DateTimeStyles.AssumeUniversal},
                     new AffineTransformConverter(),
                     GetNodeConverter(),
-                    GetEffectConverter()
+                    GetEffectConverter(),
+                    GetPaintConverter()
                 },
                 NullValueHandling = NullValueHandling.Ignore,
             };
@@ -76,6 +77,21 @@ namespace Cdm.Figma
                 .RegisterSubtype<DropShadowEffect>(EffectType.DropShadow)
                 .RegisterSubtype<InnerShadowEffect>(EffectType.InnerShadow)
                 .SetFallbackSubtype(typeof(Effect))
+                .SerializeDiscriminatorProperty()
+                .Build();
+        }
+
+        private static JsonConverter GetPaintConverter()
+        {
+            return JsonSubtypesConverterBuilder
+                .Of<Paint>("type")
+                .RegisterSubtype<SolidPaint>(PaintType.Solid)
+                .RegisterSubtype<LinearGradientPaint>(PaintType.GradientLinear)
+                .RegisterSubtype<RadialGradientPaint>(PaintType.GradientRadial)
+                .RegisterSubtype<AngularGradientPaint>(PaintType.GradientAngular)
+                .RegisterSubtype<DiamondGradientPaint>(PaintType.GradientDiamond)
+                .RegisterSubtype<ImagePaint>(PaintType.Image)
+                .SetFallbackSubtype(typeof(Paint))
                 .SerializeDiscriminatorProperty()
                 .Build();
         }
