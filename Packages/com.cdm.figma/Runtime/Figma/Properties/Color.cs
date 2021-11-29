@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using UnityEngine;
 
 namespace Cdm.Figma
@@ -47,9 +48,28 @@ namespace Cdm.Figma
 
         public override string ToString()
         {
-            return $"#{ColorUtility.ToHtmlStringRGBA((UnityEngine.Color) this)}";
+            return ToString("rgba-hex");
         }
 
+        public string ToString(string format)
+        {
+            var c = ((Color32) (UnityEngine.Color) this);
+            
+            switch (format)
+            {
+                case "rgb":
+                    return $"rgb({c.r}, {c.g}, {c.b})";
+                case "rgba":
+                    return $"rgba({c.r}, {c.g}, {c.b}, {a:F1})";
+                case "rgb-hex":
+                    return $"#{ColorUtility.ToHtmlStringRGBA((UnityEngine.Color) this)}".Substring(0, 7);
+                case "rgba-hex":
+                    return $"#{ColorUtility.ToHtmlStringRGBA((UnityEngine.Color) this)}";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(format));
+            }
+        }
+        
         public static implicit operator UnityEngine.Color(Color c) => new UnityEngine.Color(c.r, c.g, c.b, c.a);
         public static implicit operator Color(UnityEngine.Color c) => new Color(c.r, c.g, c.b, c.a);
     }

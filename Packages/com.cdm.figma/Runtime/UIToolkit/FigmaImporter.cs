@@ -104,7 +104,7 @@ namespace Cdm.Figma.UIToolkit
                 // Add root visual element.
 
                 var pageElement = XmlFactory.NewElement<VisualElement>(page, conversionArgs)
-                    .Style($"background-color: {page.backgroundColor}; flex-grow: 1;");
+                    .Style($"background-color: {page.backgroundColor.ToString("rgba")}; flex-grow: 1;");
                 root.Add(pageElement);
                 
                 var nodes = page.children;
