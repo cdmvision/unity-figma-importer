@@ -46,7 +46,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 var fillColor = BlendColor(fills);
                 var fillColorBlended = fillColor.color;
-                styleAttributes += "background-color: " + fillColorBlended.ToString().Substring(0,7) + "; ";
+                styleAttributes += "background-color: " + fillColorBlended.ToString("rgb-hex") + "; ";
             }
             /*color*/
             
@@ -82,7 +82,7 @@ namespace Cdm.Figma.UIToolkit
                 }
                 var strokeColor = BlendColor(strokes);
                 var strokeColorBlended = strokeColor.color;
-                styleAttributes += "border-color: " + strokeColorBlended.ToString().Substring(0,7) + "; ";
+                styleAttributes += "border-color: " + strokeColorBlended.ToString("rgb-hex") + "; ";
             }
             /*shaping*/
             
