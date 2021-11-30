@@ -45,7 +45,8 @@ namespace Cdm.Figma.UIToolkit
             if (fills.Count > 0)
             {
                 var fillColor = BlendColor(fills);
-                var fillColorBlended = fillColor.color;
+                var solidColor = (SolidPaint) fillColor;
+                var fillColorBlended = solidColor.color;
                 styleAttributes += "background-color: " + fillColorBlended.ToString("rgb-hex") + "; ";
             }
             /*color*/
@@ -81,7 +82,8 @@ namespace Cdm.Figma.UIToolkit
                     styleAttributes += "border-width: " + strokeWeight + "px; ";
                 }
                 var strokeColor = BlendColor(strokes);
-                var strokeColorBlended = strokeColor.color;
+                var solidColor = (SolidPaint) strokeColor;
+                var strokeColorBlended = solidColor.color;
                 styleAttributes += "border-color: " + strokeColorBlended.ToString("rgb-hex") + "; ";
             }
             /*shaping*/
@@ -91,32 +93,17 @@ namespace Cdm.Figma.UIToolkit
 
         private Paint BlendColor(List<Paint> paints)
         {
-            //TODO: Change blend mode.
-            
             if (paints.Count == 1)
             {
                 return paints[0]; //base color
             }
 
-            for (int i = 0; i < paints.Count-1; ++i)
+            /*for (int i = 0; i < paints.Count-1; ++i)
             {
                 paints[i+1] = BlendTwoColors(paints[i+1], paints[i]);
             }
-            return paints[paints.Count-1];
-        }
-
-        private Paint BlendTwoColors(Paint addedColor, Paint baseColor)
-        {
-            Paint mix = new Paint();
-            mix.color = new Color();
-            mix.color.a = 1 - (1 - addedColor.opacity) * (1 - baseColor.opacity); 
-            mix.color.r = (float) Math.Round((addedColor.color.r * addedColor.opacity / mix.color.a) 
-                                             + (baseColor.color.r * baseColor.opacity * (1 - addedColor.opacity) / mix.color.a)); 
-            mix.color.g = (float) Math.Round((addedColor.color.g * addedColor.opacity / mix.color.a) 
-                                             + (baseColor.color.g * baseColor.opacity * (1 - addedColor.opacity) / mix.color.a)); 
-            mix.color.b = (float) Math.Round((addedColor.color.b * addedColor.opacity / mix.color.a) 
-                                             + (baseColor.color.b * baseColor.opacity * (1 - addedColor.opacity) / mix.color.a));
-            return mix;
+            return paints[paints.Count-1];*/
+            throw new NotImplementedException();
         }
     }
     
