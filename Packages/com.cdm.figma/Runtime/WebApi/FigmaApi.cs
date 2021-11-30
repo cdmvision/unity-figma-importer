@@ -131,6 +131,12 @@ namespace Cdm.Figma
                 firstArg = false;
             }
 
+            if (request.plugins != null && request.plugins.Length > 0)
+            {
+                url = $"{url}{(firstArg ? "?" : "&")}plugin_data={string.Join(",", request.plugins)}";
+                firstArg = false;
+            }
+
             return url;
         }
 

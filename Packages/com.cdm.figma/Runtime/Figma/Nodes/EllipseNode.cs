@@ -2,6 +2,10 @@ using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// The ellipse node is a basic shape node representing an ellipse. Note that a circle is an ellipse where
+    /// <c>width == height</c>.
+    /// </summary>
     [DataContract]
     public class EllipseNode : VectorNode
     {

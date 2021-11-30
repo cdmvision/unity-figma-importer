@@ -2,6 +2,16 @@ using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// Boolean operations combine any set of shape layers through one of four formulas:
+    /// <see cref="BooleanOperation.Union"/>, <see cref="BooleanOperation.Subtract"/>,
+    /// <see cref="BooleanOperation.Intersect"/>, and <see cref="BooleanOperation.Exclude"/>. The layers to be
+    /// combined are stored in its children array.
+    /// 
+    /// Like the group node, the boolean operations node is always set to fit its children. As such,
+    /// its position and size can change when you add or resize its children.
+    /// </summary>
+    /// <seealso aref="https://help.figma.com/article/65-boolean-operations"/>
     [DataContract]
     public class BooleanNode : VectorNode
     {

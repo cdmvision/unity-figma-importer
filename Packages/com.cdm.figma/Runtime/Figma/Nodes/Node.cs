@@ -1,8 +1,13 @@
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// In Figma, the Node is the basis for representing layers. There are many different types of nodes,
+    /// each with their own set of properties.
+    /// </summary>
     [DataContract]
     public class Node
     {
@@ -19,12 +24,6 @@ namespace Cdm.Figma
         public string name { get; set; }
 
         /// <summary>
-        /// Whether or not the node is visible on the canvas.
-        /// </summary>
-        [DataMember(Name = "visible")]
-        public bool visible { get; set; } = true;
-
-        /// <summary>
         /// The type of the node, refer to table below for details.
         /// </summary>
         /// <seealso cref="NodeType"/>
@@ -36,14 +35,14 @@ namespace Cdm.Figma
         /// include the ID of the plugin.
         /// </summary>
         [DataMember(Name = "pluginData")]
-        public JToken pluginData { get; set; }
-
+        public Dictionary<string, JObject> pluginData { get; set; }
+        
         /// <summary>
         /// Data written by plugins that is visible to all plugins. Requires the `pluginData` parameter to include
         /// the string "shared".
         /// </summary>
         [DataMember(Name = "sharedPluginData")]
-        public JToken sharedPluginData { get; set; }
+        public Dictionary<string, JObject> sharedPluginData { get; set; }
 
         /// <summary>
         /// Parent of the node.
@@ -73,7 +72,7 @@ namespace Cdm.Figma
     public class NodeType
     {
         public const string Boolean = "BOOLEAN_OPERATION";
-        public const string Canvas = "CANVAS";
+        public const string Page = "CANVAS";
         public const string Component = "COMPONENT";
         public const string ComponentSet = "COMPONENT_SET";
         public const string Document = "DOCUMENT";
@@ -83,7 +82,7 @@ namespace Cdm.Figma
         public const string Instance = "INSTANCE";
         public const string Line = "LINE";
         public const string Rectangle = "RECTANGLE";
-        public const string RegularPolygon = "REGULAR_POLYGON";
+        public const string Polygon = "REGULAR_POLYGON";
         public const string Slice = "SLICE";
         public const string Star = "STAR";
         public const string Text = "TEXT";

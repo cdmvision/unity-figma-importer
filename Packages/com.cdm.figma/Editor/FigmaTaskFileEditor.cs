@@ -14,6 +14,7 @@ namespace Cdm.Figma
 {
     public abstract class FigmaTaskFileEditor : Editor
     {
+        
         private FigmaFileAsset _selectedFile;
         private Editor _fileAssetEditor;
         private VisualElement _fileAssetElement;
@@ -178,7 +179,8 @@ namespace Cdm.Figma
                     var fileContent = await FigmaApi.GetFileAsTextAsync(
                         new FigmaFileRequest(taskFile.personalAccessToken, fileId)
                         {
-                            geometry = "paths"
+                            geometry = "paths",
+                            plugins = new []{ PluginData.Id }
                         });
 
                     var file = FigmaFile.FromString(fileContent);
@@ -210,9 +212,10 @@ namespace Cdm.Figma
             var nodes = new List<VectorNode>();
             file.document.Traverse(node =>
             {
-                if (node.visible)
+                var vectorNode = (VectorNode) node;
+                if (vectorNode.visible)
                 {
-                    nodes.Add((VectorNode) node);    
+                    nodes.Add(vectorNode);    
                 }
                 return true;
             }, nodeGraphicTypes);

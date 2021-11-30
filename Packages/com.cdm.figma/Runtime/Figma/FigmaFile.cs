@@ -42,6 +42,9 @@ namespace Cdm.Figma
         [DataMember(Name = "document")]
         public DocumentNode document { get; set; }
         
+        public string pluginData { get; set; }
+        public string sharedPluginData { get; set; }
+        
         /// <summary>
         /// The components key contains a mapping from node IDs to component metadata.
         /// This is to help you determine which components each instance comes from.

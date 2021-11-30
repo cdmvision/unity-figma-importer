@@ -66,15 +66,8 @@ namespace Cdm.Figma.UIToolkit
             if (node.GetType() != typeof(InstanceNode))
                 return false;
 
-            var instanceNode = (InstanceNode) node;
-
-            if (args.file.components.TryGetValue(instanceNode.componentId, out var component))
-            {
-                var tokens = component.description.Split(" ");
-                return tokens.Any(token => token == $"{args.importer.typePrefix}{typeId}");
-            }
-
-            return false;
+            var componentType = node.GetComponentType();
+            return !string.IsNullOrEmpty(componentType) && componentType == typeId;
         }
     }
 }

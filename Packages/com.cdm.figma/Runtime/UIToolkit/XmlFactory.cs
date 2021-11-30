@@ -26,12 +26,12 @@ namespace Cdm.Figma
         /// <summary>
         /// Gets binding identifier as XML attribute for the node if exist.
         /// </summary>
-        public static XAttribute GetBindingId(Node node, NodeConvertArgs args)
+        public static XAttribute GetBindingKey(Node node)
         {
-            var id = GetSpecialId(node, args.importer.bindingPrefix);
-            if (!string.IsNullOrEmpty(id))
+            var key = node.GetBindingKey();
+            if (!string.IsNullOrEmpty(key))
             {
-                return new XAttribute("name", id);
+                return new XAttribute("name", key);
             }
             
             return null;
@@ -40,14 +40,14 @@ namespace Cdm.Figma
         /// <summary>
         /// Gets localization identifier as XML attribute for the node if exist.
         /// </summary>
-        public static XAttribute GetLocalizationId(Node node, NodeConvertArgs args)
+        public static XAttribute GetLocalizationKey(Node node)
         {
-            var id = GetSpecialId(node, args.importer.localizationPrefix);
-            if (!string.IsNullOrEmpty(id))
+            var key = node.GetLocalizationKey();
+            if (!string.IsNullOrEmpty(key))
             {
-                return new XAttribute("lang", id);
+                return new XAttribute("lang", key);
             }
-            
+
             return null;
         }
 
@@ -77,7 +77,7 @@ namespace Cdm.Figma
             var name = GetNodeName(node);
             element.Add(name);
             
-            var bindingId = GetBindingId(node, args);
+            var bindingId = GetBindingKey(node);
             if (bindingId != null)
             {
                 element.Add(bindingId);
@@ -86,7 +86,7 @@ namespace Cdm.Figma
                 //name.Value = name.Value.Replace($"{args.importer.bindingPrefix}{bindingId.Value}", "");
             }
             
-            var localizationId = GetLocalizationId(node, args);
+            var localizationId = GetLocalizationKey(node);
             if (localizationId != null)
             {
                 element.Add(localizationId);

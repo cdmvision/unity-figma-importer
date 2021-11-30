@@ -3,16 +3,18 @@ using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// The vector node is our most general representation of shape, allowing you to specify individual vertices,
+    /// segments, and regions. They are typically created in the UI using the pen tool, pencil tool, or when
+    /// flattening a selection.
+    ///
+    /// Note that similarly to groups, <see cref="VectorNode"/>s' position and size are automatically adjusted to
+    /// fit its vertices. For example, the positions returned by vector paths is relative to the vector object position.
+    /// </summary>
     [DataContract]
-    public class VectorNode : Node
+    public class VectorNode : SceneNode
     {
         public override string type => NodeType.Vector;
-        
-        /// <summary>
-        /// If true, layer is locked and cannot be edited.
-        /// </summary>
-        [DataMember(Name = "locked")]
-        public bool locked { get; private set; } = false;
         
         /// <summary>
         /// A list of export settings representing images to export from the canvas.

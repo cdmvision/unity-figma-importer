@@ -3,10 +3,13 @@ using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// The page node is always a descendent of the <see cref="DocumentNode"/>. 
+    /// </summary>
     [DataContract]
-    public class CanvasNode : Node
+    public class PageNode : Node
     {
-        public override string type => NodeType.Canvas;
+        public override string type => NodeType.Page;
         
         /// <summary>
         /// A list of top level layers on the canvas.

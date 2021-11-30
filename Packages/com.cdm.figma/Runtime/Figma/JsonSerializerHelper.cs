@@ -7,21 +7,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace Cdm.Figma
 {
-    internal class NonPublicPropertiesResolver : DefaultContractResolver
-    {
-        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-        {
-            var prop = base.CreateProperty(member, memberSerialization);
-            if (member is PropertyInfo pi)
-            {
-                prop.Readable = (pi.GetMethod != null);
-                prop.Writable = (pi.SetMethod != null);
-            }
-
-            return prop;
-        }
-    }
-
     public static class JsonSerializerHelper
     {
         public static readonly JsonSerializerSettings Settings = CreateSettings();
@@ -36,6 +21,7 @@ namespace Cdm.Figma
                     new IsoDateTimeConverter {DateTimeStyles = DateTimeStyles.AssumeUniversal},
                     new AffineTransformConverter(),
                     GetNodeConverter(),
+                    GetGroupNodeConverter(),
                     GetEffectConverter(),
                     GetPaintConverter()
                 },
@@ -48,7 +34,7 @@ namespace Cdm.Figma
             return JsonSubtypesConverterBuilder
                 .Of<Node>("type")
                 .RegisterSubtype<BooleanNode>(NodeType.Boolean)
-                .RegisterSubtype<CanvasNode>(NodeType.Canvas)
+                .RegisterSubtype<PageNode>(NodeType.Page)
                 .RegisterSubtype<ComponentNode>(NodeType.Component)
                 .RegisterSubtype<ComponentSetNode>(NodeType.ComponentSet)
                 .RegisterSubtype<DocumentNode>(NodeType.Document)
@@ -57,13 +43,23 @@ namespace Cdm.Figma
                 .RegisterSubtype<GroupNode>(NodeType.Group)
                 .RegisterSubtype<InstanceNode>(NodeType.Instance)
                 .RegisterSubtype<RectangleNode>(NodeType.Rectangle)
-                .RegisterSubtype<RegularPolygonNode>(NodeType.RegularPolygon)
+                .RegisterSubtype<PolygonNode>(NodeType.Polygon)
                 .RegisterSubtype<SliceNode>(NodeType.Slice)
                 .RegisterSubtype<StarNode>(NodeType.Star)
                 .RegisterSubtype<LineNode>(NodeType.Line)
                 .RegisterSubtype<TextNode>(NodeType.Text)
                 .RegisterSubtype<VectorNode>(NodeType.Vector)
                 .SetFallbackSubtype(typeof(Node))
+                .SerializeDiscriminatorProperty()
+                .Build();
+        }
+
+        private static JsonConverter GetGroupNodeConverter()
+        {
+            return JsonSubtypesConverterBuilder
+                .Of<GroupNode>("type")
+                .RegisterSubtype<FrameNode>(NodeType.Frame)
+                .SetFallbackSubtype(typeof(GroupNode))
                 .SerializeDiscriminatorProperty()
                 .Build();
         }
@@ -94,6 +90,21 @@ namespace Cdm.Figma
                 .SetFallbackSubtype(typeof(Paint))
                 .SerializeDiscriminatorProperty()
                 .Build();
+        }
+    }
+    
+    internal class NonPublicPropertiesResolver : DefaultContractResolver
+    {
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var prop = base.CreateProperty(member, memberSerialization);
+            if (member is PropertyInfo pi)
+            {
+                prop.Readable = (pi.GetMethod != null);
+                prop.Writable = (pi.SetMethod != null);
+            }
+
+            return prop;
         }
     }
 }

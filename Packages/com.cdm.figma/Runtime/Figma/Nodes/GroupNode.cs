@@ -1,15 +1,21 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using JsonSubTypes;
-using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
-    [JsonConverter(typeof(JsonSubtypes), "type")]
-    [JsonSubtypes.KnownSubType(typeof(FrameNode), NodeType.Frame)]
-    [JsonSubtypes.FallBackSubType(typeof(GroupNode))]
+    /// <summary>
+    /// The group node is a container used to semantically group related nodes. You can think of them as a folder in
+    /// the layers panel. It is different from FrameNode, which defines layout and is closer to a <![CDATA[<div>]]>
+    /// in HTML.
+    /// 
+    /// Groups in Figma are always positioned and sized to fit their content. As such, while you can move or resize a
+    /// group, you should also expect that a group's position and size will change if you change its content. See the
+    /// <see cref="relativeTransform"/> page for more details.
+    /// 
+    /// In Figma, groups must always have children. A group with no children will delete itself.
+    /// </summary>
     [DataContract]
-    public class GroupNode : Node
+    public class GroupNode : SceneNode
     {
         public override string type => NodeType.Group;
         
