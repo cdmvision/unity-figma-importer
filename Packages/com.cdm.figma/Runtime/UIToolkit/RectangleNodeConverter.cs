@@ -47,7 +47,7 @@ namespace Cdm.Figma.UIToolkit
                 var fillColor = BlendColor(fills);
                 var solidColor = (SolidPaint) fillColor;
                 var fillColorBlended = solidColor.color;
-                styleAttributes += "background-color: " + fillColorBlended.ToString("rgb-hex") + "; ";
+                styleAttributes += "background-color: " + fillColorBlended.ToString("rgba") + "; ";
             }
             /*color*/
             
@@ -84,7 +84,7 @@ namespace Cdm.Figma.UIToolkit
                 var strokeColor = BlendColor(strokes);
                 var solidColor = (SolidPaint) strokeColor;
                 var strokeColorBlended = solidColor.color;
-                styleAttributes += "border-color: " + strokeColorBlended.ToString("rgb-hex") + "; ";
+                styleAttributes += "border-color: " + strokeColorBlended.ToString("rgba") + "; ";
             }
             /*shaping*/
             
@@ -93,17 +93,11 @@ namespace Cdm.Figma.UIToolkit
 
         private Paint BlendColor(List<Paint> paints)
         {
-            if (paints.Count == 1)
+            if (paints.Count > 1)
             {
-                return paints[0]; //base color
+                Debug.LogWarning("Found node with multiple colors. Returning base color, color blending is not available.");
             }
-
-            /*for (int i = 0; i < paints.Count-1; ++i)
-            {
-                paints[i+1] = BlendTwoColors(paints[i+1], paints[i]);
-            }
-            return paints[paints.Count-1];*/
-            throw new NotImplementedException();
+            return paints[0]; //base color
         }
     }
     
