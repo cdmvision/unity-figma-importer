@@ -58,8 +58,26 @@ namespace Cdm.Figma
         [DataMember(Name = "schemaVersion")]
         public int schemaVersion { get; set; }
 
+        public void BuildHierarchy()
+        {
+            BuildHierarchy(document);
+        }
+        
+        private static void BuildHierarchy(Node node)
+        {
+            if (node.hasChildren)
+            {
+                foreach (var child in node.GetChildren())
+                {
+                    child.parent = node;
+                    
+                    BuildHierarchy(child);
+                }
+            }
+        }
+        
         public static FigmaFile FromString(string json) => 
-            JsonConvert.DeserializeObject<FigmaFile>(json, Converter.Settings);
+            JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.Settings);
 
         public override string ToString()
         {
@@ -73,9 +91,9 @@ namespace Cdm.Figma
             switch (format.ToUpperInvariant())
             {
                 case "I":
-                    return JsonConvert.SerializeObject(this, Formatting.Indented, Converter.Settings);
+                    return JsonConvert.SerializeObject(this, Formatting.Indented, JsonSerializerHelper.Settings);
                 case "N":
-                    return JsonConvert.SerializeObject(this, Formatting.None, Converter.Settings);
+                    return JsonConvert.SerializeObject(this, Formatting.None, JsonSerializerHelper.Settings);
                 default:
                     throw new FormatException($"The {format} format string is not supported.");
             }

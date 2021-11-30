@@ -45,6 +45,25 @@ namespace Cdm.Figma
         [DataMember(Name = "sharedPluginData")]
         public JToken sharedPluginData { get; set; }
 
+        /// <summary>
+        /// Parent of the node.
+        /// </summary>
+        public Node parent { get; set; }
+
+        /// <summary>
+        /// Gets whether node has parent or not.
+        /// </summary>
+        public bool hasParent => parent != null;
+
+        /// <summary>
+        /// Gets whether node has children or not.
+        /// </summary>
+        public bool hasChildren => GetChildren() != null;
+
+        /// <summary>
+        /// Gets the children of the node if exist.
+        /// </summary>
+        /// <returns>Array of nodes if exist; otherwise, <c>null</c>.</returns>
         public virtual Node[] GetChildren() => null;
     }
 

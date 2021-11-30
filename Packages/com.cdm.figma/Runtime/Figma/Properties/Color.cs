@@ -62,7 +62,7 @@ namespace Cdm.Figma
                 case "rgba":
                     return $"rgba({c.r}, {c.g}, {c.b}, {a:F1})";
                 case "rgb-hex":
-                    return $"#{ColorUtility.ToHtmlStringRGBA((UnityEngine.Color) this)}".Substring(0, 7);
+                    return $"#{ColorUtility.ToHtmlStringRGB((UnityEngine.Color) this)}";
                 case "rgba-hex":
                     return $"#{ColorUtility.ToHtmlStringRGBA((UnityEngine.Color) this)}";
                 default:
