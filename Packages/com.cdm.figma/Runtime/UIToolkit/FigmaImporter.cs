@@ -104,10 +104,8 @@ namespace Cdm.Figma.UIToolkit
                 root.Add(new XAttribute(xsi + "noNamespaceSchemaLocation", "../../../../../UIElementsSchema/UIElements.xsd"));
                 xml.Add(root);
                 
-                // Add root visual element.
-
-                var pageElement = XmlFactory.NewElement<VisualElement>(page, conversionArgs)
-                    .Style($"background-color: {page.backgroundColor.ToString("rgba")}; flex-grow: 1;");
+                // Add page element with ignoring the background color.
+                var pageElement = XmlFactory.NewElement<VisualElement>(page, conversionArgs).Style($"flex-grow: 1;");
                 root.Add(pageElement);
                 
                 var nodes = page.children;
