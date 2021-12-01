@@ -1,5 +1,6 @@
 using System.Xml.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
@@ -8,7 +9,10 @@ namespace Cdm.Figma.UIToolkit
     {
         public override XElement Convert(Node node, NodeConvertArgs args)
         {
-            throw new System.NotImplementedException();
+            var textNode = (TextNode) node;
+            var label = XmlFactory.NewElement<Label>(node, args);
+            label.Value = textNode.characters;
+            return label;
         }
     }
 }
