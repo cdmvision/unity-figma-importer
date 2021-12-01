@@ -11,7 +11,7 @@ namespace Cdm.Figma.UIToolkit
         {
             var textNode = (TextNode) node;
             var label = XmlFactory.NewElement<Label>(node, args);
-            label.Value = textNode.characters;
+            label.SetAttributeValue(nameof(Label.text), textNode.characters);
             return label;
         }
     }
