@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Cdm.Figma
@@ -15,7 +16,7 @@ namespace Cdm.Figma
         /// A list of top level layers on the canvas.
         /// </summary>
         [DataMember(Name = "children")]
-        public Node[] children { get; set; }
+        public SceneNode[] children { get; set; }
         
         /// <summary>
         /// Background color of the canvas.
@@ -35,7 +36,7 @@ namespace Cdm.Figma
         [DataMember(Name = "exportSettings")]
         public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>();
 
-        public override Node[] GetChildren() => children;
+        public override Node[] GetChildren() => children.Cast<Node>().ToArray();
     }
 
     /// <summary>
