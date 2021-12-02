@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
@@ -16,33 +17,6 @@ namespace Cdm.Figma.UIToolkit
     public class FigmaImporter : Figma.FigmaImporter
     {
         public new const string AssetMenuRoot = Figma.FigmaImporter.AssetMenuRoot + "UI Toolkit/";
-
-        [SerializeField]
-        private string _typePrefix = "@type:";
-
-        public string typePrefix
-        {
-            get => _typePrefix;
-            set => _typePrefix = value;
-        }
-        
-        [SerializeField]
-        private string _bindingPrefix = "@id:";
-
-        public string bindingPrefix
-        {
-            get => _bindingPrefix;
-            set => _bindingPrefix = value;
-        }
-        
-        [SerializeField]
-        private string _localizationPrefix = "@lang:";
-
-        public string localizationPrefix
-        {
-            get => _localizationPrefix;
-            set => _localizationPrefix = value;
-        }
         
         [SerializeField]
         private string _assetsPath = "Resources/Figma/Documents";
@@ -58,6 +32,11 @@ namespace Cdm.Figma.UIToolkit
         private List<ComponentConverter> _componentConverters = new List<ComponentConverter>();
 
         public List<ComponentConverter> componentConverters => _componentConverters;
+
+        [SerializeField]
+        private FontAsset _fallbackFont;
+
+        public FontAsset fallbackFont => _fallbackFont;
 
         public override async Task ImportFileAsync(FigmaFile file, FigmaImportOptions options = null)
         {
@@ -75,7 +54,8 @@ namespace Cdm.Figma.UIToolkit
 
             var conversionArgs = new NodeConvertArgs(this, file);
             conversionArgs.namespaces = new XNamespaces(ui, uie);
-            conversionArgs.assets = options.assets;
+            conversionArgs.graphics = options.graphics;
+            conversionArgs.fonts = options.fonts;
             
             // Build node hierarchy.
             file.BuildHierarchy();
@@ -133,7 +113,7 @@ namespace Cdm.Figma.UIToolkit
             UnityEditor.AssetDatabase.Refresh();
 #endif
         }
-
+        
         internal bool TryConvertNode(Node node, NodeConvertArgs args, out XElement element)
         {
             // Try with component converters first.

@@ -24,13 +24,7 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "children")]
         public Node[] children { get; set; }
-
-        /// <summary>
-        /// If true, layer is locked and cannot be edited.
-        /// </summary>
-        [DataMember(Name = "locked")]
-        public bool locked { get; private set; } = false;
-
+        
         /// <summary>
         /// An array of fill paints applied to the node.
         /// </summary>

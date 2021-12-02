@@ -65,7 +65,7 @@ namespace Cdm.Figma
             {
                 await ImportFilesAsync((FigmaTaskFile) target);
             };
-            
+
             var fileListView = root.Q<ListView>("filesList");
             fileListView.onSelectionChange += objects =>
             {
@@ -98,8 +98,7 @@ namespace Cdm.Figma
                 root.Add(_fileAssetElement);
             }
         }
-        
-        
+
         public override bool HasPreviewGUI()
         {
             return _fileAssetEditor != null && _fileAssetEditor.HasPreviewGUI();
@@ -136,7 +135,8 @@ namespace Cdm.Figma
                             var options = new FigmaImportOptions
                             {
                                 pages = fileAsset.pages.Where(p => p.enabled).Select(p => p.id).ToArray(),
-                                assets = fileAsset.assets
+                                graphics = fileAsset.graphics,
+                                fonts = fileAsset.fonts
                             };
                             await taskFile.GetImporter().ImportFileAsync(fileAsset.GetFile(), options);
                         }
@@ -191,7 +191,9 @@ namespace Cdm.Figma
                     
                     // Save Vector nodes as graphic asset.
                     await SaveVectorGraphicsAsync(taskFile, file, fileId, fileAsset);
-
+                    await AddMissingFontsAsync(file, fileAsset);
+                    
+                    AssetDatabase.SaveAssetIfDirty(fileAsset);
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
                 }
             }
@@ -203,6 +205,24 @@ namespace Cdm.Figma
             {
                 EditorUtility.ClearProgressBar();
             }
+        }
+
+        private static Task AddMissingFontsAsync(FigmaFile file, FigmaFileAsset fileAsset)
+        {
+            var fonts = new HashSet<FontDescriptor>();
+            file.document.Traverse(node =>
+            {
+                fonts.Add(((TextNode) node).style.fontDescriptor);
+                return true;
+            }, NodeType.Text);
+
+            foreach (var font in fonts)
+            {
+                fileAsset.fonts.Add(font, null);
+            }
+            
+            EditorUtility.SetDirty(fileAsset);
+            return Task.CompletedTask;
         }
 
         private async Task SaveVectorGraphicsAsync(
@@ -244,13 +264,13 @@ namespace Cdm.Figma
                     var path = Path.Combine(Application.dataPath, taskFile.graphicsPath, fileName);
                     await File.WriteAllBytesAsync(path, graphic.Value);
 
-                    var assetPath = Path.Combine("Assets", taskFile.graphicsPath, fileName);
-                    AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+                    var graphicPath = Path.Combine("Assets", taskFile.graphicsPath, fileName);
+                    AssetDatabase.ImportAsset(graphicPath, ImportAssetOptions.ForceSynchronousImport);
 
-                    ImportGraphic(assetPath);
+                    ImportGraphic(graphicPath);
 
-                    var resourcePath = Path.Combine(taskFile.graphicsPath, fileName).Replace("\\", "/");
-                    fileAsset.assets.Add(graphic.Key, resourcePath);
+                    var graphicAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(graphicPath);
+                    fileAsset.graphics.Add(graphic.Key, graphicAsset);
                 }
                 else
                 {
@@ -259,7 +279,6 @@ namespace Cdm.Figma
             }
             
             EditorUtility.SetDirty(fileAsset);
-            AssetDatabase.SaveAssetIfDirty(fileAsset);
         }
 
         private static FigmaFileAsset SaveFigmaFile(FigmaTaskFile taskFile, FigmaFile figmaFile, string fileId, 

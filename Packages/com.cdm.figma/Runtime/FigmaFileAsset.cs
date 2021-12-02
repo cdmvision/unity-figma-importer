@@ -79,10 +79,16 @@ namespace Cdm.Figma
         }
 
         [SerializeField]
-        private SerializableDictionary<string, string> _assets = new SerializableDictionary<string, string>();
-
-        /// <inheritdoc cref="FigmaImportOptions.assets"/>
-        public IDictionary<string, string> assets => _assets;
+        private SerializableDictionary<string, UnityEngine.Object> _graphics = 
+            new SerializableDictionary<string, UnityEngine.Object>();
+        
+        public IDictionary<string, UnityEngine.Object> graphics => _graphics;
+        
+        [SerializeField]
+        private SerializableDictionary<FontDescriptor, UnityEngine.Object> _fonts = 
+            new SerializableDictionary<FontDescriptor, UnityEngine.Object>();
+        
+        public IDictionary<FontDescriptor, UnityEngine.Object> fonts => _fonts;
 
         public FigmaFile GetFile()
         {

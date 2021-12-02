@@ -12,9 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45350a2930fc4fa08166bb7a68f76e3c, type: 3}
   m_Name: FigmaImporter
   m_EditorClassIdentifier: 
-  _typePrefix: '@type:'
-  _bindingPrefix: '@id:'
-  _localizationPrefix: '@lang:'
   _assetsPath: Resources/Figma/UIToolkit/Documents
   _nodeConverters:
   - {fileID: 11400000, guid: 0cea4f68d8ae1914499abf53cd5d919c, type: 2}
@@ -22,3 +19,4 @@ MonoBehaviour:
   _componentConverters:
   - {fileID: 11400000, guid: f48fec70b79c79e428e040d86df61aca, type: 2}
   - {fileID: 11400000, guid: 55791860d26d5d44aa0d0f5cf5551d8a, type: 2}
+  _fallbackFont: {fileID: 11400000, guid: 8d14d8e206bad1b44ad577127d2751f2, type: 2}

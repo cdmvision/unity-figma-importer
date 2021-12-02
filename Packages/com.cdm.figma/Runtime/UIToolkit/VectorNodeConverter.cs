@@ -39,7 +39,7 @@ namespace Cdm.Figma.UIToolkit
             }
 
             // Override width and height if SVG contains these properties.
-            if (args.TryGetAssetPath(node.id, out var assetPath))
+            if (args.TryGetGraphicPath(node.id, out var assetPath))
             {
                 var svg = XDocument.Load(Path.Combine(Application.dataPath, assetPath));
                 if (svg.Root != null)
@@ -61,7 +61,7 @@ namespace Cdm.Figma.UIToolkit
             style.Append($"width: {width}px; ");
             style.Append($"height: {height}px; ");
             
-            if (args.TryGetStyleUrl(node.id, out var assetUrl))
+            if (args.TryGetGraphicStyleUrl(node.id, out var assetUrl))
             {
                 style.Append($"background-image: {assetUrl}; ");
             }

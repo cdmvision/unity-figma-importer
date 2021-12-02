@@ -10,6 +10,7 @@ namespace Cdm.Figma.UIToolkit
         public const string Hover = "Hover";
         public const string Press = "Press";
         public const string Disabled = "Disabled";
+        public const string Selected = "Selected";
     }
     
     public abstract class ComponentConverter : NodeConverter

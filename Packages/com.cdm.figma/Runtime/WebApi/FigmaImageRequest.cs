@@ -19,12 +19,12 @@ namespace Cdm.Figma
         /// <summary>
         /// Image output format, can be jpg, png, svg, or pdf.
         /// </summary>
-        public string? format { get; set; }
+        public string format { get; set; }
         
         /// <summary>
         /// 
         /// </summary>
-        public string? version { get; set; }
+        public string version { get; set; }
         
         /// <summary>
         /// Whether to include id attributes for all SVG elements. Default: false.

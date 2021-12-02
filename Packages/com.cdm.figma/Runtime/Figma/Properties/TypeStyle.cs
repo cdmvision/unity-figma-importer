@@ -53,7 +53,7 @@ namespace Cdm.Figma
         /// Numeric font weight.
         /// </summary>
         [DataMember(Name = "fontWeight")]
-        public float fontWeight { get; set; }
+        public int fontWeight { get; set; }
 
         /// <summary>
         /// Font size in px.
@@ -139,6 +139,8 @@ namespace Cdm.Figma
         /// </list>
         [DataMember(Name = "lineHeightUnit")]
         public string lineHeightUnit { get; set; }
+
+        public FontDescriptor fontDescriptor => new FontDescriptor(fontFamily, (FontWeight) fontWeight, italic);
     }
 
     [DataContract]

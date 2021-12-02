@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(ButtonConverter), menuName = AssetMenuRoot + "Button", order = AssetMenuOrder)]
-    public class ButtonConverter : ComponentConverter
+    [CreateAssetMenu(fileName = nameof(ButtonComponentConverter), menuName = AssetMenuRoot + "Button", order = AssetMenuOrder)]
+    public class ButtonComponentConverter : ComponentConverter
     {
         protected override string GetDefaultTypeId()
         {

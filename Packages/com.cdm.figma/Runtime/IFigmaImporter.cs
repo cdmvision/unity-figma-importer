@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Cdm.Figma
 {
@@ -19,14 +20,15 @@ namespace Cdm.Figma
         /// Set page IDs to import only selected pages. Leave as <c>null</c> to import all pages.
         /// </summary>
         public string[] pages;
-
+        
         /// <summary>
-        /// Contains node id as key and asset path as value. Some nodes are imported as an asset
-        /// (i.e. <see cref="VectorNode"/> as <see cref="UnityEngine.UIElements.VectorImage"/>).
-        ///
-        /// For example, you can use an SVG graphic like url("project:///Assets/path_to_asset/graphic_file.svg"); in
-        /// the style definition.
+        /// Additional assets required for the importer.
         /// </summary>
-        public IDictionary<string, string> assets { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, Object> graphics { get; set; } = new Dictionary<string, Object>();
+        
+        /// <summary>
+        /// List of fonts required for the importer.
+        /// </summary>
+        public IDictionary<FontDescriptor, Object> fonts { get; set; } = new Dictionary<FontDescriptor, Object>();
     }
 }

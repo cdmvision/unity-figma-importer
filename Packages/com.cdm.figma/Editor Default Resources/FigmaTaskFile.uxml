@@ -12,6 +12,7 @@
     <ui:GroupBox text="File IDs">
         <ui:ListView focusable="true" binding-path="_files" show-add-remove-footer="true" virtualization-method="DynamicHeight" show-border="true" show-alternating-row-backgrounds="ContentOnly" show-bound-collection-size="false" name="filesList" />
         <ui:VisualElement style="flex-direction: row-reverse; padding-top: 8px;">
+            <ui:Button text="Add Fonts" display-tooltip-when-elided="true" name="addFonts" />
             <ui:Button text="Import Files" display-tooltip-when-elided="true" name="generateViewsButton" />
             <ui:Button text="Download Files" display-tooltip-when-elided="true" name="downloadFilesButton" />
         </ui:VisualElement>

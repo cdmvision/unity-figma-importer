@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
+using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
 {
@@ -16,8 +17,8 @@ namespace Cdm.Figma.UIToolkit
         public XNamespaces namespaces { get; set; }
         public List<ComponentSetNode> componentSets { get; } = new List<ComponentSetNode>();
         
-        /// <inheritdoc cref="FigmaImportOptions.assets"/>
-        public IDictionary<string, string> assets { get; set; } = new Dictionary<string, string>();
+        public IDictionary<string, Object> graphics { get; set; } = new Dictionary<string, Object>();
+        public IDictionary<FontDescriptor, Object> fonts { get; set; } = new Dictionary<FontDescriptor, Object>();
         
         public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
         {
