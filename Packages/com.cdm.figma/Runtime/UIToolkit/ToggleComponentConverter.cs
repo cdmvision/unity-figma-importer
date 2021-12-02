@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
-using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
@@ -10,7 +10,6 @@ namespace Cdm.Figma.UIToolkit
         public const string Off = "Off";
     }
     
-    [CreateAssetMenu(fileName = nameof(ToggleComponentConverter), menuName = AssetMenuRoot + "Toggle", order = AssetMenuOrder)]
     public class ToggleComponentConverter : ComponentConverter
     {
         protected override string GetDefaultTypeId()
@@ -47,7 +46,7 @@ namespace Cdm.Figma.UIToolkit
 
         public override XElement Convert(Node node, NodeConvertArgs args)
         {
-            throw new System.NotImplementedException();
+            return XmlFactory.NewElement<Toggle>(node, args);
         }
     }
 }

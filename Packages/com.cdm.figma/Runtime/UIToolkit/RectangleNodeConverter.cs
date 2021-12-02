@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Xml.Linq;
-using System.Xml.Serialization;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(RectangleNodeConverter), 
-        menuName = AssetMenuRoot + "Rectangle", order = AssetMenuOrder)]
     public class RectangleNodeConverter : NodeConverter<RectangleNode>
     {
         public override XElement Convert(Node node, NodeConvertArgs args)
@@ -90,7 +84,7 @@ namespace Cdm.Figma.UIToolkit
                 }
             }
             /*shaping*/
-            
+
             return styleAttributes;
         }
         

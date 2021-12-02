@@ -21,7 +21,6 @@ namespace Cdm.Figma.UIToolkit
     /// - node.styleOverrideTable
     /// - node.characterStyleOverrides
     /// </summary>
-    [CreateAssetMenu(fileName = nameof(TextNodeConverter), menuName = AssetMenuRoot + "Text", order = AssetMenuOrder)]
     public class TextNodeConverter : NodeConverter<TextNode>
     {
         public override XElement Convert(Node node, NodeConvertArgs args)

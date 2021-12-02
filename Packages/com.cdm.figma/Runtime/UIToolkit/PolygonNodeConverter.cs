@@ -1,13 +1,12 @@
 using System.Xml.Linq;
-using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    public class GroupNodeConverter : NodeConverter<GroupNode>
+    public class PolygonNodeConverter : NodeConverter<PolygonNode>
     {
         public override XElement Convert(Node node, NodeConvertArgs args)
         {
-            return XmlFactory.NewElement<VisualElement>(node, args);
+            return VectorNodeConverter.Convert((PolygonNode) node, args);
         }
     }
 }

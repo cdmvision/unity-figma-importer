@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(ButtonComponentConverter), menuName = AssetMenuRoot + "Button", order = AssetMenuOrder)]
     public class ButtonComponentConverter : ComponentConverter
     {
         protected override string GetDefaultTypeId()
@@ -36,7 +36,7 @@ namespace Cdm.Figma.UIToolkit
         {
             var instanceNode = (InstanceNode) node;
             
-            if (args.fileContent.components.TryGetValue(instanceNode.componentId, out var component))
+            /*if (args.fileContent.components.TryGetValue(instanceNode.componentId, out var component))
             {
                 var componentSet = args.componentSets.FirstOrDefault(c => c.id == component.componentSetId);
                 if (componentSet != null)
@@ -73,9 +73,9 @@ namespace Cdm.Figma.UIToolkit
                 {
                     Debug.LogError("Component set does not exist!");
                 }
-            }
+            }*/
 
-            throw new NotImplementedException();
+            return XmlFactory.NewElement<Button>(node, args);
         }
     }
 }

@@ -1,14 +1,10 @@
 using System.Globalization;
-using System.IO;
 using System.Text;
 using System.Xml.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(VectorNodeConverter),
-        menuName = AssetMenuRoot + "Vector", order = AssetMenuOrder)]
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
         public static XElement Convert(VectorNode node, NodeConvertArgs args)

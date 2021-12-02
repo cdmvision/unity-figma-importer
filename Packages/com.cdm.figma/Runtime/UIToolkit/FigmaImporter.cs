@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using Cdm.Figma.UIToolkit.UIToolkit;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
@@ -23,16 +25,38 @@ namespace Cdm.Figma.UIToolkit
 
         public string assetsPath => _assetsPath;
 
-        [SerializeField]
-        private List<NodeConverter> _nodeConverters = new List<NodeConverter>();
+        private readonly HashSet<NodeConverter> _nodeConverters = new HashSet<NodeConverter>();
 
-        public List<NodeConverter> nodeConverters => _nodeConverters;
+        public ISet<NodeConverter> nodeConverters => _nodeConverters;
 
-        [SerializeField]
-        private List<ComponentConverter> _componentConverters = new List<ComponentConverter>();
+        private readonly HashSet<ComponentConverter> _componentConverters = new HashSet<ComponentConverter>();
 
-        public List<ComponentConverter> componentConverters => _componentConverters;
+        public ISet<ComponentConverter> componentConverters => _componentConverters;
 
+        public static NodeConverter[] GetDefaultNodeConverters()
+        {
+            return new NodeConverter[]
+            {
+                new GroupNodeConverter(),
+                new VectorNodeConverter(),
+                new RectangleNodeConverter(),
+                new EllipseNodeConverter(),
+                new LineNodeConverter(),
+                new PolygonNodeConverter(),
+                new StarNodeConverter(),
+                new TextNodeConverter()
+            };
+        }
+
+        public static ComponentConverter[] GetDefaultComponentConverters()
+        {
+            return new ComponentConverter[]
+            {
+                new ButtonComponentConverter(),
+                new ToggleComponentConverter()
+            };
+        }
+        
         public override Figma.FigmaFile CreateFile(string fileId, string fileJson, byte[] thumbnailData = null)
         {
             var fileContent = FigmaFileContent.FromString(fileJson);
@@ -108,6 +132,24 @@ namespace Cdm.Figma.UIToolkit
             if (figmaFile == null)
                 throw new ArgumentException("Wrong type of Figma file", nameof(file));
 
+            if (!nodeConverters.Any())
+            {
+                var converters = GetDefaultNodeConverters();
+                foreach (var converter in converters)
+                {
+                    nodeConverters.Add(converter);
+                }
+            }
+            
+            if (!componentConverters.Any())
+            {
+                var converters = GetDefaultComponentConverters();
+                foreach (var converter in converters)
+                {
+                    componentConverters.Add(converter);
+                }
+            }
+            
             var assetsDirectory = Path.Combine("Assets", assetsPath);
             Directory.CreateDirectory(assetsDirectory);
 

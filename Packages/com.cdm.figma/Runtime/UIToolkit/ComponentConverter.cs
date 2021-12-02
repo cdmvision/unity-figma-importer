@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
 {
@@ -15,48 +13,17 @@ namespace Cdm.Figma.UIToolkit
     
     public abstract class ComponentConverter : NodeConverter
     {
-        protected new const int AssetMenuOrder = NodeConverter.AssetMenuOrder + 20;
+        public string typeId { get; set; }
         
-        [SerializeField]
-        private string _typeId;
-
-        public string typeId => _typeId;
-
-        [SerializeField]
-        private List<ComponentProperty> _properties = new List<ComponentProperty>();
-
+        private readonly List<ComponentProperty> _properties = new List<ComponentProperty>();
+        
         public IReadOnlyList<ComponentProperty> properties => _properties;
-        
-        private void OnEnable()
-        {
-            if (string.IsNullOrWhiteSpace(_typeId))
-            {
-                _typeId = GetDefaultTypeId();
-                
-#if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(this);
-#endif
-            }
-            
-            if (!_properties.Any())
-            {
-                _properties.AddRange(GetVariants());
-                
-#if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(this);
-#endif
-            }
-        }
 
-        private void Reset()
+        public ComponentConverter()
         {
-            _typeId = GetDefaultTypeId();
-            _properties.Clear();
+            typeId = GetDefaultTypeId();
             _properties.AddRange(GetVariants());
             
-#if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
-#endif
         }
 
         protected abstract string GetDefaultTypeId();
