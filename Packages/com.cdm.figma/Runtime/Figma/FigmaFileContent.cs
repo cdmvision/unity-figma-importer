@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Newtonsoft.Json.Linq;
 
 namespace Cdm.Figma
 {
@@ -16,7 +17,7 @@ namespace Cdm.Figma
     /// be forthcoming.
     /// </summary>
     [DataContract]
-    public class FigmaFile
+    public class FigmaFileContent
     {
         [DataMember(Name = "name")]
         public string name { get; set; }
@@ -42,8 +43,19 @@ namespace Cdm.Figma
         [DataMember(Name = "document")]
         public DocumentNode document { get; set; }
         
-        public string pluginData { get; set; }
-        public string sharedPluginData { get; set; }
+        /// <summary>
+        /// Data written by plugins that is visible only to the plugin that wrote it. Requires the `pluginData` to
+        /// include the ID of the plugin.
+        /// </summary>
+        [DataMember(Name = "pluginData")]
+        public Dictionary<string, JObject> pluginData { get; set; }
+        
+        /// <summary>
+        /// Data written by plugins that is visible to all plugins. Requires the `pluginData` parameter to include
+        /// the string "shared".
+        /// </summary>
+        [DataMember(Name = "sharedPluginData")]
+        public Dictionary<string, JObject> sharedPluginData { get; set; }
         
         /// <summary>
         /// The components key contains a mapping from node IDs to component metadata.
@@ -79,8 +91,8 @@ namespace Cdm.Figma
             }
         }
         
-        public static FigmaFile FromString(string json) => 
-            JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.Settings);
+        public static FigmaFileContent FromString(string json) => 
+            JsonConvert.DeserializeObject<FigmaFileContent>(json, JsonSerializerHelper.Settings);
 
         public override string ToString()
         {

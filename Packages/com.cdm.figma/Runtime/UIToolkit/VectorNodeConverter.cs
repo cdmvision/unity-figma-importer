@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(VectorNodeConverter), 
+    [CreateAssetMenu(fileName = nameof(VectorNodeConverter),
         menuName = AssetMenuRoot + "Vector", order = AssetMenuOrder)]
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
@@ -16,7 +16,7 @@ namespace Cdm.Figma.UIToolkit
             var style = BuildStyle(node, args);
             return XmlFactory.NewElement<VisualElement>(node, args).Style(style);
         }
-        
+
         public override XElement Convert(Node node, NodeConvertArgs args)
         {
             return Convert((VectorNode) node, args);
@@ -39,9 +39,11 @@ namespace Cdm.Figma.UIToolkit
             }
 
             // Override width and height if SVG contains these properties.
-            if (args.TryGetGraphicPath(node.id, out var assetPath))
+            if (args.file.TryGetGraphic(node.id, out var graphic))
             {
-                var svg = XDocument.Load(Path.Combine(Application.dataPath, assetPath));
+#if UNITY_EDITOR
+                var path = UnityEditor.AssetDatabase.GetAssetPath(graphic);
+                var svg = XDocument.Load(path);
                 if (svg.Root != null)
                 {
                     var widthAttribute = svg.Root.Attribute("width");
@@ -49,21 +51,24 @@ namespace Cdm.Figma.UIToolkit
                     {
                         width = widthAttribute.Value;
                     }
-                    
+
                     var heightAttribute = svg.Root.Attribute("height");
                     if (heightAttribute != null)
                     {
                         height = heightAttribute.Value;
                     }
                 }
+#else
+                Debug.LogWarning("SVG file cannot be read at runtime.");
+#endif
             }
-                        
+
             style.Append($"width: {width}px; ");
             style.Append($"height: {height}px; ");
-            
-            if (args.TryGetGraphicStyleUrl(node.id, out var assetUrl))
+
+            if (args.file.TryGetGraphicUrl(node.id, out var url))
             {
-                style.Append($"background-image: {assetUrl}; ");
+                style.Append($"background-image: {url}; ");
             }
 
             return style.ToString();

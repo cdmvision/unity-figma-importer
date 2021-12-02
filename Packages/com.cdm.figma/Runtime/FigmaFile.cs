@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Cdm.Figma.Utils;
+using Object = UnityEngine.Object;
 
 namespace Cdm.Figma
 {
@@ -13,7 +14,7 @@ namespace Cdm.Figma
         public string name;
     }
     
-    public class FigmaFileAsset : ScriptableObject
+    public class FigmaFile : ScriptableObject
     {
         [SerializeField]
         private string _id;
@@ -21,7 +22,7 @@ namespace Cdm.Figma
         public string id
         {
             get => _id;
-            internal set => _id = value;
+            set => _id = value;
         }
 
         [SerializeField]
@@ -30,7 +31,7 @@ namespace Cdm.Figma
         public string title
         {
             get => _title;
-            internal set => _title = value;
+            set => _title = value;
         }
 
         [SerializeField]
@@ -39,7 +40,7 @@ namespace Cdm.Figma
         public string version
         {
             get => _version;
-            internal set => _version = value;
+            set => _version = value;
         }
 
         [SerializeField]
@@ -48,7 +49,7 @@ namespace Cdm.Figma
         public string lastModified
         {
             get => _lastModified;
-            internal set => _lastModified = value;
+            set => _lastModified = value;
         }
 
         [SerializeField]
@@ -57,7 +58,7 @@ namespace Cdm.Figma
         public Texture2D thumbnail
         {
             get => _thumbnail;
-            internal set => _thumbnail = value;
+            set => _thumbnail = value;
         }
 
         [SerializeField]
@@ -66,7 +67,7 @@ namespace Cdm.Figma
         public TextAsset content
         {
             get => _content;
-            internal set => _content = value;
+            set => _content = value;
         }
 
         [SerializeField]
@@ -75,24 +76,12 @@ namespace Cdm.Figma
         public FigmaFilePage[] pages
         {
             get => _pages;
-            internal set => _pages = value;
+            set => _pages = value;
         }
-
-        [SerializeField]
-        private SerializableDictionary<string, UnityEngine.Object> _graphics = 
-            new SerializableDictionary<string, UnityEngine.Object>();
         
-        public IDictionary<string, UnityEngine.Object> graphics => _graphics;
-        
-        [SerializeField]
-        private SerializableDictionary<FontDescriptor, UnityEngine.Object> _fonts = 
-            new SerializableDictionary<FontDescriptor, UnityEngine.Object>();
-        
-        public IDictionary<FontDescriptor, UnityEngine.Object> fonts => _fonts;
-
-        public FigmaFile GetFile()
+        public FigmaFileContent GetFileContent()
         {
-            return content == null ? null : FigmaFile.FromString(content.text);
+            return content == null ? null : FigmaFileContent.FromString(content.text);
         }
     }
 }

@@ -4,21 +4,20 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma
 {
-    [CustomEditor(typeof(FigmaFileAsset))]
-    public class FigmaFileAssetEditor : Editor
+    public class FigmaFileEditor : Editor
     {
         public override VisualElement CreateInspectorGUI()
         {
-            var fileAsset = ((FigmaFileAsset) target);
+            var fileAsset = ((FigmaFile) target);
 
             var root = new VisualElement();
             var visualTree =
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaFileAsset.uxml");
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaFile.uxml");
             visualTree.CloneTree(root);
             
             var listItem =
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    $"{PackageUtils.VisualTreeFolder}/FigmaFileAsset_PageListItem.uxml");
+                    $"{PackageUtils.VisualTreeFolder}/FigmaFile_PageListItem.uxml");
 
             var listView = root.Q<ListView>("pagesList");
             listView.makeItem = () => listItem.Instantiate();
@@ -52,19 +51,19 @@ namespace Cdm.Figma
                     System.IO.File.WriteAllText(path, fileAsset.content.text);
                 }
             };
-
+            
             return root;
         }
 
         public override bool HasPreviewGUI()
         {
-            var fileAsset = ((FigmaFileAsset) target);
+            var fileAsset = ((FigmaFile) target);
             return fileAsset != null && fileAsset.thumbnail != null;
         }
 
         public override void DrawPreview(Rect previewArea)
         {
-            var thumbnail = ((FigmaFileAsset) target).thumbnail;
+            var thumbnail = ((FigmaFile) target).thumbnail;
 
             var widthRatio = previewArea.width / thumbnail.width;
             var heightRatio = previewArea.height / thumbnail.height;
@@ -76,7 +75,7 @@ namespace Cdm.Figma
             var newY = previewArea.y + (previewArea.height - newHeight) * 0.5f;
             
             var newPreviewArea = new Rect(newX, newY, newWidth, newHeight);
-            GUI.DrawTexture(newPreviewArea, ((FigmaFileAsset) target).thumbnail);
+            GUI.DrawTexture(newPreviewArea, ((FigmaFile) target).thumbnail);
         }
     }
 }

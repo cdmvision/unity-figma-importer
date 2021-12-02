@@ -14,16 +14,15 @@ namespace Cdm.Figma.UIToolkit
     {
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
+        public FigmaFileContent fileContent { get; }
         public XNamespaces namespaces { get; set; }
         public List<ComponentSetNode> componentSets { get; } = new List<ComponentSetNode>();
         
-        public IDictionary<string, Object> graphics { get; set; } = new Dictionary<string, Object>();
-        public IDictionary<FontDescriptor, Object> fonts { get; set; } = new Dictionary<FontDescriptor, Object>();
-        
-        public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
+        public NodeConvertArgs(FigmaImporter importer, FigmaFile file, FigmaFileContent fileContent)
         {
             this.importer = importer;
             this.file = file;
+            this.fileContent = fileContent;
         }
     }
     

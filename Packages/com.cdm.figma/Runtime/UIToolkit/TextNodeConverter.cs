@@ -33,7 +33,7 @@ namespace Cdm.Figma.UIToolkit
         {
             var style = new StringBuilder();
             
-            if (args.TryGetFontStyleUrl(node.style.fontDescriptor, out var fontUrl))
+            if (args.file.TryGetFontUrl(node.style.fontDescriptor, out var fontUrl))
             {
                 // We set font type directly based on family, weight and the italic information.
                 // So, we do not need to add font weight or style.

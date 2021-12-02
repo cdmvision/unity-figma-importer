@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
@@ -33,17 +33,48 @@ namespace Cdm.Figma.UIToolkit
 
         public List<ComponentConverter> componentConverters => _componentConverters;
 
-        [SerializeField]
-        private FontAsset _fallbackFont;
+        public override Figma.FigmaFile CreateFile(string fileId, string fileJson, byte[] thumbnailData = null)
+        {
+            var fileContent = FigmaFileContent.FromString(fileJson);
+            
+            var figmaFile = CreateInstance<FigmaFile>();
+            figmaFile.id = fileId;
+            figmaFile.title = fileContent.name;
+            figmaFile.version = fileContent.version;
+            figmaFile.lastModified = fileContent.lastModified.ToString("u");
+            figmaFile.content = new TextAsset(JObject.Parse(fileJson).ToString(Newtonsoft.Json.Formatting.Indented));
+            figmaFile.content.name = "File";
 
-        public FontAsset fallbackFont => _fallbackFont;
+            if (thumbnailData != null)
+            {
+                figmaFile.thumbnail = new Texture2D(1, 1);
+                figmaFile.thumbnail.name = "Thumbnail";    
+                figmaFile.thumbnail.LoadImage(thumbnailData);
+            }
+            
+            var pages = fileContent.document.children;
+            figmaFile.pages = new FigmaFilePage[pages.Length];
+            
+            for (var i = 0; i < pages.Length; i++)
+            {
+                figmaFile.pages[i] = new FigmaFilePage()
+                {
+                    id = pages[i].id,
+                    name = pages[i].name
+                };
+            }
+            
+            return figmaFile;
+        }
 
-        public override async Task ImportFileAsync(FigmaFile file, FigmaImportOptions options = null)
+        public override async Task ImportFileAsync(Figma.FigmaFile file)
         {
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
 
-            options ??= new FigmaImportOptions();
+            var figmaFile = file as FigmaFile;
+            if (figmaFile == null)
+                throw new ArgumentException("Wrong type of Figma file", nameof(file));
             
             var assetsDirectory = Path.Combine("Assets", assetsPath);
             Directory.CreateDirectory(assetsDirectory);
@@ -52,16 +83,16 @@ namespace Cdm.Figma.UIToolkit
             XNamespace ui = "UnityEngine.UIElements";
             XNamespace uie = "UnityEditor.UIElements";
 
-            var conversionArgs = new NodeConvertArgs(this, file);
-            conversionArgs.namespaces = new XNamespaces(ui, uie);
-            conversionArgs.graphics = options.graphics;
-            conversionArgs.fonts = options.fonts;
+            var fileContent = figmaFile.GetFileContent();
             
+            var conversionArgs = new NodeConvertArgs(this, figmaFile, fileContent);
+            conversionArgs.namespaces = new XNamespaces(ui, uie);
+
             // Build node hierarchy.
-            file.BuildHierarchy();
+            fileContent.BuildHierarchy();
             
             // Collect all component sets from all pages.
-            var pages = file.document.children;
+            var pages = fileContent.document.children;
             foreach (var page in pages)
             {
                 page.Traverse(node =>
@@ -74,7 +105,8 @@ namespace Cdm.Figma.UIToolkit
             // Generate all pages.
             foreach (var page in pages)
             {
-                if (options.pages != null && options.pages.All(p => p != page.id))
+                // Do not import ignored pages.
+                if (figmaFile.pages.Any(p => p.id == page.id && !p.enabled))
                     continue;
                 
                 var xml = new XDocument();

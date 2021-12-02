@@ -7,6 +7,7 @@ namespace Cdm.Figma
     {
         public const string AssetMenuRoot = "Cdm/Figma/";
 
-        public abstract Task ImportFileAsync(FigmaFile file, FigmaImportOptions options = null);
+        public abstract FigmaFile CreateFile(string fileId, string fileContent, byte[] thumbnailData = null);
+        public abstract Task ImportFileAsync(FigmaFile file);
     }
 }

@@ -36,7 +36,7 @@ namespace Cdm.Figma.UIToolkit
         {
             var instanceNode = (InstanceNode) node;
             
-            if (args.file.components.TryGetValue(instanceNode.componentId, out var component))
+            if (args.fileContent.components.TryGetValue(instanceNode.componentId, out var component))
             {
                 var componentSet = args.componentSets.FirstOrDefault(c => c.id == component.componentSetId);
                 if (componentSet != null)
