@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,18 +14,41 @@ namespace Cdm.Figma.UIToolkit
     {
         protected override string GetImplementationName() => nameof(UIToolkit);
 
-        protected string[] GetNodeGraphicTypes()
+        protected override Task OnFigmaFileSaving(
+            Figma.FigmaTaskFile taskFile, Figma.FigmaFile newFile, Figma.FigmaFile oldFile)
         {
-            return new[] {NodeType.Vector, NodeType.Ellipse, NodeType.Line, NodeType.Polygon, NodeType.Star};
+            if (oldFile != null)
+            {
+                var oldFigmaFile = (FigmaFile) oldFile;
+                var newFigmaFile = (FigmaFile) newFile;
+
+                newFigmaFile.fallbackFont = oldFigmaFile.fallbackFont;
+
+                foreach (var fontSource in newFigmaFile.fonts)
+                {
+                    if (fontSource.font == null)
+                    {
+                        var oldFont = oldFigmaFile.fonts.FirstOrDefault(x =>
+                            x.fontName.Equals(fontSource.fontName, StringComparison.OrdinalIgnoreCase));
+                        if (oldFont != null && oldFont.font != null)
+                        {
+                            fontSource.font = oldFont.font;
+                        }
+                    }
+                }
+            }
+            
+            return Task.CompletedTask;
         }
 
-        protected override async Task OnAfterFigmaFileSaved(
+        protected override async Task OnFigmaFileSaved(
             Figma.FigmaTaskFile taskFile, Figma.FigmaFile file, FigmaFileContent fileContent)
         {
             await SaveVectorGraphicsAsync((FigmaTaskFile) taskFile, (FigmaFile) file, fileContent);
         }
-        
-        private async Task SaveVectorGraphicsAsync(FigmaTaskFile taskFile, FigmaFile file, FigmaFileContent fileContent)
+
+        private static async Task SaveVectorGraphicsAsync(
+            FigmaTaskFile taskFile, FigmaFile file, FigmaFileContent fileContent)
         {
             if (!file.graphics.Any())
                 return;

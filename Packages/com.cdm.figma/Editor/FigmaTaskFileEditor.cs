@@ -25,6 +25,17 @@ namespace Cdm.Figma
                 _fileAssetEditor = null;
             }
         }
+
+        protected virtual Task OnFigmaFileSaving(FigmaTaskFile taskFile, FigmaFile newFile, FigmaFile oldFile)
+        {
+            return Task.CompletedTask;
+        }
+        
+        protected virtual Task OnFigmaFileSaved(
+            FigmaTaskFile taskFile, FigmaFile file, FigmaFileContent fileContent)
+        {
+            return Task.CompletedTask;
+        }
         
         public override VisualElement CreateInspectorGUI()
         {
@@ -165,8 +176,8 @@ namespace Cdm.Figma
                     var thumbnail = await FigmaApi.GetThumbnailImageAsync(fileContent.thumbnailUrl);
                     
                     // Save figma file asset.
-                    var file = SaveFigmaFile(taskFile, fileId, fileContentJson, thumbnail);
-                    await OnAfterFigmaFileSaved(taskFile, file, fileContent);
+                    var file = await SaveFigmaFileAsync(taskFile, fileId, fileContentJson, thumbnail);
+                    await OnFigmaFileSaved(taskFile, file, fileContent);
                     
                     AssetDatabase.SaveAssetIfDirty(file);
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
@@ -182,49 +193,46 @@ namespace Cdm.Figma
             }
         }
 
-        protected virtual Task OnAfterFigmaFileSaved(
-            FigmaTaskFile taskFile, FigmaFile file, FigmaFileContent fileContent)
-        {
-            return Task.CompletedTask;
-        }
-
-        private static FigmaFile SaveFigmaFile(FigmaTaskFile taskFile, string fileId, string fileContent, byte[] thumbnail)
+        private async Task<FigmaFile> SaveFigmaFileAsync(
+            FigmaTaskFile taskFile, string fileId, string fileContent, byte[] thumbnail)
         {
             var directory = Path.Combine("Assets", taskFile.assetsPath);
             Directory.CreateDirectory(directory);
             
             var figmaAssetPath = GetFigmaAssetPath(taskFile, fileId);
 
-            var oldFigmaAsset = AssetDatabase.LoadAssetAtPath<FigmaFile>(figmaAssetPath);
-            var oldPages = oldFigmaAsset != null ? oldFigmaAsset.pages : new FigmaFilePage[0];
+            var oldFile = AssetDatabase.LoadAssetAtPath<FigmaFile>(figmaAssetPath);
+            var oldPages = oldFile != null ? oldFile.pages : new FigmaFilePage[0];
 
-            var figmaFile = taskFile.GetImporter().CreateFile(fileId, fileContent, thumbnail);
+            var newFile = taskFile.GetImporter().CreateFile(fileId, fileContent, thumbnail);
             
-            for (var i = 0; i < figmaFile.pages.Length; i++)
+            for (var i = 0; i < newFile.pages.Length; i++)
             {
-                var oldPage = oldPages.FirstOrDefault(x => x.id == figmaFile.pages[i].id);
+                var oldPage = oldPages.FirstOrDefault(x => x.id == newFile.pages[i].id);
                 if (oldPage != null)
                 {
-                    figmaFile.pages[i].enabled = oldPage.enabled;
+                    newFile.pages[i].enabled = oldPage.enabled;
                 }
             }
+
+            await OnFigmaFileSaving(taskFile, newFile, oldFile);
             
             AssetDatabase.DeleteAsset(figmaAssetPath);
-            AssetDatabase.CreateAsset(figmaFile, figmaAssetPath);
+            AssetDatabase.CreateAsset(newFile, figmaAssetPath);
 
-            AssetDatabase.AddObjectToAsset(figmaFile.content, figmaFile);
-            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(figmaFile.content));
+            AssetDatabase.AddObjectToAsset(newFile.content, newFile);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(newFile.content));
 
-            if (figmaFile.thumbnail != null)
+            if (newFile.thumbnail != null)
             {
-                AssetDatabase.AddObjectToAsset(figmaFile.thumbnail, figmaFile);
-                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(figmaFile.thumbnail));    
+                AssetDatabase.AddObjectToAsset(newFile.thumbnail, newFile);
+                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(newFile.thumbnail));    
             }
             
             AssetDatabase.Refresh();
             
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
-            return figmaFile;
+            return newFile;
         }
         
         private static string GetFigmaAssetPath(FigmaTaskFile taskFile, string fileId) 
