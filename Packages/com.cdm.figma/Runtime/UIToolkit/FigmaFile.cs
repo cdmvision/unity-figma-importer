@@ -25,6 +25,18 @@ namespace Cdm.Figma.UIToolkit
         /// </summary>
         public IList<FontSource> fonts => _fonts;
 
+        [SerializeField]
+        private FontAsset _fallbackFont;
+
+        /// <summary>
+        /// Gets or sets the fallback font that is used when a font mapping does not found.
+        /// </summary>
+        public FontAsset fallbackFont
+        {
+            get => _fallbackFont;
+            set => _fallbackFont = value;
+        }
+
         public bool TryGetGraphic(string graphicId, out VectorImage graphic)
         {
             var graphicSource = _graphics.FirstOrDefault(x => x.id == graphicId);
@@ -59,10 +71,16 @@ namespace Cdm.Figma.UIToolkit
         {
             var fontSource = _fonts.FirstOrDefault(
                 x => string.Equals(x.fontName, fontName, StringComparison.OrdinalIgnoreCase));
-            if (fontSource != null)
+            if (fontSource != null && fontSource.font != null)
             {
                 font = fontSource.font;
-                return font != null;
+                return true;
+            }
+
+            if (fallbackFont != null)
+            {
+                font = fallbackFont;
+                return true;
             }
 
             font = null;
