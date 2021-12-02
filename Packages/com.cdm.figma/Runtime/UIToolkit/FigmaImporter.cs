@@ -63,6 +63,23 @@ namespace Cdm.Figma.UIToolkit
                     name = pages[i].name
                 };
             }
+            
+            // Add required graphics.
+            var graphicIds = new HashSet<string>();
+            fileContent.document.Traverse(node =>
+            {
+                // Invisible nodes cannot be rendered.
+                if (node is SceneNode sceneNode && sceneNode.visible)
+                {
+                    graphicIds.Add(sceneNode.id);
+                }
+                return true;
+            }, NodeType.Vector, NodeType.Ellipse, NodeType.Line, NodeType.Polygon, NodeType.Star);
+
+            foreach (var graphicId in graphicIds)
+            {
+                figmaFile.graphics.Add(new GraphicSource() { id = graphicId, graphic = null});
+            }
 
             // Add required fonts.
             var fonts = new HashSet<string>();

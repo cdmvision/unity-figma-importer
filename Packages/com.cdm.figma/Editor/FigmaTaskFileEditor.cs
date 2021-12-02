@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,24 +11,12 @@ namespace Cdm.Figma
 {
     public abstract class FigmaTaskFileEditor : Editor
     {
-        
         private FigmaFile _selectedFile;
         private Editor _fileAssetEditor;
         private VisualElement _fileAssetElement;
 
         protected abstract string GetImplementationName();
-        
-        /// <summary>
-        /// Get node types that will be downloaded as graphic.
-        /// </summary>
-        /// <seealso cref="NodeType"/>
-        protected abstract string[] GetNodeGraphicTypes();
-        
-        /// <summary>
-        /// This is called after node graphic was downloaded.
-        /// </summary>
-        protected abstract void ImportGraphic(FigmaFile file, string graphicName, string graphicAsset);
-        
+
         private void OnDisable()
         {
             if (_fileAssetEditor != null)
@@ -167,23 +154,21 @@ namespace Cdm.Figma
                 
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) i / fileCount);
                     
-                    var fileContent = await FigmaApi.GetFileAsTextAsync(
+                    var fileContentJson = await FigmaApi.GetFileAsTextAsync(
                         new FigmaFileRequest(taskFile.personalAccessToken, fileId)
                         {
                             geometry = "paths",
                             plugins = new []{ PluginData.Id }
                         });
 
-                    var file = FigmaFileContent.FromString(fileContent);
-                    var thumbnail = await FigmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
+                    var fileContent = FigmaFileContent.FromString(fileContentJson);
+                    var thumbnail = await FigmaApi.GetThumbnailImageAsync(fileContent.thumbnailUrl);
                     
                     // Save figma file asset.
-                    var fileAsset = SaveFigmaFile(taskFile, fileId, fileContent, thumbnail);
+                    var file = SaveFigmaFile(taskFile, fileId, fileContentJson, thumbnail);
+                    await OnAfterFigmaFileSaved(taskFile, file, fileContent);
                     
-                    // Save Vector nodes as graphic asset.
-                    await SaveVectorGraphicsAsync(taskFile, file, fileId, fileAsset);
-                    
-                    AssetDatabase.SaveAssetIfDirty(fileAsset);
+                    AssetDatabase.SaveAssetIfDirty(file);
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
                 }
             }
@@ -196,58 +181,11 @@ namespace Cdm.Figma
                 EditorUtility.ClearProgressBar();
             }
         }
-        
-        private async Task SaveVectorGraphicsAsync(
-            FigmaTaskFile taskFile, FigmaFileContent fileContent, string fileId, FigmaFile file)
+
+        protected virtual Task OnAfterFigmaFileSaved(
+            FigmaTaskFile taskFile, FigmaFile file, FigmaFileContent fileContent)
         {
-            var nodeGraphicTypes = GetNodeGraphicTypes();
-            var nodes = new List<VectorNode>();
-            fileContent.document.Traverse(node =>
-            {
-                var vectorNode = (VectorNode) node;
-                if (vectorNode.visible)
-                {
-                    nodes.Add(vectorNode);    
-                }
-                return true;
-            }, nodeGraphicTypes);
-
-            if (!nodes.Any())
-                return;
-            
-            var graphics = 
-                await FigmaApi.GetImageAsync(new FigmaImageRequest(taskFile.personalAccessToken, fileId)
-                {
-                    ids = nodes.Select(x => x.id).ToArray(),
-                    format = "svg",
-                    svgIncludeId = false,
-                    svgSimplifyStroke = true
-                });
-            
-            var directory = Path.Combine("Assets", taskFile.graphicsPath);
-            Directory.CreateDirectory(directory);
-
-            foreach (var graphic in graphics)
-            {
-                if (graphic.Value != null)
-                {
-                    var fileName = $"{graphic.Key.Replace(":", "-").Replace(";", "_")}.svg";
-                    
-                    var path = Path.Combine(Application.dataPath, taskFile.graphicsPath, fileName);
-                    await File.WriteAllBytesAsync(path, graphic.Value);
-
-                    var graphicPath = Path.Combine("Assets", taskFile.graphicsPath, fileName);
-                    AssetDatabase.ImportAsset(graphicPath, ImportAssetOptions.ForceSynchronousImport);
-
-                    ImportGraphic(file, graphic.Key, graphicPath);
-                }
-                else
-                {
-                    Debug.LogWarning($"Graphic could not be rendered: {graphic.Key}");
-                }
-            }
-            
-            EditorUtility.SetDirty(file);
+            return Task.CompletedTask;
         }
 
         private static FigmaFile SaveFigmaFile(FigmaTaskFile taskFile, string fileId, string fileContent, byte[] thumbnail)

@@ -10,14 +10,6 @@ namespace Cdm.Figma.UIToolkit
     public class FigmaFile : Figma.FigmaFile
     {
         [SerializeField]
-        private List<GraphicSource> _graphics = new List<GraphicSource>();
-        
-        /// <summary>
-        /// Gets the graphic assets. 
-        /// </summary>
-        public IList<GraphicSource> graphics => _graphics;
-        
-        [SerializeField]
         private List<FontSource> _fonts = new List<FontSource>();
         
         /// <summary>
@@ -27,7 +19,7 @@ namespace Cdm.Figma.UIToolkit
 
         [SerializeField]
         private FontAsset _fallbackFont;
-
+        
         /// <summary>
         /// Gets or sets the fallback font that is used when a font mapping does not found.
         /// </summary>
@@ -36,7 +28,15 @@ namespace Cdm.Figma.UIToolkit
             get => _fallbackFont;
             set => _fallbackFont = value;
         }
-
+        
+        [SerializeField]
+        private List<GraphicSource> _graphics = new List<GraphicSource>();
+        
+        /// <summary>
+        /// Gets the graphic assets. 
+        /// </summary>
+        public IList<GraphicSource> graphics => _graphics;
+        
         public bool TryGetGraphic(string graphicId, out VectorImage graphic)
         {
             var graphicSource = _graphics.FirstOrDefault(x => x.id == graphicId);
