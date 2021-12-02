@@ -32,18 +32,5 @@ namespace Cdm.Figma.UIToolkit
                 graphic = vectorImage
             });
         }
-
-        protected override void ImportFont(Figma.FigmaFile file, FontDescriptor fontDescriptor)
-        {
-            var figmaFile = (FigmaFile) file;
-            
-            figmaFile.fonts.Add(new FontSource()
-            {
-                family = fontDescriptor.family,
-                weight = fontDescriptor.weight,
-                italic = fontDescriptor.italic,
-                font = null
-            });
-        }
     }
 }

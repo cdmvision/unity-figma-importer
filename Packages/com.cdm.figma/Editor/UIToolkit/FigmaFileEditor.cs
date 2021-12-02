@@ -39,7 +39,7 @@ namespace Cdm.Figma.UIToolkit
                     {
                         if (fontSource.font == null)
                         {
-                            if (TryGetFontAsset(assets, fontSource, out var fontAsset))
+                            if (TryGetFontAsset(assets, fontSource.fontName, out var fontAsset))
                             {
                                 fontSource.font = fontAsset;
                             
@@ -56,14 +56,14 @@ namespace Cdm.Figma.UIToolkit
             return root;
         }
 
-        private static bool TryGetFontAsset(string[] assets, FontDescriptor fontDescriptor, out FontAsset fontAsset)
+        private static bool TryGetFontAsset(string[] assets, string fontName, out FontAsset fontAsset)
         {
             foreach (var assetPath in assets)
             {
                 var assetName = Path.GetFileNameWithoutExtension(assetPath).ToLower();
-                if (assetName.Contains(fontDescriptor.family.ToLower()) && 
-                    assetName.Contains(fontDescriptor.weight.ToString().ToLower()) &&
-                    (!fontDescriptor.italic || assetName.Contains("italic")))
+                var tokens = fontName.Split("-");
+
+                if (tokens.All(t => assetName.Contains(t.ToLower())))
                 {
                     fontAsset = AssetDatabase.LoadAssetAtPath<FontAsset>(assetPath);
                     return fontAsset != null;

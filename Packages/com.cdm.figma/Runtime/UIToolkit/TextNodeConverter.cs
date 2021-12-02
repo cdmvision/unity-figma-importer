@@ -36,12 +36,18 @@ namespace Cdm.Figma.UIToolkit
         private static string BuildStyle(TextNode node, NodeConvertArgs args)
         {
             var style = new StringBuilder();
+
+            var fontName = FontSource.GetFontName(node.style.fontFamily, node.style.fontWeight, node.style.italic);
             
-            if (args.file.TryGetFontUrl(node.style.fontDescriptor, out var fontUrl))
+            if (args.file.TryGetFontUrl(fontName, out var fontUrl))
             {
                 // We set font type directly based on family, weight and the italic information.
                 // So, we do not need to add font weight or style.
                 style.Append($"-unity-font-definition: {fontUrl}; ");
+            }
+            else
+            {
+                Debug.LogWarning($"{fontName} could not be found.");
             }
 
             if (node.fills != null && node.fills.Length > 0)

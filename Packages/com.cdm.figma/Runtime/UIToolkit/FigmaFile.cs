@@ -55,10 +55,10 @@ namespace Cdm.Figma.UIToolkit
             return false;
         }
         
-        public bool TryGetFont(FontDescriptor fontDescriptor, out FontAsset font)
+        public bool TryGetFont(string fontName, out FontAsset font)
         {
-            
-            var fontSource = _fonts.FirstOrDefault(x => x.Equals(fontDescriptor));
+            var fontSource = _fonts.FirstOrDefault(
+                x => string.Equals(x.fontName, fontName, StringComparison.OrdinalIgnoreCase));
             if (fontSource != null)
             {
                 font = fontSource.font;
@@ -69,10 +69,10 @@ namespace Cdm.Figma.UIToolkit
             return false;
         }
         
-        public bool TryGetFontUrl(FontDescriptor fontDescriptor, out string url)
+        public bool TryGetFontUrl(string fontName, out string url)
         {
 #if UNITY_EDITOR
-            if (TryGetFont(fontDescriptor, out var font))
+            if (TryGetFont(fontName, out var font))
             {
                 var assetPath = UnityEditor.AssetDatabase.GetAssetPath(font);
                 url = $"url(\"project:///{assetPath}\")";
@@ -95,8 +95,12 @@ namespace Cdm.Figma.UIToolkit
     }
     
     [Serializable]
-    public class FontSource : FontDescriptor
+    public class FontSource
     {
+        public string fontName;
         public FontAsset font;
+
+        public static string GetFontName(string family, int weight, bool italic)
+            => $"{family}-{(TextFontWeight) weight}{(italic ? "-Italic" : "")}";
     }
 }

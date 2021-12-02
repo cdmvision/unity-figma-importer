@@ -139,8 +139,6 @@ namespace Cdm.Figma
         /// </list>
         [DataMember(Name = "lineHeightUnit")]
         public string lineHeightUnit { get; set; }
-
-        public FontDescriptor fontDescriptor => new FontDescriptor(fontFamily, (FontWeight) fontWeight, italic);
     }
 
     [DataContract]

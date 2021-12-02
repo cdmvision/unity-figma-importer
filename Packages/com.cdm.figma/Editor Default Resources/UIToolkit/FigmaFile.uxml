@@ -1,10 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Packages/com.cdm.figma/Editor%20Default%20Resources/Style.uss?fileID=7433441132597879392&amp;guid=273b1e4f0a689b542b301e64df41e3b5&amp;type=3#Style" />
     <ui:VisualElement style="height: 4px;" />
-    <uie:PropertyField binding-path="_graphics" />
+    <ui:ListView focusable="true" binding-path="_graphics" header-title="Graphics" show-foldout-header="true" show-bound-collection-size="false" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" show-border="true" />
     <ui:VisualElement style="height: 4px;" />
-    <uie:PropertyField binding-path="_fonts" />
-    <ui:VisualElement style="flex-direction: row-reverse;">
+    <ui:ListView focusable="true" binding-path="_fonts" header-title="Fonts" show-foldout-header="true" show-bound-collection-size="false" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" show-border="true" name="fontList" />
+    <ui:VisualElement style="flex-direction: row-reverse; padding-top: 2px;">
         <ui:Button text="Search &amp; Add Fonts" display-tooltip-when-elided="true" name="addFontsButton" />
     </ui:VisualElement>
 </ui:UXML>

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -31,8 +29,6 @@ namespace Cdm.Figma
         /// This is called after node graphic was downloaded.
         /// </summary>
         protected abstract void ImportGraphic(FigmaFile file, string graphicName, string graphicAsset);
-
-        protected abstract void ImportFont(FigmaFile file, FontDescriptor fontDescriptor);
         
         private void OnDisable()
         {
@@ -186,7 +182,6 @@ namespace Cdm.Figma
                     
                     // Save Vector nodes as graphic asset.
                     await SaveVectorGraphicsAsync(taskFile, file, fileId, fileAsset);
-                    await AddMissingFontsAsync(file, fileAsset);
                     
                     AssetDatabase.SaveAssetIfDirty(fileAsset);
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
@@ -201,25 +196,7 @@ namespace Cdm.Figma
                 EditorUtility.ClearProgressBar();
             }
         }
-
-        private Task AddMissingFontsAsync(FigmaFileContent fileContent, FigmaFile file)
-        {
-            var fonts = new HashSet<FontDescriptor>();
-            fileContent.document.Traverse(node =>
-            {
-                fonts.Add(((TextNode) node).style.fontDescriptor);
-                return true;
-            }, NodeType.Text);
-
-            foreach (var font in fonts)
-            {
-                ImportFont(file, font);
-            }
-            
-            EditorUtility.SetDirty(file);
-            return Task.CompletedTask;
-        }
-
+        
         private async Task SaveVectorGraphicsAsync(
             FigmaTaskFile taskFile, FigmaFileContent fileContent, string fileId, FigmaFile file)
         {
