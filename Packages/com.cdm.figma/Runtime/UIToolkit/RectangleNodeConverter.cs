@@ -84,6 +84,9 @@ namespace Cdm.Figma.UIToolkit
                 }
             }
             /*shaping*/
+            
+            // Figma transform pivot is located on the top left.
+            styleAttributes += "transform-origin: left top;";
 
             return styleAttributes;
         }
