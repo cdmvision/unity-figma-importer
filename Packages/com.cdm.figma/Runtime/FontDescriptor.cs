@@ -76,7 +76,7 @@ namespace Cdm.Figma
 
         public override string ToString()
         {
-            return $"{family}-{(int) weight}{(italic ? "-Italic" : "")}";
+            return $"{family}-{weight}{(italic ? "-Italic" : "")}";
         }
     }
 }
