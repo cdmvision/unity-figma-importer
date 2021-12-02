@@ -38,6 +38,7 @@ namespace Cdm.Figma.UIToolkit
             return new NodeConverter[]
             {
                 new GroupNodeConverter(),
+                new InstanceNodeConverter(),
                 new VectorNodeConverter(),
                 new RectangleNodeConverter(),
                 new EllipseNodeConverter(),
