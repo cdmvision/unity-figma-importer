@@ -42,12 +42,13 @@ namespace Cdm.Figma.UIToolkit
             
             /*color*/
             var fills = node.fills;
-            if (fills.Count > 0)
+            if (fills.Length > 0)
             {
-                var fillColor = BlendColor(fills);
-                var solidColor = (SolidPaint) fillColor;
-                var fillColorBlended = solidColor.color;
-                styleAttributes += "background-color: " + fillColorBlended.ToString("rgba") + "; ";
+                if (fills[0] is SolidPaint solidColor)
+                {
+                    var fillColorBlended = solidColor.color;
+                    styleAttributes += "background-color: " + fillColorBlended.ToString("rgba") + "; ";     
+                }
             }
             /*color*/
             
@@ -74,31 +75,25 @@ namespace Cdm.Figma.UIToolkit
             }
             
             var strokes = node.strokes;
-            if (strokes.Count > 0)
+            if (strokes.Length > 0)
             {
                 var strokeWeight = node.strokeWeight;
                 if (strokeWeight.HasValue)
                 {
                     styleAttributes += "border-width: " + strokeWeight + "px; ";
                 }
-                var strokeColor = BlendColor(strokes);
-                var solidColor = (SolidPaint) strokeColor;
-                var strokeColorBlended = solidColor.color;
-                styleAttributes += "border-color: " + strokeColorBlended.ToString("rgba") + "; ";
+
+                if (strokes[0] is SolidPaint strokeColor)
+                {
+                    var strokeColorBlended = strokeColor.color;
+                    styleAttributes += "border-color: " + strokeColorBlended.ToString("rgba") + "; ";    
+                }
             }
             /*shaping*/
             
             return styleAttributes;
         }
-
-        private Paint BlendColor(List<Paint> paints)
-        {
-            if (paints.Count > 1)
-            {
-                Debug.LogWarning("Found node with multiple colors. Returning base color, color blending is not available.");
-            }
-            return paints[0]; //base color
-        }
+        
     }
     
 }

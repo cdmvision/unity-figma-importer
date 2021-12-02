@@ -57,11 +57,12 @@ namespace Cdm.Figma.UIToolkit
         
         public bool TryGetFont(FontDescriptor fontDescriptor, out FontAsset font)
         {
-            var fontSource = _fonts.FirstOrDefault(x => ((FontDescriptor) x) == fontDescriptor);
+            
+            var fontSource = _fonts.FirstOrDefault(x => x.Equals(fontDescriptor));
             if (fontSource != null)
             {
                 font = fontSource.font;
-                return true;
+                return font != null;
             }
 
             font = null;

@@ -16,6 +16,10 @@ namespace Cdm.Figma.UIToolkit
     /// - lineHeightUnit
     /// - lineHeightPercentFontSize
     /// - TextAlignHorizontal.Justified
+    ///
+    /// Unity does not support individual character coloring:
+    /// - node.styleOverrideTable
+    /// - node.characterStyleOverrides
     /// </summary>
     [CreateAssetMenu(fileName = nameof(TextNodeConverter), menuName = AssetMenuRoot + "Text", order = AssetMenuOrder)]
     public class TextNodeConverter : NodeConverter<TextNode>
@@ -39,21 +43,22 @@ namespace Cdm.Figma.UIToolkit
                 // So, we do not need to add font weight or style.
                 style.Append($"-unity-font-definition: {fontUrl}; ");
             }
-            
+
+            if (node.fills != null && node.fills.Length > 0)
+            {
+                var solidPaint = node.fills[0] as SolidPaint;
+                if (solidPaint != null)
+                {
+                    style.Append($"color: {solidPaint.color.ToString("rgba")};");        
+                }
+            }
+
             style.Append($"font-size: {node.style.fontSize};");
             style.Append($"letter-spacing: {node.style.letterSpacing} px;");
             style.Append($"-unity-paragraph-spacing: {node.style.paragraphSpacing} px;");
             
             style.Append(GetTextSize(node));
             style.Append(GetTextAlignStyle(node.style.textAlignHorizontal, node.style.textAlignVertical));
-            
-            // TODO: node.style.paragraphIndent
-            // TODO: node.style.listSpacing
-            // TODO: node.style.textCase
-            // TODO: node.style.textDecoration
-            // TODO: node.style.lineHeightPx
-            // TODO: node.style.lineHeightUnit
-            // TODO: node.style.lineHeightPercentFontSize
             
             return style.ToString();
         }

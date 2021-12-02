@@ -118,7 +118,7 @@ namespace Cdm.Figma
         /// An array of fill paints applied to the node.
         /// </summary>
         [DataMember(Name = "fills")]
-        public List<Paint> fills { get; private set; } = new List<Paint>();
+        public Paint[] fills { get; set; }
         
         /// <summary>
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object fill.
@@ -130,7 +130,7 @@ namespace Cdm.Figma
         /// An array of stroke paints applied to the node.
         /// </summary>
         [DataMember(Name = "strokes")]
-        public List<Paint> strokes { get; private set; } = new List<Paint>();
+        public Paint[] strokes { get; set; }
         
         /// <summary>
         /// The weight of strokes on the node.
