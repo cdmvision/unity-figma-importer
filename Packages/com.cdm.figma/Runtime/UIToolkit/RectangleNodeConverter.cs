@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
@@ -29,7 +30,12 @@ namespace Cdm.Figma.UIToolkit
             {
                 if (node.parent.type == "FRAME" || node.parent.type == "GROUP")
                 {
-                    FrameNode parent = (FrameNode) node.parent;
+                    GroupNode parent;
+                    if (node.parent.type == "FRAME")
+                        parent = (FrameNode) node.parent;
+                    else
+                        parent = (GroupNode) node.parent;
+                    
                     if (parent.layoutMode != LayoutMode.None)
                     {
                         styleAttributes += "position: relative; ";
@@ -47,15 +53,20 @@ namespace Cdm.Figma.UIToolkit
                             styleAttributes += "align-self: stretch; ";
                         }
                         
+                        //adding margin, don't add margin to the last element!
+                        var parentsChildren = parent.GetChildren();
+                        if (parentsChildren.ElementAt(parentsChildren.Length - 1) != node)
+                        {
+                            if (parent.layoutMode == LayoutMode.Horizontal)
+                            {
+                                styleAttributes += "margin-right: " + parent.itemSpacing + "; ";
+                            }
+                            else
+                            {
+                                styleAttributes += "margin-bottom: " + parent.itemSpacing + "; ";
+                            }
+                        }
                         
-                        if (parent.layoutMode == LayoutMode.Horizontal)
-                        {
-                            styleAttributes += "margin-right: " + parent.itemSpacing + "; ";
-                        }
-                        else
-                        {
-                            styleAttributes += "margin-bottom: " + parent.itemSpacing + "; ";
-                        }
                         positionSet = true;
                     }
                 }
@@ -67,17 +78,63 @@ namespace Cdm.Figma.UIToolkit
                 var relativeTransform = node.relativeTransform;
                 var position = relativeTransform.GetPosition();
                 var rotation = relativeTransform.GetRotationAngle();
-                styleAttributes += "width: " + node.size.x + "px; ";
-                styleAttributes += "height: " + node.size.y + "px; ";
                 if (rotation != 0.0f)
                 {
                     styleAttributes += "rotate: " + rotation + "deg; ";
                 }
                 var constraintX = node.constraints.horizontal;
-                styleAttributes += constraintX.ToString().ToLower() + ": " + position.x + "px; ";   //Left, Top... ==> left, top...
-                var constraintY = node.constraints.vertical;
-                styleAttributes += constraintY.ToString().ToLower() + ": " + position.y + "px; ";
+                if (constraintX == Horizontal.Center)
+                {
+                    //handle width
+                    //calc() function?
+                }
+                else if (constraintX == Horizontal.Left)
+                {
+                    styleAttributes += "width: " + node.size.x + "px; ";
+                    styleAttributes += "height: " + node.size.y + "px; ";
+                    styleAttributes += "left: " + position.x + "px; ";
+                }
+                if (constraintX == Horizontal.Right)
+                {
+                    styleAttributes += "width: " + node.size.x + "px; ";
+                    styleAttributes += "height: " + node.size.y + "px; ";
+                    styleAttributes += "right: " + position.x + "px; ";
+                }
+                if (constraintX == Horizontal.LeftRight)
+                {
+                    //handle width
+                }
+                if (constraintX == Horizontal.Scale)
+                {
+                    //handle width
+                }
                 
+                var constraintY = node.constraints.vertical;
+                if (constraintY == Vertical.Center)
+                {
+                    //handle height
+                    //calc() function?
+                }
+                else if (constraintY == Vertical.Top)
+                {
+                    styleAttributes += "width: " + node.size.x + "px; ";
+                    styleAttributes += "height: " + node.size.y + "px; ";
+                    styleAttributes += "top: " + position.y + "px; ";
+                }
+                if (constraintY == Vertical.Bottom)
+                {
+                    styleAttributes += "width: " + node.size.x + "px; ";
+                    styleAttributes += "height: " + node.size.y + "px; ";
+                    styleAttributes += "bottom: " + position.y + "px; ";
+                }
+                if (constraintY == Vertical.TopBottom)
+                {
+                    //handle height
+                }
+                if (constraintY == Vertical.Scale)
+                {
+                    //handle height
+                }
             }
 
             /*positioning and size*/
@@ -129,6 +186,9 @@ namespace Cdm.Figma.UIToolkit
                 styleAttributes += "border-color: " + strokeColorBlended.ToString("rgba") + "; ";
             }
             /*shaping*/
+            
+            // Figma transform pivot is located on the top left.
+            styleAttributes += "transform-origin: left top; ";
             
             return styleAttributes;
         }
