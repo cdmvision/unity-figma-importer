@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
+using UnityEditor.Experimental.GraphView;
 
 namespace Cdm.Figma
 {
@@ -75,7 +77,63 @@ namespace Cdm.Figma
 
         public void BuildHierarchy()
         {
+            InitComponentNodes();
+            InitInstanceNodes();
+            
             BuildHierarchy(document);
+        }
+
+        /// <summary>
+        /// Sets all main components of the instance nodes.
+        /// </summary>
+        private void InitInstanceNodes()
+        {
+            document.Traverse(node =>
+            {
+                var instanceNode = (InstanceNode) node;
+                if (string.IsNullOrEmpty(instanceNode.componentId))
+                    throw new ArgumentException($"Instance node's {instanceNode.componentId} does not exist.");
+                
+                // Find component definition.
+                if (!components.TryGetValue(instanceNode.componentId, out var component))
+                    throw new ArgumentException($"Component definition could not be found: {instanceNode.componentId}");
+
+                // Find component node in the hierarchy.
+                var componentNode = document.Find(component.key, NodeType.Component);
+                if (componentNode == null)
+                    throw new ArgumentException($"Component node could not be found: {component.key}");
+
+                instanceNode.mainComponent = (ComponentNode) componentNode;
+                return true;
+            }, NodeType.Instance);
+        }
+        
+        /// <summary>
+        /// Sets all component sets of the components if exists.
+        /// </summary>
+        private void InitComponentNodes()
+        {
+            document.Traverse(node =>
+            {
+                var componentNode = (ComponentNode) node;
+                
+                if (!components.TryGetValue(componentNode.id, out var component))
+                    throw new ArgumentException($"Component definition could not be found: {componentNode.id}");
+
+                if (!string.IsNullOrEmpty(component.componentSetId))
+                {
+                    if (!componentSets.TryGetValue(component.componentSetId, out var componentSet))
+                        throw new ArgumentException(
+                            $"Component set definition could not be found: {component.componentSetId}");
+
+                    var componentSetNode = (ComponentSetNode) document.Find(componentSet.key, NodeType.ComponentSet);
+                    if (componentSetNode == null)
+                        throw new ArgumentException($"Component set node could not be found: {componentSet.key}");
+
+                    componentNode.componentSet = componentSetNode;
+                }
+                return true;
+            }, NodeType.Component);
         }
         
         private static void BuildHierarchy(Node node)

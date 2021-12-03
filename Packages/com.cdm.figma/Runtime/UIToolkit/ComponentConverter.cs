@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace Cdm.Figma.UIToolkit
 {
@@ -15,19 +16,17 @@ namespace Cdm.Figma.UIToolkit
     {
         public string typeId { get; set; }
         
-        private readonly List<ComponentProperty> _properties = new List<ComponentProperty>();
-        
-        public IReadOnlyList<ComponentProperty> properties => _properties;
+        private List<ComponentProperty> _properties = new List<ComponentProperty>();
+
+        public List<ComponentProperty> properties
+        {
+            get => _properties;
+            set => _properties = value ?? new List<ComponentProperty>();
+        }
 
         public ComponentConverter()
         {
-            typeId = GetDefaultTypeId();
-            _properties.AddRange(GetVariants());
-            
         }
-
-        protected abstract string GetDefaultTypeId();
-        protected abstract ISet<ComponentProperty> GetVariants();
         
         public override bool CanConvert(Node node, NodeConvertArgs args)
         {
@@ -36,6 +35,14 @@ namespace Cdm.Figma.UIToolkit
 
             var componentType = node.GetComponentType();
             return !string.IsNullOrEmpty(componentType) && componentType == typeId;
+        }
+    }
+
+    public abstract class ComponentConverter<TComponent> : ComponentConverter
+    {
+        public override XElement Convert(Node node, NodeConvertArgs args)
+        {
+            return XmlFactory.NewElement<TComponent>(node, args);
         }
     }
 }

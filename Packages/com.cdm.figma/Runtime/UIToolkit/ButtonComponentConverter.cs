@@ -1,22 +1,15 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    public class ButtonComponentConverter : ComponentConverter
+    public class ButtonComponentConverter : ComponentConverter<Button>
     {
-        protected override string GetDefaultTypeId()
+        public ButtonComponentConverter()
         {
-            return "Button";
-        }
-
-        protected override ISet<ComponentProperty> GetVariants()
-        {
-            return new HashSet<ComponentProperty>()
+            typeId = "Button";
+            properties = new List<ComponentProperty>()
             {
                 new ComponentProperty()
                 {

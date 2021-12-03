@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Xml.Linq;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
@@ -10,16 +9,12 @@ namespace Cdm.Figma.UIToolkit
         public const string Off = "Off";
     }
     
-    public class ToggleComponentConverter : ComponentConverter
+    public class ToggleComponentConverter : ComponentConverter<Toggle>
     {
-        protected override string GetDefaultTypeId()
+        public ToggleComponentConverter()
         {
-            return "Toggle";
-        }
-        
-        protected override ISet<ComponentProperty> GetVariants()
-        {
-            return new HashSet<ComponentProperty>()
+            typeId = "Toggle";
+            properties = new List<ComponentProperty>()
             {
                 new ComponentProperty()
                 {
@@ -42,11 +37,6 @@ namespace Cdm.Figma.UIToolkit
                     }
                 }
             };
-        }
-
-        public override XElement Convert(Node node, NodeConvertArgs args)
-        {
-            return XmlFactory.NewElement<Toggle>(node, args);
         }
     }
 }

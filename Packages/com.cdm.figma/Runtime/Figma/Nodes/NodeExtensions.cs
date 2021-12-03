@@ -36,6 +36,40 @@ namespace Cdm.Figma
             });
         }
 
+        public static Node Find(this Node node, string nodeId)
+        {
+            Node target = null;
+            node.Traverse(n =>
+            {
+                if (n.id == nodeId)
+                {
+                    target = n;
+                    return false;
+                }
+
+                return true;
+            });
+
+            return target;
+        }
+        
+        public static Node Find(this Node node, string nodeId, params string[] nodeTypes)
+        {
+            Node target = null;
+            node.Traverse(n =>
+            {
+                if (n.id == nodeId)
+                {
+                    target = n;
+                    return false;
+                }
+
+                return true;
+            }, nodeTypes);
+
+            return target;
+        }
+
         public static string GetBindingKey(this Node node)
         {
             if (node.TryGetPluginData(out var data))
