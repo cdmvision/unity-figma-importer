@@ -182,28 +182,28 @@ namespace Cdm.Figma.UIToolkit
 
                 var xml = new XDocument();
                 
-                var root = new XElement(ui + "UXML");
-                root.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
-                root.Add(new XAttribute(XNamespace.Xmlns + nameof(ui), ui.NamespaceName));
-                root.Add(new XAttribute(xsi + "noNamespaceSchemaLocation",
+                var rootElement = new XElement(ui + "UXML");
+                rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
+                rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(ui), ui.NamespaceName));
+                rootElement.Add(new XAttribute(xsi + "noNamespaceSchemaLocation",
                     "../../../../../UIElementsSchema/UIElements.xsd"));
-                xml.Add(root);
+                xml.Add(rootElement);
 
                 // Add page element with ignoring the background color.
-                var pageData = NodeData.New<VisualElement>(page, conversionArgs);
-                pageData.style.flexGrow = new StyleFloat(1f);
-                pageData.UpdateStyle();
+                var pageElement = NodeElement.New<VisualElement>(page, conversionArgs);
+                pageElement.style.flexGrow = new StyleFloat(1f);
+                pageElement.UpdateStyle();
                 
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
                     if (TryConvertNode(node, conversionArgs, out var data))
                     {
-                        pageData.element.Add(data.element);
+                        pageElement.value.Add(data.value);
                     }
                 }
                 
-                root.Add(pageData.element);
+                rootElement.Add(pageElement.value);
                 
                 _documents.Add(new KeyValuePair<FigmaFilePage, XDocument>(filePage, xml));
             }
@@ -211,13 +211,13 @@ namespace Cdm.Figma.UIToolkit
             return Task.CompletedTask;
         }
 
-        internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeData nodeData)
+        internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeElement element)
         {
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (componentConverter != null)
             {
-                nodeData = componentConverter.Convert(node, args);
+                element = componentConverter.Convert(node, args);
                 return true;
             }
 
@@ -225,11 +225,11 @@ namespace Cdm.Figma.UIToolkit
             var nodeConverter = nodeConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (nodeConverter != null)
             {
-                nodeData = nodeConverter.Convert(node, args);
+                element = nodeConverter.Convert(node, args);
                 return true;
             }
 
-            nodeData = null;
+            element = null;
             return false;
         }
     }

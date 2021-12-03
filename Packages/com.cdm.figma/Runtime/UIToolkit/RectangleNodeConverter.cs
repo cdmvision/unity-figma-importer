@@ -4,20 +4,20 @@ namespace Cdm.Figma.UIToolkit
 {
     public class RectangleNodeConverter : NodeConverter<RectangleNode>
     {
-        public override NodeData Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var rectangleNode = (RectangleNode) node;
-            var data = NodeData.New<VisualElement>(rectangleNode, args);
-            BuildStyle(rectangleNode, data.style);
-            data.UpdateStyle();
-            return data;
+            var element = NodeElement.New<VisualElement>(rectangleNode, args);
+            BuildStyle(rectangleNode, element.style);
+            element.UpdateStyle();
+            return element;
         }
 
         private void BuildStyle(RectangleNode node, Style style)
         {
-            /*positioning and size*/
-            //TODO: Implement responsive 
-
+            //TODO: Implement responsive
+            
+            // Positioning and size
             style.position = new StyleEnum<Position>(Position.Absolute);
             style.width = new StyleLength(node.size.x);
             style.height = new StyleLength(node.size.y);

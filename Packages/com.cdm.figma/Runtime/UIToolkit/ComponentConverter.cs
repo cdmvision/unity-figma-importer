@@ -40,9 +40,9 @@ namespace Cdm.Figma.UIToolkit
 
     public abstract class ComponentConverter<TComponent> : ComponentConverter
     {
-        public override NodeData Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
-            return NodeData.New<TComponent>(node, args);
+            return NodeElement.New<TComponent>(node, args);
         }
     }
 }

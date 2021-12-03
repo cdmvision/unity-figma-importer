@@ -25,7 +25,7 @@ namespace Cdm.Figma.UIToolkit
             };
         }
 
-        public override NodeData Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var instanceNode = (InstanceNode) node;
             
@@ -68,7 +68,7 @@ namespace Cdm.Figma.UIToolkit
                 }
             }*/
 
-            return NodeData.New<Button>(node, args);
+            return NodeElement.New<Button>(node, args);
         }
     }
 }

@@ -3,14 +3,24 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    public class NodeData
+    public class NodeElement
     {
-        public XElement element { get; }
+        /// <summary>
+        /// Actual XML element.
+        /// </summary>
+        public XElement value { get; }
+        
+        /// <summary>
+        /// Style of the element.
+        /// </summary>
+        /// <remarks>
+        /// Don't forget to call <see cref="UpdateStyle"/> whenever update the style.
+        /// </remarks>
         public Style style { get; }
-
-        public NodeData(XName name, params object[] content)
+        
+        private NodeElement(XName name, params object[] content)
         {
-            element = new XElement(name, content);
+            value = new XElement(name, content);
             style = new Style();
             
             // Figma transform origin starts from top left corner.
@@ -23,29 +33,29 @@ namespace Cdm.Figma.UIToolkit
         /// </summary>
         public void UpdateStyle()
         {
-            element.SetAttributeValue("style", style.ToString());
+            value.SetAttributeValue("style", style.ToString());
         }
 
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
         /// </summary>
-        public static NodeData New<T>(Node node, NodeConvertArgs args)
+        public static NodeElement New<T>(Node node, NodeConvertArgs args)
         {
-            var nodeData = new NodeData(args.namespaces.engine + typeof(T).Name, GetNodeId(node));
+            var nodeData = new NodeElement(args.namespaces.engine + typeof(T).Name, GetNodeId(node));
             
             var name = GetNodeName(node);
-            nodeData.element.Add(name);
+            nodeData.value.Add(name);
             
             var bindingId = GetBindingKey(node);
             if (bindingId != null)
             {
-                nodeData.element.Add(bindingId);
+                nodeData.value.Add(bindingId);
             }
             
             var localizationId = GetLocalizationKey(node);
             if (localizationId != null)
             {
-                nodeData.element.Add(localizationId);
+                nodeData.value.Add(localizationId);
             }
             
             return nodeData;

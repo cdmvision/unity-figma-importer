@@ -21,17 +21,17 @@ namespace Cdm.Figma.UIToolkit
     /// </summary>
     public class TextNodeConverter : NodeConverter<TextNode>
     {
-        public override NodeData Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var textNode = (TextNode) node;
-            var data = NodeData.New<Label>(node, args);
-            data.element.SetAttributeValue(nameof(Label.text), textNode.characters);
-            BuildStyle(textNode, args, data);
-            data.UpdateStyle();
-            return data;
+            var element = NodeElement.New<Label>(node, args);
+            element.value.SetAttributeValue(nameof(Label.text), textNode.characters);
+            BuildStyle(textNode, args, element.style);
+            element.UpdateStyle();
+            return element;
         }
 
-        private static void BuildStyle(TextNode node, NodeConvertArgs args, NodeData data)
+        private static void BuildStyle(TextNode node, NodeConvertArgs args, Style style)
         {
             var fontName = FontSource.GetFontName(node.style.fontFamily, node.style.fontWeight, node.style.italic);
             
@@ -39,7 +39,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 // We set font type directly based on family, weight and the italic information.
                 // So, we do not need to add font weight or style.
-                data.style.unityFontDefinition = new StyleFontDefinition(font);
+                style.unityFontDefinition = new StyleFontDefinition(font);
             }
             else
             {
@@ -48,19 +48,18 @@ namespace Cdm.Figma.UIToolkit
 
             if (node.fills != null && node.fills.Length > 0)
             {
-                var solidPaint = node.fills[0] as SolidPaint;
-                if (solidPaint != null)
+                if (node.fills[0] is SolidPaint solidPaint)
                 {
-                    data.style.color = new StyleColor(solidPaint.color);
+                    style.color = new StyleColor(solidPaint.color);
                 }
             }
 
-            data.style.fontSize = new StyleLength(node.style.fontSize);
-            data.style.letterSpacing = new StyleLength(node.style.letterSpacing);
-            data.style.unityParagraphSpacing = new StyleLength(node.style.paragraphSpacing);
+            style.fontSize = new StyleLength(node.style.fontSize);
+            style.letterSpacing = new StyleLength(node.style.letterSpacing);
+            style.unityParagraphSpacing = new StyleLength(node.style.paragraphSpacing);
             
-            SetTextSize(node, data.style);
-            SetTextAlignStyle(node.style.textAlignHorizontal, node.style.textAlignVertical, data.style);
+            SetTextSize(node, style);
+            SetTextAlignStyle(node.style.textAlignHorizontal, node.style.textAlignVertical, style);
         }
 
         private static void SetTextSize(TextNode node, Style style)
