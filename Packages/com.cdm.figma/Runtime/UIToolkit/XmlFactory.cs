@@ -54,48 +54,42 @@ namespace Cdm.Figma
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified name and content.
         /// </summary>
-        public static XElement NewElement(NodeConvertArgs args, string name, params object[] content)
+        public static NodeData NewElement(NodeConvertArgs args, string name, params object[] content)
         {
-            return new XElement(args.namespaces.engine + name, content);
+            return new NodeData(args.namespaces.engine + name, content);
         }
         
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified type and content.
         /// </summary>
-        public static XElement NewElement<T>(NodeConvertArgs args, params object[] content)
+        public static NodeData NewElement<T>(NodeConvertArgs args, params object[] content)
         {
-            return new XElement(args.namespaces.engine + typeof(T).Name, content);
+            return new NodeData(args.namespaces.engine + typeof(T).Name, content);
         }
         
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
         /// </summary>
-        public static XElement NewElement<T>(Node node, NodeConvertArgs args)
+        public static NodeData NewElement<T>(Node node, NodeConvertArgs args)
         {
-            var element = NewElement<T>(args, GetNodeId(node));
+            var nodeData = NewElement<T>(args, GetNodeId(node));
             
             var name = GetNodeName(node);
-            element.Add(name);
+            nodeData.element.Add(name);
             
             var bindingId = GetBindingKey(node);
             if (bindingId != null)
             {
-                element.Add(bindingId);
-                
-                // Remove binding identifier from node name?
-                //name.Value = name.Value.Replace($"{args.importer.bindingPrefix}{bindingId.Value}", "");
+                nodeData.element.Add(bindingId);
             }
             
             var localizationId = GetLocalizationKey(node);
             if (localizationId != null)
             {
-                element.Add(localizationId);
-                
-                // Remove localization identifier from node name?
-                //name.Value = name.Value.Replace($"{args.importer.localizationPrefix}{localizationId.Value}", "");
+                nodeData.element.Add(localizationId);
             }
             
-            return element;
+            return nodeData;
         }
 
         public static XAttribute NewStyle(string style)

@@ -25,7 +25,7 @@ namespace Cdm.Figma.UIToolkit
             };
         }
 
-        public override XElement Convert(Node node, NodeConvertArgs args)
+        public override NodeData Convert(Node node, NodeConvertArgs args)
         {
             var instanceNode = (InstanceNode) node;
             

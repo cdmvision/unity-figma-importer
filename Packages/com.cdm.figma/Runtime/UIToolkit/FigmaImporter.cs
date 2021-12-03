@@ -190,31 +190,34 @@ namespace Cdm.Figma.UIToolkit
                 xml.Add(root);
 
                 // Add page element with ignoring the background color.
-                var pageElement = XmlFactory.NewElement<VisualElement>(page, conversionArgs).Style($"flex-grow: 1;");
-                root.Add(pageElement);
-
+                var pageData = XmlFactory.NewElement<VisualElement>(page, conversionArgs);
+                pageData.style.flexGrow = new StyleFloat(1f);
+                pageData.UpdateStyle();
+                
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
-                    if (TryConvertNode(node, conversionArgs, out var element))
+                    if (TryConvertNode(node, conversionArgs, out var data))
                     {
-                        pageElement.Add(element);
+                        pageData.element.Add(data.element);
                     }
                 }
-
+                
+                root.Add(pageData.element);
+                
                 _documents.Add(new KeyValuePair<FigmaFilePage, XDocument>(filePage, xml));
             }
 
             return Task.CompletedTask;
         }
 
-        internal bool TryConvertNode(Node node, NodeConvertArgs args, out XElement element)
+        internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeData nodeData)
         {
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (componentConverter != null)
             {
-                element = componentConverter.Convert(node, args);
+                nodeData = componentConverter.Convert(node, args);
                 return true;
             }
 
@@ -222,11 +225,11 @@ namespace Cdm.Figma.UIToolkit
             var nodeConverter = nodeConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (nodeConverter != null)
             {
-                element = nodeConverter.Convert(node, args);
+                nodeData = nodeConverter.Convert(node, args);
                 return true;
             }
 
-            element = null;
+            nodeData = null;
             return false;
         }
     }

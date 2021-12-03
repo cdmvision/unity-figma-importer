@@ -40,7 +40,7 @@ namespace Cdm.Figma.UIToolkit
 
     public abstract class ComponentConverter<TComponent> : ComponentConverter
     {
-        public override XElement Convert(Node node, NodeConvertArgs args)
+        public override NodeData Convert(Node node, NodeConvertArgs args)
         {
             return XmlFactory.NewElement<TComponent>(node, args);
         }

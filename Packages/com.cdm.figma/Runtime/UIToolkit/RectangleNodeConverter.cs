@@ -1,96 +1,81 @@
-using System.Xml.Linq;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
     public class RectangleNodeConverter : NodeConverter<RectangleNode>
     {
-        public override XElement Convert(Node node, NodeConvertArgs args)
+        public override NodeData Convert(Node node, NodeConvertArgs args)
         {
             var rectangleNode = (RectangleNode) node;
-            var styleAttributes = BuildStyle(rectangleNode, args);
-            return XmlFactory.NewElement<VisualElement>(rectangleNode, args).Style(styleAttributes);
+            var data = XmlFactory.NewElement<VisualElement>(rectangleNode, args);
+            BuildStyle(rectangleNode, data.style);
+            data.UpdateStyle();
+            return data;
         }
 
-        private string BuildStyle(RectangleNode node, NodeConvertArgs args)
+        private void BuildStyle(RectangleNode node, Style style)
         {
-            string styleAttributes = "";
-            
             /*positioning and size*/
             //TODO: Implement responsive 
-            styleAttributes += "position: absolute; ";
+
+            style.position = new StyleEnum<Position>(Position.Absolute);
+            style.width = new StyleLength(node.size.x);
+            style.height = new StyleLength(node.size.y);
+
             var relativeTransform = node.relativeTransform;
             var position = relativeTransform.GetPosition();
             var rotation = relativeTransform.GetRotationAngle();
-            styleAttributes += "width: " + node.size.x + "px; ";
-            styleAttributes += "height: " + node.size.y + "px; ";
             if (rotation != 0.0f)
             {
-                styleAttributes += "rotate: " + rotation + "deg; ";
+                style.rotate = new StyleRotate(new Rotate(new Angle(rotation, AngleUnit.Degree)));
             }
-            var constraintX = node.constraints.horizontal;
-            styleAttributes += constraintX.ToString().ToLower() + ": " + position.x + "px; ";   //Left, Top... ==> left, top...
-            var constraintY = node.constraints.vertical;
-            styleAttributes += constraintY.ToString().ToLower() + ": " + position.y + "px; ";
-            /*positioning and size*/
             
-            /*color*/
+            // TODO: //style.translate = new StyleTranslate(new Translate())
+            // TODO: var constraintX = node.constraints.horizontal;
+            // TODO: styleAttributes += constraintX.ToString().ToLower() + ": " + position.x + "px; ";   //Left, Top... ==> left, top...
+            // TODO: var constraintY = node.constraints.vertical;
+            // TODO: styleAttributes += constraintY.ToString().ToLower() + ": " + position.y + "px; ";
+            // TODO: /*positioning and size*/
+            
             var fills = node.fills;
             if (fills.Length > 0)
             {
                 if (fills[0] is SolidPaint solidColor)
                 {
-                    var fillColorBlended = solidColor.color;
-                    styleAttributes += "background-color: " + fillColorBlended.ToString("rgba") + "; ";     
-                }
-            }
-            /*color*/
-            
-            /*shaping*/
-            var cornerRadius = node.cornerRadius;
-            var cornerRadii = node.rectangleCornerRadii;
-            //If element has 4 different radius for each corner, use this
-            if (cornerRadii != null)
-            {
-                styleAttributes += "border-radius: ";
-                styleAttributes += cornerRadii[0] + "px " + 
-                                   cornerRadii[1] + "px " + 
-                                   cornerRadii[2] + "px " + 
-                                   cornerRadii[3] + "px; "; 
-            }
-            //Element does not have 4 different radius for each corner...
-            else
-            {
-                //Does it have cornerRadius?
-                if (cornerRadius.HasValue)
-                {
-                    styleAttributes += "border-radius: " + cornerRadius + "px; ";
+                    style.backgroundColor = new StyleColor(solidColor.color);
                 }
             }
             
+            // Border radius.
+            if (node.cornerRadius.HasValue || node.rectangleCornerRadii != null)
+            {
+                style.borderBottomLeftRadius = new StyleLength(new Length(node.bottomLeftRadius, LengthUnit.Pixel));
+                style.borderBottomRightRadius = new StyleLength(new Length(node.bottomRightRadius, LengthUnit.Pixel));
+                style.borderTopLeftRadius = new StyleLength(new Length(node.topLeftRadius, LengthUnit.Pixel));
+                style.borderTopRightRadius = new StyleLength(new Length(node.topRightRadius, LengthUnit.Pixel));
+            }
+
+            // Border width and color.
             var strokes = node.strokes;
             if (strokes.Length > 0)
             {
                 var strokeWeight = node.strokeWeight;
                 if (strokeWeight.HasValue)
                 {
-                    styleAttributes += "border-width: " + strokeWeight + "px; ";
+                    style.borderBottomWidth = new StyleFloat(strokeWeight.Value);
+                    style.borderLeftWidth = new StyleFloat(strokeWeight.Value);
+                    style.borderRightWidth = new StyleFloat(strokeWeight.Value);
+                    style.borderTopWidth = new StyleFloat(strokeWeight.Value);
                 }
 
                 if (strokes[0] is SolidPaint strokeColor)
                 {
-                    var strokeColorBlended = strokeColor.color;
-                    styleAttributes += "border-color: " + strokeColorBlended.ToString("rgba") + "; ";    
+                    style.borderBottomColor = new StyleColor(strokeColor.color);
+                    style.borderLeftColor = new StyleColor(strokeColor.color);
+                    style.borderRightColor = new StyleColor(strokeColor.color);
+                    style.borderTopColor = new StyleColor(strokeColor.color);
                 }
             }
-            /*shaping*/
-            
-            // Figma transform pivot is located on the top left.
-            styleAttributes += "transform-origin: left top;";
-
-            return styleAttributes;
         }
-        
     }
-    
 }

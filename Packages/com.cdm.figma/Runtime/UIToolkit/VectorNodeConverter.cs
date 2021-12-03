@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
 using UnityEngine.UIElements;
@@ -7,36 +6,31 @@ namespace Cdm.Figma.UIToolkit
 {
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
-        public static XElement Convert(VectorNode node, NodeConvertArgs args)
+        public static NodeData Convert(VectorNode node, NodeConvertArgs args)
         {
-            var style = BuildStyle(node, args);
-            return XmlFactory.NewElement<VisualElement>(node, args).Style(style);
+            var data = XmlFactory.NewElement<VisualElement>(node, args);
+            BuildStyle(node, args, data);
+            data.UpdateStyle();
+            return data;
         }
 
-        public override XElement Convert(Node node, NodeConvertArgs args)
+        public override NodeData Convert(Node node, NodeConvertArgs args)
         {
             return Convert((VectorNode) node, args);
         }
 
-        private static string BuildStyle(VectorNode node, NodeConvertArgs args)
+        private static string BuildStyle(VectorNode node, NodeConvertArgs args, NodeData data)
         {
             var style = new StringBuilder();
-
-            // Size and position.
-            var absoluteBoundingBox = node.absoluteBoundingBox;
-            var width = absoluteBoundingBox.width.ToString(CultureInfo.InvariantCulture);
-            var height = absoluteBoundingBox.height.ToString(CultureInfo.InvariantCulture);
-
-            // Override width and height if size property is exist.
-            if (node.size != null)
-            {
-                width = node.size.x.ToString(CultureInfo.InvariantCulture);
-                height = node.size.y.ToString(CultureInfo.InvariantCulture);
-            }
+            
+            data.style.width = new StyleLength(node.size.x);
+            data.style.height = new StyleLength(node.size.y);
 
             // Override width and height if SVG contains these properties.
             if (args.file.TryGetGraphic(node.id, out var graphic))
             {
+                data.style.backgroundImage = new StyleBackground(graphic);
+                
 #if UNITY_EDITOR
                 var path = UnityEditor.AssetDatabase.GetAssetPath(graphic);
                 var svg = XDocument.Load(path);
@@ -45,26 +39,18 @@ namespace Cdm.Figma.UIToolkit
                     var widthAttribute = svg.Root.Attribute("width");
                     if (widthAttribute != null)
                     {
-                        width = widthAttribute.Value;
+                        data.style.width = new StyleLength(float.Parse(widthAttribute.Value));
                     }
 
                     var heightAttribute = svg.Root.Attribute("height");
                     if (heightAttribute != null)
                     {
-                        height = heightAttribute.Value;
+                        data.style.height = new StyleLength(float.Parse(heightAttribute.Value));
                     }
                 }
 #else
                 Debug.LogWarning("SVG file cannot be read at runtime.");
 #endif
-            }
-
-            style.Append($"width: {width}px; ");
-            style.Append($"height: {height}px; ");
-
-            if (args.file.TryGetGraphicUrl(node.id, out var url))
-            {
-                style.Append($"background-image: {url}; ");
             }
 
             return style.ToString();
