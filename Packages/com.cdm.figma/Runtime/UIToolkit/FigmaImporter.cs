@@ -1,30 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 using Cdm.Figma.UIToolkit.UIToolkit;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(UIToolkit) + "-" + nameof(FigmaImporter),
-        menuName = AssetMenuRoot + "Figma Importer", order = 0)]
-    public class FigmaImporter : Figma.FigmaImporter
+    public class FigmaImporter : IFigmaImporter
     {
-        public new const string AssetMenuRoot = Figma.FigmaImporter.AssetMenuRoot + "UI Toolkit/";
-
-        [SerializeField]
-        private string _assetsPath = "Resources/Figma/Documents";
-
-        public string assetsPath => _assetsPath;
-
         private readonly HashSet<NodeConverter> _nodeConverters = new HashSet<NodeConverter>();
 
         public ISet<NodeConverter> nodeConverters => _nodeConverters;
@@ -33,6 +20,15 @@ namespace Cdm.Figma.UIToolkit
 
         public ISet<ComponentConverter> componentConverters => _componentConverters;
 
+        
+        private readonly List<KeyValuePair<FigmaFilePage, XDocument>> _documents 
+            = new List<KeyValuePair<FigmaFilePage, XDocument>>();
+
+        public KeyValuePair<FigmaFilePage, XDocument>[] GetImportedDocuments()
+        {
+            return _documents.ToArray();
+        }
+        
         public static NodeConverter[] GetDefaultNodeConverters()
         {
             return new NodeConverter[]
@@ -58,11 +54,11 @@ namespace Cdm.Figma.UIToolkit
             };
         }
         
-        public override Figma.FigmaFile CreateFile(string fileId, string fileJson, byte[] thumbnailData = null)
+        public Figma.FigmaFile CreateFile(string fileId, string fileJson, byte[] thumbnailData = null)
         {
             var fileContent = FigmaFileContent.FromString(fileJson);
 
-            var figmaFile = CreateInstance<FigmaFile>();
+            var figmaFile = FigmaFile.CreateInstance<FigmaFile>();
             figmaFile.id = fileId;
             figmaFile.title = fileContent.name;
             figmaFile.version = fileContent.version;
@@ -124,15 +120,17 @@ namespace Cdm.Figma.UIToolkit
             return figmaFile;
         }
 
-        public override async Task ImportFileAsync(Figma.FigmaFile file)
+        public Task ImportFileAsync(Figma.FigmaFile file)
         {
+            _documents.Clear();
+            
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
 
             var figmaFile = file as FigmaFile;
             if (figmaFile == null)
                 throw new ArgumentException("Wrong type of Figma file", nameof(file));
-
+            
             if (!nodeConverters.Any())
             {
                 var converters = GetDefaultNodeConverters();
@@ -150,9 +148,6 @@ namespace Cdm.Figma.UIToolkit
                     componentConverters.Add(converter);
                 }
             }
-            
-            var assetsDirectory = Path.Combine("Assets", assetsPath);
-            Directory.CreateDirectory(assetsDirectory);
 
             XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
             XNamespace ui = "UnityEngine.UIElements";
@@ -181,10 +176,12 @@ namespace Cdm.Figma.UIToolkit
             foreach (var page in pages)
             {
                 // Do not import ignored pages.
-                if (figmaFile.pages.Any(p => p.id == page.id && !p.enabled))
+                var filePage = figmaFile.pages.FirstOrDefault(p => p.id == page.id);
+                if (filePage == null || !filePage.enabled)
                     continue;
 
                 var xml = new XDocument();
+                
                 var root = new XElement(ui + "UXML");
                 root.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
                 root.Add(new XAttribute(XNamespace.Xmlns + nameof(ui), ui.NamespaceName));
@@ -205,21 +202,10 @@ namespace Cdm.Figma.UIToolkit
                     }
                 }
 
-                await Task.Run(() =>
-                {
-                    var documentPath = Path.Combine(assetsDirectory, $"{page.name}.uxml");
-                    using var fileStream = File.Create(documentPath);
-                    using var xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
-                    xmlWriter.Formatting = Formatting.Indented;
-                    xml.Save(xmlWriter);
-
-                    Debug.Log($"UI document has been saved to: {documentPath}");
-                });
+                _documents.Add(new KeyValuePair<FigmaFilePage, XDocument>(filePage, xml));
             }
 
-#if UNITY_EDITOR
-            UnityEditor.AssetDatabase.Refresh();
-#endif
+            return Task.CompletedTask;
         }
 
         internal bool TryConvertNode(Node node, NodeConvertArgs args, out XElement element)

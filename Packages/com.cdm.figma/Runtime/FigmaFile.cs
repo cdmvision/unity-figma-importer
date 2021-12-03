@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
-using Cdm.Figma.Utils;
-using Object = UnityEngine.Object;
 
 namespace Cdm.Figma
 {

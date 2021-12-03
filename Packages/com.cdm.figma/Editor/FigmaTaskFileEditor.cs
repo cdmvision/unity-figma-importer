@@ -36,6 +36,15 @@ namespace Cdm.Figma
         {
             return Task.CompletedTask;
         }
+
+        protected virtual Task OnFigmaFileImporting(FigmaTaskFile taskFile, FigmaFile file)
+        {
+            return Task.CompletedTask;
+        }
+        protected virtual Task OnFigmaFileImported(FigmaTaskFile taskFile, FigmaFile file)
+        {
+            return Task.CompletedTask;
+        }
         
         public override VisualElement CreateInspectorGUI()
         {
@@ -108,7 +117,7 @@ namespace Cdm.Figma
         {
             if (taskFile.GetImporter() == null)
             {
-                Debug.LogError($"{nameof(FigmaImporter)} cannot be empty.");
+                Debug.LogError($"{nameof(IFigmaImporter)} cannot be empty.");
                 return;
             }
 
@@ -127,7 +136,9 @@ namespace Cdm.Figma
                         var figmaFile = AssetDatabase.LoadAssetAtPath<FigmaFile>(assetPath);
                         if (figmaFile != null)
                         {
+                            await OnFigmaFileImporting(taskFile, figmaFile);
                             await taskFile.GetImporter().ImportFileAsync(figmaFile);
+                            await OnFigmaFileImported(taskFile, figmaFile);
                         }
                         else
                         {

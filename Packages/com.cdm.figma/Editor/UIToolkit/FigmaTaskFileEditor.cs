@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Unity.VectorGraphics.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -45,6 +47,32 @@ namespace Cdm.Figma.UIToolkit
             Figma.FigmaTaskFile taskFile, Figma.FigmaFile file, FigmaFileContent fileContent)
         {
             await SaveVectorGraphicsAsync((FigmaTaskFile) taskFile, (FigmaFile) file, fileContent);
+        }
+
+        protected override async Task OnFigmaFileImported(Figma.FigmaTaskFile taskFile, Figma.FigmaFile file)
+        {
+            await Task.Run(() =>
+            {
+                var figmaTaskFile = (FigmaTaskFile) taskFile;
+                
+                var documentsPath = figmaTaskFile.documentsPath;
+                var assetsDirectory = Path.Combine("Assets", documentsPath);
+                Directory.CreateDirectory(assetsDirectory);
+                
+                var documents = figmaTaskFile.importer.GetImportedDocuments();
+                foreach (var (page, document) in documents)
+                {
+                    var documentPath = Path.Combine(assetsDirectory, $"{page.name}.uxml");
+                    using var fileStream = File.Create(documentPath);
+                    using var xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
+                    xmlWriter.Formatting = Formatting.Indented;
+                    document.Save(xmlWriter);
+
+                    Debug.Log($"UI document has been saved to: {documentPath}");    
+                }
+            });
+            
+            AssetDatabase.Refresh();
         }
 
         private static async Task SaveVectorGraphicsAsync(

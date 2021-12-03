@@ -3,9 +3,10 @@ using UnityEngine;
 
 namespace Cdm.Figma
 {
-
     public abstract class FigmaTaskFile : ScriptableObject
-    {
+    { 
+        protected const string AssetMenuRoot = "Cdm/Figma/";
+        
         [SerializeField]
         private string _personalAccessToken;
 
@@ -21,6 +22,11 @@ namespace Cdm.Figma
         public string assetsPath => _assetsPath;
         
         [SerializeField]
+        private string _documentsPath = "Resources/Figma/Documents";
+
+        public string documentsPath => _documentsPath;
+        
+        [SerializeField]
         private string _graphicsPath = "Resources/Figma/Graphics";
 
         public string graphicsPath => _graphicsPath;
@@ -33,10 +39,9 @@ namespace Cdm.Figma
         public abstract IFigmaImporter GetImporter();
     }
 
-    public abstract class FigmaTaskFile<TImporter> : FigmaTaskFile where TImporter : FigmaImporter
+    public abstract class FigmaTaskFile<TImporter> : FigmaTaskFile where TImporter : IFigmaImporter, new()
     {
-        [SerializeField]
-        private TImporter _importer;
+        private TImporter _importer = new TImporter();
 
         public TImporter importer
         {

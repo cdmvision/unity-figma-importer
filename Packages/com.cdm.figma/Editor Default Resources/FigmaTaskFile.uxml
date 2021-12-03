@@ -6,8 +6,9 @@
         <ui:Button text="Click here for help generating access tokens" display-tooltip-when-elided="true" name="accessTokenHelpButton" class="link" style="background-color: rgba(0, 0, 0, 0); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
         <ui:VisualElement style="height: 8px;" />
         <uie:PropertyField binding-path="_importer" label="Importer" />
-        <ui:TextField picking-mode="Ignore" label="Assets Path" binding-path="_assetsPath" />
-        <ui:TextField picking-mode="Ignore" label="Graphics Path" binding-path="_graphicsPath" />
+        <uie:PropertyField binding-path="_assetsPath" />
+        <uie:PropertyField binding-path="_graphicsPath" />
+        <uie:PropertyField binding-path="_documentsPath" />
     </ui:GroupBox>
     <ui:GroupBox text="File IDs">
         <ui:ListView focusable="true" binding-path="_files" show-add-remove-footer="true" virtualization-method="DynamicHeight" show-border="true" show-alternating-row-backgrounds="ContentOnly" show-bound-collection-size="false" name="filesList" />
