@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
-using UnityEngine;
 
 namespace Cdm.Figma.UIToolkit
 {
     public interface INodeConverter
     {
         bool CanConvert(Node node, NodeConvertArgs args);
-        XElement Convert(Node node, NodeConvertArgs args);
+        NodeElement Convert(Node node, NodeConvertArgs args);
     }
 
     public class NodeConvertArgs

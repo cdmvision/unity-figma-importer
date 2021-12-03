@@ -1,6 +1,4 @@
 using System;
-using System.Text;
-using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,26 +21,25 @@ namespace Cdm.Figma.UIToolkit
     /// </summary>
     public class TextNodeConverter : NodeConverter<TextNode>
     {
-        public override XElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var textNode = (TextNode) node;
-            var style = BuildStyle(textNode, args);
-            var label = XmlFactory.NewElement<Label>(node, args).Style(style);
-            label.SetAttributeValue(nameof(Label.text), textNode.characters);
-            return label;
+            var element = NodeElement.New<Label>(node, args);
+            element.value.SetAttributeValue(nameof(Label.text), textNode.characters);
+            BuildStyle(textNode, args, element.style);
+            element.UpdateStyle();
+            return element;
         }
 
-        private static string BuildStyle(TextNode node, NodeConvertArgs args)
+        private static void BuildStyle(TextNode node, NodeConvertArgs args, Style style)
         {
-            var style = new StringBuilder();
-
             var fontName = FontSource.GetFontName(node.style.fontFamily, node.style.fontWeight, node.style.italic);
             
-            if (args.file.TryGetFontUrl(fontName, out var fontUrl))
+            if (args.file.TryGetFont(fontName, out var font))
             {
                 // We set font type directly based on family, weight and the italic information.
                 // So, we do not need to add font weight or style.
-                style.Append($"-unity-font-definition: {fontUrl}; ");
+                style.unityFontDefinition = new StyleFontDefinition(font);
             }
             else
             {
@@ -51,70 +48,102 @@ namespace Cdm.Figma.UIToolkit
 
             if (node.fills != null && node.fills.Length > 0)
             {
-                var solidPaint = node.fills[0] as SolidPaint;
-                if (solidPaint != null)
+                if (node.fills[0] is SolidPaint solidPaint)
                 {
-                    style.Append($"color: {solidPaint.color.ToString("rgba")};");        
+                    style.color = new StyleColor(solidPaint.color);
                 }
             }
 
-            style.Append($"font-size: {node.style.fontSize};");
-            style.Append($"letter-spacing: {node.style.letterSpacing} px;");
-            style.Append($"-unity-paragraph-spacing: {node.style.paragraphSpacing} px;");
+            style.fontSize = new StyleLength(node.style.fontSize);
+            style.letterSpacing = new StyleLength(node.style.letterSpacing);
+            style.unityParagraphSpacing = new StyleLength(node.style.paragraphSpacing);
             
-            style.Append(GetTextSize(node));
-            style.Append(GetTextAlignStyle(node.style.textAlignHorizontal, node.style.textAlignVertical));
-            
-            return style.ToString();
+            SetTextSize(node, style);
+            SetTextAlignStyle(node.style.textAlignHorizontal, node.style.textAlignVertical, style);
         }
 
-        private static string GetTextSize(TextNode node)
+        private static void SetTextSize(TextNode node, Style style)
         {
             switch (node.style.textAutoResize)
             {
                 case TextAutoResize.None:
-                    return $"width: {node.size.x} px; height: {node.size.y} px;";
+                    style.width = new StyleLength(node.size.x);
+                    style.height = new StyleLength(node.size.y);
+                    break;
                 case TextAutoResize.Height:
-                    return $"width: {node.size.x} px; height: auto;";
+                    style.width = new StyleLength(node.size.x);
+                    style.height = new StyleLength(StyleKeyword.Auto);
+                    break;
                 case TextAutoResize.WidthAndHeight:
-                    return $"width: auto; height: auto;";
+                    style.width = new StyleLength(StyleKeyword.Auto);
+                    style.height = new StyleLength(StyleKeyword.Auto);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
-        
-        private static string GetTextAlignStyle(TextAlignHorizontal horizontal, TextAlignVertical vertical)
-        {
-            return $"-unity-text-align: {GetTextAlignVerticalStyle(vertical)}-{GetTextAlignHorizontalStyle(horizontal)};";
-        }
 
-        private static string GetTextAlignHorizontalStyle(TextAlignHorizontal horizontal)
-        {
-            switch (horizontal)
-            {
-                case TextAlignHorizontal.Center:
-                    return "center";
-                case TextAlignHorizontal.Justified:
-                    return "left";    // TODO: ???
-                case TextAlignHorizontal.Left:
-                    return "left";
-                case TextAlignHorizontal.Right:
-                    return "right";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(horizontal), horizontal, null);
-            }
-        }
-        
-        private static string GetTextAlignVerticalStyle(TextAlignVertical vertical)
+        private static void SetTextAlignStyle(TextAlignHorizontal horizontal, TextAlignVertical vertical, Style style)
         {
             switch (vertical)
             {
                 case TextAlignVertical.Bottom:
-                    return "lower";
+                    switch (horizontal)
+                    {
+                        case TextAlignHorizontal.Center:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.LowerCenter);
+                            break;
+                        case TextAlignHorizontal.Justified: // TODO: ???
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.LowerLeft);
+                            break;
+                        case TextAlignHorizontal.Left:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.LowerLeft);
+                            break;
+                        case TextAlignHorizontal.Right:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.LowerRight);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(horizontal), horizontal, null);
+                    }
+                    break;
                 case TextAlignVertical.Center:
-                    return "middle";
+                    switch (horizontal)
+                    {
+                        case TextAlignHorizontal.Center:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.MiddleCenter);
+                            break;
+                        case TextAlignHorizontal.Justified: // TODO: ???
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.MiddleLeft);
+                            break;
+                        case TextAlignHorizontal.Left:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.MiddleLeft);
+                            break;
+                        case TextAlignHorizontal.Right:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.MiddleRight);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(horizontal), horizontal, null);
+                    }
+                    break;
                 case TextAlignVertical.Top:
-                    return "upper";
+                    switch (horizontal)
+                    {
+                        case TextAlignHorizontal.Center:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.UpperCenter);
+                            break;
+                        case TextAlignHorizontal.Justified: // TODO: ???
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.UpperLeft);
+                            break;
+                        case TextAlignHorizontal.Left:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.UpperLeft);
+                            break;
+                        case TextAlignHorizontal.Right:
+                            style.unityTextAlign = new StyleEnum<TextAnchor>(TextAnchor.UpperRight);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(horizontal), horizontal, null);
+                    }
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(vertical), vertical, null);
             }
