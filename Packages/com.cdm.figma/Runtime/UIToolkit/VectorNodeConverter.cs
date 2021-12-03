@@ -8,7 +8,7 @@ namespace Cdm.Figma.UIToolkit
     {
         public static NodeData Convert(VectorNode node, NodeConvertArgs args)
         {
-            var data = XmlFactory.NewElement<VisualElement>(node, args);
+            var data = NodeData.New<VisualElement>(node, args);
             BuildStyle(node, args, data);
             data.UpdateStyle();
             return data;

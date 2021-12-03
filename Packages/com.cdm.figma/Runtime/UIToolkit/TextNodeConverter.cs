@@ -24,7 +24,7 @@ namespace Cdm.Figma.UIToolkit
         public override NodeData Convert(Node node, NodeConvertArgs args)
         {
             var textNode = (TextNode) node;
-            var data = XmlFactory.NewElement<Label>(node, args);
+            var data = NodeData.New<Label>(node, args);
             data.element.SetAttributeValue(nameof(Label.text), textNode.characters);
             BuildStyle(textNode, args, data);
             data.UpdateStyle();

@@ -6,7 +6,7 @@ namespace Cdm.Figma.UIToolkit
     {
         public override NodeData Convert(Node node, NodeConvertArgs args)
         {
-            return XmlFactory.NewElement<VisualElement>(node, args);
+            return NodeData.New<VisualElement>(node, args);
         }
     }
 }

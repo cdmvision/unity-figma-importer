@@ -42,7 +42,7 @@ namespace Cdm.Figma.UIToolkit
     {
         public override NodeData Convert(Node node, NodeConvertArgs args)
         {
-            return XmlFactory.NewElement<TComponent>(node, args);
+            return NodeData.New<TComponent>(node, args);
         }
     }
 }

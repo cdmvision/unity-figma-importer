@@ -190,7 +190,7 @@ namespace Cdm.Figma.UIToolkit
                 xml.Add(root);
 
                 // Add page element with ignoring the background color.
-                var pageData = XmlFactory.NewElement<VisualElement>(page, conversionArgs);
+                var pageData = NodeData.New<VisualElement>(page, conversionArgs);
                 pageData.style.flexGrow = new StyleFloat(1f);
                 pageData.UpdateStyle();
                 

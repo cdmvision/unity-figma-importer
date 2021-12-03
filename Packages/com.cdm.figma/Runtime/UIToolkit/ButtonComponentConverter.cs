@@ -68,7 +68,7 @@ namespace Cdm.Figma.UIToolkit
                 }
             }*/
 
-            return XmlFactory.NewElement<Button>(node, args);
+            return NodeData.New<Button>(node, args);
         }
     }
 }

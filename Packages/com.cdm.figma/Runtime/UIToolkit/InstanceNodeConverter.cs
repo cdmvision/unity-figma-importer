@@ -8,7 +8,7 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
         {
             var instanceNode = (InstanceNode) node;
 
-            var data = XmlFactory.NewElement<VisualElement>(node, args);
+            var data = NodeData.New<VisualElement>(node, args);
             
             var children = instanceNode.children;
             if (children != null)

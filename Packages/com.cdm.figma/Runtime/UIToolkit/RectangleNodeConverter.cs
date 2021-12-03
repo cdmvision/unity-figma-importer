@@ -7,7 +7,7 @@ namespace Cdm.Figma.UIToolkit
         public override NodeData Convert(Node node, NodeConvertArgs args)
         {
             var rectangleNode = (RectangleNode) node;
-            var data = XmlFactory.NewElement<VisualElement>(rectangleNode, args);
+            var data = NodeData.New<VisualElement>(rectangleNode, args);
             BuildStyle(rectangleNode, data.style);
             data.UpdateStyle();
             return data;
