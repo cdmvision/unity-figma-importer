@@ -20,24 +20,66 @@ namespace Cdm.Figma.UIToolkit
 
         private string BuildStyle(RectangleNode node, NodeConvertArgs args)
         {
+            bool positionSet = false;
             string styleAttributes = "";
             
             /*positioning and size*/
             //TODO: Implement responsive 
-            styleAttributes += "position: absolute; ";
-            var relativeTransform = node.relativeTransform;
-            var position = relativeTransform.GetPosition();
-            var rotation = relativeTransform.GetRotationAngle();
-            styleAttributes += "width: " + node.size.x + "px; ";
-            styleAttributes += "height: " + node.size.y + "px; ";
-            if (rotation != 0.0f)
+            if (node.hasParent)
             {
-                styleAttributes += "rotate: " + rotation + "deg; ";
+                if (node.parent.type == "FRAME" || node.parent.type == "GROUP")
+                {
+                    FrameNode parent = (FrameNode) node.parent;
+                    if (parent.layoutMode != LayoutMode.None)
+                    {
+                        styleAttributes += "position: relative; ";
+                        styleAttributes += "width: " + node.size.x + "px; ";
+                        styleAttributes += "height: " + node.size.y + "px; ";
+                        var relativeTransform = node.relativeTransform;
+                        var rotation = relativeTransform.GetRotationAngle();
+                        if (rotation != 0.0f)
+                        {
+                            styleAttributes += "rotate: " + rotation + "deg; ";
+                        }
+                        styleAttributes += "flex-grow: " + node.layoutGrow + "; ";
+                        if (node.layoutAlign == LayoutAlign.Stretch)
+                        {
+                            styleAttributes += "align-self: stretch; ";
+                        }
+                        
+                        
+                        if (parent.layoutMode == LayoutMode.Horizontal)
+                        {
+                            styleAttributes += "margin-right: " + parent.itemSpacing + "; ";
+                        }
+                        else
+                        {
+                            styleAttributes += "margin-bottom: " + parent.itemSpacing + "; ";
+                        }
+                        positionSet = true;
+                    }
+                }
             }
-            var constraintX = node.constraints.horizontal;
-            styleAttributes += constraintX.ToString().ToLower() + ": " + position.x + "px; ";   //Left, Top... ==> left, top...
-            var constraintY = node.constraints.vertical;
-            styleAttributes += constraintY.ToString().ToLower() + ": " + position.y + "px; ";
+
+            if (!positionSet)
+            {
+                styleAttributes += "position: absolute; ";
+                var relativeTransform = node.relativeTransform;
+                var position = relativeTransform.GetPosition();
+                var rotation = relativeTransform.GetRotationAngle();
+                styleAttributes += "width: " + node.size.x + "px; ";
+                styleAttributes += "height: " + node.size.y + "px; ";
+                if (rotation != 0.0f)
+                {
+                    styleAttributes += "rotate: " + rotation + "deg; ";
+                }
+                var constraintX = node.constraints.horizontal;
+                styleAttributes += constraintX.ToString().ToLower() + ": " + position.x + "px; ";   //Left, Top... ==> left, top...
+                var constraintY = node.constraints.vertical;
+                styleAttributes += constraintY.ToString().ToLower() + ": " + position.y + "px; ";
+                
+            }
+
             /*positioning and size*/
             
             /*color*/
