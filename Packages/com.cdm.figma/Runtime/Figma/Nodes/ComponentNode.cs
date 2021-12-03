@@ -12,7 +12,7 @@ namespace Cdm.Figma
         public override string type => NodeType.Component;
         
         /// <summary>
-        /// The component that this instance reflects.
+        /// The component set that this component attached to.
         /// </summary>
         public ComponentSetNode componentSet { get; internal set; }
     }

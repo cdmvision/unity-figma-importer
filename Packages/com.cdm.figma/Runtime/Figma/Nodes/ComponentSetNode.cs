@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Cdm.Figma
@@ -12,5 +13,10 @@ namespace Cdm.Figma
     public class ComponentSetNode : FrameNode
     {
         public override string type => NodeType.ComponentSet;
+
+        /// <summary>
+        /// A list of component nodes that are children of this node.
+        /// </summary>
+        public ComponentNode[] components => children.Cast<ComponentNode>().ToArray();
     }
 }
