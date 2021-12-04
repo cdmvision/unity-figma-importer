@@ -29,21 +29,25 @@ namespace Cdm.Figma.UIToolkit
                 
 #if UNITY_EDITOR
                 var path = UnityEditor.AssetDatabase.GetAssetPath(graphic);
-                var svg = XDocument.Load(path);
-                if (svg.Root != null)
+                if (!string.IsNullOrEmpty(path))
                 {
-                    var widthAttribute = svg.Root.Attribute("width");
-                    if (widthAttribute != null)
+                    var svg = XDocument.Load(path);
+                    if (svg.Root != null)
                     {
-                        style.width = new StyleLength(float.Parse(widthAttribute.Value));
-                    }
+                        var widthAttribute = svg.Root.Attribute("width");
+                        if (widthAttribute != null)
+                        {
+                            style.width = new StyleLength(float.Parse(widthAttribute.Value));
+                        }
 
-                    var heightAttribute = svg.Root.Attribute("height");
-                    if (heightAttribute != null)
-                    {
-                        style.height = new StyleLength(float.Parse(heightAttribute.Value));
+                        var heightAttribute = svg.Root.Attribute("height");
+                        if (heightAttribute != null)
+                        {
+                            style.height = new StyleLength(float.Parse(heightAttribute.Value));
+                        }
                     }
                 }
+
 #else
                 Debug.LogWarning("SVG file cannot be read at runtime.");
 #endif
