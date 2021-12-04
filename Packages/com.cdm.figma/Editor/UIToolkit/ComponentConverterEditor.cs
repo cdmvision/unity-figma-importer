@@ -11,12 +11,12 @@ namespace Cdm.Figma.UIToolkit
         {
             var root = new VisualElement();
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                $"{PackageUtils.VisualTreeFolder}/UIToolkit/ComponentConverter.uxml");
+                $"{PackageUtils.VisualTreeFolderPath}/UIToolkit/ComponentConverter.uxml");
             visualTree.CloneTree(root);
             
             var propertyListViewItem = 
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    $"{PackageUtils.VisualTreeFolder}/UIToolkit/ComponentConverter_VariantListItem.uxml");
+                    $"{PackageUtils.VisualTreeFolderPath}/UIToolkit/ComponentConverter_VariantListItem.uxml");
             
             var propertyListView = root.Q<ListView>("variantList");
             propertyListView.makeItem = () => propertyListViewItem.Instantiate();
@@ -32,7 +32,7 @@ namespace Cdm.Figma.UIToolkit
 
                 var propertyVariantListViewItem = 
                     AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                        $"{PackageUtils.VisualTreeFolder}/UIToolkit/ComponentConverter_VariantPropertyListItem.uxml");
+                        $"{PackageUtils.VisualTreeFolderPath}/UIToolkit/ComponentConverter_VariantPropertyListItem.uxml");
                 
                 var propertyVariantListView = e.Q<ListView>();
                 propertyVariantListView.makeItem = () => propertyVariantListViewItem.Instantiate();

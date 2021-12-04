@@ -182,33 +182,36 @@ namespace Cdm.Figma.UIToolkit
 
                 var xml = new XDocument();
                 
-                var root = new XElement(ui + "UXML");
-                root.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
-                root.Add(new XAttribute(XNamespace.Xmlns + nameof(ui), ui.NamespaceName));
-                root.Add(new XAttribute(xsi + "noNamespaceSchemaLocation",
+                var rootElement = new XElement(ui + "UXML");
+                rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
+                rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(ui), ui.NamespaceName));
+                rootElement.Add(new XAttribute(xsi + "noNamespaceSchemaLocation",
                     "../../../../../UIElementsSchema/UIElements.xsd"));
-                xml.Add(root);
+                xml.Add(rootElement);
 
                 // Add page element with ignoring the background color.
-                var pageElement = XmlFactory.NewElement<VisualElement>(page, conversionArgs).Style($"flex-grow: 1;");
-                root.Add(pageElement);
-
+                var pageElement = NodeElement.New<VisualElement>(page, conversionArgs);
+                pageElement.style.flexGrow = new StyleFloat(1f);
+                pageElement.UpdateStyle();
+                
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
-                    if (TryConvertNode(node, conversionArgs, out var element))
+                    if (TryConvertNode(node, conversionArgs, out var data))
                     {
-                        pageElement.Add(element);
+                        pageElement.value.Add(data.value);
                     }
                 }
-
+                
+                rootElement.Add(pageElement.value);
+                
                 _documents.Add(new KeyValuePair<FigmaFilePage, XDocument>(filePage, xml));
             }
 
             return Task.CompletedTask;
         }
 
-        internal bool TryConvertNode(Node node, NodeConvertArgs args, out XElement element)
+        internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeElement element)
         {
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));

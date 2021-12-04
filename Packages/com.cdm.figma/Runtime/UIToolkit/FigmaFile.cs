@@ -49,23 +49,6 @@ namespace Cdm.Figma.UIToolkit
             graphic = null;
             return false;
         }
-
-        public bool TryGetGraphicUrl(string graphicId, out string url)
-        {
-#if UNITY_EDITOR
-            if (TryGetGraphic(graphicId, out var graphic))
-            {
-                var assetPath = UnityEditor.AssetDatabase.GetAssetPath(graphic);
-                url = $"url(\"project:///{assetPath}\")";
-                return true;
-            }
-#else
-            Debug.LogError("Cannot determine asset path at runtime.");
-#endif
-
-            url = null;
-            return false;
-        }
         
         public bool TryGetFont(string fontName, out FontAsset font)
         {
@@ -84,23 +67,6 @@ namespace Cdm.Figma.UIToolkit
             }
 
             font = null;
-            return false;
-        }
-        
-        public bool TryGetFontUrl(string fontName, out string url)
-        {
-#if UNITY_EDITOR
-            if (TryGetFont(fontName, out var font))
-            {
-                var assetPath = UnityEditor.AssetDatabase.GetAssetPath(font);
-                url = $"url(\"project:///{assetPath}\")";
-                return true;
-            }
-#else
-            Debug.LogError("Cannot determine asset path at runtime.");
-#endif
-
-            url = null;
             return false;
         }
     }

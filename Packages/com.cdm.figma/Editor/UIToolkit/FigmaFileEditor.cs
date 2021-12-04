@@ -15,7 +15,7 @@ namespace Cdm.Figma.UIToolkit
             var root = base.CreateInspectorGUI();
            
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    $"{PackageUtils.VisualTreeFolder}/UIToolkit/FigmaFile.uxml");
+                    $"{PackageUtils.VisualTreeFolderPath}/UIToolkit/FigmaFile.uxml");
             visualTree.CloneTree(root);
 
             root.Q<Button>("addFontsButton").clicked += () =>
