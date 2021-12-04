@@ -1,74 +1,57 @@
 using System.Collections.Generic;
-using System.Xml.Linq;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
     public class ButtonComponentConverter : ComponentConverter<Button>
     {
+        private const int Default = 0;
+        private const int Hover = 1;
+        private const int Press = 2;
+        private const int Disabled = 3;
+        
+        public ComponentProperty stateProperty { get; } = new ComponentProperty("State", new[]
+        {
+            ComponentState.Default,
+            ComponentState.Hover,
+            ComponentState.Press,
+            ComponentState.Disabled,
+        });
+        
         public ButtonComponentConverter()
         {
             typeId = "Button";
-            properties = new List<ComponentProperty>()
-            {
-                new ComponentProperty()
-                {
-                    key = "State",
-                    variants = new ComponentVariant[]
-                    {
-                        new ComponentVariant(ComponentState.Default, ComponentState.Default),
-                        new ComponentVariant(ComponentState.Hover, ComponentState.Hover),
-                        new ComponentVariant(ComponentState.Press, ComponentState.Press),
-                        new ComponentVariant(ComponentState.Disabled, ComponentState.Disabled),
-                    }
-                }
-            };
+            properties = new List<ComponentProperty>() { stateProperty };
         }
 
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        protected override bool TryGetSelector(string[] variant, out string selector)
         {
-            var instanceNode = (InstanceNode) node;
-            
-            /*if (args.fileContent.components.TryGetValue(instanceNode.componentId, out var component))
+            if (SameVariant(variant, stateProperty.ToString(Default)))
             {
-                var componentSet = args.componentSets.FirstOrDefault(c => c.id == component.componentSetId);
-                if (componentSet != null)
-                {
-                    var variants = componentSet.children;
-                    foreach (var variant in variants)
-                    {
-                        var componentVariant = (ComponentNode) variant;
-                        
-                        // TODO: Check variant property: componentVariant.name
-                        // State=Default
+                selector = "";
+                return true;
+            }
 
-                        foreach (var property in properties)
-                        {
-                            foreach (var propertyVariant in property.variants)
-                            {
-                                if ($"{property.key}={propertyVariant.value}" == componentVariant.name)
-                                {
-                                    if (propertyVariant.key == ComponentState.Default)
-                                    {
-                                        
-                                    }
-                                    else if (propertyVariant.key == ComponentState.Hover)
-                                    {
-                                        
-                                    }
-                                    // TODO: rest of it
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Debug.LogError("Component set does not exist!");
-                }
-            }*/
+            if (SameVariant(variant, stateProperty.ToString(Hover)))
+            {
+                selector = ":hover";
+                return true;
+            }
 
-            return NodeElement.New<Button>(node, args);
+            if (SameVariant(variant, stateProperty.ToString(Press)))
+            {
+                selector = ":active";
+                return true;
+            }
+
+            if (SameVariant(variant, stateProperty.ToString(Disabled)))
+            {
+                selector = ":disabled";
+                return true;
+            }
+
+            selector = null;
+            return false;
         }
     }
 }

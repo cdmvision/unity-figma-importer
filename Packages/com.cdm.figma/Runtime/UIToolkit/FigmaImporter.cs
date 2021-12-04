@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Cdm.Figma.UIToolkit.UIToolkit;
@@ -19,12 +20,10 @@ namespace Cdm.Figma.UIToolkit
         private readonly HashSet<ComponentConverter> _componentConverters = new HashSet<ComponentConverter>();
 
         public ISet<ComponentConverter> componentConverters => _componentConverters;
-
         
-        private readonly List<KeyValuePair<FigmaFilePage, XDocument>> _documents 
-            = new List<KeyValuePair<FigmaFilePage, XDocument>>();
+        private readonly List<ImportedDocument> _documents = new List<ImportedDocument>();
 
-        public KeyValuePair<FigmaFilePage, XDocument>[] GetImportedDocuments()
+        public ImportedDocument[] GetImportedDocuments()
         {
             return _documents.ToArray();
         }
@@ -149,7 +148,6 @@ namespace Cdm.Figma.UIToolkit
                 }
             }
 
-            XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
             XNamespace ui = "UnityEngine.UIElements";
             XNamespace uie = "UnityEditor.UIElements";
 
@@ -180,35 +178,72 @@ namespace Cdm.Figma.UIToolkit
                 if (filePage == null || !filePage.enabled)
                     continue;
 
-                var xml = new XDocument();
-                
-                var rootElement = new XElement(ui + "UXML");
-                rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
-                rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(ui), ui.NamespaceName));
-                rootElement.Add(new XAttribute(xsi + "noNamespaceSchemaLocation",
-                    "../../../../../UIElementsSchema/UIElements.xsd"));
-                xml.Add(rootElement);
-
                 // Add page element with ignoring the background color.
                 var pageElement = NodeElement.New<VisualElement>(page, conversionArgs);
-                pageElement.style.flexGrow = new StyleFloat(1f);
-                pageElement.UpdateStyle();
+                pageElement.inlineStyle.flexGrow = new StyleFloat(1f);
                 
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
                     if (TryConvertNode(node, conversionArgs, out var data))
                     {
-                        pageElement.value.Add(data.value);
+                        pageElement.AddChild(data);
                     }
                 }
                 
-                rootElement.Add(pageElement.value);
-                
-                _documents.Add(new KeyValuePair<FigmaFilePage, XDocument>(filePage, xml));
+                var (uxml, styleSheet) = BuildUxml(pageElement, conversionArgs.namespaces);
+                _documents.Add(new ImportedDocument()
+                {
+                    page = filePage,
+                    uxml = uxml,
+                    styleSheet = styleSheet
+                });
             }
 
             return Task.CompletedTask;
+        }
+
+        private static (XDocument, string) BuildUxml(NodeElement pageElement, XNamespaces namespaces)
+        {
+            XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
+            
+            var xml = new XDocument();
+            var rootElement = new XElement(namespaces.engine + "UXML");
+            rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
+            rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(namespaces.engine), namespaces.engine.NamespaceName));
+            rootElement.Add(new XAttribute(xsi + "noNamespaceSchemaLocation",
+                "../../../../../UIElementsSchema/UIElements.xsd"));
+            xml.Add(rootElement);
+
+            var style = new StringBuilder();
+            
+            BuildUxmlHierarchy(pageElement, style);
+            
+            rootElement.Add(pageElement.value);
+            return (xml, style.ToString());
+        }
+        
+        private static void BuildUxmlHierarchy(NodeElement element, StringBuilder style)
+        {
+            foreach (var child in element.children)
+            {
+                if (child.styles.Any())
+                {
+                    // Save styles in the stylesheet file.
+                    foreach (var styleDefinition in child.styles)
+                    {
+                        style.AppendLine($"{styleDefinition.selector} {{ {styleDefinition.style} }}");
+                    }
+                }
+                else
+                {
+                    child.value.SetAttributeValue("style", child.inlineStyle.ToString());    
+                }
+                
+                element.value.Add(child.value);
+                
+                BuildUxmlHierarchy(child, style);
+            }
         }
 
         internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeElement element)
@@ -232,5 +267,12 @@ namespace Cdm.Figma.UIToolkit
             element = null;
             return false;
         }
+    }
+    
+    public struct ImportedDocument
+    {
+        public FigmaFilePage page;
+        public XDocument uxml;
+        public string styleSheet;
     }
 }

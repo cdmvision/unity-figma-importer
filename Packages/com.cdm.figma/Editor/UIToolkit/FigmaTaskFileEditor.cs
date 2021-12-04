@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using Unity.VectorGraphics.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -60,13 +61,25 @@ namespace Cdm.Figma.UIToolkit
                 Directory.CreateDirectory(assetsDirectory);
                 
                 var documents = figmaTaskFile.importer.GetImportedDocuments();
-                foreach (var (page, document) in documents)
+                foreach (var document in documents)
                 {
-                    var documentPath = Path.Combine(assetsDirectory, $"{page.name}.uxml");
+                    // Save external style sheet file.
+                    if (!string.IsNullOrEmpty(document.styleSheet))
+                    {
+                        var styleSheetPath = Path.Combine(assetsDirectory, $"{document.page.name}.uss");
+                        File.WriteAllText(styleSheetPath, document.styleSheet);
+                        
+                        var styleElement = 
+                            new XElement("Style", 
+                                new XAttribute("src", $"project:///{styleSheetPath}".Replace("\\", "/")));
+                        document.uxml.Root?.Add(styleElement);
+                    }
+                    
+                    var documentPath = Path.Combine(assetsDirectory, $"{document.page.name}.uxml");
                     using var fileStream = File.Create(documentPath);
                     using var xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
                     xmlWriter.Formatting = Formatting.Indented;
-                    document.Save(xmlWriter);
+                    document.uxml.Save(xmlWriter);
 
                     Debug.Log($"UI document has been saved to: {documentPath}");    
                 }
