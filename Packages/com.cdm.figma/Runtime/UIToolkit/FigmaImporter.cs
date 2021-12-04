@@ -218,12 +218,12 @@ namespace Cdm.Figma.UIToolkit
 
             if (style.Length > 0)
             {
+                // TODO: do not save document directly.
                 // Save style sheet
                 var path = "Assets/Resources/Figma/UIToolkit/Documents/Style.uss";
                 File.WriteAllText(path, style.ToString());
                 
                 // Add stylesheet link to the UXML.
-                // <Style src="project://database/Assets/Resources/Figma/UIToolkit/Documents/Style.uss?fileID=7433441132597879392&amp;guid=c1723104e712a054ca632519a71e01c8&amp;type=3#Style" />
                 var styleElement = new XElement("Style", new XAttribute("src", $"project:///{path}"));
                 rootElement.Add(styleElement);
             }
@@ -238,15 +238,11 @@ namespace Cdm.Figma.UIToolkit
             {
                 if (child.styles.Any())
                 {
-                    var styleClass = GetNodeStyleClass(child.node);
-                    
                     // Save styles in the stylesheet file.
                     foreach (var styleDefinition in child.styles)
                     {
-                        style.AppendLine($"{styleClass}{styleDefinition.selector} {{ {styleDefinition.style} }}");
+                        style.AppendLine($"{styleDefinition.selector} {{ {styleDefinition.style} }}");
                     }
-                    
-                    child.value.Add(new XAttribute("class", styleClass));
                 }
                 else
                 {
@@ -257,11 +253,6 @@ namespace Cdm.Figma.UIToolkit
                 
                 BuildUxmlHierarchy(child, style);
             }
-        }
-
-        private static string GetNodeStyleClass(Node node)
-        {
-            return $"n{node.id.Replace(":", "_").Replace(";", "__")}";
         }
 
         internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeElement element)

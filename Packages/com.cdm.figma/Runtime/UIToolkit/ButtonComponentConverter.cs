@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    public class ButtonComponentConverter : ComponentConverter<VisualElement>
+    public class ButtonComponentConverter : ComponentConverter<Button>
     {
         private const int Default = 0;
         private const int Hover = 1;

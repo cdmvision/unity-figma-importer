@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -87,7 +88,9 @@ namespace Cdm.Figma.UIToolkit
             var instanceNode = (InstanceNode) node;
             var mainComponent = instanceNode.mainComponent;
 
-            var element = NodeElement.New<TComponent>(node, args);
+            var rootElement = NodeElement.New<TComponent>(node, args);
+            var rootStyleClass = GetNodeStyleClass(node);
+            rootElement.value.Add(new XAttribute("class", rootStyleClass));
             
             if (mainComponent.componentSet != null)
             {
@@ -106,6 +109,10 @@ namespace Cdm.Figma.UIToolkit
                     
                     if (TryGetSelector(propertyVariants, out var selector))
                     {
+                        var baseSelector = $".{rootStyleClass}{selector}";
+                        var styleDefinition = new StyleDefinition(baseSelector);
+                        rootElement.styles.Add(styleDefinition);
+                        
                         // Debug.Log($"Selector: {selector} Variant: {string.Join(", ", propertyVariants)}");
                         
                         if (componentVariant.children != null)
@@ -119,7 +126,7 @@ namespace Cdm.Figma.UIToolkit
                             }
                         }
 
-                        componentElements.Add(new KeyValuePair<string, NodeElement>(selector, componentElement));
+                        componentElements.Add(new KeyValuePair<string, NodeElement>(baseSelector, componentElement));
                     }
                     else
                     {
@@ -132,7 +139,8 @@ namespace Cdm.Figma.UIToolkit
                 
                 for (var i = 1; i < componentElements.Count; i++)
                 {
-                    MergeNodeElementRecurse(componentElements[i].Key, componentElements[i].Value, componentElements[0].Value);
+                    MergeNodeElementRecurse(
+                        componentElements[i].Key, componentElements[i].Value, componentElements[0].Value);
                 }
 
                 // Ignore Component node. It will be the Instance node.
@@ -141,7 +149,7 @@ namespace Cdm.Figma.UIToolkit
                 {
                     foreach (var child in children)
                     {
-                        element.AddChild(child);       
+                        rootElement.AddChild(child);       
                     }
                 }
             }
@@ -150,12 +158,19 @@ namespace Cdm.Figma.UIToolkit
                  // TODO: convert single component node!
             }
             
-            return element;
+            return rootElement;
+        }
+        
+        protected static string GetNodeStyleClass(Node node)
+        {
+            return $"n{node.id.Replace(":", "_").Replace(";", "__")}";
         }
 
         private static void MoveInlineStyleToDefinitionRecurse(string selector, NodeElement element)
         {
-            element.styles.Add(new StyleDefinition(selector, element.inlineStyle));
+            var styleClass = GetNodeStyleClass(element.node);
+            element.styles.Add(new StyleDefinition($"{selector} > .{styleClass}", element.inlineStyle));
+            element.value.Add(new XAttribute("class", styleClass));
             element.ClearStyle();
 
             if (element.children != null)
@@ -167,13 +182,13 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        private static void MergeNodeElementRecurse(string selector, NodeElement from, NodeElement to)
+        private static void MergeNodeElementRecurse(string baseSelector, NodeElement from, NodeElement to)
         {
             if (from.node.type != to.node.type)
                 throw new Exception($"Both node types must be the same: from: {from.node.type} to: {to.node.type}");
-                
             
-            to.styles.Add(new StyleDefinition(selector, from.inlineStyle));
+            to.styles.Add(
+                new StyleDefinition($"{baseSelector} > .{GetNodeStyleClass(to.node)}", from.inlineStyle));
 
             if (to.children != null)
             {
@@ -185,7 +200,7 @@ namespace Cdm.Figma.UIToolkit
 
                 for (var i = 0; i < to.children.Count; i++)
                 {
-                    MergeNodeElementRecurse(selector, from.children[i], to.children[i]);
+                    MergeNodeElementRecurse(baseSelector, from.children[i], to.children[i]);
                 }
             } 
             else if (from.children != null)     // If to.children is null, from.children must be null also.
