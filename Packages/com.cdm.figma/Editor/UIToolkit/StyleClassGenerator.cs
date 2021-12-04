@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
@@ -37,10 +36,8 @@ namespace Cdm.Figma.UIToolkit
             sourceCode.AppendLine("\t}");
             sourceCode.AppendLine("}");
             
-            var path = 
-                Path.Combine(Application.dataPath, "../Packages/com.cdm.figma/Runtime/UIToolkit/Style.Properties.cs");
-            File.WriteAllText(path, sourceCode.ToString());
-            
+            var scriptPath = $"{PackageUtils.PackageFolderPath}/Runtime/UIToolkit/Style.Properties.cs";
+            File.WriteAllText(scriptPath, sourceCode.ToString());
             AssetDatabase.Refresh();
         }
         

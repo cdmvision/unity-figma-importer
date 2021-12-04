@@ -2,6 +2,7 @@ namespace Cdm.Figma
 {
     public class PackageUtils
     {
-        public const string VisualTreeFolder = "Packages/com.cdm.figma/Editor Default Resources";
+        public const string PackageFolderPath = "Packages/com.cdm.figma";
+        public const string VisualTreeFolderPath = PackageFolderPath + "/Editor Default Resources";
     }
 }

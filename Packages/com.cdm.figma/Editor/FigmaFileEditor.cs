@@ -12,12 +12,12 @@ namespace Cdm.Figma
 
             var root = new VisualElement();
             var visualTree =
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolder}/FigmaFile.uxml");
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{PackageUtils.VisualTreeFolderPath}/FigmaFile.uxml");
             visualTree.CloneTree(root);
             
             var listItem =
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    $"{PackageUtils.VisualTreeFolder}/FigmaFile_PageListItem.uxml");
+                    $"{PackageUtils.VisualTreeFolderPath}/FigmaFile_PageListItem.uxml");
 
             var listView = root.Q<ListView>("pagesList");
             listView.makeItem = () => listItem.Instantiate();
