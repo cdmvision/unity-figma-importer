@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,10 +21,9 @@ namespace Cdm.Figma.UIToolkit
 
         public ISet<ComponentConverter> componentConverters => _componentConverters;
         
-        private readonly List<KeyValuePair<FigmaFilePage, XDocument>> _documents 
-            = new List<KeyValuePair<FigmaFilePage, XDocument>>();
+        private readonly List<ImportedDocument> _documents = new List<ImportedDocument>();
 
-        public KeyValuePair<FigmaFilePage, XDocument>[] GetImportedDocuments()
+        public ImportedDocument[] GetImportedDocuments()
         {
             return _documents.ToArray();
         }
@@ -193,14 +191,19 @@ namespace Cdm.Figma.UIToolkit
                     }
                 }
                 
-                var uxml = BuildUxml(pageElement, conversionArgs.namespaces);
-                _documents.Add(new KeyValuePair<FigmaFilePage, XDocument>(filePage, uxml));
+                var (uxml, styleSheet) = BuildUxml(pageElement, conversionArgs.namespaces);
+                _documents.Add(new ImportedDocument()
+                {
+                    page = filePage,
+                    uxml = uxml,
+                    styleSheet = styleSheet
+                });
             }
 
             return Task.CompletedTask;
         }
 
-        private static XDocument BuildUxml(NodeElement pageElement, XNamespaces namespaces)
+        private static (XDocument, string) BuildUxml(NodeElement pageElement, XNamespaces namespaces)
         {
             XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
             
@@ -215,21 +218,9 @@ namespace Cdm.Figma.UIToolkit
             var style = new StringBuilder();
             
             BuildUxmlHierarchy(pageElement, style);
-
-            if (style.Length > 0)
-            {
-                // TODO: do not save document directly.
-                // Save style sheet
-                var path = "Assets/Resources/Figma/UIToolkit/Documents/Style.uss";
-                File.WriteAllText(path, style.ToString());
-                
-                // Add stylesheet link to the UXML.
-                var styleElement = new XElement("Style", new XAttribute("src", $"project:///{path}"));
-                rootElement.Add(styleElement);
-            }
             
             rootElement.Add(pageElement.value);
-            return xml;
+            return (xml, style.ToString());
         }
         
         private static void BuildUxmlHierarchy(NodeElement element, StringBuilder style)
@@ -276,5 +267,12 @@ namespace Cdm.Figma.UIToolkit
             element = null;
             return false;
         }
+    }
+    
+    public struct ImportedDocument
+    {
+        public FigmaFilePage page;
+        public XDocument uxml;
+        public string styleSheet;
     }
 }
