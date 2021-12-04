@@ -12,5 +12,11 @@ namespace Cdm.Figma.UIToolkit
             this.selector = selector;
             style = new Style();
         }
+        
+        public StyleDefinition(string selector, Style style)
+        {
+            this.selector = selector;
+            this.style = style;
+        }
     }
 }

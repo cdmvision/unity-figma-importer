@@ -21,7 +21,8 @@ namespace Cdm.Figma
                     new IsoDateTimeConverter {DateTimeStyles = DateTimeStyles.AssumeUniversal},
                     new AffineTransformConverter(),
                     GetNodeConverter(),
-                    GetGroupNodeConverter(),
+                    //GetGroupNodeConverter(),
+                    //GetFrameNodeConverter(),
                     GetEffectConverter(),
                     GetPaintConverter()
                 },
@@ -60,6 +61,16 @@ namespace Cdm.Figma
                 .Of<GroupNode>("type")
                 .RegisterSubtype<FrameNode>(NodeType.Frame)
                 .SetFallbackSubtype(typeof(GroupNode))
+                .SerializeDiscriminatorProperty()
+                .Build();
+        }
+        
+        private static JsonConverter GetFrameNodeConverter()
+        {
+            return JsonSubtypesConverterBuilder
+                .Of<FrameNode>("type")
+                .RegisterSubtype<InstanceNode>(NodeType.Instance)
+                .SetFallbackSubtype(typeof(FrameNode))
                 .SerializeDiscriminatorProperty()
                 .Build();
         }

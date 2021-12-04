@@ -94,14 +94,14 @@ namespace Cdm.Figma
                 if (string.IsNullOrEmpty(instanceNode.componentId))
                     throw new ArgumentException($"Instance node's {instanceNode.componentId} does not exist.");
                 
-                // Find component definition.
-                if (!components.TryGetValue(instanceNode.componentId, out var component))
-                    throw new ArgumentException($"Component definition could not be found: {instanceNode.componentId}");
+               //// Find component definition.
+               //if (!components.TryGetValue(instanceNode.componentId, out var component))
+               //    throw new ArgumentException($"Component definition could not be found: {instanceNode.componentId}");
 
                 // Find component node in the hierarchy.
-                var componentNode = document.Find(component.key, NodeType.Component);
+                var componentNode = document.Find(instanceNode.componentId, NodeType.Component);
                 if (componentNode == null)
-                    throw new ArgumentException($"Component node could not be found: {component.key}");
+                    throw new ArgumentException($"Component node could not be found: {instanceNode.componentId}");
 
                 instanceNode.mainComponent = (ComponentNode) componentNode;
                 return true;
@@ -122,13 +122,13 @@ namespace Cdm.Figma
 
                 if (!string.IsNullOrEmpty(component.componentSetId))
                 {
-                    if (!componentSets.TryGetValue(component.componentSetId, out var componentSet))
-                        throw new ArgumentException(
-                            $"Component set definition could not be found: {component.componentSetId}");
+                    //if (!componentSets.TryGetValue(component.componentSetId, out var componentSet))
+                    //    throw new ArgumentException(
+                    //        $"Component set definition could not be found: {component.componentSetId}");
 
-                    var componentSetNode = (ComponentSetNode) document.Find(componentSet.key, NodeType.ComponentSet);
+                    var componentSetNode = (ComponentSetNode) document.Find(component.componentSetId, NodeType.ComponentSet);
                     if (componentSetNode == null)
-                        throw new ArgumentException($"Component set node could not be found: {componentSet.key}");
+                        throw new ArgumentException($"Component set node could not be found: {component.componentSetId}");
 
                     componentNode.componentSet = componentSetNode;
                 }

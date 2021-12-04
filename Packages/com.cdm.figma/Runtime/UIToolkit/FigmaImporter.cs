@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 using Cdm.Figma.UIToolkit.UIToolkit;
 using Newtonsoft.Json.Linq;
@@ -23,8 +24,6 @@ namespace Cdm.Figma.UIToolkit
         
         private readonly List<KeyValuePair<FigmaFilePage, XDocument>> _documents 
             = new List<KeyValuePair<FigmaFilePage, XDocument>>();
-        
-        
 
         public KeyValuePair<FigmaFilePage, XDocument>[] GetImportedDocuments()
         {
@@ -203,33 +202,66 @@ namespace Cdm.Figma.UIToolkit
 
         private static XDocument BuildUxml(NodeElement pageElement, XNamespaces namespaces)
         {
-            
             XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
             
             var xml = new XDocument();
-                
             var rootElement = new XElement(namespaces.engine + "UXML");
             rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
             rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(namespaces.engine), namespaces.engine.NamespaceName));
             rootElement.Add(new XAttribute(xsi + "noNamespaceSchemaLocation",
                 "../../../../../UIElementsSchema/UIElements.xsd"));
             xml.Add(rootElement);
+
+            var style = new StringBuilder();
             
-            BuildUxmlHierarchy(pageElement);
+            BuildUxmlHierarchy(pageElement, style);
+
+            if (style.Length > 0)
+            {
+                // Save style sheet
+                var path = "Assets/Resources/Figma/UIToolkit/Documents/Style.uss";
+                File.WriteAllText(path, style.ToString());
+                
+                // Add stylesheet link to the UXML.
+                // <Style src="project://database/Assets/Resources/Figma/UIToolkit/Documents/Style.uss?fileID=7433441132597879392&amp;guid=c1723104e712a054ca632519a71e01c8&amp;type=3#Style" />
+                var styleElement = new XElement("Style", new XAttribute("src", $"project:///{path}"));
+                rootElement.Add(styleElement);
+            }
             
             rootElement.Add(pageElement.value);
             return xml;
         }
         
-        private static void BuildUxmlHierarchy(NodeElement element)
+        private static void BuildUxmlHierarchy(NodeElement element, StringBuilder style)
         {
             foreach (var child in element.children)
             {
-                child.value.SetAttributeValue("style", child.inlineStyle.ToString());
+                if (child.styles.Any())
+                {
+                    var styleClass = GetNodeStyleClass(child.node);
+                    
+                    // Save styles in the stylesheet file.
+                    foreach (var styleDefinition in child.styles)
+                    {
+                        style.AppendLine($"{styleClass}{styleDefinition.selector} {{ {styleDefinition.style} }}");
+                    }
+                    
+                    child.value.Add(new XAttribute("class", styleClass));
+                }
+                else
+                {
+                    child.value.SetAttributeValue("style", child.inlineStyle.ToString());    
+                }
+                
                 element.value.Add(child.value);
                 
-                BuildUxmlHierarchy(child);
+                BuildUxmlHierarchy(child, style);
             }
+        }
+
+        private static string GetNodeStyleClass(Node node)
+        {
+            return $"n{node.id.Replace(":", "_").Replace(";", "__")}";
         }
 
         internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeElement element)

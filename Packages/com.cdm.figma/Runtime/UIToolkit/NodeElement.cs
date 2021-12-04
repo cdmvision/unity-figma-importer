@@ -7,6 +7,11 @@ namespace Cdm.Figma.UIToolkit
     public class NodeElement
     {
         /// <summary>
+        /// The actual node.
+        /// </summary>
+        public Node node { get; }
+        
+        /// <summary>
         /// Actual XML element.
         /// </summary>
         public XElement value { get; }
@@ -14,7 +19,7 @@ namespace Cdm.Figma.UIToolkit
         /// <summary>
         /// Inline style of the element.
         /// </summary>
-        public Style inlineStyle { get; }
+        public Style inlineStyle { get; private set; }
 
         /// <summary>
         /// Style definitions that will be written on a separate style file. 
@@ -36,14 +41,12 @@ namespace Cdm.Figma.UIToolkit
         public bool isRootElement => parent == null;
         public bool isLeafElement => _children.Count == 0;
         
-        private NodeElement(XName name, params object[] content)
+        private NodeElement(Node node, XName name, params object[] content)
         {
+            this.node = node;
             value = new XElement(name, content);
-            inlineStyle = new Style();
 
-            // Figma transform origin starts from top left corner.
-            inlineStyle.transformOrigin = new StyleTransformOrigin(
-                new TransformOrigin(new Length(0, LengthUnit.Percent), new Length(0, LengthUnit.Percent), 0f));
+            ClearStyle();
         }
 
         public void AddChild(NodeElement child)
@@ -52,12 +55,21 @@ namespace Cdm.Figma.UIToolkit
             _children.Add(child);
         }
 
+        public void ClearStyle()
+        {
+            inlineStyle = new Style();
+
+            // Figma transform origin starts from top left corner.
+            inlineStyle.transformOrigin = new StyleTransformOrigin(
+                new TransformOrigin(new Length(0, LengthUnit.Percent), new Length(0, LengthUnit.Percent), 0f));
+        }
+
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
         /// </summary>
         public static NodeElement New<T>(Node node, NodeConvertArgs args)
         {
-            var nodeData = new NodeElement(args.namespaces.engine + typeof(T).Name, GetNodeId(node));
+            var nodeData = new NodeElement(node, args.namespaces.engine + typeof(T).Name, GetNodeId(node));
 
             var name = GetNodeName(node);
             nodeData.value.Add(name);
