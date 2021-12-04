@@ -26,8 +26,7 @@ namespace Cdm.Figma.UIToolkit
             var textNode = (TextNode) node;
             var element = NodeElement.New<Label>(node, args);
             element.value.SetAttributeValue(nameof(Label.text), textNode.characters);
-            BuildStyle(textNode, args, element.style);
-            element.UpdateStyle();
+            BuildStyle(textNode, args, element.inlineStyle);
             return element;
         }
 

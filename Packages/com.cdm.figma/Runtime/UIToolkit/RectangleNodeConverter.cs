@@ -8,8 +8,7 @@ namespace Cdm.Figma.UIToolkit
         {
             var rectangleNode = (RectangleNode) node;
             var element = NodeElement.New<VisualElement>(rectangleNode, args);
-            BuildStyle(rectangleNode, element.style);
-            element.UpdateStyle();
+            BuildStyle(rectangleNode, element.inlineStyle);
             return element;
         }
 

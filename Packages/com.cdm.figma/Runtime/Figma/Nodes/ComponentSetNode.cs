@@ -17,6 +17,6 @@ namespace Cdm.Figma
         /// <summary>
         /// A list of component nodes that are children of this node.
         /// </summary>
-        public ComponentNode[] components => children.Cast<ComponentNode>().ToArray();
+        public ComponentNode[] variants => children.Cast<ComponentNode>().ToArray();
     }
 }

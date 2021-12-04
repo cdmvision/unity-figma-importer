@@ -8,8 +8,7 @@ namespace Cdm.Figma.UIToolkit
         public static NodeElement Convert(VectorNode node, NodeConvertArgs args)
         {
             var element = NodeElement.New<VisualElement>(node, args);
-            BuildStyle(node, args, element.style);
-            element.UpdateStyle();
+            BuildStyle(node, args, element.inlineStyle);
             return element;
         }
 
