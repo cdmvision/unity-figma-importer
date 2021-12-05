@@ -21,58 +21,69 @@ namespace Cdm.Figma.UIToolkit
 
         private string BuildStyle(RectangleNode node, NodeConvertArgs args)
         {
-            bool positionSet = false;
             string styleAttributes = "";
+            GroupNode parent = new GroupNode();
             
-            /*positioning and size*/
-            //TODO: Implement responsive 
             if (node.hasParent)
             {
                 if (node.parent.type == "FRAME" || node.parent.type == "GROUP")
                 {
-                    GroupNode parent;
                     if (node.parent.type == "FRAME")
                         parent = (FrameNode) node.parent;
                     else
                         parent = (GroupNode) node.parent;
-                    
-                    if (parent.layoutMode != LayoutMode.None)
+                }
+            }
+
+            /*positioning and size*/
+            if (parent.layoutMode != LayoutMode.None)
+            {
+                styleAttributes += "position: relative; ";
+                if (node.layoutAlign == LayoutAlign.Stretch)
+                {
+                    styleAttributes += "align-self: stretch; ";
+                    if (parent.layoutMode == LayoutMode.Horizontal)
                     {
-                        styleAttributes += "position: relative; ";
+                        styleAttributes += "height: auto; ";
                         styleAttributes += "width: " + node.size.x + "px; ";
+                    }
+                    else
+                    {
+                        styleAttributes += "width: auto; ";
                         styleAttributes += "height: " + node.size.y + "px; ";
-                        var relativeTransform = node.relativeTransform;
-                        var rotation = relativeTransform.GetRotationAngle();
-                        if (rotation != 0.0f)
-                        {
-                            styleAttributes += "rotate: " + rotation + "deg; ";
-                        }
-                        styleAttributes += "flex-grow: " + node.layoutGrow + "; ";
-                        if (node.layoutAlign == LayoutAlign.Stretch)
-                        {
-                            styleAttributes += "align-self: stretch; ";
-                        }
-                        
-                        //adding margin, don't add margin to the last element!
-                        var parentsChildren = parent.GetChildren();
-                        if (parentsChildren.ElementAt(parentsChildren.Length - 1) != node)
-                        {
-                            if (parent.layoutMode == LayoutMode.Horizontal)
-                            {
-                                styleAttributes += "margin-right: " + parent.itemSpacing + "; ";
-                            }
-                            else
-                            {
-                                styleAttributes += "margin-bottom: " + parent.itemSpacing + "; ";
-                            }
-                        }
-                        
-                        positionSet = true;
+                    }
+                }
+                else
+                {
+                    styleAttributes += "width: " + node.size.x + "px; ";
+                    styleAttributes += "height: " + node.size.y + "px; ";
+                }
+                
+                var relativeTransform = node.relativeTransform;
+                var rotation = relativeTransform.GetRotationAngle();
+                if (rotation != 0.0f)
+                {
+                    styleAttributes += "rotate: " + rotation + "deg; ";
+                }
+                styleAttributes += "flex-grow: " + node.layoutGrow + "; ";
+                
+                
+                //adding margin, don't add margin to the last element!
+                var parentsChildren = parent.GetChildren();
+                if (parentsChildren.ElementAt(parentsChildren.Length - 1) != node)
+                {
+                    if (parent.layoutMode == LayoutMode.Horizontal)
+                    {
+                        styleAttributes += "margin-right: " + parent.itemSpacing + "; ";
+                    }
+                    else
+                    {
+                        styleAttributes += "margin-bottom: " + parent.itemSpacing + "; ";
                     }
                 }
             }
 
-            if (!positionSet)
+            else
             {
                 styleAttributes += "position: absolute; ";
                 var relativeTransform = node.relativeTransform;
@@ -91,22 +102,31 @@ namespace Cdm.Figma.UIToolkit
                 else if (constraintX == Horizontal.Left)
                 {
                     styleAttributes += "width: " + node.size.x + "px; ";
-                    styleAttributes += "height: " + node.size.y + "px; ";
                     styleAttributes += "left: " + position.x + "px; ";
                 }
-                if (constraintX == Horizontal.Right)
+                else if (constraintX == Horizontal.Right)
                 {
                     styleAttributes += "width: " + node.size.x + "px; ";
-                    styleAttributes += "height: " + node.size.y + "px; ";
                     styleAttributes += "right: " + position.x + "px; ";
                 }
-                if (constraintX == Horizontal.LeftRight)
+                else if (constraintX == Horizontal.LeftRight)
                 {
-                    //handle width
+                    var parentWidth = parent.size.x;
+                    var nodeLeft = node.relativeTransform.GetPosition().x;
+                    var nodeRight = parentWidth - (nodeLeft+node.size.x);
+                    styleAttributes += "left: " + nodeLeft + "px; ";
+                    styleAttributes += "right: " + nodeRight + "px; ";
+                    styleAttributes += "width: auto; ";
                 }
-                if (constraintX == Horizontal.Scale)
+                else if (constraintX == Horizontal.Scale)
                 {
-                    //handle width
+                    var parentWidth = parent.size.x;
+                    var nodeLeft = node.relativeTransform.GetPosition().x;
+                    var nodeRight = parentWidth - (nodeLeft+node.size.x);
+                    var leftPercentage = (nodeLeft * 100.0f) / parentWidth;
+                    var rightPercentage = (nodeRight * 100.0f) / parentWidth;
+                    styleAttributes += "left: " + leftPercentage + "%; ";
+                    styleAttributes += "right: " + rightPercentage + "%; ";
                 }
                 
                 var constraintY = node.constraints.vertical;
@@ -117,23 +137,32 @@ namespace Cdm.Figma.UIToolkit
                 }
                 else if (constraintY == Vertical.Top)
                 {
-                    styleAttributes += "width: " + node.size.x + "px; ";
                     styleAttributes += "height: " + node.size.y + "px; ";
                     styleAttributes += "top: " + position.y + "px; ";
                 }
-                if (constraintY == Vertical.Bottom)
+                else if (constraintY == Vertical.Bottom)
                 {
-                    styleAttributes += "width: " + node.size.x + "px; ";
                     styleAttributes += "height: " + node.size.y + "px; ";
                     styleAttributes += "bottom: " + position.y + "px; ";
                 }
-                if (constraintY == Vertical.TopBottom)
+                else if (constraintY == Vertical.TopBottom)
                 {
-                    //handle height
+                    var parentHeight = parent.size.y;
+                    var nodeTop = node.relativeTransform.GetPosition().y;
+                    var nodeBottom = parentHeight - (nodeTop+node.size.y);
+                    styleAttributes += "top: " + nodeTop + "px; ";
+                    styleAttributes += "bottom: " + nodeBottom + "px; ";
+                    styleAttributes += "height: auto; ";
                 }
-                if (constraintY == Vertical.Scale)
+                else if (constraintY == Vertical.Scale)
                 {
-                    //handle height
+                    var parentHeight = parent.size.y;
+                    var nodeTop = node.relativeTransform.GetPosition().y;
+                    var nodeBottom = parentHeight - (nodeTop+node.size.y);
+                    var topPercentage = (nodeTop * 100.0f) / parentHeight;
+                    var bottomPercentage = (nodeBottom * 100.0f) / parentHeight;
+                    styleAttributes += "top: " + topPercentage + "%; ";
+                    styleAttributes += "bottom: " + bottomPercentage + "%; ";
                 }
             }
 
