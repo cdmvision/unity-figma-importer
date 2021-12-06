@@ -5,83 +5,92 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(FrameNodeConverter), 
-        menuName = AssetMenuRoot + "Frame", order = AssetMenuOrder)]
     public class FrameNodeConverter : NodeConverter<FrameNode>
     {
-        public override XElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var frameNode = (FrameNode) node;
-            var styleAttributes = BuildStyle(frameNode, args);
-            var parentXml = XmlFactory.NewElement<VisualElement>(frameNode, args).Style(styleAttributes);
+            var nodeElement = NodeElement.New<VisualElement>(frameNode, args);
+            BuildStyle(frameNode, nodeElement.inlineStyle);
             var children = frameNode.children;
-            foreach (var child in children)
+            for (int child = 0; child < children.Length; child++)
             {
-                if (args.importer.TryConvertNode(child, args, out var childElement))
+                if (args.importer.TryConvertNode(children[child], args, out var childElement))
                 {
-                    parentXml.Add(childElement);
+                    if (child != children.Length - 1)
+                    {
+                        if (frameNode.layoutMode == LayoutMode.Horizontal)
+                        {
+                            childElement.inlineStyle.marginRight =
+                                new StyleLength(new Length(frameNode.itemSpacing, LengthUnit.Pixel));
+                        }
+                        else if (frameNode.layoutMode == LayoutMode.Vertical)
+                        {
+                            childElement.inlineStyle.marginBottom =
+                                new StyleLength(new Length(frameNode.itemSpacing, LengthUnit.Pixel));
+                        }
+                    }
+                    nodeElement.AddChild(childElement);
                 }
             }
-            return parentXml;
+            return nodeElement;
         }
 
-        private string BuildStyle(FrameNode node, NodeConvertArgs args)
+        private void BuildStyle(FrameNode node, Style style)
         {
-            string styleAttributes = "";
-            
-            styleAttributes += "position: relative; ";
-            styleAttributes += "width: " + node.size.x + "px; ";
-            styleAttributes += "height: " + node.size.y + "px; ";
-            
+            style.position = new StyleEnum<Position>(Position.Relative);
+            style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
+            style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
+
             var layoutMode = node.layoutMode;
             //check if there is layout
             if (layoutMode != LayoutMode.None)
             {
-                styleAttributes += "display: flex; ";
+                style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    styleAttributes += "flex-direction: row; ";
+                    style.flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row);
                 }
                 else
                 {
-                    styleAttributes += "flex-direction: column; ";
+                    style.flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Column);
                 }
                 if (node.primaryAxisAlignItems == PrimaryAxisAlignItems.Min)
                 {
-                    styleAttributes += "justify-content: flex-start; ";
+                    style.justifyContent = new StyleEnum<Justify>(Justify.FlexStart);
                 }
                 else if (node.primaryAxisAlignItems == PrimaryAxisAlignItems.Max)
                 {
-                    styleAttributes += "justify-content: flex-end; ";
+                    style.justifyContent = new StyleEnum<Justify>?(Justify.FlexEnd);
                 }
                 else if(node.primaryAxisAlignItems == PrimaryAxisAlignItems.Center)
                 {
-                    styleAttributes += "justify-content: center; ";
+                    style.justifyContent = new StyleEnum<Justify>?(Justify.Center);
                 }
                 else if(node.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
                 {
-                    styleAttributes += "justify-content: space-between; ";
+                    style.justifyContent = new StyleEnum<Justify>?(Justify.SpaceBetween);
                 }
                 
                 if (node.counterAxisAlignItems == CounterAxisAlignItems.Min)
                 {
-                    styleAttributes += "align-items: flex-start; ";
+                    style.alignItems = new StyleEnum<Align>(Align.FlexStart);
                 }
                 else if (node.counterAxisAlignItems == CounterAxisAlignItems.Max)
                 {
-                    styleAttributes += "align-items: flex-end; ";
+                    style.alignItems = new StyleEnum<Align>(Align.FlexEnd);
                 }
                 else if(node.counterAxisAlignItems == CounterAxisAlignItems.Center)
                 {
-                    styleAttributes += "align-items: center; ";
+                    style.alignItems = new StyleEnum<Align>(Align.Center);
                 }
             }
             
             /*padding*/
-            styleAttributes += "padding-bottom: " + node.paddingBottom + "; ";
-            styleAttributes += "padding-top: " + node.paddingTop + "; ";
-            styleAttributes += "padding-left: " + node.paddingLeft + "; ";
-            styleAttributes += "padding-right: " + node.paddingRight + "; ";
+            style.paddingTop = new StyleLength(new Length(node.paddingTop, LengthUnit.Pixel));
+            style.paddingLeft = new StyleLength(new Length(node.paddingLeft, LengthUnit.Pixel));
+            style.paddingBottom = new StyleLength(new Length(node.paddingBottom, LengthUnit.Pixel));
+            style.paddingRight = new StyleLength(new Length(node.paddingRight, LengthUnit.Pixel));
             /*padding*/
             
             /*color*/
@@ -89,14 +98,12 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
             if (fills.Count > 0)
             {
                 var solidColor = (SolidPaint) fills[0];
-                styleAttributes += "background-color: " + solidColor.color.ToString("rgba") + "; ";
+                style.backgroundColor = new StyleColor(solidColor.color);
             }
             /*color*/
             
             // Figma transform pivot is located on the top left.
-            styleAttributes += "transform-origin: left top; ";
-            
-            return styleAttributes;
+            style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
         }
     }
 }

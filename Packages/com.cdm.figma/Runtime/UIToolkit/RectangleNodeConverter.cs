@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,21 +11,20 @@ namespace Cdm.Figma.UIToolkit
         public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var rectangleNode = (RectangleNode) node;
-            var element = NodeElement.New<VisualElement>(rectangleNode, args);
-            BuildStyle(rectangleNode, element.inlineStyle);
-            return element;
+            var nodeElement = NodeElement.New<VisualElement>(rectangleNode, args);
+            BuildStyle(rectangleNode, nodeElement.inlineStyle);
+            return nodeElement;
         }
 
         private void BuildStyle(RectangleNode node, Style style)
         {
-            string styleAttributes = "";
             GroupNode parent = new GroupNode();
             
             if (node.hasParent)
             {
-                if (node.parent.type == "FRAME" || node.parent.type == "GROUP")
+                if (node.parent.type == NodeType.Frame || node.parent.type == NodeType.Group)
                 {
-                    if (node.parent.type == "FRAME")
+                    if (node.parent.type == NodeType.Frame)
                         parent = (FrameNode) node.parent;
                     else
                         parent = (GroupNode) node.parent;
@@ -37,194 +34,205 @@ namespace Cdm.Figma.UIToolkit
             /*positioning and size*/
             if (parent.layoutMode != LayoutMode.None)
             {
-                styleAttributes += "position: relative; ";
+                style.position = new StyleEnum<Position>(Position.Relative);
                 if (node.layoutAlign == LayoutAlign.Stretch)
                 {
-                    styleAttributes += "align-self: stretch; ";
+                    style.alignSelf = new StyleEnum<Align>(Align.Stretch);
                     if (parent.layoutMode == LayoutMode.Horizontal)
                     {
-                        styleAttributes += "height: auto; ";
-                        styleAttributes += "width: " + node.size.x + "px; ";
+                        style.height = new StyleLength(StyleKeyword.Auto);
+                        style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
                     }
                     else
                     {
-                        styleAttributes += "width: auto; ";
-                        styleAttributes += "height: " + node.size.y + "px; ";
+                        style.width = new StyleLength(StyleKeyword.Auto);
+                        style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
                     }
                 }
                 else
                 {
-                    styleAttributes += "width: " + node.size.x + "px; ";
-                    styleAttributes += "height: " + node.size.y + "px; ";
+                    style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
+                    style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
                 }
                 
                 var relativeTransform = node.relativeTransform;
                 var rotation = relativeTransform.GetRotationAngle();
                 if (rotation != 0.0f)
                 {
-                    styleAttributes += "rotate: " + rotation + "deg; ";
+                    style.rotate = new StyleRotate(new Rotate(rotation));
                 }
-                styleAttributes += "flex-grow: " + node.layoutGrow + "; ";
-                
-                
-                //adding margin, don't add margin to the last element!
-                var parentsChildren = parent.GetChildren();
-                if (parentsChildren.ElementAt(parentsChildren.Length - 1) != node)
-                {
-                    if (parent.layoutMode == LayoutMode.Horizontal)
-                    {
-                        styleAttributes += "margin-right: " + parent.itemSpacing + "; ";
-                    }
-                    else
-                    {
-                        styleAttributes += "margin-bottom: " + parent.itemSpacing + "; ";
-                    }
-                }
+                style.flexGrow = new StyleFloat(node.layoutGrow);
             }
 
             else
             {
-                styleAttributes += "position: absolute; ";
+                style.position = new StyleEnum<Position>(Position.Absolute);
                 var relativeTransform = node.relativeTransform;
                 var position = relativeTransform.GetPosition();
                 var rotation = relativeTransform.GetRotationAngle();
                 if (rotation != 0.0f)
                 {
-                    styleAttributes += "rotate: " + rotation + "deg; ";
+                    style.rotate = new StyleRotate(new Rotate(rotation));
                 }
                 var constraintX = node.constraints.horizontal;
+                var constraintY = node.constraints.vertical;
+                
                 if (constraintX == Horizontal.Center)
                 {
-                    //handle width
-                    //calc() function?
+                    style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
+                    style.left = new StyleLength(new Length(50, LengthUnit.Percent));
+                    var translateX = parent.size.x/2f - position.x;
+                    var translateY = parent.size.y/2f - position.y;
+                    if (constraintY == Vertical.Center)
+                    {
+                        style.translate = 
+                            new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    }
+                    else
+                    {
+                        style.translate 
+                            = new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), 0, 0));
+                    }
                 }
                 else if (constraintX == Horizontal.Left)
                 {
-                    styleAttributes += "width: " + node.size.x + "px; ";
-                    styleAttributes += "left: " + position.x + "px; ";
+                    style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
+                    style.left = new StyleLength(new Length(position.x, LengthUnit.Pixel));
                 }
                 else if (constraintX == Horizontal.Right)
                 {
-                    styleAttributes += "width: " + node.size.x + "px; ";
-                    styleAttributes += "right: " + position.x + "px; ";
+                    style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
+                    style.right = new StyleLength(new Length(position.x, LengthUnit.Pixel));
                 }
                 else if (constraintX == Horizontal.LeftRight)
                 {
                     var parentWidth = parent.size.x;
-                    var nodeLeft = node.relativeTransform.GetPosition().x;
+                    var nodeLeft = position.x;
                     var nodeRight = parentWidth - (nodeLeft+node.size.x);
-                    styleAttributes += "left: " + nodeLeft + "px; ";
-                    styleAttributes += "right: " + nodeRight + "px; ";
-                    styleAttributes += "width: auto; ";
+                    style.left = new StyleLength(new Length(nodeLeft, LengthUnit.Pixel));
+                    style.right = new StyleLength(new Length(nodeRight, LengthUnit.Pixel));
+                    style.width = new StyleLength(StyleKeyword.Auto);
                 }
                 else if (constraintX == Horizontal.Scale)
                 {
                     var parentWidth = parent.size.x;
-                    var nodeLeft = node.relativeTransform.GetPosition().x;
+                    var nodeLeft = position.x;
                     var nodeRight = parentWidth - (nodeLeft+node.size.x);
                     var leftPercentage = (nodeLeft * 100.0f) / parentWidth;
                     var rightPercentage = (nodeRight * 100.0f) / parentWidth;
-                    styleAttributes += "left: " + leftPercentage + "%; ";
-                    styleAttributes += "right: " + rightPercentage + "%; ";
+                    style.left = new StyleLength(new Length(leftPercentage, LengthUnit.Percent));
+                    style.right = new StyleLength(new Length(rightPercentage, LengthUnit.Percent));
                 }
                 
-                var constraintY = node.constraints.vertical;
                 if (constraintY == Vertical.Center)
                 {
-                    //handle height
-                    //calc() function?
+                    style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
+                    style.top = new StyleLength(new Length(50, LengthUnit.Percent));
+                    var translateX = parent.size.x/2f - position.x;
+                    var translateY = parent.size.y/2f - position.y;
+                    if (constraintX == Horizontal.Center)
+                    {
+                        style.translate = 
+                            new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    }
+                    else
+                    {
+                        style.translate 
+                            = new StyleTranslate(new Translate(0, new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    }
                 }
                 else if (constraintY == Vertical.Top)
                 {
-                    styleAttributes += "height: " + node.size.y + "px; ";
-                    styleAttributes += "top: " + position.y + "px; ";
+                    style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
+                    style.top = new StyleLength(new Length(position.y, LengthUnit.Pixel));
                 }
                 else if (constraintY == Vertical.Bottom)
                 {
-                    styleAttributes += "height: " + node.size.y + "px; ";
-                    styleAttributes += "bottom: " + position.y + "px; ";
+                    style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
+                    style.bottom = new StyleLength(new Length(position.y, LengthUnit.Pixel));
                 }
                 else if (constraintY == Vertical.TopBottom)
                 {
                     var parentHeight = parent.size.y;
-                    var nodeTop = node.relativeTransform.GetPosition().y;
+                    var nodeTop = position.y;
                     var nodeBottom = parentHeight - (nodeTop+node.size.y);
-                    styleAttributes += "top: " + nodeTop + "px; ";
-                    styleAttributes += "bottom: " + nodeBottom + "px; ";
-                    styleAttributes += "height: auto; ";
+                    style.top = new StyleLength(new Length(nodeTop, LengthUnit.Pixel));
+                    style.bottom = new StyleLength(new Length(nodeBottom, LengthUnit.Pixel));
+                    style.height = new StyleLength(StyleKeyword.Auto);
                 }
                 else if (constraintY == Vertical.Scale)
                 {
                     var parentHeight = parent.size.y;
-                    var nodeTop = node.relativeTransform.GetPosition().y;
+                    var nodeTop = position.y;
                     var nodeBottom = parentHeight - (nodeTop+node.size.y);
                     var topPercentage = (nodeTop * 100.0f) / parentHeight;
                     var bottomPercentage = (nodeBottom * 100.0f) / parentHeight;
-                    styleAttributes += "top: " + topPercentage + "%; ";
-                    styleAttributes += "bottom: " + bottomPercentage + "%; ";
+                    style.top = new StyleLength(new Length(topPercentage, LengthUnit.Percent));
+                    style.bottom = new StyleLength(new Length(bottomPercentage, LengthUnit.Percent));
                 }
             }
-
             /*positioning and size*/
             
-            // TODO: //style.translate = new StyleTranslate(new Translate())
-            // TODO: var constraintX = node.constraints.horizontal;
-            // TODO: styleAttributes += constraintX.ToString().ToLower() + ": " + position.x + "px; ";   //Left, Top... ==> left, top...
-            // TODO: var constraintY = node.constraints.vertical;
-            // TODO: styleAttributes += constraintY.ToString().ToLower() + ": " + position.y + "px; ";
-            // TODO: /*positioning and size*/
-            
+            /*color*/
             var fills = node.fills;
             if (fills.Length > 0)
             {
-                if (fills[0] is SolidPaint solidColor)
+                //only getting the base color
+                var solidColor = (SolidPaint) fills[0];
+                var fillColorBlended = solidColor.color;
+                style.backgroundColor = new StyleColor(fillColorBlended);
+            }
+            /*color*/
+            
+            /*shaping*/
+            var cornerRadius = node.cornerRadius;
+            var cornerRadii = node.rectangleCornerRadii;
+            //If element has 4 different radius for each corner, use this
+            if (cornerRadii != null)
+            {
+                style.borderTopLeftRadius = new StyleLength(new Length(cornerRadii[0], LengthUnit.Pixel));
+                style.borderTopRightRadius = new StyleLength(new Length(cornerRadii[1], LengthUnit.Pixel));
+                style.borderBottomRightRadius = new StyleLength(new Length(cornerRadii[2], LengthUnit.Pixel));
+                style.borderBottomLeftRadius = new StyleLength(new Length(cornerRadii[3], LengthUnit.Pixel));
+            }
+            //Element does not have 4 different radius for each corner...
+            else
+            {
+                //Does it have cornerRadius?
+                if (cornerRadius.HasValue)
                 {
-                    style.backgroundColor = new StyleColor(solidColor.color);
+                    style.borderTopLeftRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
+                    style.borderTopRightRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
+                    style.borderBottomRightRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
+                    style.borderBottomLeftRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
                 }
             }
             
-            // Border radius.
-            if (node.cornerRadius.HasValue || node.rectangleCornerRadii != null)
-            {
-                style.borderBottomLeftRadius = new StyleLength(new Length(node.bottomLeftRadius, LengthUnit.Pixel));
-                style.borderBottomRightRadius = new StyleLength(new Length(node.bottomRightRadius, LengthUnit.Pixel));
-                style.borderTopLeftRadius = new StyleLength(new Length(node.topLeftRadius, LengthUnit.Pixel));
-                style.borderTopRightRadius = new StyleLength(new Length(node.topRightRadius, LengthUnit.Pixel));
-            }
-
-            // Border width and color.
             var strokes = node.strokes;
             if (strokes.Length > 0)
             {
                 var strokeWeight = node.strokeWeight;
                 if (strokeWeight.HasValue)
                 {
-                    style.borderBottomWidth = new StyleFloat(strokeWeight.Value);
-                    style.borderLeftWidth = new StyleFloat(strokeWeight.Value);
-                    style.borderRightWidth = new StyleFloat(strokeWeight.Value);
-                    style.borderTopWidth = new StyleFloat(strokeWeight.Value);
+                    style.borderTopWidth = new StyleFloat((float)strokeWeight);
+                    style.borderLeftWidth = new StyleFloat((float)strokeWeight);
+                    style.borderBottomWidth = new StyleFloat((float)strokeWeight);
+                    style.borderRightWidth = new StyleFloat((float)strokeWeight);
                 }
-                var strokeColor = BlendColor(strokes);
-                var solidColor = (SolidPaint) strokeColor;
+                //only getting the base color
+                var solidColor = (SolidPaint) strokes[0];
                 var strokeColorBlended = solidColor.color;
-                styleAttributes += "border-color: " + strokeColorBlended.ToString("rgba") + "; ";
+                style.borderTopColor = new StyleColor(strokeColorBlended);
+                style.borderLeftColor = new StyleColor(strokeColorBlended);
+                style.borderBottomColor = new StyleColor(strokeColorBlended);
+                style.borderRightColor = new StyleColor(strokeColorBlended);
             }
             /*shaping*/
             
             // Figma transform pivot is located on the top left.
-            styleAttributes += "transform-origin: left top; ";
-            
-            return styleAttributes;
+            style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
         }
-
-                if (strokes[0] is SolidPaint strokeColor)
-                {
-                    style.borderBottomColor = new StyleColor(strokeColor.color);
-                    style.borderLeftColor = new StyleColor(strokeColor.color);
-                    style.borderRightColor = new StyleColor(strokeColor.color);
-                    style.borderTopColor = new StyleColor(strokeColor.color);
-                }
-            }
-        }
+        
     }
+    
 }
