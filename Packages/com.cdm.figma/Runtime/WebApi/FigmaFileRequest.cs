@@ -18,6 +18,12 @@ namespace Cdm.Figma
         /// Set to "paths" to export vector data.
         /// </summary>
         public string geometry { get; set; }
+        
+        /// <summary>
+        /// Array of plugin IDs. Any data present in the document written by those plugins will be included in the
+        /// result in the <see cref="FigmaFileContent.pluginData"/> and `<see cref="FigmaFileContent.sharedPluginData"/> properties.
+        /// </summary>
+        public string[] plugins { get; set; }
 
         public FigmaFileRequest(string personalAccessToken, string fileId)
             : base(personalAccessToken, fileId)

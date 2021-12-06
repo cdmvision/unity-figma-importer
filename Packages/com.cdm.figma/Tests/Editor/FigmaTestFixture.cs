@@ -15,7 +15,7 @@ namespace Cdm.Figma.Tests
         public void BuildNodeHierarchy()
         {
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("File.json"));
-            var file = FigmaFile.FromString(json.text);
+            var file = FigmaFileContent.FromString(json.text);
 
             file.BuildHierarchy();
 
@@ -28,7 +28,7 @@ namespace Cdm.Figma.Tests
                         break;
 
                     case NodeType.Boolean:
-                    case NodeType.Canvas:
+                    case NodeType.Page:
                     case NodeType.Component:
                     case NodeType.ComponentSet:
                     case NodeType.Frame:
@@ -38,7 +38,7 @@ namespace Cdm.Figma.Tests
                     case NodeType.Ellipse:
                     case NodeType.Line:
                     case NodeType.Rectangle:
-                    case NodeType.RegularPolygon:
+                    case NodeType.Polygon:
                     case NodeType.Slice:
                     case NodeType.Star:
                     case NodeType.Text:
@@ -54,7 +54,7 @@ namespace Cdm.Figma.Tests
         public void NodeDeserializationByType()
         {
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("File.json"));
-            var file = FigmaFile.FromString(json.text);
+            var file = FigmaFileContent.FromString(json.text);
 
             Assert.NotNull(file);
             Assert.NotNull(file.document);
@@ -67,7 +67,7 @@ namespace Cdm.Figma.Tests
             var nodes = new Dictionary<string, Type>()
             {
                 {NodeType.Boolean, typeof(BooleanNode)},
-                {NodeType.Canvas, typeof(CanvasNode)},
+                {NodeType.Page, typeof(PageNode)},
                 {NodeType.Component, typeof(ComponentNode)},
                 {NodeType.ComponentSet, typeof(ComponentSetNode)},
                 {NodeType.Document, typeof(DocumentNode)},
@@ -77,7 +77,7 @@ namespace Cdm.Figma.Tests
                 {NodeType.Instance, typeof(InstanceNode)},
                 {NodeType.Line, typeof(LineNode)},
                 {NodeType.Rectangle, typeof(RectangleNode)},
-                {NodeType.RegularPolygon, typeof(RegularPolygonNode)},
+                {NodeType.Polygon, typeof(PolygonNode)},
                 {NodeType.Slice, typeof(SliceNode)},
                 {NodeType.Star, typeof(StarNode)},
                 {NodeType.Text, typeof(TextNode)},

@@ -1,29 +1,28 @@
-using System.Xml.Linq;
-using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(GroupNodeConverter), menuName = AssetMenuRoot + "Group", order = AssetMenuOrder)]
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
-        public override XElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var groupNode = (GroupNode) node;
-            var groupXml = new XElement("VisualElement");
-            groupXml.SetAttributeValue("figmaId", node.id);
-            groupXml.SetAttributeValue("figmaName", node.name);
-
+            
+            var element = NodeElement.New<VisualElement>(groupNode, args);
+            
             var children = groupNode.children;
-
-            foreach (var child in children)
+            if (children != null)
             {
-                if (args.importer.TryConvertNode(child, args, out var childElement))
+                foreach (var child in children)
                 {
-                    groupXml.Add(childElement);
+                    if (args.importer.TryConvertNode(child, args, out var childElement))
+                    {
+                        element.AddChild(childElement);       
+                    }
                 }
             }
-
-            return groupXml;
+            
+            return NodeElement.New<VisualElement>(node, args);
         }
     }
 }

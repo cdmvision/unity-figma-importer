@@ -53,7 +53,7 @@ namespace Cdm.Figma
         /// Numeric font weight.
         /// </summary>
         [DataMember(Name = "fontWeight")]
-        public float fontWeight { get; set; }
+        public int fontWeight { get; set; }
 
         /// <summary>
         /// Font size in px.

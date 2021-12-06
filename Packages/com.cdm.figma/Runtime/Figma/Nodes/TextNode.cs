@@ -3,6 +3,10 @@ using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// The text node represents text where both the whole node or individual character ranges can have properties
+    /// such as color (fills), font size, font name, etc.
+    /// </summary>
     [DataContract]
     public class TextNode : VectorNode
     {

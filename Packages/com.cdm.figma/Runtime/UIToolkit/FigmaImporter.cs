@@ -1,87 +1,165 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(UIToolkit) + "-" + nameof(FigmaImporter), 
-        menuName = AssetMenuRoot + "Figma Importer", order = 0)]
-    public class FigmaImporter : Figma.FigmaImporter
+    public class FigmaImporter : IFigmaImporter
     {
-        public new const string AssetMenuRoot = Figma.FigmaImporter.AssetMenuRoot + "UI Toolkit/";
+        private readonly HashSet<NodeConverter> _nodeConverters = new HashSet<NodeConverter>();
 
-        [SerializeField]
-        private string _typePrefix = "@type:";
+        public ISet<NodeConverter> nodeConverters => _nodeConverters;
 
-        public string typePrefix
+        private readonly HashSet<ComponentConverter> _componentConverters = new HashSet<ComponentConverter>();
+
+        public ISet<ComponentConverter> componentConverters => _componentConverters;
+        
+        private readonly List<ImportedDocument> _documents = new List<ImportedDocument>();
+
+        public ImportedDocument[] GetImportedDocuments()
         {
-            get => _typePrefix;
-            set => _typePrefix = value;
+            return _documents.ToArray();
         }
         
-        [SerializeField]
-        private string _bindingPrefix = "@id:";
-
-        public string bindingPrefix
+        public static NodeConverter[] GetDefaultNodeConverters()
         {
-            get => _bindingPrefix;
-            set => _bindingPrefix = value;
+            return new NodeConverter[]
+            {
+                new GroupNodeConverter(),
+                new InstanceNodeConverter(),
+                new VectorNodeConverter(),
+                new RectangleNodeConverter(),
+                new EllipseNodeConverter(),
+                new LineNodeConverter(),
+                new PolygonNodeConverter(),
+                new StarNodeConverter(),
+                new TextNodeConverter()
+            };
+        }
+
+        public static ComponentConverter[] GetDefaultComponentConverters()
+        {
+            return new ComponentConverter[]
+            {
+                new ButtonComponentConverter(),
+                new ToggleComponentConverter()
+            };
         }
         
-        [SerializeField]
-        private string _localizationPrefix = "@lang:";
-
-        public string localizationPrefix
+        public Figma.FigmaFile CreateFile(string fileId, string fileJson, byte[] thumbnailData = null)
         {
-            get => _localizationPrefix;
-            set => _localizationPrefix = value;
+            var fileContent = FigmaFileContent.FromString(fileJson);
+
+            var figmaFile = FigmaFile.CreateInstance<FigmaFile>();
+            figmaFile.id = fileId;
+            figmaFile.title = fileContent.name;
+            figmaFile.version = fileContent.version;
+            figmaFile.lastModified = fileContent.lastModified.ToString("u");
+            figmaFile.content = new TextAsset(JObject.Parse(fileJson).ToString(Newtonsoft.Json.Formatting.Indented));
+            figmaFile.content.name = "File";
+
+            if (thumbnailData != null)
+            {
+                figmaFile.thumbnail = new Texture2D(1, 1);
+                figmaFile.thumbnail.name = "Thumbnail";
+                figmaFile.thumbnail.LoadImage(thumbnailData);
+            }
+
+            var pages = fileContent.document.children;
+            figmaFile.pages = new FigmaFilePage[pages.Length];
+
+            for (var i = 0; i < pages.Length; i++)
+            {
+                figmaFile.pages[i] = new FigmaFilePage()
+                {
+                    id = pages[i].id,
+                    name = pages[i].name
+                };
+            }
+            
+            // Add required graphics.
+            var graphicIds = new HashSet<string>();
+            fileContent.document.Traverse(node =>
+            {
+                // Invisible nodes cannot be rendered.
+                if (node is SceneNode sceneNode && sceneNode.visible)
+                {
+                    graphicIds.Add(sceneNode.id);
+                }
+                return true;
+            }, NodeType.Vector, NodeType.Ellipse, NodeType.Line, NodeType.Polygon, NodeType.Star);
+
+            foreach (var graphicId in graphicIds)
+            {
+                figmaFile.graphics.Add(new GraphicSource() { id = graphicId, graphic = null});
+            }
+
+            // Add required fonts.
+            var fonts = new HashSet<string>();
+            fileContent.document.Traverse(node =>
+            {
+                var style = ((TextNode) node).style;
+                var fontName = FontSource.GetFontName(style.fontFamily, style.fontWeight, style.italic);
+                fonts.Add(fontName);
+                return true;
+            }, NodeType.Text);
+
+            foreach (var font in fonts)
+            {
+                figmaFile.fonts.Add(new FontSource() {fontName = font, font = null});
+            }
+            
+            return figmaFile;
         }
-        
-        [SerializeField]
-        private string _assetsPath = "Resources/Figma/Documents";
 
-        public string assetsPath => _assetsPath;
-
-        [SerializeField]
-        private List<NodeConverter> _nodeConverters = new List<NodeConverter>();
-
-        public List<NodeConverter> nodeConverters => _nodeConverters;
-        
-        [SerializeField]
-        private List<ComponentConverter> _componentConverters = new List<ComponentConverter>();
-
-        public List<ComponentConverter> componentConverters => _componentConverters;
-
-        public override async Task ImportFileAsync(FigmaFile file, FigmaImportOptions options = null)
+        public Task ImportFileAsync(Figma.FigmaFile file)
         {
+            _documents.Clear();
+            
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
 
-            options ??= new FigmaImportOptions();
+            var figmaFile = file as FigmaFile;
+            if (figmaFile == null)
+                throw new ArgumentException("Wrong type of Figma file", nameof(file));
             
-            var assetsDirectory = Path.Combine("Assets", assetsPath);
-            Directory.CreateDirectory(assetsDirectory);
+            if (!nodeConverters.Any())
+            {
+                var converters = GetDefaultNodeConverters();
+                foreach (var converter in converters)
+                {
+                    nodeConverters.Add(converter);
+                }
+            }
+            
+            if (!componentConverters.Any())
+            {
+                var converters = GetDefaultComponentConverters();
+                foreach (var converter in converters)
+                {
+                    componentConverters.Add(converter);
+                }
+            }
 
-            XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
             XNamespace ui = "UnityEngine.UIElements";
             XNamespace uie = "UnityEditor.UIElements";
 
-            var conversionArgs = new NodeConvertArgs(this, file);
+            var fileContent = figmaFile.GetFileContent();
+
+            var conversionArgs = new NodeConvertArgs(this, figmaFile, fileContent);
             conversionArgs.namespaces = new XNamespaces(ui, uie);
-            conversionArgs.assets = options.assets;
-            
+
             // Build node hierarchy.
-            file.BuildHierarchy();
-            
+            fileContent.BuildHierarchy();
+
             // Collect all component sets from all pages.
-            var pages = file.document.children;
+            var pages = fileContent.document.children;
             foreach (var page in pages)
             {
                 page.Traverse(node =>
@@ -90,53 +168,84 @@ namespace Cdm.Figma.UIToolkit
                     return true;
                 }, NodeType.ComponentSet);
             }
-            
+
             // Generate all pages.
             foreach (var page in pages)
             {
-                if (options.pages != null && options.pages.All(p => p != page.id))
+                // Do not import ignored pages.
+                var filePage = figmaFile.pages.FirstOrDefault(p => p.id == page.id);
+                if (filePage == null || !filePage.enabled)
                     continue;
-                
-                var xml = new XDocument();
-                var root = new XElement(ui + "UXML");
-                root.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
-                root.Add(new XAttribute(XNamespace.Xmlns + nameof(ui), ui.NamespaceName));
-                root.Add(new XAttribute(xsi + "noNamespaceSchemaLocation", "../../../../../UIElementsSchema/UIElements.xsd"));
-                xml.Add(root);
-                
-                // Add root visual element.
 
-                var pageElement = XmlFactory.NewElement<VisualElement>(page, conversionArgs)
-                    .Style($"background-color: {page.backgroundColor.ToString("rgba")}; flex-grow: 1;");
-                root.Add(pageElement);
+                // Add page element with ignoring the background color.
+                var pageElement = NodeElement.New<VisualElement>(page, conversionArgs);
+                pageElement.inlineStyle.flexGrow = new StyleFloat(1f);
                 
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
-                    if (TryConvertNode(node, conversionArgs, out var element))
+                    if (TryConvertNode(node, conversionArgs, out var data))
                     {
-                        pageElement.Add(element);
+                        pageElement.AddChild(data);
                     }
                 }
-
-                await Task.Run(() =>
+                
+                var (uxml, styleSheet) = BuildUxml(pageElement, conversionArgs.namespaces);
+                _documents.Add(new ImportedDocument()
                 {
-                    var documentPath = Path.Combine(assetsDirectory, $"{page.name}.uxml");
-                    using var fileStream = File.Create(documentPath);
-                    using var xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
-                    xmlWriter.Formatting = Formatting.Indented;
-                    xml.Save(xmlWriter);
-                    
-                    Debug.Log($"UI document has been saved to: {documentPath}");
+                    page = filePage,
+                    uxml = uxml,
+                    styleSheet = styleSheet
                 });
             }
-            
-#if UNITY_EDITOR
-            UnityEditor.AssetDatabase.Refresh();
-#endif
+
+            return Task.CompletedTask;
         }
 
-        internal bool TryConvertNode(Node node, NodeConvertArgs args, out XElement element)
+        private static (XDocument, string) BuildUxml(NodeElement pageElement, XNamespaces namespaces)
+        {
+            XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
+            
+            var xml = new XDocument();
+            var rootElement = new XElement(namespaces.engine + "UXML");
+            rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(xsi), xsi.NamespaceName));
+            rootElement.Add(new XAttribute(XNamespace.Xmlns + nameof(namespaces.engine), namespaces.engine.NamespaceName));
+            rootElement.Add(new XAttribute(xsi + "noNamespaceSchemaLocation",
+                "../../../../../UIElementsSchema/UIElements.xsd"));
+            xml.Add(rootElement);
+
+            var style = new StringBuilder();
+            
+            BuildUxmlHierarchy(pageElement, style);
+            
+            rootElement.Add(pageElement.value);
+            return (xml, style.ToString());
+        }
+        
+        private static void BuildUxmlHierarchy(NodeElement element, StringBuilder style)
+        {
+            foreach (var child in element.children)
+            {
+                if (child.styles.Any())
+                {
+                    // Save styles in the stylesheet file.
+                    foreach (var styleDefinition in child.styles)
+                    {
+                        style.AppendLine($"{styleDefinition.selector} {{ {styleDefinition.style} }}");
+                    }
+                }
+                else
+                {
+                    child.value.SetAttributeValue("style", child.inlineStyle.ToString());    
+                }
+                
+                element.value.Add(child.value);
+                
+                BuildUxmlHierarchy(child, style);
+            }
+        }
+
+        internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeElement element)
         {
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
@@ -145,7 +254,7 @@ namespace Cdm.Figma.UIToolkit
                 element = componentConverter.Convert(node, args);
                 return true;
             }
-            
+
             // Try with node converters.
             var nodeConverter = nodeConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (nodeConverter != null)
@@ -153,9 +262,16 @@ namespace Cdm.Figma.UIToolkit
                 element = nodeConverter.Convert(node, args);
                 return true;
             }
-            
+
             element = null;
             return false;
         }
+    }
+    
+    public struct ImportedDocument
+    {
+        public FigmaFilePage page;
+        public XDocument uxml;
+        public string styleSheet;
     }
 }

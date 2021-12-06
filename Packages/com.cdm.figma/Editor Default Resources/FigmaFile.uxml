@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.cdm.figma/Editor%20Default%20Resources/Style.uss?fileID=7433441132597879392&amp;guid=273b1e4f0a689b542b301e64df41e3b5&amp;type=3#Style" />
+    <ui:GroupBox text="Figma File">
+        <ui:TextField picking-mode="Ignore" label="ID" readonly="true" binding-path="_id" />
+        <ui:TextField picking-mode="Ignore" label="Name" binding-path="_title" readonly="true" />
+        <ui:TextField picking-mode="Ignore" label="Version" binding-path="_version" readonly="true" />
+        <ui:TextField picking-mode="Ignore" label="Last Modified" binding-path="_lastModified" readonly="true" />
+        <ui:VisualElement style="align-items: flex-end; flex-direction: row-reverse;">
+            <ui:Button text="Copy File Content" display-tooltip-when-elided="true" name="copyContentButton" />
+            <ui:Button text="Export File" display-tooltip-when-elided="true" name="exportFileButton" />
+        </ui:VisualElement>
+    </ui:GroupBox>
+    <ui:ListView focusable="true" binding-path="_pages" show-bound-collection-size="false" name="pagesList" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" show-border="true" header-title="Pages" show-foldout-header="true" />
+</ui:UXML>

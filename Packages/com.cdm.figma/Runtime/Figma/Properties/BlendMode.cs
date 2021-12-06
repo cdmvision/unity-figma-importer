@@ -3,8 +3,12 @@ using System.Runtime.Serialization;
 namespace Cdm.Figma
 {
     /// <summary>
-    /// How this node blends with nodes behind it in the scene (see blend mode section for more details).
+    /// Blend mode describes how a color blends with what's underneath it. This property is typically set on a layer,
+    /// fill or effect (e.g. blend mode of the shadow).
+    ///
+    /// These blend modes are fairly standard and should match what you would find in other image processing tools.
     /// </summary>
+    /// <seealso aref="https://developer.mozilla.org/en-US/docs/Web/CSS/blend-mode"/>
     [DataContract]
     public enum BlendMode
     {

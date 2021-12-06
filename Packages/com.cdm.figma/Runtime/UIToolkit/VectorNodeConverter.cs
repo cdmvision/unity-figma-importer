@@ -1,72 +1,57 @@
-using System.Globalization;
-using System.IO;
-using System.Text;
 using System.Xml.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(VectorNodeConverter), 
-        menuName = AssetMenuRoot + "Vector", order = AssetMenuOrder)]
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
-        public static XElement Convert(VectorNode node, NodeConvertArgs args)
+        public static NodeElement Convert(VectorNode node, NodeConvertArgs args)
         {
-            var style = BuildStyle(node, args);
-            return XmlFactory.NewElement<VisualElement>(node, args).Style(style);
+            var element = NodeElement.New<VisualElement>(node, args);
+            BuildStyle(node, args, element.inlineStyle);
+            return element;
         }
-        
-        public override XElement Convert(Node node, NodeConvertArgs args)
+
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             return Convert((VectorNode) node, args);
         }
 
-        private static string BuildStyle(VectorNode node, NodeConvertArgs args)
+        private static void BuildStyle(VectorNode node, NodeConvertArgs args, Style style)
         {
-            var style = new StringBuilder();
-
-            // Size and position.
-            var absoluteBoundingBox = node.absoluteBoundingBox;
-            var width = absoluteBoundingBox.width.ToString(CultureInfo.InvariantCulture);
-            var height = absoluteBoundingBox.height.ToString(CultureInfo.InvariantCulture);
-
-            // Override width and height if size property is exist.
-            if (node.size != null)
-            {
-                width = node.size.x.ToString(CultureInfo.InvariantCulture);
-                height = node.size.y.ToString(CultureInfo.InvariantCulture);
-            }
+            style.width = new StyleLength(node.size.x);
+            style.height = new StyleLength(node.size.y);
 
             // Override width and height if SVG contains these properties.
-            if (args.TryGetAssetPath(node.id, out var assetPath))
+            if (args.file.TryGetGraphic(node.id, out var graphic))
             {
-                var svg = XDocument.Load(Path.Combine(Application.dataPath, assetPath));
-                if (svg.Root != null)
+                style.backgroundImage = new StyleBackground(graphic);
+                
+#if UNITY_EDITOR
+                var path = UnityEditor.AssetDatabase.GetAssetPath(graphic);
+                if (!string.IsNullOrEmpty(path))
                 {
-                    var widthAttribute = svg.Root.Attribute("width");
-                    if (widthAttribute != null)
+                    var svg = XDocument.Load(path);
+                    if (svg.Root != null)
                     {
-                        width = widthAttribute.Value;
-                    }
-                    
-                    var heightAttribute = svg.Root.Attribute("height");
-                    if (heightAttribute != null)
-                    {
-                        height = heightAttribute.Value;
+                        var widthAttribute = svg.Root.Attribute("width");
+                        if (widthAttribute != null)
+                        {
+                            style.width = new StyleLength(float.Parse(widthAttribute.Value));
+                        }
+
+                        var heightAttribute = svg.Root.Attribute("height");
+                        if (heightAttribute != null)
+                        {
+                            style.height = new StyleLength(float.Parse(heightAttribute.Value));
+                        }
                     }
                 }
-            }
-                        
-            style.Append($"width: {width}px; ");
-            style.Append($"height: {height}px; ");
-            
-            if (args.TryGetStyleUrl(node.id, out var assetUrl))
-            {
-                style.Append($"background-image: {assetUrl}; ");
-            }
 
-            return style.ToString();
+#else
+                Debug.LogWarning("SVG file cannot be read at runtime.");
+#endif
+            }
         }
     }
 }
