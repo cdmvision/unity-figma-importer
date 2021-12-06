@@ -81,7 +81,7 @@ namespace Cdm.Figma.UIToolkit
         }
     }
 
-    public abstract class ComponentConverter<TComponent> : ComponentConverter
+    public abstract class ComponentConverter<TComponent> : ComponentConverter where TComponent : VisualElement
     {
         public override NodeElement Convert(Node node, NodeConvertArgs args)
         {

@@ -22,6 +22,8 @@ namespace Cdm.Figma.UIToolkit
         
         private readonly List<ImportedDocument> _documents = new List<ImportedDocument>();
 
+        public IScriptGenerator scriptGenerator { get; set; } = new ScriptGenerator();
+        
         public ImportedDocument[] GetImportedDocuments()
         {
             return _documents.ToArray();
@@ -177,6 +179,9 @@ namespace Cdm.Figma.UIToolkit
                 if (filePage == null || !filePage.enabled)
                     continue;
 
+                var importedDocument = new ImportedDocument();
+                importedDocument.page = filePage;
+                
                 // Add page element with ignoring the background color.
                 var pageElement = NodeElement.New<VisualElement>(page, conversionArgs);
                 pageElement.inlineStyle.flexGrow = new StyleFloat(1f);
@@ -191,17 +196,21 @@ namespace Cdm.Figma.UIToolkit
                 }
                 
                 var (uxml, styleSheet) = BuildUxml(pageElement, conversionArgs.namespaces);
-                _documents.Add(new ImportedDocument()
+                importedDocument.uxml = uxml;
+                importedDocument.styleSheet = styleSheet;
+                
+                
+                if (scriptGenerator != null)
                 {
-                    page = filePage,
-                    uxml = uxml,
-                    styleSheet = styleSheet
-                });
+                    importedDocument.script = scriptGenerator.Generate(pageElement);
+                }
+                
+                _documents.Add(importedDocument);
             }
 
             return Task.CompletedTask;
         }
-
+        
         private static (XDocument, string) BuildUxml(NodeElement pageElement, XNamespaces namespaces)
         {
             XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
@@ -270,8 +279,24 @@ namespace Cdm.Figma.UIToolkit
     
     public struct ImportedDocument
     {
+        /// <summary>
+        /// Associated Figma page.
+        /// </summary>
         public FigmaFilePage page;
+        
+        /// <summary>
+        /// Generated UXML layout file.
+        /// </summary>
         public XDocument uxml;
+        
+        /// <summary>
+        /// Generated USS style sheet file.
+        /// </summary>
         public string styleSheet;
+        
+        /// <summary>
+        /// Generated script file.
+        /// </summary>
+        public GeneratedScript script;
     }
 }

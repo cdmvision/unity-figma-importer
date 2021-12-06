@@ -70,7 +70,7 @@ namespace Cdm.Figma
             return target;
         }
 
-        public static string GetBindingKey(this Node node)
+        public static string GetBindingName(this Node node)
         {
             if (node.TryGetPluginData(out var data))
             {

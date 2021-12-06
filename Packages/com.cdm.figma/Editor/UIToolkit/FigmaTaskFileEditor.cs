@@ -60,6 +60,9 @@ namespace Cdm.Figma.UIToolkit
                 var assetsDirectory = Path.Combine("Assets", documentsPath);
                 Directory.CreateDirectory(assetsDirectory);
                 
+                var scriptsDirectory = Path.Combine("Assets", figmaTaskFile.scriptsPath);
+                Directory.CreateDirectory(scriptsDirectory);
+                
                 var documents = figmaTaskFile.importer.GetImportedDocuments();
                 foreach (var document in documents)
                 {
@@ -73,6 +76,12 @@ namespace Cdm.Figma.UIToolkit
                             new XElement("Style", 
                                 new XAttribute("src", $"project:///{styleSheetPath}".Replace("\\", "/")));
                         document.uxml.Root?.Add(styleElement);
+                    }
+
+                    if (document.script != null)
+                    {
+                        var scripPath = Path.Combine(scriptsDirectory, $"{document.script.name}.cs");
+                        File.WriteAllText(scripPath, document.script.contents);
                     }
                     
                     var documentPath = Path.Combine(assetsDirectory, $"{document.page.name}.uxml");

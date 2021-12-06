@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using UnityEngine.UIElements;
@@ -6,6 +7,14 @@ namespace Cdm.Figma.UIToolkit
 {
     public class NodeElement
     {
+        private static class Attributes
+        {
+            public const string NodeId = "nodeId";
+            public const string NodeName = "nodeName";
+            public const string ElementName = "name";
+            public const string LocalizationKey = "binding-path";
+        }
+        
         /// <summary>
         /// The actual node.
         /// </summary>
@@ -31,6 +40,10 @@ namespace Cdm.Figma.UIToolkit
         /// </summary>
         public NodeElement parent { get; private set; }
         
+        public Type elementType { get; private set; }
+        public string elementName { get; private set; }
+        public string localizationKey { get; private set; }
+
         private readonly List<NodeElement> _children = new List<NodeElement>();
         
         /// <summary>
@@ -67,70 +80,28 @@ namespace Cdm.Figma.UIToolkit
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
         /// </summary>
-        public static NodeElement New<T>(Node node, NodeConvertArgs args)
+        public static NodeElement New<T>(Node node, NodeConvertArgs args) where T : VisualElement
         {
-            var nodeData = new NodeElement(node, args.namespaces.engine + typeof(T).Name, GetNodeId(node));
+            var nodeElement = new NodeElement(node, args.namespaces.engine + typeof(T).Name);
 
-            var name = GetNodeName(node);
-            nodeData.value.Add(name);
-
-            var bindingId = GetBindingKey(node);
-            if (bindingId != null)
+            nodeElement.elementType = typeof(T);
+            nodeElement.elementName = node.GetBindingName();
+            nodeElement.localizationKey = node.GetLocalizationKey();
+            
+            nodeElement.value.Add(new XAttribute(Attributes.NodeId, node.id));
+            nodeElement.value.Add( new XAttribute(Attributes.NodeName, node.name));
+            
+            if (!string.IsNullOrEmpty(nodeElement.elementName))
             {
-                nodeData.value.Add(bindingId);
+                nodeElement.value.Add(new XAttribute(Attributes.ElementName, nodeElement.elementName));
+            }
+            
+            if (!string.IsNullOrEmpty(nodeElement.localizationKey))
+            {
+                nodeElement.value.Add(new XAttribute(Attributes.LocalizationKey, nodeElement.localizationKey));
             }
 
-            var localizationId = GetLocalizationKey(node);
-            if (localizationId != null)
-            {
-                nodeData.value.Add(localizationId);
-            }
-
-            return nodeData;
-        }
-
-        /// <summary>
-        /// Gets the <see cref="Node.id"/> of the <paramref name="node"/> as XML attribute.
-        /// </summary>
-        private static XAttribute GetNodeId(Node node)
-        {
-            return new XAttribute("nodeId", node.id);
-        }
-
-        /// <summary>
-        /// Gets the <see cref="Node.name"/> of the <paramref name="node"/> as XML attribute.
-        /// </summary>
-        private static XAttribute GetNodeName(Node node)
-        {
-            return new XAttribute("nodeName", node.name);
-        }
-
-        /// <summary>
-        /// Gets binding identifier as XML attribute for the node if exist.
-        /// </summary>
-        private static XAttribute GetBindingKey(Node node)
-        {
-            var key = node.GetBindingKey();
-            if (!string.IsNullOrEmpty(key))
-            {
-                return new XAttribute("name", key);
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Gets localization identifier as XML attribute for the node if exist.
-        /// </summary>
-        private static XAttribute GetLocalizationKey(Node node)
-        {
-            var key = node.GetLocalizationKey();
-            if (!string.IsNullOrEmpty(key))
-            {
-                return new XAttribute("lang", key);
-            }
-
-            return null;
+            return nodeElement;
         }
     }
 }
