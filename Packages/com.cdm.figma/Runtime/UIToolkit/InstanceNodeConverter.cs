@@ -1,6 +1,6 @@
 using UnityEngine.UIElements;
 
-namespace Cdm.Figma.UIToolkit.UIToolkit
+namespace Cdm.Figma.UIToolkit
 {
     public class InstanceNodeConverter : NodeConverter<InstanceNode>
     {

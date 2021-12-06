@@ -1,4 +1,4 @@
-namespace Cdm.Figma.UIToolkit.UIToolkit
+namespace Cdm.Figma.UIToolkit
 {
     public class EllipseNodeConverter: NodeConverter<EllipseNode>
     {
