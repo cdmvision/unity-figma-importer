@@ -31,21 +31,49 @@ namespace Cdm.Figma.UIToolkit
                         parent = (GroupNode) node.parent;
                 }
             }
-            
-            if (parent.layoutMode != LayoutMode.None)
-            {
-                setPositionRelative(parent.layoutMode, node, style);
-            }
 
-            else
+            if (nodeHasVisualParent(node))
+            {
+                if (parent.layoutMode != LayoutMode.None)
+                {
+                    setPositionRelative(parent.layoutMode, node, style);
+                }
+
+                else
+                {
+                    setPositionAbsolute(parent.size, node, style);
+                }
+            }
+            else if (!nodeHasVisualParent(node))
             {
                 setPositionAbsolute(parent.size, node, style);
             }
-
+            
+            setOpacity(node, style);
             setRotation(node, style);
             addBackgroundColor(node, style);
             addCorners(node, style);
             setTransformOrigin(style);
+        }
+        
+        private void setOpacity(Node node, Style style)
+        {
+            RectangleNode rectangleNode = (RectangleNode) node;
+            var opacity = rectangleNode.opacity;
+            style.opacity = new StyleFloat(opacity);
+        }
+        
+        private bool nodeHasVisualParent(Node node)
+        {
+            RectangleNode rectangleNode = (RectangleNode) node;
+            if (rectangleNode.parent.type == NodeType.Frame || rectangleNode.parent.type == NodeType.Group || 
+                rectangleNode.parent.type == NodeType.Component || rectangleNode.parent.type == NodeType.ComponentSet ||
+                rectangleNode.parent.type == NodeType.Instance)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private void setPositionAbsolute(Vector parentSize, Node node, Style style)
