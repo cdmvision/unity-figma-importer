@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
-using Codice.Client.Commands.Tree;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
@@ -32,38 +27,38 @@ namespace Cdm.Figma.UIToolkit
                 }
             }
 
-            if (nodeHasVisualParent(node))
+            if (NodeHasVisualParent(node))
             {
                 if (parent.layoutMode != LayoutMode.None)
                 {
-                    setPositionRelative(parent.layoutMode, node, style);
+                    SetPositionRelative(parent.layoutMode, node, style);
                 }
 
                 else
                 {
-                    setPositionAbsolute(parent.size, node, style);
+                    SetPositionAbsolute(parent.size, node, style);
                 }
             }
-            else if (!nodeHasVisualParent(node))
+            else if (!NodeHasVisualParent(node))
             {
-                setPositionAbsolute(parent.size, node, style);
+                SetPositionAbsolute(parent.size, node, style);
             }
             
-            setOpacity(node, style);
-            setRotation(node, style);
-            addBackgroundColor(node, style);
-            addCorners(node, style);
-            setTransformOrigin(style);
+            SetOpacity(node, style);
+            SetRotation(node, style);
+            AddBackgroundColor(node, style);
+            AddCorners(node, style);
+            SetTransformOrigin(style);
         }
         
-        private void setOpacity(Node node, Style style)
+        private void SetOpacity(Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             var opacity = rectangleNode.opacity;
             style.opacity = new StyleFloat(opacity);
         }
         
-        private bool nodeHasVisualParent(Node node)
+        private bool NodeHasVisualParent(Node node)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             if (rectangleNode.parent.type == NodeType.Frame || rectangleNode.parent.type == NodeType.Group || 
@@ -76,7 +71,7 @@ namespace Cdm.Figma.UIToolkit
             return false;
         }
 
-        private void setPositionAbsolute(Vector parentSize, Node node, Style style)
+        private void SetPositionAbsolute(Vector parentSize, Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             style.position = new StyleEnum<Position>(Position.Absolute);
@@ -180,7 +175,7 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        private void setPositionRelative(LayoutMode parentLayoutMode, Node node, Style style)
+        private void SetPositionRelative(LayoutMode parentLayoutMode, Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             style.position = new StyleEnum<Position>(Position.Relative);
@@ -206,7 +201,7 @@ namespace Cdm.Figma.UIToolkit
             style.flexGrow = new StyleFloat(rectangleNode.layoutGrow);
         }
 
-        private void setRotation(Node node, Style style)
+        private void SetRotation(Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             var relativeTransform = rectangleNode.relativeTransform;
@@ -217,13 +212,13 @@ namespace Cdm.Figma.UIToolkit
             }
         }
         
-        private void setTransformOrigin(Style style)
+        private void SetTransformOrigin(Style style)
         {
             // Figma transform pivot is located on the top left.
             style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
         }
 
-        private void addCorners(Node node, Style style)
+        private void AddCorners(Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             var cornerRadius = rectangleNode.cornerRadius;
@@ -270,7 +265,7 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        private void addBackgroundColor(Node node, Style style)
+        private void AddBackgroundColor(Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             var fills = rectangleNode.fills;

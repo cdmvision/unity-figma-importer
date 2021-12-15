@@ -1,10 +1,17 @@
-using System.Xml.Linq;
-using UnityEditor.Experimental;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit.UIToolkit
 {
+    /// <summary>
+    /// PROPERTIES THAT ARE NOT SUPPORTED IN UI TOOLKIT:
+    /// preserveRatio,
+    /// strokeAlign,
+    /// effects,
+    /// isMaskBoolean,
+    /// isMaskOutline,
+    /// blendMode
+    /// </summary>
     public class FrameNodeConverter : NodeConverter<FrameNode>
     {
         public override NodeElement Convert(Node node, NodeConvertArgs args)
@@ -47,46 +54,53 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
                     parent = (GroupNode) node.parent;
             }
             
-            if (!nodeHasVisualParent(node))
+            if (!NodeHasVisualParent(node))
             {
                 style.position = new StyleEnum<Position>(Position.Relative);
                 style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
                 style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
             }
-            else if(nodeHasVisualParent(node))
+            else if(NodeHasVisualParent(node))
             {
                 if (parent.layoutMode != LayoutMode.None)
                 {
-                    setPositionRelative(parent.layoutMode, node, style);
+                    style.position = new StyleEnum<Position>(Position.Relative);
+                    HandleFillContainer(parent.layoutMode, node, style);
                 }
                 else
                 {
-                    setPositionAbsolute(parent.size, node, style);
+                    style.position = new StyleEnum<Position>(Position.Absolute);
+                    HandleConstraints(parent.size, node, style);
+                }
+
+                if (node.layoutMode != LayoutMode.None)
+                {
+                    HandleAxisSizing(node, style);
                 }
             }
 
-            setClipContent(node, style);
-            setOpacity(node, style);
-            setRotation(node, style);
+            SetClipContent(node, style);
+            SetOpacity(node, style);
+            SetRotation(node, style);
             var layoutMode = node.layoutMode;
             if (layoutMode != LayoutMode.None)
             {
-                handleAutoLayout(node, style);
+                HandleAutoLayout(node, style);
             }
-            addPadding(node, style);
-            addBackgroundColor(node, style);
-            addCorners(node, style);
-            setTransformOrigin(style);
+            AddPadding(node, style);
+            AddBackgroundColor(node, style);
+            AddCorners(node, style);
+            SetTransformOrigin(style);
         }
 
-        private void setOpacity(Node node, Style style)
+        private void SetOpacity(Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
             var opacity = frameNode.opacity;
             style.opacity = new StyleFloat(opacity);
         }
 
-        private void setClipContent(Node node, Style style)
+        private void SetClipContent(Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
             if (frameNode.clipsContent)
@@ -99,7 +113,7 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
             }
         }
 
-        private bool nodeHasVisualParent(Node node)
+        private bool NodeHasVisualParent(Node node)
         {
             FrameNode frameNode = (FrameNode) node;
             if (frameNode.parent.type == NodeType.Frame || frameNode.parent.type == NodeType.Group || 
@@ -112,10 +126,9 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
             return false;
         }
         
-        private void setPositionAbsolute(Vector parentSize, Node node, Style style)
+        private void HandleConstraints(Vector parentSize, Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
-            style.position = new StyleEnum<Position>(Position.Absolute);
             var relativeTransform = frameNode.relativeTransform;
             var position = relativeTransform.GetPosition();
             var constraintX = frameNode.constraints.horizontal;
@@ -216,10 +229,9 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
             }
         }
 
-        private void setPositionRelative(LayoutMode parentLayoutMode, Node node, Style style)
+        private void HandleFillContainer(LayoutMode parentLayoutMode, Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
-            style.position = new StyleEnum<Position>(Position.Relative);
             if (frameNode.layoutAlign == LayoutAlign.Stretch)
             {
                 style.alignSelf = new StyleEnum<Align>(Align.Stretch);
@@ -239,10 +251,63 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
                 style.width = new StyleLength(new Length(frameNode.size.x, LengthUnit.Pixel));
                 style.height = new StyleLength(new Length(frameNode.size.y, LengthUnit.Pixel));
             }
-            //style.flexGrow = new StyleFloat(frameNode.layoutGrow);
+            
+        }
+
+        private void HandleAxisSizing(Node node, Style style)
+        {
+            FrameNode frameNode = (FrameNode) node;
+            LayoutMode mode = frameNode.layoutMode;
+            if (frameNode.primaryAxisSizingMode == AxisSizingMode.Auto)
+            {
+                if (mode == LayoutMode.Horizontal)
+                {
+                    Debug.Log(frameNode.name + ": Primary axis auto sizing mode is not supported, setting height to fixed.");
+                    style.width = new StyleLength(new Length(frameNode.size.x, LengthUnit.Pixel));
+                }
+                else if (mode == LayoutMode.Vertical)
+                {
+                    Debug.Log(frameNode.name + ": Primary axis auto sizing mode is not supported, setting width to fixed.");
+                    style.height = new StyleLength(new Length(frameNode.size.y, LengthUnit.Pixel));
+                }
+            }
+            else if(frameNode.primaryAxisSizingMode == AxisSizingMode.Fixed)
+            {
+                if (mode == LayoutMode.Horizontal)
+                {
+                    style.width = new StyleLength(new Length(frameNode.size.x, LengthUnit.Pixel));
+                }
+                else if (mode == LayoutMode.Vertical)
+                {
+                    style.height = new StyleLength(new Length(frameNode.size.y, LengthUnit.Pixel));
+                }
+            }
+
+            if (frameNode.counterAxisSizingMode == AxisSizingMode.Auto)
+            {
+                if (mode == LayoutMode.Horizontal)
+                {
+                    style.height = new StyleLength(StyleKeyword.Auto);
+                }
+                else if (mode == LayoutMode.Vertical)
+                {
+                    style.width = new StyleLength(StyleKeyword.Auto);
+                }
+            }
+            else if(frameNode.counterAxisSizingMode == AxisSizingMode.Fixed)
+            {
+                if (mode == LayoutMode.Horizontal)
+                {
+                    style.height = new StyleLength(new Length(frameNode.size.y, LengthUnit.Pixel));
+                }
+                else if (mode == LayoutMode.Vertical)
+                {
+                    style.width = new StyleLength(new Length(frameNode.size.x, LengthUnit.Pixel));
+                }
+            }
         }
         
-        private void setRotation(Node node, Style style)
+        private void SetRotation(Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
             var relativeTransform = frameNode.relativeTransform;
@@ -253,7 +318,7 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
             }
         }
 
-        private void handleAutoLayout(Node node, Style style)
+        private void HandleAutoLayout(Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
             var layoutMode = frameNode.layoutMode;
@@ -298,7 +363,7 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
             }
         }
 
-        private void addPadding(Node node, Style style)
+        private void AddPadding(Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
             style.paddingTop = new StyleLength(new Length(frameNode.paddingTop, LengthUnit.Pixel));
@@ -307,13 +372,13 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
             style.paddingRight = new StyleLength(new Length(frameNode.paddingRight, LengthUnit.Pixel));
         }
         
-        private void setTransformOrigin(Style style)
+        private void SetTransformOrigin(Style style)
         {
             // Figma transform pivot is located on the top left.
             style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
         }
 
-        private void addCorners(Node node, Style style)
+        private void AddCorners(Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
             var cornerRadius = frameNode.cornerRadius;
@@ -360,7 +425,7 @@ namespace Cdm.Figma.UIToolkit.UIToolkit
             }
         }
 
-        private void addBackgroundColor(Node node, Style style)
+        private void AddBackgroundColor(Node node, Style style)
         {
             FrameNode frameNode = (FrameNode) node;
             var fills = frameNode.fills;
