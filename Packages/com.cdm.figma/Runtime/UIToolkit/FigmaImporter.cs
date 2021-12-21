@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Cdm.Figma.UIToolkit.UIToolkit;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -34,6 +35,7 @@ namespace Cdm.Figma.UIToolkit
             return new NodeConverter[]
             {
                 new GroupNodeConverter(),
+                new FrameNodeConverter(),
                 new InstanceNodeConverter(),
                 new VectorNodeConverter(),
                 new RectangleNodeConverter(),

@@ -28,6 +28,8 @@
 [Aa]ssets/Plugins/Editor/JetBrains*
 
 .idea/
+.vsconfig
+.DS_Store
 
 # Visual Studio cache directory
 .vs/
