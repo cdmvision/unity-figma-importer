@@ -180,39 +180,39 @@ namespace Cdm.Figma.UIToolkit
                 if (filePage == null || !filePage.enabled)
                     continue;
 
-                var importedDocument = new ImportedDocument();
-                importedDocument.page = filePage;
-                
-                // Add page element with ignoring the background color.
-                var pageElement = NodeElement.New<VisualElement>(page, conversionArgs);
-                pageElement.inlineStyle.flexGrow = new StyleFloat(1f);
-                
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
-                    if (TryConvertNode(node, conversionArgs, out var data))
+                    if (node is FrameNode)
                     {
-                        pageElement.AddChild(data);
+                        if (TryConvertNode(node, conversionArgs, out var root))
+                        {
+                            root.inlineStyle.width = new StyleLength(new Length(100f, LengthUnit.Percent));
+                            root.inlineStyle.height = new StyleLength(new Length(100f, LengthUnit.Percent));
+
+                            var importedDocument = new ImportedDocument();
+                            importedDocument.page = filePage;
+                            importedDocument.node = node;
+                            
+                            var (uxml, styleSheet) = BuildUxml(root, conversionArgs.namespaces);
+                            importedDocument.uxml = uxml;
+                            importedDocument.styleSheet = styleSheet;
+                            
+                            if (scriptGenerator != null)
+                            {
+                                importedDocument.script = scriptGenerator.Generate(root);
+                            }
+                        
+                            _documents.Add(importedDocument);
+                        }
                     }
                 }
-                
-                var (uxml, styleSheet) = BuildUxml(pageElement, conversionArgs.namespaces);
-                importedDocument.uxml = uxml;
-                importedDocument.styleSheet = styleSheet;
-                
-                
-                if (scriptGenerator != null)
-                {
-                    importedDocument.script = scriptGenerator.Generate(pageElement);
-                }
-                
-                _documents.Add(importedDocument);
             }
 
             return Task.CompletedTask;
         }
         
-        private static (XDocument, string) BuildUxml(NodeElement pageElement, XNamespaces namespaces)
+        private static (XDocument, string) BuildUxml(NodeElement rootNode, XNamespaces namespaces)
         {
             XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
             
@@ -226,29 +226,29 @@ namespace Cdm.Figma.UIToolkit
 
             var style = new StringBuilder();
             
-            BuildUxmlHierarchy(pageElement, style);
+            BuildUxmlHierarchy(rootNode, style);
             
-            rootElement.Add(pageElement.value);
+            rootElement.Add(rootNode.value);
             return (xml, style.ToString());
         }
         
         private static void BuildUxmlHierarchy(NodeElement element, StringBuilder style)
         {
+            if (element.styles.Any())
+            {
+                // Save styles in the stylesheet file.
+                foreach (var styleDefinition in element.styles)
+                {
+                    style.AppendLine($"{styleDefinition.selector} {{ {styleDefinition.style} }}");
+                }
+            }
+            else
+            {
+                element.value.SetAttributeValue("style", element.inlineStyle.ToString());    
+            }
+
             foreach (var child in element.children)
             {
-                if (child.styles.Any())
-                {
-                    // Save styles in the stylesheet file.
-                    foreach (var styleDefinition in child.styles)
-                    {
-                        style.AppendLine($"{styleDefinition.selector} {{ {styleDefinition.style} }}");
-                    }
-                }
-                else
-                {
-                    child.value.SetAttributeValue("style", child.inlineStyle.ToString());    
-                }
-                
                 element.value.Add(child.value);
                 
                 BuildUxmlHierarchy(child, style);
@@ -284,6 +284,11 @@ namespace Cdm.Figma.UIToolkit
         /// Associated Figma page.
         /// </summary>
         public FigmaFilePage page;
+
+        /// <summary>
+        /// Root figma node.
+        /// </summary>
+        public Node node;
         
         /// <summary>
         /// Generated UXML layout file.

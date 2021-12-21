@@ -83,8 +83,14 @@ namespace Cdm.Figma.UIToolkit
                         var scripPath = Path.Combine(scriptsDirectory, $"{document.script.name}.cs");
                         File.WriteAllText(scripPath, document.script.contents);
                     }
+
+                    var directory = Path.Combine(assetsDirectory, document.page.name);
+                    if (!Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
                     
-                    var documentPath = Path.Combine(assetsDirectory, $"{document.page.name}.uxml");
+                    var documentPath = Path.Combine(directory, $"{document.node.name}.uxml");
                     using var fileStream = File.Create(documentPath);
                     using var xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
                     xmlWriter.Formatting = Formatting.Indented;

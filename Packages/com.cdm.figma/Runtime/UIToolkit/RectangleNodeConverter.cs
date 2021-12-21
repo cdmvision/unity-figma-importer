@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
@@ -14,61 +15,41 @@ namespace Cdm.Figma.UIToolkit
 
         private void BuildStyle(RectangleNode node, Style style)
         {
-            GroupNode parent = new GroupNode();
-            
-            if (node.hasParent)
+            if (node.parent is SceneNode parentNode)
             {
-                if (node.parent.type == NodeType.Frame || node.parent.type == NodeType.Group)
+                if (parentNode is GroupNode groupNode)
                 {
-                    if (node.parent.type == NodeType.Frame)
-                        parent = (FrameNode) node.parent;
+                    if (groupNode.layoutMode != LayoutMode.None)
+                    {
+                        SetPositionRelative(groupNode.layoutMode, node, style);
+                    }
                     else
-                        parent = (GroupNode) node.parent;
+                    {
+                        SetPositionAbsolute(groupNode.size, node, style);
+                    }
+
+                    // TODO: layout grid
+                    /*if (node.parent is FrameNode frameNode)
+                    {
+                        SetLayoutGrid();
+                    }*/
                 }
+
+                Debug.Assert(false, $"Node must be has a {nameof(GroupNode)} parent: {node.name} ({node.id})");
             }
 
-            if (NodeHasVisualParent(node))
-            {
-                if (parent.layoutMode != LayoutMode.None)
-                {
-                    SetPositionRelative(parent.layoutMode, node, style);
-                }
-
-                else
-                {
-                    SetPositionAbsolute(parent.size, node, style);
-                }
-            }
-            else if (!NodeHasVisualParent(node))
-            {
-                SetPositionAbsolute(parent.size, node, style);
-            }
-            
             SetOpacity(node, style);
             SetRotation(node, style);
             AddBackgroundColor(node, style);
             AddCorners(node, style);
             SetTransformOrigin(style);
         }
-        
+
         private void SetOpacity(Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             var opacity = rectangleNode.opacity;
             style.opacity = new StyleFloat(opacity);
-        }
-        
-        private bool NodeHasVisualParent(Node node)
-        {
-            RectangleNode rectangleNode = (RectangleNode) node;
-            if (rectangleNode.parent.type == NodeType.Frame || rectangleNode.parent.type == NodeType.Group || 
-                rectangleNode.parent.type == NodeType.Component || rectangleNode.parent.type == NodeType.ComponentSet ||
-                rectangleNode.parent.type == NodeType.Instance)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private void SetPositionAbsolute(Vector parentSize, Node node, Style style)
@@ -79,22 +60,23 @@ namespace Cdm.Figma.UIToolkit
             var position = relativeTransform.GetPosition();
             var constraintX = rectangleNode.constraints.horizontal;
             var constraintY = rectangleNode.constraints.vertical;
-            
+
             if (constraintX == Horizontal.Center)
             {
                 style.width = new StyleLength(new Length(rectangleNode.size.x, LengthUnit.Pixel));
                 style.left = new StyleLength(new Length(50, LengthUnit.Percent));
-                var translateX = parentSize.x/2f - position.x;
-                var translateY = parentSize.y/2f - position.y;
+                var translateX = parentSize.x / 2f - position.x;
+                var translateY = parentSize.y / 2f - position.y;
                 if (constraintY == Vertical.Center)
                 {
-                    style.translate = 
-                        new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    style.translate =
+                        new StyleTranslate(new Translate(new Length(-1 * translateX, LengthUnit.Pixel),
+                            new Length(-1 * translateY, LengthUnit.Pixel), 0));
                 }
                 else
                 {
-                    style.translate 
-                        = new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), 0, 0));
+                    style.translate
+                        = new StyleTranslate(new Translate(new Length(-1 * translateX, LengthUnit.Pixel), 0, 0));
                 }
             }
             else if (constraintX == Horizontal.Left)
@@ -111,7 +93,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 var parentWidth = parentSize.x;
                 var nodeLeft = position.x;
-                var nodeRight = parentWidth - (nodeLeft+rectangleNode.size.x);
+                var nodeRight = parentWidth - (nodeLeft + rectangleNode.size.x);
                 style.left = new StyleLength(new Length(nodeLeft, LengthUnit.Pixel));
                 style.right = new StyleLength(new Length(nodeRight, LengthUnit.Pixel));
                 style.width = new StyleLength(StyleKeyword.Auto);
@@ -120,28 +102,29 @@ namespace Cdm.Figma.UIToolkit
             {
                 var parentWidth = parentSize.x;
                 var nodeLeft = position.x;
-                var nodeRight = parentWidth - (nodeLeft+rectangleNode.size.x);
+                var nodeRight = parentWidth - (nodeLeft + rectangleNode.size.x);
                 var leftPercentage = (nodeLeft * 100.0f) / parentWidth;
                 var rightPercentage = (nodeRight * 100.0f) / parentWidth;
                 style.left = new StyleLength(new Length(leftPercentage, LengthUnit.Percent));
                 style.right = new StyleLength(new Length(rightPercentage, LengthUnit.Percent));
             }
-            
+
             if (constraintY == Vertical.Center)
             {
                 style.height = new StyleLength(new Length(rectangleNode.size.y, LengthUnit.Pixel));
                 style.top = new StyleLength(new Length(50, LengthUnit.Percent));
-                var translateX = parentSize.x/2f - position.x;
-                var translateY = parentSize.y/2f - position.y;
+                var translateX = parentSize.x / 2f - position.x;
+                var translateY = parentSize.y / 2f - position.y;
                 if (constraintX == Horizontal.Center)
                 {
-                    style.translate = 
-                        new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    style.translate =
+                        new StyleTranslate(new Translate(new Length(-1 * translateX, LengthUnit.Pixel),
+                            new Length(-1 * translateY, LengthUnit.Pixel), 0));
                 }
                 else
                 {
-                    style.translate 
-                        = new StyleTranslate(new Translate(0, new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    style.translate
+                        = new StyleTranslate(new Translate(0, new Length(-1 * translateY, LengthUnit.Pixel), 0));
                 }
             }
             else if (constraintY == Vertical.Top)
@@ -158,7 +141,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 var parentHeight = parentSize.y;
                 var nodeTop = position.y;
-                var nodeBottom = parentHeight - (nodeTop+rectangleNode.size.y);
+                var nodeBottom = parentHeight - (nodeTop + rectangleNode.size.y);
                 style.top = new StyleLength(new Length(nodeTop, LengthUnit.Pixel));
                 style.bottom = new StyleLength(new Length(nodeBottom, LengthUnit.Pixel));
                 style.height = new StyleLength(StyleKeyword.Auto);
@@ -167,7 +150,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 var parentHeight = parentSize.y;
                 var nodeTop = position.y;
-                var nodeBottom = parentHeight - (nodeTop+rectangleNode.size.y);
+                var nodeBottom = parentHeight - (nodeTop + rectangleNode.size.y);
                 var topPercentage = (nodeTop * 100.0f) / parentHeight;
                 var bottomPercentage = (nodeBottom * 100.0f) / parentHeight;
                 style.top = new StyleLength(new Length(topPercentage, LengthUnit.Percent));
@@ -198,6 +181,7 @@ namespace Cdm.Figma.UIToolkit
                 style.width = new StyleLength(new Length(rectangleNode.size.x, LengthUnit.Pixel));
                 style.height = new StyleLength(new Length(rectangleNode.size.y, LengthUnit.Pixel));
             }
+
             style.flexGrow = new StyleFloat(rectangleNode.layoutGrow);
         }
 
@@ -211,11 +195,12 @@ namespace Cdm.Figma.UIToolkit
                 style.rotate = new StyleRotate(new Rotate(rotation));
             }
         }
-        
+
         private void SetTransformOrigin(Style style)
         {
             // Figma transform pivot is located on the top left.
-            style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
+            style.transformOrigin =
+                new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
         }
 
         private void AddCorners(Node node, Style style)
@@ -237,24 +222,25 @@ namespace Cdm.Figma.UIToolkit
                 //Does it have cornerRadius?
                 if (cornerRadius.HasValue)
                 {
-                    style.borderTopLeftRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
-                    style.borderTopRightRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
-                    style.borderBottomRightRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
-                    style.borderBottomLeftRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
+                    style.borderTopLeftRadius = new StyleLength(new Length((float) cornerRadius, LengthUnit.Pixel));
+                    style.borderTopRightRadius = new StyleLength(new Length((float) cornerRadius, LengthUnit.Pixel));
+                    style.borderBottomRightRadius = new StyleLength(new Length((float) cornerRadius, LengthUnit.Pixel));
+                    style.borderBottomLeftRadius = new StyleLength(new Length((float) cornerRadius, LengthUnit.Pixel));
                 }
             }
-            
+
             var strokes = rectangleNode.strokes;
             if (strokes.Length > 0)
             {
                 var strokeWeight = rectangleNode.strokeWeight;
                 if (strokeWeight.HasValue)
                 {
-                    style.borderTopWidth = new StyleFloat((float)strokeWeight);
-                    style.borderLeftWidth = new StyleFloat((float)strokeWeight);
-                    style.borderBottomWidth = new StyleFloat((float)strokeWeight);
-                    style.borderRightWidth = new StyleFloat((float)strokeWeight);
+                    style.borderTopWidth = new StyleFloat((float) strokeWeight);
+                    style.borderLeftWidth = new StyleFloat((float) strokeWeight);
+                    style.borderBottomWidth = new StyleFloat((float) strokeWeight);
+                    style.borderRightWidth = new StyleFloat((float) strokeWeight);
                 }
+
                 //only getting the base color
                 var solidColor = (SolidPaint) strokes[0];
                 var strokeColorBlended = solidColor.color;
