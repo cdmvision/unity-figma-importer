@@ -8,7 +8,7 @@ namespace Cdm.Figma.UIToolkit
         public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var rectangleNode = (RectangleNode) node;
-            var nodeElement = NodeElement.New<VisualElement>(rectangleNode, args);
+            var nodeElement = VectorNodeConverter.Convert(rectangleNode, args);
             BuildStyle(rectangleNode, nodeElement.inlineStyle);
             return nodeElement;
         }

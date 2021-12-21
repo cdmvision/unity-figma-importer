@@ -4,7 +4,7 @@ namespace Cdm.Figma.UIToolkit
 {
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        public static NodeElement Convert(GroupNode node, NodeConvertArgs args)
         {
             var groupNode = (GroupNode) node;
             
@@ -23,6 +23,11 @@ namespace Cdm.Figma.UIToolkit
             }
             
             return NodeElement.New<VisualElement>(node, args);
+        }
+        
+        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        {
+            return Convert((GroupNode) node, args);
         }
     }
 }
