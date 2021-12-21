@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Cdm.Figma.UIToolkit.UIToolkit
+namespace Cdm.Figma.UIToolkit
 {
     /// <summary>
     /// PROPERTIES THAT ARE NOT SUPPORTED IN UI TOOLKIT:
