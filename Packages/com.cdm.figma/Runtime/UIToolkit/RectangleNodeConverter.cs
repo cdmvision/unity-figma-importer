@@ -15,31 +15,6 @@ namespace Cdm.Figma.UIToolkit
 
         private void BuildStyle(RectangleNode node, Style style)
         {
-            if (node.parent is SceneNode parentNode)
-            {
-                if (parentNode is GroupNode groupNode)
-                {
-                    if (groupNode.layoutMode != LayoutMode.None)
-                    {
-                        HandleFillContainer(groupNode.layoutMode, node, style);
-                    }
-                    else
-                    {
-                        HandleConstraints(groupNode.size, node, style);
-                    }
-
-                    // TODO: layout grid
-                    /*if (node.parent is FrameNode frameNode)
-                    {
-                        SetLayoutGrid();
-                    }*/
-                }
-                else
-                {
-                    Debug.Assert(false, $"Node must be has a {nameof(GroupNode)} parent: {node.name} ({node.id})");   
-                }            
-            }
-
             SetOpacity(node, style);
             SetRotation(node, style);
             AddBackgroundColor(node, style);
