@@ -21,11 +21,11 @@ namespace Cdm.Figma.UIToolkit
                 {
                     if (groupNode.layoutMode != LayoutMode.None)
                     {
-                        SetPositionRelative(groupNode.layoutMode, node, style);
+                        HandleFillContainer(groupNode.layoutMode, node, style);
                     }
                     else
                     {
-                        SetPositionAbsolute(groupNode.size, node, style);
+                        HandleConstraints(groupNode.size, node, style);
                     }
 
                     // TODO: layout grid
@@ -34,8 +34,10 @@ namespace Cdm.Figma.UIToolkit
                         SetLayoutGrid();
                     }*/
                 }
-
-                Debug.Assert(false, $"Node must be has a {nameof(GroupNode)} parent: {node.name} ({node.id})");
+                else
+                {
+                    Debug.Assert(false, $"Node must be has a {nameof(GroupNode)} parent: {node.name} ({node.id})");   
+                }            
             }
 
             SetOpacity(node, style);
@@ -52,7 +54,7 @@ namespace Cdm.Figma.UIToolkit
             style.opacity = new StyleFloat(opacity);
         }
 
-        private void SetPositionAbsolute(Vector parentSize, Node node, Style style)
+        private void HandleConstraints(Vector parentSize, Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             style.position = new StyleEnum<Position>(Position.Absolute);
@@ -158,7 +160,7 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        private void SetPositionRelative(LayoutMode parentLayoutMode, Node node, Style style)
+        private void HandleFillContainer(LayoutMode parentLayoutMode, Node node, Style style)
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             style.position = new StyleEnum<Position>(Position.Relative);

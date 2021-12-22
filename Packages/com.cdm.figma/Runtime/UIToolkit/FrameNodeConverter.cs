@@ -17,25 +17,33 @@ namespace Cdm.Figma.UIToolkit
         public override NodeElement Convert(Node node, NodeConvertArgs args)
         {
             var frameNode = (FrameNode) node;
-            var nodeElement = NodeElement.New<VisualElement>(frameNode, args);
+            var nodeElement = GroupNodeConverter.Convert(frameNode, args);
             BuildStyle(frameNode, nodeElement.inlineStyle);
             var children = frameNode.children;
             for (int child = 0; child < children.Length; child++)
             {
                 if (args.importer.TryConvertNode(children[child], args, out var childElement))
                 {
-                    if (child != children.Length - 1)
+                    if (frameNode.layoutMode != LayoutMode.None)
                     {
-                        if (frameNode.layoutMode == LayoutMode.Horizontal)
+                        HandleFillContainer(frameNode.layoutMode, childElement.node, childElement.inlineStyle);
+                        if (child != children.Length - 1)
                         {
-                            childElement.inlineStyle.marginRight =
-                                new StyleLength(new Length(frameNode.itemSpacing, LengthUnit.Pixel));
+                            if (frameNode.layoutMode == LayoutMode.Horizontal)
+                            {
+                                childElement.inlineStyle.marginRight =
+                                    new StyleLength(new Length(frameNode.itemSpacing, LengthUnit.Pixel));
+                            }
+                            else if (frameNode.layoutMode == LayoutMode.Vertical)
+                            {
+                                childElement.inlineStyle.marginBottom =
+                                    new StyleLength(new Length(frameNode.itemSpacing, LengthUnit.Pixel));
+                            }
                         }
-                        else if (frameNode.layoutMode == LayoutMode.Vertical)
-                        {
-                            childElement.inlineStyle.marginBottom =
-                                new StyleLength(new Length(frameNode.itemSpacing, LengthUnit.Pixel));
-                        }
+                    }
+                    else
+                    {
+                        HandleConstraints(frameNode.size, childElement.node, childElement.inlineStyle);
                     }
                     nodeElement.AddChild(childElement);
                 }
@@ -45,38 +53,32 @@ namespace Cdm.Figma.UIToolkit
 
         private void BuildStyle(FrameNode node, Style style)
         {
-            GroupNode parent = new GroupNode();
-            if (node.parent.type == NodeType.Frame || node.parent.type == NodeType.Group)
+            if (node.parent is SceneNode parentNode)
             {
-                if (node.parent.type == NodeType.Frame)
-                    parent = (FrameNode) node.parent;
-                else
-                    parent = (GroupNode) node.parent;
+                if (parentNode is GroupNode groupNode)
+                {
+                    if (groupNode.layoutMode != LayoutMode.None)
+                    {
+                        style.position = new StyleEnum<Position>(Position.Relative);
+                        HandleFillContainer(groupNode.layoutMode, node, style);
+                    }
+                    else
+                    {
+                        style.position = new StyleEnum<Position>(Position.Absolute);
+                        HandleConstraints(groupNode.size, node, style);
+                    }
+                }
             }
-            
-            if (!NodeHasVisualParent(node))
+            else
             {
                 style.position = new StyleEnum<Position>(Position.Relative);
                 style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
                 style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
             }
-            else if(NodeHasVisualParent(node))
+            
+            if (node.layoutMode != LayoutMode.None)
             {
-                if (parent.layoutMode != LayoutMode.None)
-                {
-                    style.position = new StyleEnum<Position>(Position.Relative);
-                    HandleFillContainer(parent.layoutMode, node, style);
-                }
-                else
-                {
-                    style.position = new StyleEnum<Position>(Position.Absolute);
-                    HandleConstraints(parent.size, node, style);
-                }
-
-                if (node.layoutMode != LayoutMode.None)
-                {
-                    HandleAxisSizing(node, style);
-                }
+                HandleAxisSizing(node, style);
             }
 
             SetClipContent(node, style);
@@ -113,21 +115,12 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        private bool NodeHasVisualParent(Node node)
-        {
-            FrameNode frameNode = (FrameNode) node;
-            if (frameNode.parent.type == NodeType.Frame || frameNode.parent.type == NodeType.Group || 
-                frameNode.parent.type == NodeType.Component || frameNode.parent.type == NodeType.ComponentSet ||
-                frameNode.parent.type == NodeType.Instance)
-            {
-                return true;
-            }
-
-            return false;
-        }
-        
         private void HandleConstraints(Vector parentSize, Node node, Style style)
         {
+            if (node is GroupNode)
+            {
+                GroupNode childNode = (GroupNode) node;
+            }
             FrameNode frameNode = (FrameNode) node;
             var relativeTransform = frameNode.relativeTransform;
             var position = relativeTransform.GetPosition();
