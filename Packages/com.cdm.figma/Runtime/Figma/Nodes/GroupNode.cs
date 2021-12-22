@@ -15,7 +15,7 @@ namespace Cdm.Figma
     /// In Figma, groups must always have children. A group with no children will delete itself.
     /// </summary>
     [DataContract]
-    public class GroupNode : SceneNode
+    public class GroupNode : SceneNode, INodeLayout, INodeBlend, INodeTransition, INodeExport
     {
         public override string type => NodeType.Group;
         
@@ -66,7 +66,7 @@ namespace Cdm.Figma
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
         [DataMember(Name = "exportSettings")]
-        public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>();
+        public List<ExportSetting> exportSettings { get; set; } = new List<ExportSetting>();
 
         /// <summary>
         /// How this node blends with nodes behind it in the scene.
@@ -226,7 +226,7 @@ namespace Cdm.Figma
         /// A list of effects attached to this node.
         /// </summary>
         [DataMember(Name = "effects")]
-        public List<Effect> effects { get; private set; } = new List<Effect>();
+        public List<Effect> effects { get; set; } = new List<Effect>();
         
         /// <summary>
         /// Does this node mask sibling nodes in front of it?
