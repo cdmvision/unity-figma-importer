@@ -47,7 +47,7 @@ namespace Cdm.Figma
         /// and 1 corresponds to stretch.
         /// </summary>
         [DataMember(Name = "layoutGrow")]
-        public int layoutGrow { get; set; } = 0;
+        public int? layoutGrow { get; set; }
         
         /// <summary>
         /// Horizontal and vertical layout constraints for node.

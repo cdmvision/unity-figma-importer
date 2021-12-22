@@ -81,6 +81,11 @@ namespace Cdm.Figma
         public bool preserveRatio { get; set; } = false;
 
         /// <summary>
+        /// Group node does not have this property.
+        /// </summary>
+        public int? layoutGrow { get; set; } = null;
+
+        /// <summary>
         /// Horizontal and vertical layout constraints for node.
         /// </summary>
         [DataMember(Name = "constraints")]
