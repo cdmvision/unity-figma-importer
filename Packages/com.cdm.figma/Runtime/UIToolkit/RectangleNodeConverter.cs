@@ -184,7 +184,10 @@ namespace Cdm.Figma.UIToolkit
                 style.height = new StyleLength(new Length(rectangleNode.size.y, LengthUnit.Pixel));
             }
 
-            style.flexGrow = new StyleFloat(rectangleNode.layoutGrow);
+            if (rectangleNode.layoutGrow.HasValue)
+            {
+                style.flexGrow = new StyleFloat(rectangleNode.layoutGrow.Value);    
+            }
         }
 
         private void SetRotation(Node node, Style style)
