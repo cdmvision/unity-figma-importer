@@ -62,10 +62,12 @@ namespace Cdm.Figma.UIToolkit
         
         private static void BuildStyle(GroupNode node, Style style)
         {
+            //unity ui toolkit automatically sets shrink to 1, we don't want that.
+            style.flexShrink = new StyleFloat(0f);
             style.position = new StyleEnum<Position>(Position.Relative);
             style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
             style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
-
+            
             if (node.layoutMode != LayoutMode.None)
             {
                 HandleAxisSizing(node, style);
