@@ -133,7 +133,8 @@ namespace Cdm.Figma.UIToolkit
             else if (constraintX == Horizontal.Right)
             {
                 style.width = new StyleLength(new Length(nodeTransform.size.x, LengthUnit.Pixel));
-                style.right = new StyleLength(new Length(position.x, LengthUnit.Pixel));
+                var right = parentSize.x - (position.x + nodeTransform.size.x);
+                style.right = new StyleLength(new Length(right, LengthUnit.Pixel));
             }
             else if (constraintX == Horizontal.LeftRight)
             {
@@ -153,6 +154,7 @@ namespace Cdm.Figma.UIToolkit
                 var rightPercentage = (nodeRight * 100.0f) / parentWidth;
                 style.left = new StyleLength(new Length(leftPercentage, LengthUnit.Percent));
                 style.right = new StyleLength(new Length(rightPercentage, LengthUnit.Percent));
+                style.width = new StyleLength(StyleKeyword.Auto);
             }
             
             if (constraintY == Vertical.Center)
@@ -180,7 +182,8 @@ namespace Cdm.Figma.UIToolkit
             else if (constraintY == Vertical.Bottom)
             {
                 style.height = new StyleLength(new Length(nodeTransform.size.y, LengthUnit.Pixel));
-                style.bottom = new StyleLength(new Length(position.y, LengthUnit.Pixel));
+                var bottom = parentSize.y - (position.y + nodeTransform.size.y);
+                style.bottom = new StyleLength(new Length(bottom, LengthUnit.Pixel));
             }
             else if (constraintY == Vertical.TopBottom)
             {
@@ -200,6 +203,7 @@ namespace Cdm.Figma.UIToolkit
                 var bottomPercentage = (nodeBottom * 100.0f) / parentHeight;
                 style.top = new StyleLength(new Length(topPercentage, LengthUnit.Percent));
                 style.bottom = new StyleLength(new Length(bottomPercentage, LengthUnit.Percent));
+                style.height = new StyleLength(StyleKeyword.Auto);
             }
         }
 
