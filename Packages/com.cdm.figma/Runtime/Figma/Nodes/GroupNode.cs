@@ -15,7 +15,7 @@ namespace Cdm.Figma
     /// In Figma, groups must always have children. A group with no children will delete itself.
     /// </summary>
     [DataContract]
-    public class GroupNode : SceneNode, INodeLayout, INodeBlend, INodeTransition, INodeExport
+    public class GroupNode : SceneNode, INodeTransform, INodeLayout, INodeBlend, INodeTransition, INodeExport
     {
         public override string type => NodeType.Group;
         

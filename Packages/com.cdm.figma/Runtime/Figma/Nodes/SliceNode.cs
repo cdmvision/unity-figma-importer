@@ -9,7 +9,7 @@ namespace Cdm.Figma
     /// is to add an <see cref="exportSettings"/>.
     /// </summary>
     [DataContract]
-    public class SliceNode : SceneNode
+    public class SliceNode : SceneNode, INodeTransform, INodeExport
     {
         public override string type => NodeType.Slice;
         
@@ -17,7 +17,7 @@ namespace Cdm.Figma
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
         [DataMember(Name = "exportSettings")]
-        public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>(); 
+        public List<ExportSetting> exportSettings { get; set; } = new List<ExportSetting>(); 
         
         /// <summary>
         /// Bounding box of the node in absolute space coordinates.
