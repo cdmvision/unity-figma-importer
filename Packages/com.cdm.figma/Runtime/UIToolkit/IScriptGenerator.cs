@@ -2,7 +2,7 @@ namespace Cdm.Figma.UIToolkit
 {
     public interface IScriptGenerator
     {
-        GeneratedScript Generate(NodeElement page);
+        GeneratedScript Generate(PageNode page, NodeElement node);
     }
     
     public class GeneratedScript

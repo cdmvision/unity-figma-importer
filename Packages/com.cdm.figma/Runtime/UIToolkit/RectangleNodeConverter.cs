@@ -34,8 +34,10 @@ namespace Cdm.Figma.UIToolkit
                         SetLayoutGrid();
                     }*/
                 }
-
-                Debug.Assert(false, $"Node must be has a {nameof(GroupNode)} parent: {node.name} ({node.id})");
+                else
+                {
+                    Debug.Assert(false, $"Node must be has a {nameof(GroupNode)} parent: {node.name} ({node.id})");   
+                }
             }
 
             SetOpacity(node, style);

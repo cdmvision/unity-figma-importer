@@ -60,9 +60,6 @@ namespace Cdm.Figma.UIToolkit
                 var assetsDirectory = Path.Combine("Assets", documentsPath);
                 Directory.CreateDirectory(assetsDirectory);
                 
-                var scriptsDirectory = Path.Combine("Assets", figmaTaskFile.scriptsPath);
-                Directory.CreateDirectory(scriptsDirectory);
-                
                 var documents = figmaTaskFile.importer.GetImportedDocuments();
                 foreach (var document in documents)
                 {
@@ -78,19 +75,26 @@ namespace Cdm.Figma.UIToolkit
                         document.uxml.Root?.Add(styleElement);
                     }
 
+                    // Create scripts.
                     if (document.script != null)
                     {
+                        var scriptsDirectory = Path.Combine("Assets", figmaTaskFile.scriptsPath, document.page.name);
+                        if (!Directory.Exists(scriptsDirectory))
+                        {
+                            Directory.CreateDirectory(scriptsDirectory);
+                        }
+                        
                         var scripPath = Path.Combine(scriptsDirectory, $"{document.script.name}.cs");
                         File.WriteAllText(scripPath, document.script.contents);
                     }
 
-                    var directory = Path.Combine(assetsDirectory, document.page.name);
-                    if (!Directory.Exists(directory))
+                    var documentDirectory = Path.Combine(assetsDirectory, document.page.name);
+                    if (!Directory.Exists(documentDirectory))
                     {
-                        Directory.CreateDirectory(directory);
+                        Directory.CreateDirectory(documentDirectory);
                     }
                     
-                    var documentPath = Path.Combine(directory, $"{document.node.name}.uxml");
+                    var documentPath = Path.Combine(documentDirectory, $"{document.node.name}.uxml");
                     using var fileStream = File.Create(documentPath);
                     using var xmlWriter = new XmlTextWriter(fileStream, Encoding.UTF8);
                     xmlWriter.Formatting = Formatting.Indented;

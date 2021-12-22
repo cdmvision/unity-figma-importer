@@ -11,20 +11,15 @@ namespace Cdm.Figma.UIToolkit
         public const string DefaultNamespaceName = "Cdm.Figma.UIToolkit.Documents";
         
         public string namespaceName { get; set; } = DefaultNamespaceName;
-        public string className { get; set; }
         
-        public GeneratedScript Generate(NodeElement page)
+        public GeneratedScript Generate(PageNode page, NodeElement node)
         {
             var properties = new Dictionary<string, Type>();
-            PopulateClassPropertiesRecurse(page, properties);
-
-            if (string.IsNullOrEmpty(className))
-            {
-                if (!TryFormatAsClassName(page.node.name, out var name))
-                    throw new Exception($"Class name could not be generated from this '{page.node.name}'.");
-
-                className = name;
-            }
+            PopulateClassPropertiesRecurse(node, properties);
+            
+            var sourceName = $"{page.name}{node.node.name}";
+            if (!TryFormatAsClassName(sourceName, out var className))
+                throw new Exception($"Class name could not be generated from this '{sourceName}'.");
 
             var scriptText = new StringBuilder();
             scriptText.AppendLine($"using UnityEngine.UIElements;");
@@ -58,7 +53,6 @@ namespace Cdm.Figma.UIToolkit
             // Initialize all properties.
             foreach (var (name, type) in properties)
             {
-                
                 scriptText.AppendLine($"\t\t{name} = document.{nameof(UIDocument.rootVisualElement)}.Q<{type.FullName}>(\"{name}\");");
             }
             
