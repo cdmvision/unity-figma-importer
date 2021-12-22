@@ -12,7 +12,7 @@ namespace Cdm.Figma
     /// fit its vertices. For example, the positions returned by vector paths is relative to the vector object position.
     /// </summary>
     [DataContract]
-    public class VectorNode : SceneNode
+    public class VectorNode : SceneNode, INodeTransform, INodeLayout, INodeBlend, INodeTransition, INodeExport
     {
         public override string type => NodeType.Vector;
         
@@ -20,7 +20,7 @@ namespace Cdm.Figma
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
         [DataMember(Name = "exportSettings")]
-        public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>();
+        public List<ExportSetting> exportSettings { get; set; } = new List<ExportSetting>();
         
         /// <summary>
         /// How this node blends with nodes behind it in the scene.
@@ -89,7 +89,7 @@ namespace Cdm.Figma
         /// A list of effects attached to this node.
         /// </summary>
         [DataMember(Name = "effects")]
-        public List<Effect> effects { get; private set; } = new List<Effect>();
+        public List<Effect> effects { get; set; } = new List<Effect>();
         
         /// <summary>
         /// Width and height of element. This is different from the width and height of the bounding box in that the

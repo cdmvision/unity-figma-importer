@@ -185,22 +185,28 @@ namespace Cdm.Figma.UIToolkit
                 {
                     if (node is FrameNode)
                     {
-                        if (TryConvertNode(node, conversionArgs, out var root))
+                        if (TryConvertNode(node, conversionArgs, out var frameNode))
                         {
-                            root.inlineStyle.width = new StyleLength(new Length(100f, LengthUnit.Percent));
-                            root.inlineStyle.height = new StyleLength(new Length(100f, LengthUnit.Percent));
+                            frameNode.inlineStyle.width = new StyleLength(new Length(100f, LengthUnit.Percent));
+                            frameNode.inlineStyle.height = new StyleLength(new Length(100f, LengthUnit.Percent));
 
+                            frameNode.inlineStyle.position = new StyleEnum<Position>(Position.Absolute);
+                            frameNode.inlineStyle.left = new StyleLength(new Length(0, LengthUnit.Percent));
+                            frameNode.inlineStyle.right = new StyleLength(new Length(0, LengthUnit.Percent));
+                            frameNode.inlineStyle.top = new StyleLength(new Length(0, LengthUnit.Percent));
+                            frameNode.inlineStyle.bottom = new StyleLength(new Length(0, LengthUnit.Percent));
+                            
                             var importedDocument = new ImportedDocument();
                             importedDocument.page = filePage;
                             importedDocument.node = node;
                             
-                            var (uxml, styleSheet) = BuildUxml(root, conversionArgs.namespaces);
+                            var (uxml, styleSheet) = BuildUxml(frameNode, conversionArgs.namespaces);
                             importedDocument.uxml = uxml;
                             importedDocument.styleSheet = styleSheet;
                             
                             if (scriptGenerator != null)
                             {
-                                importedDocument.script = scriptGenerator.Generate(root);
+                                importedDocument.script = scriptGenerator.Generate(page, frameNode);
                             }
                         
                             _documents.Add(importedDocument);
