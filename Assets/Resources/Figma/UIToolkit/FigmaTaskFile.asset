@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _personalAccessToken: 276161-7e9afdbe-d019-46b3-8eb7-7f36f24d2ee9
   _assetsPath: Resources/Figma/UIToolkit/Files
+  _documentsPath: Resources/Figma/UIToolkit/Documents
+  _scriptsPath: Resources/Figma/UIToolkit/Scripts
   _graphicsPath: Resources/Figma/UIToolkit/Graphics
   _files:
-  - s0bB41GcxcFm0Jgt3DsTi0
-  _importer: {fileID: 11400000, guid: dd8233884a2c6bb4f9ac9881573e40af, type: 2}
+  - gQubW85QD5Vd6oqRBkRuxU

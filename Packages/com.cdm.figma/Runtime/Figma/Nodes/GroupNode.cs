@@ -1,15 +1,21 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using JsonSubTypes;
-using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
-    [JsonConverter(typeof(JsonSubtypes), "type")]
-    [JsonSubtypes.KnownSubType(typeof(FrameNode), NodeType.Frame)]
-    [JsonSubtypes.FallBackSubType(typeof(GroupNode))]
+    /// <summary>
+    /// The group node is a container used to semantically group related nodes. You can think of them as a folder in
+    /// the layers panel. It is different from FrameNode, which defines layout and is closer to a <![CDATA[<div>]]>
+    /// in HTML.
+    /// 
+    /// Groups in Figma are always positioned and sized to fit their content. As such, while you can move or resize a
+    /// group, you should also expect that a group's position and size will change if you change its content. See the
+    /// <see cref="relativeTransform"/> page for more details.
+    /// 
+    /// In Figma, groups must always have children. A group with no children will delete itself.
+    /// </summary>
     [DataContract]
-    public class GroupNode : Node
+    public class GroupNode : SceneNode, INodeTransform, INodeLayout, INodeBlend, INodeTransition, INodeExport
     {
         public override string type => NodeType.Group;
         
@@ -18,13 +24,7 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "children")]
         public Node[] children { get; set; }
-
-        /// <summary>
-        /// If true, layer is locked and cannot be edited.
-        /// </summary>
-        [DataMember(Name = "locked")]
-        public bool locked { get; private set; } = false;
-
+        
         /// <summary>
         /// An array of fill paints applied to the node.
         /// </summary>
@@ -66,7 +66,7 @@ namespace Cdm.Figma
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
         [DataMember(Name = "exportSettings")]
-        public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>();
+        public List<ExportSetting> exportSettings { get; set; } = new List<ExportSetting>();
 
         /// <summary>
         /// How this node blends with nodes behind it in the scene.
@@ -79,6 +79,11 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "preserveRatio")]
         public bool preserveRatio { get; set; } = false;
+
+        /// <summary>
+        /// Group node does not have this property.
+        /// </summary>
+        public int? layoutGrow { get; set; } = null;
 
         /// <summary>
         /// Horizontal and vertical layout constraints for node.
@@ -226,7 +231,7 @@ namespace Cdm.Figma
         /// A list of effects attached to this node.
         /// </summary>
         [DataMember(Name = "effects")]
-        public List<Effect> effects { get; private set; } = new List<Effect>();
+        public List<Effect> effects { get; set; } = new List<Effect>();
         
         /// <summary>
         /// Does this node mask sibling nodes in front of it?

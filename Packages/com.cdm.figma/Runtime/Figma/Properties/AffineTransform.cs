@@ -29,7 +29,7 @@ namespace Cdm.Figma
         /// <summary>
         /// Gets the 2D position in Unity space.
         /// </summary>
-        public Vector2 GetPosition() => new Vector2(values[0][2], -values[1][2]);
+        public Vector2 GetPosition() => new Vector2(values[0][2], values[1][2]);
 
         /// <summary>
         /// Gets the 2D rotation as <see cref="Quaternion"/>.
@@ -39,6 +39,6 @@ namespace Cdm.Figma
         /// <summary>
         /// Gets 2D rotation angle in degrees.
         /// </summary>
-        public float GetRotationAngle() => Mathf.Rad2Deg * Mathf.Atan2(values[0][0], values[1][0]);
+        public float GetRotationAngle() => Mathf.Rad2Deg * Mathf.Atan2(values[1][0], values[0][0]);
     }
 }

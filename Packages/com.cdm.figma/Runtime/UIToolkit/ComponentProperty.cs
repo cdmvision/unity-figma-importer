@@ -2,11 +2,24 @@ using System;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [Serializable]
     public class ComponentProperty : IEquatable<ComponentProperty>
     {
-        public string key;
-        public ComponentVariant[] variants = new ComponentVariant[0];
+        public string key { get; }
+        public string[] variants { get; }
+
+        public ComponentProperty(string key, string[] variants)
+        {
+            this.key = key;
+            this.variants = variants;
+        }
+
+        public string ToString(int variantIndex)
+        {
+            if (variantIndex < 0 || variantIndex >= variants.Length)
+                throw new ArgumentOutOfRangeException(nameof(variantIndex), variantIndex, "Variant index out of bounds.");
+
+            return $"{key}={variants[variantIndex]}";
+        }
 
         public bool Equals(ComponentProperty other)
         {
@@ -36,23 +49,6 @@ namespace Cdm.Figma.UIToolkit
         public static bool operator !=(ComponentProperty left, ComponentProperty right)
         {
             return !Equals(left, right);
-        }
-    }
-    
-    [Serializable]
-    public class ComponentVariant
-    {
-        public string key;
-        public string value;
-
-        public ComponentVariant()
-        {
-        }
-        
-        public ComponentVariant(string key, string value)
-        {
-            this.key = key;
-            this.value = value;
         }
     }
 }

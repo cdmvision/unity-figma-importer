@@ -3,22 +3,24 @@ using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// The vector node is our most general representation of shape, allowing you to specify individual vertices,
+    /// segments, and regions. They are typically created in the UI using the pen tool, pencil tool, or when
+    /// flattening a selection.
+    ///
+    /// Note that similarly to groups, <see cref="VectorNode"/>s' position and size are automatically adjusted to
+    /// fit its vertices. For example, the positions returned by vector paths is relative to the vector object position.
+    /// </summary>
     [DataContract]
-    public class VectorNode : Node
+    public class VectorNode : SceneNode, INodeTransform, INodeLayout, INodeBlend, INodeTransition, INodeExport
     {
         public override string type => NodeType.Vector;
-        
-        /// <summary>
-        /// If true, layer is locked and cannot be edited.
-        /// </summary>
-        [DataMember(Name = "locked")]
-        public bool locked { get; private set; } = false;
         
         /// <summary>
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
         [DataMember(Name = "exportSettings")]
-        public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>();
+        public List<ExportSetting> exportSettings { get; set; } = new List<ExportSetting>();
         
         /// <summary>
         /// How this node blends with nodes behind it in the scene.
@@ -45,7 +47,7 @@ namespace Cdm.Figma
         /// and 1 corresponds to stretch.
         /// </summary>
         [DataMember(Name = "layoutGrow")]
-        public int layoutGrow { get; set; } = 0;
+        public int? layoutGrow { get; set; }
         
         /// <summary>
         /// Horizontal and vertical layout constraints for node.
@@ -87,7 +89,7 @@ namespace Cdm.Figma
         /// A list of effects attached to this node.
         /// </summary>
         [DataMember(Name = "effects")]
-        public List<Effect> effects { get; private set; } = new List<Effect>();
+        public List<Effect> effects { get; set; } = new List<Effect>();
         
         /// <summary>
         /// Width and height of element. This is different from the width and height of the bounding box in that the
@@ -116,7 +118,7 @@ namespace Cdm.Figma
         /// An array of fill paints applied to the node.
         /// </summary>
         [DataMember(Name = "fills")]
-        public List<Paint> fills { get; private set; } = new List<Paint>();
+        public Paint[] fills { get; set; }
         
         /// <summary>
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object fill.
@@ -128,7 +130,7 @@ namespace Cdm.Figma
         /// An array of stroke paints applied to the node.
         /// </summary>
         [DataMember(Name = "strokes")]
-        public List<Paint> strokes { get; private set; } = new List<Paint>();
+        public Paint[] strokes { get; set; }
         
         /// <summary>
         /// The weight of strokes on the node.

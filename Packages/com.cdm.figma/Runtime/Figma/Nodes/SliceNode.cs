@@ -3,8 +3,13 @@ using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// A slice is an invisible object with a bounding box, represented as dashed lines in the editor. Its purpose
+    /// is to allow you to export a specific part of a document. Generally, the only thing you will do with a slice
+    /// is to add an <see cref="exportSettings"/>.
+    /// </summary>
     [DataContract]
-    public class SliceNode : Node
+    public class SliceNode : SceneNode, INodeTransform, INodeExport
     {
         public override string type => NodeType.Slice;
         
@@ -12,7 +17,7 @@ namespace Cdm.Figma
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
         [DataMember(Name = "exportSettings")]
-        public List<ExportSetting> exportSettings { get; private set; } = new List<ExportSetting>(); 
+        public List<ExportSetting> exportSettings { get; set; } = new List<ExportSetting>(); 
         
         /// <summary>
         /// Bounding box of the node in absolute space coordinates.

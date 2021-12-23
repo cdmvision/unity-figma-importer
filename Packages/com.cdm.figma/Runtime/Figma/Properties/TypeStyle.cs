@@ -11,7 +11,7 @@ namespace Cdm.Figma
     /// Map from ID to TypeStyle for looking up style overrides.
     /// </summary>
     [DataContract]
-    public partial class TypeStyle
+    public class TypeStyle
     {
         /// <summary>
         /// Font family of text (standard name)
@@ -53,7 +53,7 @@ namespace Cdm.Figma
         /// Numeric font weight.
         /// </summary>
         [DataMember(Name = "fontWeight")]
-        public float fontWeight { get; set; }
+        public int fontWeight { get; set; }
 
         /// <summary>
         /// Font size in px.

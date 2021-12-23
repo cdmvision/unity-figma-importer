@@ -16,6 +16,7 @@
 [Aa]ssets/Resources/Figma/UIToolkit/Documents/
 [Aa]ssets/Resources/Figma/UIToolkit/Files/
 [Aa]ssets/Resources/Figma/UIToolkit/Graphics/
+[Aa]ssets/Resources/Figma/UIToolkit/Scripts/
 [Aa]ssets/Resources/Figma/UI/Documents/
 [Aa]ssets/Resources/Figma/UI/Files/
 [Aa]ssets/Resources/Figma/UI/Graphics/
@@ -30,6 +31,8 @@
 [Aa]ssets/Plugins/Editor/JetBrains*
 
 .idea/
+.vsconfig
+.DS_Store
 
 # Visual Studio cache directory
 .vs/

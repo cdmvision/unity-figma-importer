@@ -1,72 +1,128 @@
-using System.Globalization;
-using System.IO;
-using System.Text;
 using System.Xml.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
 {
-    [CreateAssetMenu(fileName = nameof(VectorNodeConverter), 
-        menuName = AssetMenuRoot + "Vector", order = AssetMenuOrder)]
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
-        public static XElement Convert(VectorNode node, NodeConvertArgs args)
+        public static NodeElement Convert(NodeElement parentElement, VectorNode node, NodeConvertArgs args)
         {
-            var style = BuildStyle(node, args);
-            return XmlFactory.NewElement<VisualElement>(node, args).Style(style);
-        }
-        
-        public override XElement Convert(Node node, NodeConvertArgs args)
-        {
-            return Convert((VectorNode) node, args);
+            var element = NodeElement.New<VisualElement>(node, args);
+            BuildStyle(node, args, element.inlineStyle);
+            return element;
         }
 
-        private static string BuildStyle(VectorNode node, NodeConvertArgs args)
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
-            var style = new StringBuilder();
+            return Convert(parentElement, (VectorNode) node, args);
+        }
 
-            // Size and position.
-            var absoluteBoundingBox = node.absoluteBoundingBox;
-            var width = absoluteBoundingBox.width.ToString(CultureInfo.InvariantCulture);
-            var height = absoluteBoundingBox.height.ToString(CultureInfo.InvariantCulture);
-
-            // Override width and height if size property is exist.
-            if (node.size != null)
-            {
-                width = node.size.x.ToString(CultureInfo.InvariantCulture);
-                height = node.size.y.ToString(CultureInfo.InvariantCulture);
-            }
+        private static void BuildStyle(VectorNode node, NodeConvertArgs args, Style style)
+        {
+            //this node must be a child of a node so its width, height and size is set in its parent.
+            //unity ui toolkit automatically sets shrink to 1, we don't want that.
+            style.flexShrink = new StyleFloat(0f);
+            SetOpacity(node, style);
+            SetRotation(node, style);
+            AddBackgroundColor(node, style);
+            AddStrokes(node, style);
+            SetTransformOrigin(style);
+            //style.width = new StyleLength(node.size.x);
+            //style.height = new StyleLength(node.size.y);
 
             // Override width and height if SVG contains these properties.
-            if (args.TryGetAssetPath(node.id, out var assetPath))
+            if (args.file.TryGetGraphic(node.id, out var graphic))
             {
-                var svg = XDocument.Load(Path.Combine(Application.dataPath, assetPath));
-                if (svg.Root != null)
+                style.backgroundImage = new StyleBackground(graphic);
+                
+#if UNITY_EDITOR
+                var path = UnityEditor.AssetDatabase.GetAssetPath(graphic);
+                if (!string.IsNullOrEmpty(path))
                 {
-                    var widthAttribute = svg.Root.Attribute("width");
-                    if (widthAttribute != null)
+                    var svg = XDocument.Load(path);
+                    if (svg.Root != null)
                     {
-                        width = widthAttribute.Value;
-                    }
-                    
-                    var heightAttribute = svg.Root.Attribute("height");
-                    if (heightAttribute != null)
-                    {
-                        height = heightAttribute.Value;
+                        var widthAttribute = svg.Root.Attribute("width");
+                        if (widthAttribute != null)
+                        {
+                            style.width = new StyleLength(float.Parse(widthAttribute.Value));
+                        }
+
+                        var heightAttribute = svg.Root.Attribute("height");
+                        if (heightAttribute != null)
+                        {
+                            style.height = new StyleLength(float.Parse(heightAttribute.Value));
+                        }
                     }
                 }
-            }
-                        
-            style.Append($"width: {width}px; ");
-            style.Append($"height: {height}px; ");
-            
-            if (args.TryGetStyleUrl(node.id, out var assetUrl))
-            {
-                style.Append($"background-image: {assetUrl}; ");
-            }
 
-            return style.ToString();
+#else
+                Debug.LogWarning("SVG file cannot be read at runtime.");
+#endif
+            }
+        }
+        
+        private static void SetOpacity(Node node, Style style)
+        {
+            RectangleNode rectangleNode = (RectangleNode) node;
+            var opacity = rectangleNode.opacity;
+            style.opacity = new StyleFloat(opacity);
+        }
+
+        private static void SetRotation(Node node, Style style)
+        {
+            RectangleNode rectangleNode = (RectangleNode) node;
+            var relativeTransform = rectangleNode.relativeTransform;
+            var rotation = relativeTransform.GetRotationAngle();
+            if (rotation != 0.0f)
+            {
+                style.rotate = new StyleRotate(new Rotate(rotation));
+            }
+        }
+
+        private static void SetTransformOrigin(Style style)
+        {
+            // Figma transform pivot is located on the top left.
+            style.transformOrigin =
+                new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
+        }
+
+        private static void AddStrokes(Node node, Style style)
+        {
+            RectangleNode rectangleNode = (RectangleNode) node;
+            var strokes = rectangleNode.strokes;
+            if (strokes.Length > 0)
+            {
+                var strokeWeight = rectangleNode.strokeWeight;
+                if (strokeWeight.HasValue)
+                {
+                    style.borderTopWidth = new StyleFloat((float) strokeWeight);
+                    style.borderLeftWidth = new StyleFloat((float) strokeWeight);
+                    style.borderBottomWidth = new StyleFloat((float) strokeWeight);
+                    style.borderRightWidth = new StyleFloat((float) strokeWeight);
+                }
+
+                //only getting the base color
+                var solidColor = (SolidPaint) strokes[0];
+                var strokeColorBlended = solidColor.color;
+                style.borderTopColor = new StyleColor(strokeColorBlended);
+                style.borderLeftColor = new StyleColor(strokeColorBlended);
+                style.borderBottomColor = new StyleColor(strokeColorBlended);
+                style.borderRightColor = new StyleColor(strokeColorBlended);
+            }
+        }
+
+        private static void AddBackgroundColor(Node node, Style style)
+        {
+            RectangleNode rectangleNode = (RectangleNode) node;
+            var fills = rectangleNode.fills;
+            if (fills.Length > 0)
+            {
+                //only getting the base color
+                var solidColor = (SolidPaint) fills[0];
+                var fillColorBlended = solidColor.color;
+                style.backgroundColor = new StyleColor(fillColorBlended);
+            }
         }
     }
 }

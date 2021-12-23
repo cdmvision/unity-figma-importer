@@ -31,5 +31,11 @@ namespace Cdm.Figma
         /// </summary>
         [EnumMember(Value = "LINEAR")]
         Linear,
+        
+        /// <summary>
+        /// Describes the points that define the cubic bezier easing curve (x1, y1, x2, y2).
+        /// </summary>
+        [EnumMember(Value = "CUSTOM_CUBIC")]
+        CustomCubic
     }
 }

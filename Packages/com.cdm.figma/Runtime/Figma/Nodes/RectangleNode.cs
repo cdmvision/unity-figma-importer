@@ -2,6 +2,10 @@ using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
+    /// <summary>
+    /// The rectangle is one of the most commonly used shapes in Figma. A notable feature it has over other kinds of
+    /// shapes is the ability to specify independent corner radius values.
+    /// </summary>
     [DataContract]
     public class RectangleNode : VectorNode
     {
@@ -19,5 +23,25 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "rectangleCornerRadii")]
         public float[] rectangleCornerRadii { get; set; }
+
+        public float topLeftRadius => GetCornerRadius(0);
+        public float topRightRadius => GetCornerRadius(1);
+        public float bottomLeftRadius => GetCornerRadius(2);
+        public float bottomRightRadius => GetCornerRadius(3);
+
+        private float GetCornerRadius(int i)
+        {
+            if (rectangleCornerRadii != null)
+            {
+                return rectangleCornerRadii[i];
+            }
+
+            if (cornerRadius.HasValue)
+            {
+                return cornerRadius.Value;
+            }
+
+            return 0;
+        }
     }
 }

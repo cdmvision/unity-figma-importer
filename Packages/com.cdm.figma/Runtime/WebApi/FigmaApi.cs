@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Unity.Plastic.Newtonsoft.Json;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Cdm.Figma
@@ -37,13 +37,13 @@ namespace Cdm.Figma
         }
 
         /// <summary>
-        /// Returns the document referred to by :key as a <see cref="FigmaFile"/>.
+        /// Returns the document referred to by :key as a <see cref="FigmaFileContent"/>.
         /// </summary>
         /// <seealso cref="GetFileAsTextAsync"/>
-        public static async Task<FigmaFile> GetFileAsync(FigmaFileRequest fileRequest)
+        public static async Task<FigmaFileContent> GetFileAsync(FigmaFileRequest fileRequest)
         {
             var result = await GetFileAsTextAsync(fileRequest);
-            return FigmaFile.FromString(result);
+            return FigmaFileContent.FromString(result);
         }
         
         /// <summary>
@@ -128,6 +128,12 @@ namespace Cdm.Figma
             if (!string.IsNullOrEmpty(request.geometry))
             {
                 url = $"{url}{(firstArg ? "?" : "&")}geometry={request.geometry}";
+                firstArg = false;
+            }
+
+            if (request.plugins != null && request.plugins.Length > 0)
+            {
+                url = $"{url}{(firstArg ? "?" : "&")}plugin_data={string.Join(",", request.plugins)}";
                 firstArg = false;
             }
 
