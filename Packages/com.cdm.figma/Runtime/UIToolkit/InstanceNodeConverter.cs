@@ -19,7 +19,7 @@ namespace Cdm.Figma.UIToolkit
             return true;
         }
 
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
             var instanceNode = (InstanceNode) node;
 
@@ -32,9 +32,12 @@ namespace Cdm.Figma.UIToolkit
             {
                 foreach (var child in children)
                 {
-                    if (args.importer.TryConvertNode(child, args, out var childElement))
+                    if (args.importer.TryConvertNode(element, child, args, out var childElement))
                     {
-                        element.AddChild(childElement);       
+                        if (childElement != element)
+                        {
+                            element.AddChild(childElement);    
+                        }
                     }
                 }
             }

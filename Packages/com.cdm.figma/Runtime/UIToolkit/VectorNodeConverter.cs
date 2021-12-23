@@ -5,16 +5,16 @@ namespace Cdm.Figma.UIToolkit
 {
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
-        public static NodeElement Convert(VectorNode node, NodeConvertArgs args)
+        public static NodeElement Convert(NodeElement parentElement, VectorNode node, NodeConvertArgs args)
         {
             var element = NodeElement.New<VisualElement>(node, args);
             BuildStyle(node, args, element.inlineStyle);
             return element;
         }
 
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
-            return Convert((VectorNode) node, args);
+            return Convert(parentElement, (VectorNode) node, args);
         }
 
         private static void BuildStyle(VectorNode node, NodeConvertArgs args, Style style)

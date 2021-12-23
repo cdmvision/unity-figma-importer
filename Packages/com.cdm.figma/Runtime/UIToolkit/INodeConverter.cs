@@ -6,7 +6,7 @@ namespace Cdm.Figma.UIToolkit
     public interface INodeConverter
     {
         bool CanConvert(Node node, NodeConvertArgs args);
-        NodeElement Convert(Node node, NodeConvertArgs args);
+        NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args);
     }
 
     public class NodeConvertArgs

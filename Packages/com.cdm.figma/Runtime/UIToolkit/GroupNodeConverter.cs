@@ -14,21 +14,22 @@ namespace Cdm.Figma.UIToolkit
     /// </summary>
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
-        public static NodeElement Convert(GroupNode node, NodeConvertArgs args)
+        public static NodeElement Convert(NodeElement parentElement, GroupNode groupNode, NodeConvertArgs args)
         {
-            var groupNode = (GroupNode) node;
             var element = NodeElement.New<VisualElement>(groupNode, args);
             BuildStyle(groupNode, element.inlineStyle);
+            
             var children = groupNode.children;
             if (children != null)
             {
                 for (int child = 0; child < children.Length; child++)
                 {
-                    if (args.importer.TryConvertNode(children[child], args, out var childElement))
+                    if (args.importer.TryConvertNode(element, children[child], args, out var childElement))
                     {
                         if (groupNode.layoutMode != LayoutMode.None)
                         {
-                            HandleFillContainer(groupNode.layoutMode, childElement.inlineStyle, (INodeTransform)childElement.node, (INodeLayout)childElement.node);
+                            HandleFillContainer(groupNode.layoutMode, childElement.inlineStyle,
+                                (INodeTransform) childElement.node, (INodeLayout) childElement.node);
                             if (child != children.Length - 1)
                             {
                                 if (groupNode.layoutMode == LayoutMode.Horizontal)
@@ -45,21 +46,26 @@ namespace Cdm.Figma.UIToolkit
                         }
                         else
                         {
-                            HandleConstraints(groupNode.size, childElement.inlineStyle, (INodeTransform)childElement.node, (INodeLayout)childElement.node);
+                            HandleConstraints(groupNode.size, childElement.inlineStyle,
+                                (INodeTransform) childElement.node, (INodeLayout) childElement.node);
                         }
-                        element.AddChild(childElement);
+
+                        if (childElement != element)
+                        {
+                            element.AddChild(childElement);    
+                        }
                     }
                 }
             }
-            
+
             return element;
         }
-        
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
-            return Convert((GroupNode) node, args);
+            return Convert(parentElement, (GroupNode) node, args);
         }
-        
+
         private static void BuildStyle(GroupNode node, Style style)
         {
             //unity ui toolkit automatically sets shrink to 1, we don't want that.
@@ -67,7 +73,7 @@ namespace Cdm.Figma.UIToolkit
             style.position = new StyleEnum<Position>(Position.Relative);
             style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
             style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
-            
+
             if (node.layoutMode != LayoutMode.None)
             {
                 HandleAxisSizing(node, style);
@@ -82,6 +88,7 @@ namespace Cdm.Figma.UIToolkit
             AddCorners(node, style);
             SetTransformOrigin(style);
         }
+
         private static void SetOpacity(Node node, Style style)
         {
             GroupNode groupNode = (GroupNode) node;
@@ -102,29 +109,31 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        private static void HandleConstraints(Vector parentSize, Style style, INodeTransform nodeTransform, INodeLayout nodeLayout)
+        private static void HandleConstraints(Vector parentSize, Style style, INodeTransform nodeTransform,
+            INodeLayout nodeLayout)
         {
             style.position = new StyleEnum<Position>(Position.Absolute);
             var relativeTransform = nodeTransform.relativeTransform;
             var position = relativeTransform.GetPosition();
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
-            
+
             if (constraintX == Horizontal.Center)
             {
                 style.width = new StyleLength(new Length(nodeTransform.size.x, LengthUnit.Pixel));
                 style.left = new StyleLength(new Length(50, LengthUnit.Percent));
-                var translateX = parentSize.x/2f - position.x;
-                var translateY = parentSize.y/2f - position.y;
+                var translateX = parentSize.x / 2f - position.x;
+                var translateY = parentSize.y / 2f - position.y;
                 if (constraintY == Vertical.Center)
                 {
-                    style.translate = 
-                        new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    style.translate =
+                        new StyleTranslate(new Translate(new Length(-1 * translateX, LengthUnit.Pixel),
+                            new Length(-1 * translateY, LengthUnit.Pixel), 0));
                 }
                 else
                 {
-                    style.translate 
-                        = new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), 0, 0));
+                    style.translate
+                        = new StyleTranslate(new Translate(new Length(-1 * translateX, LengthUnit.Pixel), 0, 0));
                 }
             }
             else if (constraintX == Horizontal.Left)
@@ -142,7 +151,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 var parentWidth = parentSize.x;
                 var nodeLeft = position.x;
-                var nodeRight = parentWidth - (nodeLeft+nodeTransform.size.x);
+                var nodeRight = parentWidth - (nodeLeft + nodeTransform.size.x);
                 style.left = new StyleLength(new Length(nodeLeft, LengthUnit.Pixel));
                 style.right = new StyleLength(new Length(nodeRight, LengthUnit.Pixel));
                 style.width = new StyleLength(StyleKeyword.Auto);
@@ -151,29 +160,30 @@ namespace Cdm.Figma.UIToolkit
             {
                 var parentWidth = parentSize.x;
                 var nodeLeft = position.x;
-                var nodeRight = parentWidth - (nodeLeft+nodeTransform.size.x);
+                var nodeRight = parentWidth - (nodeLeft + nodeTransform.size.x);
                 var leftPercentage = (nodeLeft * 100.0f) / parentWidth;
                 var rightPercentage = (nodeRight * 100.0f) / parentWidth;
                 style.left = new StyleLength(new Length(leftPercentage, LengthUnit.Percent));
                 style.right = new StyleLength(new Length(rightPercentage, LengthUnit.Percent));
                 style.width = new StyleLength(StyleKeyword.Auto);
             }
-            
+
             if (constraintY == Vertical.Center)
             {
                 style.height = new StyleLength(new Length(nodeTransform.size.y, LengthUnit.Pixel));
                 style.top = new StyleLength(new Length(50, LengthUnit.Percent));
-                var translateX = parentSize.x/2f - position.x;
-                var translateY = parentSize.y/2f - position.y;
+                var translateX = parentSize.x / 2f - position.x;
+                var translateY = parentSize.y / 2f - position.y;
                 if (constraintX == Horizontal.Center)
                 {
-                    style.translate = 
-                        new StyleTranslate(new Translate(new Length(-1*translateX,LengthUnit.Pixel), new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    style.translate =
+                        new StyleTranslate(new Translate(new Length(-1 * translateX, LengthUnit.Pixel),
+                            new Length(-1 * translateY, LengthUnit.Pixel), 0));
                 }
                 else
                 {
-                    style.translate 
-                        = new StyleTranslate(new Translate(0, new Length(-1*translateY,LengthUnit.Pixel), 0));
+                    style.translate
+                        = new StyleTranslate(new Translate(0, new Length(-1 * translateY, LengthUnit.Pixel), 0));
                 }
             }
             else if (constraintY == Vertical.Top)
@@ -191,7 +201,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 var parentHeight = parentSize.y;
                 var nodeTop = position.y;
-                var nodeBottom = parentHeight - (nodeTop+nodeTransform.size.y);
+                var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
                 style.top = new StyleLength(new Length(nodeTop, LengthUnit.Pixel));
                 style.bottom = new StyleLength(new Length(nodeBottom, LengthUnit.Pixel));
                 style.height = new StyleLength(StyleKeyword.Auto);
@@ -200,7 +210,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 var parentHeight = parentSize.y;
                 var nodeTop = position.y;
-                var nodeBottom = parentHeight - (nodeTop+nodeTransform.size.y);
+                var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
                 var topPercentage = (nodeTop * 100.0f) / parentHeight;
                 var bottomPercentage = (nodeBottom * 100.0f) / parentHeight;
                 style.top = new StyleLength(new Length(topPercentage, LengthUnit.Percent));
@@ -209,7 +219,8 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        private static void HandleFillContainer(LayoutMode layoutMode, Style style, INodeTransform nodeTransform, INodeLayout nodeLayout)
+        private static void HandleFillContainer(LayoutMode layoutMode, Style style, INodeTransform nodeTransform,
+            INodeLayout nodeLayout)
         {
             style.position = new StyleEnum<Position>(Position.Relative);
             if (nodeLayout.layoutAlign == LayoutAlign.Stretch)
@@ -231,10 +242,10 @@ namespace Cdm.Figma.UIToolkit
                 style.width = new StyleLength(new Length(nodeTransform.size.x, LengthUnit.Pixel));
                 style.height = new StyleLength(new Length(nodeTransform.size.y, LengthUnit.Pixel));
             }
-            
+
             if (nodeLayout.layoutGrow.HasValue)
             {
-                style.flexGrow = new StyleFloat(nodeLayout.layoutGrow.Value);    
+                style.flexGrow = new StyleFloat(nodeLayout.layoutGrow.Value);
             }
         }
 
@@ -246,16 +257,18 @@ namespace Cdm.Figma.UIToolkit
             {
                 if (mode == LayoutMode.Horizontal)
                 {
-                    Debug.Log(groupNode.name + ": Primary axis auto sizing mode is not supported, setting height to fixed.");
+                    Debug.Log(groupNode.name +
+                              ": Primary axis auto sizing mode is not supported, setting height to fixed.");
                     style.width = new StyleLength(new Length(groupNode.size.x, LengthUnit.Pixel));
                 }
                 else if (mode == LayoutMode.Vertical)
                 {
-                    Debug.Log(groupNode.name + ": Primary axis auto sizing mode is not supported, setting width to fixed.");
+                    Debug.Log(groupNode.name +
+                              ": Primary axis auto sizing mode is not supported, setting width to fixed.");
                     style.height = new StyleLength(new Length(groupNode.size.y, LengthUnit.Pixel));
                 }
             }
-            else if(groupNode.primaryAxisSizingMode == AxisSizingMode.Fixed)
+            else if (groupNode.primaryAxisSizingMode == AxisSizingMode.Fixed)
             {
                 if (mode == LayoutMode.Horizontal)
                 {
@@ -278,7 +291,7 @@ namespace Cdm.Figma.UIToolkit
                     style.width = new StyleLength(StyleKeyword.Auto);
                 }
             }
-            else if(groupNode.counterAxisSizingMode == AxisSizingMode.Fixed)
+            else if (groupNode.counterAxisSizingMode == AxisSizingMode.Fixed)
             {
                 if (mode == LayoutMode.Horizontal)
                 {
@@ -290,7 +303,7 @@ namespace Cdm.Figma.UIToolkit
                 }
             }
         }
-        
+
         private static void SetRotation(Node node, Style style)
         {
             GroupNode groupNode = (GroupNode) node;
@@ -315,7 +328,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 style.flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Column);
             }
-                
+
             if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Min)
             {
                 style.justifyContent = new StyleEnum<Justify>(Justify.FlexStart);
@@ -324,15 +337,15 @@ namespace Cdm.Figma.UIToolkit
             {
                 style.justifyContent = new StyleEnum<Justify>?(Justify.FlexEnd);
             }
-            else if(groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Center)
+            else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Center)
             {
                 style.justifyContent = new StyleEnum<Justify>?(Justify.Center);
             }
-            else if(groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+            else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
             {
                 style.justifyContent = new StyleEnum<Justify>?(Justify.SpaceBetween);
             }
-                
+
             if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
             {
                 style.alignItems = new StyleEnum<Align>(Align.FlexStart);
@@ -341,7 +354,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 style.alignItems = new StyleEnum<Align>(Align.FlexEnd);
             }
-            else if(groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+            else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
             {
                 style.alignItems = new StyleEnum<Align>(Align.Center);
             }
@@ -355,11 +368,12 @@ namespace Cdm.Figma.UIToolkit
             style.paddingBottom = new StyleLength(new Length(groupNode.paddingBottom, LengthUnit.Pixel));
             style.paddingRight = new StyleLength(new Length(groupNode.paddingRight, LengthUnit.Pixel));
         }
-        
+
         private static void SetTransformOrigin(Style style)
         {
             // Figma transform pivot is located on the top left.
-            style.transformOrigin = new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
+            style.transformOrigin =
+                new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
         }
 
         private static void AddCorners(Node node, Style style)
@@ -381,24 +395,25 @@ namespace Cdm.Figma.UIToolkit
                 //Does it have cornerRadius?
                 if (cornerRadius.HasValue)
                 {
-                    style.borderTopLeftRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
-                    style.borderTopRightRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
-                    style.borderBottomRightRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
-                    style.borderBottomLeftRadius = new StyleLength(new Length((float)cornerRadius, LengthUnit.Pixel));
+                    style.borderTopLeftRadius = new StyleLength(new Length((float) cornerRadius, LengthUnit.Pixel));
+                    style.borderTopRightRadius = new StyleLength(new Length((float) cornerRadius, LengthUnit.Pixel));
+                    style.borderBottomRightRadius = new StyleLength(new Length((float) cornerRadius, LengthUnit.Pixel));
+                    style.borderBottomLeftRadius = new StyleLength(new Length((float) cornerRadius, LengthUnit.Pixel));
                 }
             }
-            
+
             var strokes = groupNode.strokes;
             if (strokes.Count > 0)
             {
                 var strokeWeight = groupNode.strokeWeight;
                 if (strokeWeight.HasValue)
                 {
-                    style.borderTopWidth = new StyleFloat((float)strokeWeight);
-                    style.borderLeftWidth = new StyleFloat((float)strokeWeight);
-                    style.borderBottomWidth = new StyleFloat((float)strokeWeight);
-                    style.borderRightWidth = new StyleFloat((float)strokeWeight);
+                    style.borderTopWidth = new StyleFloat((float) strokeWeight);
+                    style.borderLeftWidth = new StyleFloat((float) strokeWeight);
+                    style.borderBottomWidth = new StyleFloat((float) strokeWeight);
+                    style.borderRightWidth = new StyleFloat((float) strokeWeight);
                 }
+
                 //only getting the base color
                 var solidColor = (SolidPaint) strokes[0];
                 var strokeColorBlended = solidColor.color;

@@ -21,7 +21,7 @@ namespace Cdm.Figma.UIToolkit
     /// </summary>
     public class TextNodeConverter : NodeConverter<TextNode>
     {
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
             var textNode = (TextNode) node;
             var element = NodeElement.New<Label>(node, args);

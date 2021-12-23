@@ -5,10 +5,10 @@ namespace Cdm.Figma.UIToolkit
 {
     public class RectangleNodeConverter : NodeConverter<RectangleNode>
     {
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
             var rectangleNode = (RectangleNode) node;
-            var nodeElement = VectorNodeConverter.Convert(rectangleNode, args);
+            var nodeElement = VectorNodeConverter.Convert(parentElement, rectangleNode, args);
             BuildStyle(rectangleNode, nodeElement.inlineStyle);
             return nodeElement;
         }

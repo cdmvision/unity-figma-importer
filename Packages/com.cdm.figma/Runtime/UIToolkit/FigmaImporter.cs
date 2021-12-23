@@ -185,7 +185,7 @@ namespace Cdm.Figma.UIToolkit
                 {
                     if (node is FrameNode)
                     {
-                        if (TryConvertNode(node, conversionArgs, out var frameNode))
+                        if (TryConvertNode(null, node, conversionArgs, out var frameNode))
                         {
                             frameNode.inlineStyle.width = new StyleLength(new Length(100f, LengthUnit.Percent));
                             frameNode.inlineStyle.height = new StyleLength(new Length(100f, LengthUnit.Percent));
@@ -261,13 +261,13 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        internal bool TryConvertNode(Node node, NodeConvertArgs args, out NodeElement element)
+        internal bool TryConvertNode(NodeElement parentElement, Node node, NodeConvertArgs args, out NodeElement element)
         {
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (componentConverter != null)
             {
-                element = componentConverter.Convert(node, args);
+                element = componentConverter.Convert(parentElement, node, args);
                 return true;
             }
 
@@ -275,7 +275,7 @@ namespace Cdm.Figma.UIToolkit
             var nodeConverter = nodeConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (nodeConverter != null)
             {
-                element = nodeConverter.Convert(node, args);
+                element = nodeConverter.Convert(parentElement, node, args);
                 return true;
             }
 

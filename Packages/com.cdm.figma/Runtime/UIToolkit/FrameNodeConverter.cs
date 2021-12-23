@@ -9,10 +9,10 @@ namespace Cdm.Figma.UIToolkit
     /// </summary>
     public class FrameNodeConverter : NodeConverter<FrameNode>
     {
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
             var frameNode = (FrameNode) node;
-            var nodeElement = GroupNodeConverter.Convert(frameNode, args);
+            var nodeElement = GroupNodeConverter.Convert(parentElement, frameNode, args);
             BuildStyle(frameNode, nodeElement.inlineStyle);
             return nodeElement;
         }
@@ -21,6 +21,5 @@ namespace Cdm.Figma.UIToolkit
         {
             //TODO: handleGridLayout
         }
-
     }
 }

@@ -83,7 +83,7 @@ namespace Cdm.Figma.UIToolkit
 
     public abstract class ComponentConverter<TComponent> : ComponentConverter where TComponent : VisualElement
     {
-        public override NodeElement Convert(Node node, NodeConvertArgs args)
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
             var instanceNode = (InstanceNode) node;
             var mainComponent = instanceNode.mainComponent;
@@ -119,9 +119,12 @@ namespace Cdm.Figma.UIToolkit
                         {
                             foreach (var child in componentVariant.children)
                             {
-                                if (args.importer.TryConvertNode(child, args, out var childElement))
+                                if (args.importer.TryConvertNode(componentElement, child, args, out var childElement))
                                 {
-                                    componentElement.AddChild(childElement);       
+                                    if (componentElement != childElement)
+                                    {
+                                        componentElement.AddChild(childElement);    
+                                    }
                                 }
                             }
                         }
