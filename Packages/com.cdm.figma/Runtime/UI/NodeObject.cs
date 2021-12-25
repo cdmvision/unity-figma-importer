@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -34,21 +33,21 @@ namespace Cdm.Figma.UI
         }
         
         [SerializeField]
-        private string _bindingId;
+        private string _bindingKey;
 
-        public string bindingId
+        public string bindingKey
         {
-            get => _bindingId;
-            set => _bindingId = value;
+            get => _bindingKey;
+            set => _bindingKey = value;
         }
         
         [SerializeField]
-        private string _localizationId;
+        private string _localizationKey;
 
-        public string localizationId
+        public string localizationKey
         {
-            get => _localizationId;
-            set => _localizationId = value;
+            get => _localizationKey;
+            set => _localizationKey = value;
         }
         
         public RectTransform rectTransform { get; private set; }
@@ -65,31 +64,15 @@ namespace Cdm.Figma.UI
             nodeObject.nodeName = node.name;
             nodeObject.nodeType = node.type;
             nodeObject.rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();
-            nodeObject.gameObject.SetActive(node.visible);
 
-
-            var bindingId = GetSpecialId(node, args.importer.bindingPrefix);
-            if (!string.IsNullOrEmpty(bindingId))
+            if (node is SceneNode sceneNode)
             {
-                
-                nodeObject.bindingId = bindingId;
-            }
-            
-            var localizationId = GetSpecialId(node, args.importer.localizationPrefix);
-            if (!string.IsNullOrEmpty(localizationId))
-            {
-                
-                nodeObject.localizationId = localizationId;
+                nodeObject.gameObject.SetActive(sceneNode.visible);    
             }
 
+            nodeObject.bindingKey = node.GetBindingName();
+            nodeObject.localizationKey = node.GetLocalizationKey();
             return nodeObject;
-        }
-        
-        private static string GetSpecialId(Node node, string prefix)
-        {
-            var tokens = node.name.Split(" ");
-            var token = tokens.FirstOrDefault(t => t.StartsWith(prefix));
-            return token?.Replace(prefix, "");
         }
     }
 }

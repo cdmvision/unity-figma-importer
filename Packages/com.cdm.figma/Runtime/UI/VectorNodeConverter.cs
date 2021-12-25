@@ -1,11 +1,8 @@
-using System.IO;
 using Unity.VectorGraphics;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
-    [CreateAssetMenu(fileName = nameof(VectorNodeConverter), 
-        menuName = AssetMenuRoot + "Vector", order = AssetMenuOrder)]
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
         public static NodeObject Convert(VectorNode node, NodeConvertArgs args)
@@ -23,25 +20,15 @@ namespace Cdm.Figma.UI
                 height = node.size.y;
             }
             
-            if (args.assets.TryGetValue(node.id, out var assetPath))
+            if (args.file.TryGetGraphic(node.id, out var sprite))
             {
-                #if UNITY_EDITOR
-                assetPath = Path.Combine("Assets", assetPath);
-                Debug.Log(assetPath);
-                
-                var spriteGo = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
-                if (spriteGo != null)
-                {
-                    var svgImage = nodeObject.gameObject.AddComponent<SVGImage>();
-                    svgImage.sprite = spriteGo.GetComponent<SpriteRenderer>().sprite;
+                var svgImage = nodeObject.gameObject.AddComponent<SVGImage>();
+                svgImage.sprite = sprite;
                     
-                    width = svgImage.sprite.rect.width;
-                    height = svgImage.sprite.rect.height;
-                }
-                #endif
-                
+                width = svgImage.sprite.rect.width;
+                height = svgImage.sprite.rect.height;
             }
-
+            
             nodeObject.rectTransform.anchorMin = new Vector2(0, 1);
             nodeObject.rectTransform.anchorMax = new Vector2(0, 1);
             nodeObject.rectTransform.pivot = new Vector2(0, 1);

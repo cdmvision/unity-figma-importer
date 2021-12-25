@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
@@ -13,15 +12,15 @@ namespace Cdm.Figma.UI
     {
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
+        public FigmaFileContent fileContent { get; }
+        
         public List<ComponentSetNode> componentSets { get; } = new List<ComponentSetNode>();
         
-        /// <inheritdoc cref="FigmaImportOptions.assets"/>
-        public IDictionary<string, string> assets { get; set; } = new Dictionary<string, string>();
-        
-        public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
+        public NodeConvertArgs(FigmaImporter importer, FigmaFile file, FigmaFileContent fileContent)
         {
             this.importer = importer;
             this.file = file;
+            this.fileContent = fileContent;
         }
     }
 }

@@ -1,12 +1,7 @@
-using UnityEngine;
-
 namespace Cdm.Figma.UI
 {
-    public abstract class NodeConverter : ScriptableObject, INodeConverter
+    public abstract class NodeConverter : INodeConverter
     {
-        protected const string AssetMenuRoot = FigmaImporter.AssetMenuRoot;
-        protected const int AssetMenuOrder = 20;
-        
         public abstract bool CanConvert(Node node, NodeConvertArgs args);
         public abstract NodeObject Convert(Node node, NodeConvertArgs args);
     }

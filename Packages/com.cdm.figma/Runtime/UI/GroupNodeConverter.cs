@@ -1,8 +1,5 @@
-using UnityEngine;
-
 namespace Cdm.Figma.UI
 {
-    [CreateAssetMenu(fileName = nameof(GroupNodeConverter), menuName = AssetMenuRoot + "Group", order = AssetMenuOrder)]
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
         public static NodeObject Convert(GroupNode node, NodeConvertArgs args)
