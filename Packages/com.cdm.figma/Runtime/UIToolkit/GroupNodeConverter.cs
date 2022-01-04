@@ -26,7 +26,7 @@ namespace Cdm.Figma.UIToolkit
             {
                 BuildChildren(groupNode, parentElement, args);
             }
-            
+
             return element;
         }
 
@@ -37,7 +37,7 @@ namespace Cdm.Figma.UIToolkit
 
         private static void BuildChildren(GroupNode currentNode, NodeElement parentElement, NodeConvertArgs args)
         {
-            GroupNode parent = (GroupNode)parentElement.node;
+            GroupNode parent = (GroupNode) parentElement.node;
             var children = currentNode.children;
             if (children != null)
             {
@@ -45,13 +45,13 @@ namespace Cdm.Figma.UIToolkit
                 {
                     if (args.importer.TryConvertNode(parentElement, children[child], args, out var childElement))
                     {
-                        bool importChild = childElement.node is FrameNode or VectorNode;
+                        var importChild = childElement.node is FrameNode or VectorNode;
                         //do not import child group nodes
                         if (importChild)
                         {
                             if (currentNode.layoutMode != LayoutMode.None)
                             {
-                                HandleFillContainer(currentNode.layoutMode, childElement.inlineStyle,
+                                HandleFillContainer(parent.layoutMode, childElement.inlineStyle,
                                     (INodeTransform) childElement.node, (INodeLayout) childElement.node);
                                 if (child != children.Length - 1)
                                 {
@@ -71,19 +71,21 @@ namespace Cdm.Figma.UIToolkit
                             {
                                 if (currentNode.type == NodeType.Group)
                                 {
-                                    HandleConstraints(parent.size, true, childElement.inlineStyle,
+                                    HandleConstraints(parent.size, currentNode.relativeTransform.GetPosition(), true,
+                                        childElement.inlineStyle,
                                         (INodeTransform) childElement.node, (INodeLayout) childElement.node);
                                 }
                                 else
                                 {
-                                    HandleConstraints(parent.size, false, childElement.inlineStyle,
+                                    HandleConstraints(parent.size, currentNode.relativeTransform.GetPosition(), false,
+                                        childElement.inlineStyle,
                                         (INodeTransform) childElement.node, (INodeLayout) childElement.node);
                                 }
                             }
 
                             if (childElement != parentElement)
                             {
-                                parentElement.AddChild(childElement);    
+                                parentElement.AddChild(childElement);
                             }
                         }
                     }
@@ -134,24 +136,21 @@ namespace Cdm.Figma.UIToolkit
             }
         }
 
-        private static void HandleConstraints(Vector parentSize, bool isParentGroup, Style style, INodeTransform nodeTransform,
+        private static void HandleConstraints(Vector parentSize, Vector2 parentPos, bool isParentGroup, Style style,
+            INodeTransform nodeTransform,
             INodeLayout nodeLayout)
         {
             style.position = new StyleEnum<Position>(Position.Absolute);
             var relativeTransform = nodeTransform.relativeTransform;
             var position = relativeTransform.GetPosition();
-            float positionX;
-            float positionY;
-            if (!isParentGroup)
+            var positionX = position.x;
+            var positionY = position.y;
+            if (isParentGroup)
             {
-                positionX = position.x;
-                positionY = position.y;
+                positionX = position.x + parentPos.x;
+                positionY = position.y + parentPos.y;
             }
-            else
-            {
-                positionX = nodeTransform.absoluteBoundingBox.x;
-                positionY = nodeTransform.absoluteBoundingBox.y;
-            }
+
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
 
@@ -159,8 +158,9 @@ namespace Cdm.Figma.UIToolkit
             {
                 style.width = new StyleLength(new Length(nodeTransform.size.x, LengthUnit.Pixel));
                 style.left = new StyleLength(new Length(50, LengthUnit.Percent));
-                var translateX = parentSize.x / 2f - positionX;
-                var translateY = parentSize.y / 2f - positionY;
+                var translateX = parentSize.x / 2f - (positionX);
+                var translateY = parentSize.y / 2f - (positionY);
+
                 if (constraintY == Vertical.Center)
                 {
                     style.translate =
@@ -211,8 +211,9 @@ namespace Cdm.Figma.UIToolkit
             {
                 style.height = new StyleLength(new Length(nodeTransform.size.y, LengthUnit.Pixel));
                 style.top = new StyleLength(new Length(50, LengthUnit.Percent));
-                var translateX = parentSize.x / 2f - positionX;
-                var translateY = parentSize.y / 2f - positionY;
+                var translateX = parentSize.x / 2f - (positionX);
+                var translateY = parentSize.y / 2f - (positionY);
+
                 if (constraintX == Horizontal.Center)
                 {
                     style.translate =
