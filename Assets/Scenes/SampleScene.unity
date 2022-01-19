@@ -316,8 +316,8 @@ MonoBehaviour:
   _nodeId: I43:130;43:84
   _nodeName: Checkmark
   _nodeType: VECTOR
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!1 &1054002206
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,8 +349,8 @@ Transform:
   m_Children:
   - {fileID: 1945083321}
   - {fileID: 1093126789}
-  m_Father: {fileID: 640427576}
-  m_RootOrder: 0
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1054002208
 MonoBehaviour:
@@ -367,8 +367,8 @@ MonoBehaviour:
   _nodeId: I48:142;48:95
   _nodeName: HoloLens1Button
   _nodeType: GROUP
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!1 &1093126788
 GameObject:
   m_ObjectHideFlags: 0
@@ -399,7 +399,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1916619641}
-  - {fileID: 739495230}
   m_Father: {fileID: 1054002207}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -418,8 +417,8 @@ MonoBehaviour:
   _nodeId: I48:142;48:97
   _nodeName: IconandLabel
   _nodeType: FRAME
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!1 &1326014050
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,8 +447,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 428655066}
+  m_Children: []
   m_Father: {fileID: 1454239584}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -468,8 +466,8 @@ MonoBehaviour:
   _nodeId: 43:112
   _nodeName: Frame 1
   _nodeType: FRAME
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!1 &1454239581
 GameObject:
   m_ObjectHideFlags: 0
@@ -506,6 +504,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -524,8 +523,8 @@ MonoBehaviour:
   _nodeId: 43:111
   _nodeName: Toggles
   _nodeType: CANVAS
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!224 &1454239584
 RectTransform:
   m_ObjectHideFlags: 0
@@ -540,7 +539,7 @@ RectTransform:
   m_Children:
   - {fileID: 1326014051}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -581,8 +580,8 @@ MonoBehaviour:
   _nodeId: 48:124
   _nodeName: Frame 1
   _nodeType: FRAME
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!224 &1495313311
 RectTransform:
   m_ObjectHideFlags: 0
@@ -594,8 +593,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 640427576}
+  m_Children: []
   m_Father: {fileID: 2035895840}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -666,8 +664,8 @@ Transform:
   m_Children:
   - {fileID: 1707984688}
   - {fileID: 963508182}
-  m_Father: {fileID: 428655066}
-  m_RootOrder: 0
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1545800654
 MonoBehaviour:
@@ -684,8 +682,8 @@ MonoBehaviour:
   _nodeId: I43:130;43:82
   _nodeName: Checkbox
   _nodeType: GROUP
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!1 &1707984687
 GameObject:
   m_ObjectHideFlags: 0
@@ -733,8 +731,8 @@ MonoBehaviour:
   _nodeId: I43:130;43:83
   _nodeName: CheckBoxBack
   _nodeType: RECTANGLE
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!1 &1916619640
 GameObject:
   m_ObjectHideFlags: 0
@@ -764,7 +762,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 285974373}
+  - {fileID: 556901022}
   m_Father: {fileID: 1093126789}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -783,8 +781,8 @@ MonoBehaviour:
   _nodeId: I48:142;48:98
   _nodeName: Icon
   _nodeType: INSTANCE
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!1 &1945083320
 GameObject:
   m_ObjectHideFlags: 0
@@ -832,8 +830,8 @@ MonoBehaviour:
   _nodeId: I48:142;48:96
   _nodeName: BackPlate
   _nodeType: RECTANGLE
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!1 &1982008998
 GameObject:
   m_ObjectHideFlags: 0
@@ -926,7 +924,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &2035895837
 GameObject:
@@ -964,6 +962,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -982,8 +981,8 @@ MonoBehaviour:
   _nodeId: 48:123
   _nodeName: Buttons
   _nodeType: CANVAS
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
 --- !u!224 &2035895840
 RectTransform:
   m_ObjectHideFlags: 0
@@ -998,7 +997,7 @@ RectTransform:
   m_Children:
   - {fileID: 1495313311}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1036,8 +1035,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 428655066}
-  m_RootOrder: 1
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1156,5 +1155,5 @@ MonoBehaviour:
   _nodeId: I43:130;43:85
   _nodeName: Label
   _nodeType: TEXT
-  _bindingId: 
-  _localizationId: 
+  _bindingKey: 
+  _localizationKey: 
