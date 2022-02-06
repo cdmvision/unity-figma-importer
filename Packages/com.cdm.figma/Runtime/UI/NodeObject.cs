@@ -64,14 +64,14 @@ namespace Cdm.Figma.UI
             nodeObject.nodeName = node.name;
             nodeObject.nodeType = node.type;
             nodeObject.rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();
-
+            nodeObject.bindingKey = node.GetBindingName();
+            nodeObject.localizationKey = node.GetLocalizationKey();
+            
             if (node is SceneNode sceneNode)
             {
                 nodeObject.gameObject.SetActive(sceneNode.visible);    
             }
-
-            nodeObject.bindingKey = node.GetBindingName();
-            nodeObject.localizationKey = node.GetLocalizationKey();
+            
             return nodeObject;
         }
     }

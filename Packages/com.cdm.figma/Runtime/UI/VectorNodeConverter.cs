@@ -5,7 +5,7 @@ namespace Cdm.Figma.UI
 {
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
-        public static NodeObject Convert(VectorNode node, NodeConvertArgs args)
+        public static NodeObject Convert(NodeObject parentObject, VectorNode node, NodeConvertArgs args)
         {
             var nodeObject =  NodeObject.NewNodeObject(node, args);
 
@@ -38,9 +38,9 @@ namespace Cdm.Figma.UI
             return nodeObject;
         }
         
-        public override NodeObject Convert(Node node, NodeConvertArgs args)
+        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
         {
-            return Convert((VectorNode) node, args);
+            return Convert(parentObject, (VectorNode) node, args);
         }
     }
 }

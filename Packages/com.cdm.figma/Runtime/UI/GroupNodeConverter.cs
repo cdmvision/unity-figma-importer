@@ -2,7 +2,7 @@ namespace Cdm.Figma.UI
 {
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
-        public static NodeObject Convert(GroupNode node, NodeConvertArgs args)
+        public static NodeObject Convert(NodeObject parentObject, GroupNode node, NodeConvertArgs args)
         {
             var nodeObject = NodeObject.NewNodeObject(node, args);
 
@@ -10,7 +10,7 @@ namespace Cdm.Figma.UI
             {
                 foreach (var child in node.children)
                 {
-                    if (args.importer.TryConvertNode(child, args, out var childNode))
+                    if (args.importer.TryConvertNode(parentObject, child, args, out var childNode))
                     {
                         childNode.transform.parent = nodeObject.transform;
                     }
@@ -20,9 +20,9 @@ namespace Cdm.Figma.UI
             return nodeObject;
         }
         
-        public override NodeObject Convert(Node node, NodeConvertArgs args)
+        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
         {
-            return Convert((GroupNode) node, args);
+            return Convert(parentObject, (GroupNode) node, args);
         }
     }
 }

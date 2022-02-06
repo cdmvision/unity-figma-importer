@@ -1,10 +1,10 @@
 ﻿namespace Cdm.Figma.UI
 {
-    public class ComponentConverter : NodeConverter<InstanceNode>
+    public class EllipseNodeConverter : NodeConverter<StarNode>
     {
         public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
         {
-            throw new System.NotImplementedException();
+            return VectorNodeConverter.Convert(parentObject, (StarNode) node, args);
         }
     }
 }

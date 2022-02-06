@@ -5,12 +5,12 @@ namespace Cdm.Figma.UI
 {
     public class TextNodeConverter : NodeConverter<TextNode>
     {
-        public override NodeObject Convert(Node node, NodeConvertArgs args)
+        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
         {
             
             var textNode = (TextNode) node;
 
-            var nodeObject = VectorNodeConverter.Convert(textNode, args);
+            var nodeObject = VectorNodeConverter.Convert(parentObject, textNode, args);
             var text = nodeObject.gameObject.AddComponent<TextMeshProUGUI>();
             text.text = textNode.characters;
             text.paragraphSpacing = textNode.style.paragraphSpacing;
