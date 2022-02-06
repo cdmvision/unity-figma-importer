@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -7,38 +6,62 @@ using UnityEngine.UI;
 namespace Cdm.Figma.UI.Styles
 {
     [RequireComponent(typeof(Selectable))]
-    public class SelectableGroup : UIBehaviour, IPointerDownHandler, IPointerUpHandler, 
+    public class SelectableGroup : UIBehaviour, IPointerDownHandler, IPointerUpHandler,
         IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
     {
-        [SerializeField]
+        [SerializeField] 
         private bool _inheritCanvasGroupInteractable = true;
-        
+
         public bool inheritCanvasGroupInteractable
         {
             get => _inheritCanvasGroupInteractable;
             set => _inheritCanvasGroupInteractable = value;
         }
-        
-        [SerializeField]
+
+        [SerializeField] 
         private bool _inheritSelectableInteractable = true;
-        
+
         public bool inheritSelectableInteractable
         {
             get => _inheritSelectableInteractable;
             set => _inheritSelectableInteractable = value;
         }
 
-        protected Selectable selectable { get; private set; }
         protected CanvasGroup canvasGroup { get; private set; }
         protected List<Style> styles { get; } = new List<Style>();
 
+        protected Selectable selectable { get; private set; }
+        protected bool isPointerInside { get; set; }
+        protected bool isPointerDown { get; set; }
+        protected bool hasSelection { get; set; }
+
+        protected Selector currentSelector
+        {
+            get
+            {
+                if (!IsInteractable())
+                    return Selector.Disabled;
+
+                if (isPointerDown)
+                    return Selector.Pressed;
+
+                if (hasSelection)
+                    return Selector.Selected;
+
+                if (isPointerInside)
+                    return Selector.Highlighted;
+
+                return Selector.Normal;
+            }
+        }
+        
         protected override void Awake()
         {
             base.Awake();
 
             selectable = GetComponent<Selectable>();
             canvasGroup = GetComponentInParent<CanvasGroup>();
-            
+
             InitializeComponents(transform);
         }
 
@@ -54,7 +77,7 @@ namespace Cdm.Figma.UI.Styles
                     styles.Add(style);
                 }
             }
-            
+
             foreach (Transform child in node)
             {
                 InitializeComponents(child);
@@ -85,51 +108,61 @@ namespace Cdm.Figma.UI.Styles
                     return false;
                 }
             }
-            
+
             if (_inheritSelectableInteractable && selectable != null)
             {
                 return selectable.interactable;
             }
-            
+
             return true;
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            SetSelectorForStyles(Selector.Pressed);
-            pointerDown?.Invoke(eventData);
+            isPointerDown = true;
+            
+            SetCurrentSelectorForStyles();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            SetSelectorForStyles(Selector.Normal);
-            pointerUp?.Invoke(eventData);
+            isPointerDown = false;
+            
+            SetCurrentSelectorForStyles();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            SetSelectorForStyles(Selector.Highlighted);
-            pointerEnter?.Invoke(eventData);
+            isPointerInside = true;
+            
+            SetCurrentSelectorForStyles();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            SetSelectorForStyles(Selector.Normal);
-            pointerExit?.Invoke(eventData);
+            isPointerInside = false;
+            
+            SetCurrentSelectorForStyles();
         }
 
         public void OnSelect(BaseEventData eventData)
         {
-            SetSelectorForStyles(Selector.Selected);
-            selected?.Invoke(eventData);
+            hasSelection = true;
+            SetCurrentSelectorForStyles();
         }
 
         public void OnDeselect(BaseEventData eventData)
         {
-            SetSelectorForStyles(Selector.Normal);
-            deselected?.Invoke(eventData);
+            hasSelection = false;
+
+            SetCurrentSelectorForStyles();
         }
-        
+
+        private void SetCurrentSelectorForStyles()
+        {
+            SetSelectorForStyles(currentSelector);
+        }
+
         private void SetSelectorForStyles(Selector selector)
         {
             foreach (var style in styles)
@@ -137,12 +170,18 @@ namespace Cdm.Figma.UI.Styles
                 style.Apply(selector);
             }
         }
+        
+#if UNITY_EDITOR
+        /*protected override void OnValidate()
+        {
+            base.OnValidate();
+            
+            if (isActiveAndEnabled)
+            {
+                SetCurrentSelectorForStyles();
+            }
+        }*/
+#endif
 
-        public event Action<PointerEventData> pointerDown;
-        public event Action<PointerEventData> pointerUp;
-        public event Action<PointerEventData> pointerEnter;
-        public event Action<PointerEventData> pointerExit;
-        public event Action<BaseEventData> selected;
-        public event Action<BaseEventData> deselected;
     }
 }

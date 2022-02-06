@@ -40,15 +40,13 @@ namespace Cdm.Figma.UI.Styles
         }
     }
 
-    public static class StylePropertyExtensions
+    public static class GraphicExtensions
     {
         public static void CrossFadeColor(this Graphic graphic, StyleArgs args, 
             StylePropertyColor color, StylePropertyFloat fadeDuration)
         {
-            // TODO: make with animation!
-            var duration = !fadeDuration.enabled || args.instant ? -1 : fadeDuration.value;
-            //graphic.CrossFadeColorTween(color.value, duration);
-            graphic.color = color.value;
+            var duration = !fadeDuration.enabled || args.instant ? 0f : fadeDuration.value;
+            graphic.CrossFadeColor(color.value, duration, false, true);    
         }
     }
 }
