@@ -2,22 +2,28 @@ namespace Cdm.Figma.UI
 {
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
-        public static NodeObject Convert(NodeObject parentObject, GroupNode node, NodeConvertArgs args)
+        public static NodeObject Convert(NodeObject parentObject, GroupNode groupNode, NodeConvertArgs args)
         {
-            var nodeObject = NodeObject.NewNodeObject(node, args);
-
-            if (node.children != null)
+            var groupNodeObject = NodeObject.NewNodeObject(groupNode, args);
+            
+            var children = groupNode.children;
+            if (children != null)
             {
-                foreach (var child in node.children)
+                for (var child = 0; child < children.Length; child++)
                 {
-                    if (args.importer.TryConvertNode(parentObject, child, args, out var childNode))
+                    if (args.importer.TryConvertNode(groupNodeObject, children[child], args, out var childElement))
                     {
-                        childNode.transform.parent = nodeObject.transform;
+                        // TODO:
+
+                        if (childElement != groupNodeObject)
+                        {
+                            childElement.rectTransform.SetParent(groupNodeObject.rectTransform);
+                        }
                     }
                 }
             }
-            
-            return nodeObject;
+
+            return groupNodeObject;
         }
         
         public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)

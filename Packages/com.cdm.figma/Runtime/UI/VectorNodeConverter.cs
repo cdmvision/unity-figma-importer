@@ -5,22 +5,22 @@ namespace Cdm.Figma.UI
 {
     public class VectorNodeConverter : NodeConverter<VectorNode>
     {
-        public static NodeObject Convert(NodeObject parentObject, VectorNode node, NodeConvertArgs args)
+        public static NodeObject Convert(NodeObject parentObject, VectorNode vectorNode, NodeConvertArgs args)
         {
-            var nodeObject =  NodeObject.NewNodeObject(node, args);
+            var nodeObject =  NodeObject.NewNodeObject(vectorNode, args);
 
-            var absoluteBoundingBox = node.absoluteBoundingBox;
+            var absoluteBoundingBox = vectorNode.absoluteBoundingBox;
             var width = absoluteBoundingBox.width;
             var height = absoluteBoundingBox.height;
 
             // Override width and height if size property is exist.
-            if (node.size != null)
+            if (vectorNode.size != null)
             {
-                width = node.size.x;
-                height = node.size.y;
+                width = vectorNode.size.x;
+                height = vectorNode.size.y;
             }
             
-            if (args.file.TryGetGraphic(node.id, out var sprite))
+            if (args.file.TryGetGraphic(vectorNode.id, out var sprite))
             {
                 var svgImage = nodeObject.gameObject.AddComponent<SVGImage>();
                 svgImage.sprite = sprite;

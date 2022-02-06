@@ -4,7 +4,7 @@ namespace Cdm.Figma.UI
     {
         public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
         {
-            return FrameNodeConverter.Convert(parentObject, (InstanceNode) node, args);
+            return GroupNodeConverter.Convert(parentObject, (InstanceNode) node, args);
         }
     }
 }
