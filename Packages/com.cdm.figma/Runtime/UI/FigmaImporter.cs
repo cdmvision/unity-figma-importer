@@ -91,7 +91,7 @@ namespace Cdm.Figma.UI
                     graphicIds.Add(sceneNode.id);
                 }
                 return true;
-            }, NodeType.Vector, NodeType.Ellipse, NodeType.Line, NodeType.Polygon, NodeType.Star);
+            }, NodeType.Vector, NodeType.Rectangle, NodeType.Ellipse, NodeType.Line, NodeType.Polygon, NodeType.Star);
 
             foreach (var graphicId in graphicIds)
             {
