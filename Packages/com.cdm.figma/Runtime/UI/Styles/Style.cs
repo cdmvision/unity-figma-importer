@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace Cdm.Figma.UI.Styles
 {
@@ -40,60 +39,46 @@ namespace Cdm.Figma.UI.Styles
         
         private bool _interactable = true;
 
-        public virtual void CopyTo(Style other)
+        public bool interactable
         {
-        }
-
-        public abstract void Apply(StyleArgs args);
-
-        public virtual void OnInteractableChanged(bool value)
-        {
-            if (_interactable != value)
+            get => _interactable;
+            set
             {
-                _interactable = value;
-                UpdateCurrentSelector(_interactable ? Selector.Normal : Selector.Disabled, true);
+                if (_interactable != value)
+                {
+                    _interactable = value;
+                
+                    Apply(_interactable ? Selector.Normal : Selector.Disabled, true);
+                }
             }
         }
-        
-        public virtual void OnPointerDown(PointerEventData eventData)
+
+        protected virtual void Start()
         {
-            UpdateCurrentSelector(Selector.Pressed);
+            Apply(Selector.Normal, true, true);
         }
 
-        public virtual void OnPointerUp(PointerEventData eventData)
+        public virtual void CopyTo(Style other)
         {
-            UpdateCurrentSelector(Selector.Highlighted);
+            other.interactable = interactable;
         }
 
-        public virtual void OnPointerEnter(PointerEventData eventData)
+        public void Apply(Selector selector, bool forceUpdate = false)
         {
-            UpdateCurrentSelector(Selector.Highlighted);
-        }
-
-        public virtual void OnPointerExit(PointerEventData eventData)
-        {
-            UpdateCurrentSelector(Selector.Normal);
+            Apply(selector, false, forceUpdate);
         }
         
-        public virtual void OnSelect(BaseEventData eventData)
-        {
-            UpdateCurrentSelector(Selector.Selected);
-        }
+        protected abstract void Apply(StyleArgs args);
 
-        public virtual void OnDeselect(BaseEventData eventData)
-        {
-            UpdateCurrentSelector(Selector.Normal);
-        }
-        
-        protected virtual void UpdateCurrentSelector(Selector current, bool forceUpdate = false)
+        private void Apply(Selector selector, bool instant, bool forceUpdate)
         {
             if (!_interactable)
-                current = Selector.Disabled;
+                selector = Selector.Disabled;
 
-            if (forceUpdate || currentSelector != current)
+            if (forceUpdate || currentSelector != selector)
             {
-                currentSelector = current;
-                Apply(new StyleArgs(currentSelector, false));
+                currentSelector = selector;
+                Apply(new StyleArgs(currentSelector, instant));
             }
         }
     }
@@ -102,6 +87,12 @@ namespace Cdm.Figma.UI.Styles
     {
         public Selector selector { get; }
         public bool instant { get; }
+
+        public StyleArgs(Selector selector)
+        {
+            this.selector = selector;
+            this.instant = false;
+        }
 
         public StyleArgs(Selector selector, bool instant)
         {

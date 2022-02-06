@@ -63,7 +63,7 @@ namespace Cdm.Figma.UI.Styles
 
         protected virtual void InitializeStyle(Style style)
         {
-            style.OnInteractableChanged(IsInteractable());
+            style.interactable = IsInteractable();
         }
 
         protected virtual void Update()
@@ -72,7 +72,7 @@ namespace Cdm.Figma.UI.Styles
             var interactable = IsInteractable();
             foreach (var style in styles)
             {
-                style.OnInteractableChanged(interactable);
+                style.interactable = interactable;
             }
         }
 
@@ -96,62 +96,46 @@ namespace Cdm.Figma.UI.Styles
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            foreach (var style in styles)
-            {
-                style.OnPointerDown(eventData);
-            }
-            
+            SetSelectorForStyles(Selector.Pressed);
             pointerDown?.Invoke(eventData);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            foreach (var style in styles)
-            {
-                style.OnPointerUp(eventData);
-            }
-            
+            SetSelectorForStyles(Selector.Normal);
             pointerUp?.Invoke(eventData);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            foreach (var style in styles)
-            {
-                style.OnPointerEnter(eventData);
-            }
-            
+            SetSelectorForStyles(Selector.Highlighted);
             pointerEnter?.Invoke(eventData);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            foreach (var style in styles)
-            {
-                style.OnPointerExit(eventData);
-            }
-            
+            SetSelectorForStyles(Selector.Normal);
             pointerExit?.Invoke(eventData);
         }
 
         public void OnSelect(BaseEventData eventData)
         {
-            foreach (var style in styles)
-            {
-                style.OnSelect(eventData);
-            }
-            
+            SetSelectorForStyles(Selector.Selected);
             selected?.Invoke(eventData);
         }
 
         public void OnDeselect(BaseEventData eventData)
         {
+            SetSelectorForStyles(Selector.Normal);
+            deselected?.Invoke(eventData);
+        }
+        
+        private void SetSelectorForStyles(Selector selector)
+        {
             foreach (var style in styles)
             {
-                style.OnDeselect(eventData);
+                style.Apply(selector);
             }
-            
-            deselected?.Invoke(eventData);
         }
 
         public event Action<PointerEventData> pointerDown;

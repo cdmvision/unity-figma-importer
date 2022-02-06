@@ -24,7 +24,7 @@ namespace Cdm.Figma.UI.Styles
             }
         }
         
-        public override void Apply(StyleArgs args)
+        protected override void Apply(StyleArgs args)
         {
             switch (args.selector)
             {
