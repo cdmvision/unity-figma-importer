@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.Serialization;
 
 namespace Cdm.Figma
@@ -10,6 +11,7 @@ namespace Cdm.Figma
     /// </summary>
     /// <seealso aref="https://developer.mozilla.org/en-US/docs/Web/CSS/blend-mode"/>
     [DataContract]
+    [Serializable]
     public enum BlendMode
     {
         [EnumMember(Value = "COLOR")]
