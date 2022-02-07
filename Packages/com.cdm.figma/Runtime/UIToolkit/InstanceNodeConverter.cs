@@ -1,5 +1,3 @@
-using UnityEngine.UIElements;
-
 namespace Cdm.Figma.UIToolkit
 {
     public class InstanceNodeConverter : NodeConverter<InstanceNode>
@@ -21,28 +19,7 @@ namespace Cdm.Figma.UIToolkit
 
         public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
-            var instanceNode = (InstanceNode) node;
-
-            var element = NodeElement.New<VisualElement>(instanceNode, args);
-            
-            // TODO: Call FrameNodeConverter
-            
-            var children = instanceNode.children;
-            if (children != null)
-            {
-                foreach (var child in children)
-                {
-                    if (args.importer.TryConvertNode(element, child, args, out var childElement))
-                    {
-                        if (childElement != element)
-                        {
-                            element.AddChild(childElement);    
-                        }
-                    }
-                }
-            }
-
-            return element;
+            return GroupNodeConverter.Convert(parentElement, (InstanceNode) node, args);
         }
     }
 }

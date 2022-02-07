@@ -1,0 +1,20 @@
+{
+    "name": "Cdm.Figma.UI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5259626dace255142ae05725b6db849f",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:eec0964c48f6f4e40bc3ec2257ccf8c5",
+        "GUID:68550284b645f4b9894995579f34290a",
+        "GUID:7ab3663edede26740845931880bf22af"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
