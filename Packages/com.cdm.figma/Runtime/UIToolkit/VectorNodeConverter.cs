@@ -20,8 +20,7 @@ namespace Cdm.Figma.UIToolkit
         private static void BuildStyle(VectorNode node, NodeConvertArgs args, Style style)
         {
             //this node must be a child of a node so its width, height and size is set in its parent.
-            //unity ui toolkit automatically sets shrink to 1, we don't want that.
-            style.flexShrink = new StyleFloat(0f);
+            
             SetOpacity(node, style);
             SetRotation(node, style);
             AddBackgroundColor(node, style);

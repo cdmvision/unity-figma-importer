@@ -95,8 +95,6 @@ namespace Cdm.Figma.UIToolkit
 
         private static void BuildStyle(GroupNode node, Style style)
         {
-            //unity ui toolkit automatically sets shrink to 1, we don't want that.
-            style.flexShrink = new StyleFloat(0f);
             style.position = new StyleEnum<Position>(Position.Relative);
             style.width = new StyleLength(new Length(node.size.x, LengthUnit.Pixel));
             style.height = new StyleLength(new Length(node.size.y, LengthUnit.Pixel));
@@ -288,6 +286,14 @@ namespace Cdm.Figma.UIToolkit
             if (nodeLayout.layoutGrow.HasValue)
             {
                 style.flexGrow = new StyleFloat(nodeLayout.layoutGrow.Value);
+                if (style.flexGrow == 0)
+                {
+                    style.flexShrink = new StyleFloat(0f);
+                }
+                else
+                {
+                    style.flexShrink = new StyleFloat(1f);
+                }
             }
         }
 
@@ -351,6 +357,7 @@ namespace Cdm.Figma.UIToolkit
             GroupNode groupNode = (GroupNode) node;
             var relativeTransform = groupNode.relativeTransform;
             var rotation = relativeTransform.GetRotationAngle();
+            rotation = float.Parse(rotation.ToString("F2"));
             if (rotation != 0.0f)
             {
                 style.rotate = new StyleRotate(new Rotate(rotation));
