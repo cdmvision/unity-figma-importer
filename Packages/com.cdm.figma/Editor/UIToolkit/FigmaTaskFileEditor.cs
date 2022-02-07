@@ -75,8 +75,8 @@ namespace Cdm.Figma.UIToolkit
                         document.uxml.Root?.Add(styleElement);
                     }
 
-                    // Create scripts.
-                    if (document.script != null)
+                    // Generate scripts.
+                    if (figmaTaskFile.generateScripts && document.script != null)
                     {
                         var scriptsDirectory = Path.Combine("Assets", figmaTaskFile.scriptsPath, document.page.name);
                         if (!Directory.Exists(scriptsDirectory))

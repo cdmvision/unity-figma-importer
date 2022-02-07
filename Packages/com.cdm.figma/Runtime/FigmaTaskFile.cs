@@ -37,6 +37,15 @@ namespace Cdm.Figma
         public string graphicsPath => _graphicsPath;
 
         [SerializeField]
+        private bool _generateScripts = true;
+
+        public bool generateScripts
+        {
+            get => _generateScripts;
+            set => _generateScripts = value;
+        }
+        
+        [SerializeField]
         private List<string> _files = new List<string>();
 
         public List<string> fileIds => _files;
