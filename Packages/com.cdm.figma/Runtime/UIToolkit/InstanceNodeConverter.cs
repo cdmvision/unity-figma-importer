@@ -19,7 +19,7 @@ namespace Cdm.Figma.UIToolkit
 
         public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
         {
-            return FrameNodeConverter.Convert(parentElement, (InstanceNode) node, args);
+            return GroupNodeConverter.Convert(parentElement, (InstanceNode) node, args);
         }
     }
 }
