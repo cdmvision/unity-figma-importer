@@ -35,6 +35,8 @@ namespace Cdm.Figma.UI
             nodeObject.rectTransform.localPosition = new Vector3(absoluteBoundingBox.x, -absoluteBoundingBox.y);
             nodeObject.rectTransform.sizeDelta = new Vector2(width, height);
 
+            NodeConverterHelper.ConvertEffects(nodeObject, vectorNode.effects);
+            
             return nodeObject;
         }
         
