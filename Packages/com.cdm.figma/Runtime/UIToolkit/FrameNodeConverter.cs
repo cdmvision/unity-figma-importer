@@ -1,6 +1,3 @@
-using UnityEngine;
-using UnityEngine.UIElements;
-
 namespace Cdm.Figma.UIToolkit
 {
     /// <summary>
@@ -9,15 +6,19 @@ namespace Cdm.Figma.UIToolkit
     /// </summary>
     public class FrameNodeConverter : NodeConverter<FrameNode>
     {
-        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
+        public static NodeElement Convert(NodeElement parentElement, FrameNode frameNode, NodeConvertArgs args)
         {
-            var frameNode = (FrameNode) node;
             var nodeElement = GroupNodeConverter.Convert(parentElement, frameNode, args);
             BuildStyle(frameNode, nodeElement.inlineStyle);
             return nodeElement;
         }
+        
+        public override NodeElement Convert(NodeElement parentElement, Node node, NodeConvertArgs args)
+        {
+            return Convert(parentElement, (FrameNode) node, args);
+        }
 
-        private void BuildStyle(FrameNode node, Style style)
+        private static void BuildStyle(FrameNode node, Style style)
         {
             //TODO: handleGridLayout
         }
