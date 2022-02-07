@@ -14,6 +14,17 @@ namespace Cdm.Figma.UI
             text.text = textNode.characters;
             text.characterSpacing = textNode.style.letterSpacing;
             text.fontSize = textNode.style.fontSize;
+            text.fontWeight = (FontWeight)textNode.style.fontWeight;
+
+            switch (@textNode.style.textDecoration)
+            {
+                case TextDecoration.Strikethrough:
+                    text.fontStyle |= FontStyles.Strikethrough;
+                    break;
+                case TextDecoration.Underline:
+                    text.fontStyle |= FontStyles.Underline;
+                    break;
+            }
             
             if (textNode.fills != null && textNode.fills.Length > 0)
             {
