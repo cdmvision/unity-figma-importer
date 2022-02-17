@@ -17,5 +17,6 @@ MonoBehaviour:
   _documentsPath: Resources/Figma/UI/Documents
   _scriptsPath: Resources/Figma/UI/Scripts
   _graphicsPath: Resources/Figma/UI/Graphics
+  _generateScripts: 1
   _files:
-  - SBpzU3oDSxCIXOezPnaQ24
+  - gQubW85QD5Vd6oqRBkRuxU
