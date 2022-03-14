@@ -31,15 +31,18 @@ namespace Cdm.Figma.UI
         {
             float width = vectorNode.size.x;
             float height = vectorNode.size.y;
-            string path, fillCode, strokeCode;
+            string path, fillCode ="", strokeCode;
             SolidPaint fillColor, strokeColor;
             float strokeWidth;
             
             if (vectorNode.fillGeometry.Length > 0)
             {
                 path = vectorNode.fillGeometry[0].path;
-                fillColor = (SolidPaint) vectorNode.fills[0];
-                fillCode = fillColor.color.ToString("rgb-hex");
+                if (vectorNode.fills[0] is SolidPaint solidPaint)
+                {
+                    fillColor = solidPaint;
+                    fillCode = fillColor.color.ToString("rgb-hex");
+                }
             }
             else
             {
@@ -51,7 +54,7 @@ namespace Cdm.Figma.UI
             {
                 strokeColor = (SolidPaint) vectorNode.strokes[0];
                 strokeCode = strokeColor.color.ToString("rgb-hex");
-                strokeWidth = (float) vectorNode.strokeWeight;
+                strokeWidth = vectorNode.strokeWeight ?? 0;
             }
             else
             {
