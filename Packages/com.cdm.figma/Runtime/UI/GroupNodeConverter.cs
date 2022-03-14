@@ -14,12 +14,17 @@ namespace Cdm.Figma.UI
             BuildUIObject(groupNodeObject, groupNode);
             BuildChildren(groupNode, groupNodeObject, groupNodeObject, args);
             SetPosition(groupNode, groupNodeObject);
-            if (args.file.TryGetGraphic(groupNode.id, out var sprite))
+
+            if (groupNode.fills.Count > 0 || groupNode.strokes.Count > 0)
             {
-                var svgImage = groupNodeObject.gameObject.AddComponent<SVGImage>();
-                svgImage.sprite = sprite;
+                groupNodeObject.gameObject.AddComponent<Image>();
+                int layer = HowManyParents(groupNode);
+                //groupNodeObject.gameObject.GetComponent<SpriteRenderer>().sortingOrder = layer - 1;
+                groupNodeObject.gameObject.GetComponent<Image>().type = Image.Type.Sliced;
+                VectorDrawer vDrawer = new VectorDrawer();
+                groupNodeObject.gameObject.GetComponent<Image>().sprite = vDrawer.DrawPseudoVector(groupNode);
             }
-            Debug.Log(groupNodeObject.name + " size: {" + groupNodeObject.rectTransform.sizeDelta.x + " ," + groupNodeObject.rectTransform.sizeDelta.y + "}");
+
             return groupNodeObject;
         }
 
@@ -28,12 +33,19 @@ namespace Cdm.Figma.UI
             return Convert(parentObject, (GroupNode) node, args);
         }
 
+        private static int HowManyParents(Node node)
+        {
+            if (node.hasParent)
+                return HowManyParents(node.parent) + 1;
+            return 0;
+        }
+
         private static void BuildUIObject(NodeObject groupNodeObject, GroupNode groupNode)
         {
             SetTransformOrigin(groupNodeObject);
             SetSize(groupNode, groupNodeObject);
             SetRotation(groupNode, groupNodeObject);
-            
+
             if (groupNode.layoutMode != LayoutMode.None)
             {
                 AddLayoutComponent(groupNode, groupNodeObject);
@@ -42,7 +54,8 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void BuildChildren(GroupNode currentNode, NodeObject currentNodeObject, NodeObject parentObject, NodeConvertArgs args)
+        private static void BuildChildren(GroupNode currentNode, NodeObject currentNodeObject, NodeObject parentObject,
+            NodeConvertArgs args)
         {
             GroupNode parentNode = (GroupNode) parentObject.node;
             INodeTransform parentTransform = (INodeTransform) parentNode;
@@ -58,8 +71,9 @@ namespace Cdm.Figma.UI
                             childObject.gameObject.AddComponent<LayoutElement>();
                             HandleFillContainer(currentNode.layoutMode, currentNodeObject, childObject);
                         }
+
                         HandleConstraints(parentTransform.size, childObject);
-                            
+
                         if (childObject != parentObject)
                         {
                             childObject.rectTransform.SetParent(parentObject.rectTransform);
@@ -68,8 +82,9 @@ namespace Cdm.Figma.UI
                 }
             }
         }
-        
-        private static void HandleFillContainer(LayoutMode groupNodeLayoutMode, NodeObject groupNodeObject, NodeObject childElement)
+
+        private static void HandleFillContainer(LayoutMode groupNodeLayoutMode, NodeObject groupNodeObject,
+            NodeObject childElement)
         {
             INodeLayout childLayout = (INodeLayout) childElement.node;
             INodeTransform childTransform = (INodeTransform) childElement.node;
@@ -96,10 +111,9 @@ namespace Cdm.Figma.UI
                 {
                     childElement.gameObject.GetComponent<LayoutElement>().preferredWidth = childTransform.size.x;
                 }
-                
             }
 
-            if (childLayout.layoutGrow.HasValue && childLayout.layoutGrow!=0)
+            if (childLayout.layoutGrow.HasValue && childLayout.layoutGrow != 0)
             {
                 if (groupNodeLayoutMode == LayoutMode.Horizontal)
                 {
@@ -127,7 +141,8 @@ namespace Cdm.Figma.UI
 
         private static void AddContentSizeFitter(GroupNode groupNode, NodeObject groupNodeObject)
         {
-            if (groupNode.primaryAxisSizingMode == AxisSizingMode.Auto || groupNode.counterAxisSizingMode == AxisSizingMode.Auto)
+            if (groupNode.primaryAxisSizingMode == AxisSizingMode.Auto ||
+                groupNode.counterAxisSizingMode == AxisSizingMode.Auto)
             {
                 groupNodeObject.gameObject.AddComponent<ContentSizeFitter>();
             }
@@ -165,16 +180,18 @@ namespace Cdm.Figma.UI
         {
             if (groupNode.layoutMode == LayoutMode.Horizontal)
             {
-                groupNodeObject.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset((int)groupNode.paddingLeft,
-                    (int)groupNode.paddingRight, (int)groupNode.paddingTop, (int)groupNode.paddingBottom);
+                groupNodeObject.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(
+                    (int) groupNode.paddingLeft,
+                    (int) groupNode.paddingRight, (int) groupNode.paddingTop, (int) groupNode.paddingBottom);
             }
             else
             {
-                groupNodeObject.GetComponent<VerticalLayoutGroup>().padding = new RectOffset((int)groupNode.paddingLeft,
-                    (int)groupNode.paddingRight, (int)groupNode.paddingTop, (int)groupNode.paddingBottom);
+                groupNodeObject.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(
+                    (int) groupNode.paddingLeft,
+                    (int) groupNode.paddingRight, (int) groupNode.paddingTop, (int) groupNode.paddingBottom);
             }
         }
-        
+
         private static void AddLayoutComponent(GroupNode groupNode, NodeObject groupNodeObject)
         {
             var layoutMode = groupNode.layoutMode;
@@ -294,13 +311,12 @@ namespace Cdm.Figma.UI
 
                 layoutGroup.spacing = groupNode.itemSpacing;
             }
-            
         }
 
         private static void SetPosition(GroupNode groupNode, NodeObject groupNodeObject)
         {
             groupNodeObject.rectTransform.position = new Vector3(groupNode.relativeTransform.GetPosition().x,
-                groupNode.relativeTransform.GetPosition().y*-1,0);
+                groupNode.relativeTransform.GetPosition().y * -1, 0);
         }
 
         private static void SetSize(GroupNode groupNode, NodeObject groupNodeObject)
@@ -310,9 +326,9 @@ namespace Cdm.Figma.UI
 
         private static void SetTransformOrigin(NodeObject nodeObject)
         {
-            nodeObject.rectTransform.pivot = new Vector2(0,1);
+            nodeObject.rectTransform.pivot = new Vector2(0, 1);
         }
-        
+
         private static void SetRotation(Node node, NodeObject nodeObject)
         {
             GroupNode groupNode = (GroupNode) node;
@@ -321,10 +337,10 @@ namespace Cdm.Figma.UI
             rotation = float.Parse(rotation.ToString("F2"));
             if (rotation != 0.0f)
             {
-                nodeObject.rectTransform.transform.eulerAngles = new Vector3(0, 0, rotation*-1);
+                nodeObject.rectTransform.transform.eulerAngles = new Vector3(0, 0, rotation * -1);
             }
         }
-        
+
         private static void HandleConstraints(Vector2 parentSize, NodeObject nodeObject)
         {
             //anchors:
@@ -339,13 +355,14 @@ namespace Cdm.Figma.UI
             var constraintY = nodeLayout.constraints.vertical;
             var anchorMin = nodeObject.rectTransform.anchorMin;
             var anchorMax = nodeObject.rectTransform.anchorMax;
-            
+
             var relativeTransform = nodeTransform.relativeTransform;
             var position = relativeTransform.GetPosition();
             var positionX = position.x;
             var positionY = position.y;
-            
-            if(nodeObject.node.type == NodeType.Group){
+
+            if (nodeObject.node.type == NodeType.Group)
+            {
                 anchorMin = new Vector2(0f, 0f);
                 anchorMax = new Vector2(1f, 1f);
                 nodeObject.rectTransform.anchorMin = anchorMin;
@@ -380,8 +397,8 @@ namespace Cdm.Figma.UI
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
-                    var topPercentage = nodeTop  / parentHeight;
-                    topPercentage = 1f-float.Parse(topPercentage.ToString("F2"));
+                    var topPercentage = nodeTop / parentHeight;
+                    topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
                     var bottomPercentage = nodeBottom / parentHeight;
                     bottomPercentage = float.Parse(bottomPercentage.ToString("F2"));
                     anchorMin = new Vector2(0.5f, bottomPercentage);
@@ -415,8 +432,8 @@ namespace Cdm.Figma.UI
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
-                    var topPercentage = nodeTop  / parentHeight;
-                    topPercentage = 1f-float.Parse(topPercentage.ToString("F2"));
+                    var topPercentage = nodeTop / parentHeight;
+                    topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
                     var bottomPercentage = nodeBottom / parentHeight;
                     bottomPercentage = float.Parse(bottomPercentage.ToString("F2"));
                     anchorMin = new Vector2(0f, bottomPercentage);
@@ -450,8 +467,8 @@ namespace Cdm.Figma.UI
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
-                    var topPercentage = nodeTop  / parentHeight;
-                    topPercentage = 1f-float.Parse(topPercentage.ToString("F2"));
+                    var topPercentage = nodeTop / parentHeight;
+                    topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
                     var bottomPercentage = nodeBottom / parentHeight;
                     bottomPercentage = float.Parse(bottomPercentage.ToString("F2"));
                     anchorMin = new Vector2(1f, bottomPercentage);
@@ -485,8 +502,8 @@ namespace Cdm.Figma.UI
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
-                    var topPercentage = nodeTop  / parentHeight;
-                    topPercentage = 1f-float.Parse(topPercentage.ToString("F2"));
+                    var topPercentage = nodeTop / parentHeight;
+                    topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
                     var bottomPercentage = nodeBottom / parentHeight;
                     bottomPercentage = float.Parse(bottomPercentage.ToString("F2"));
                     anchorMin = new Vector2(0f, bottomPercentage);
@@ -501,7 +518,7 @@ namespace Cdm.Figma.UI
                 var leftPercentage = nodeLeft / parentWidth;
                 leftPercentage = float.Parse(leftPercentage.ToString("F2"));
                 var rightPercentage = nodeRight / parentWidth;
-                rightPercentage = 1f-float.Parse(rightPercentage.ToString("F2"));
+                rightPercentage = 1f - float.Parse(rightPercentage.ToString("F2"));
                 if (constraintY == Vertical.Center)
                 {
                     anchorMin = new Vector2(leftPercentage, 0.5f);
@@ -527,10 +544,10 @@ namespace Cdm.Figma.UI
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
-                    var topPercentage = nodeTop  / parentHeight;
-                    topPercentage = 1f-float.Parse(topPercentage.ToString("F2"));
+                    var topPercentage = nodeTop / parentHeight;
+                    topPercentage = 1f - float.Parse(topPercentage.ToString("F"));
                     var bottomPercentage = nodeBottom / parentHeight;
-                    bottomPercentage = float.Parse(bottomPercentage.ToString("F2"));
+                    bottomPercentage = float.Parse(bottomPercentage.ToString("F"));
                     anchorMin = new Vector2(leftPercentage, bottomPercentage);
                     anchorMax = new Vector2(rightPercentage, topPercentage);
                 }
