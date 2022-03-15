@@ -51,6 +51,8 @@ namespace Cdm.Figma.UI
         }
         
         public RectTransform rectTransform { get; private set; }
+        
+        public Node node { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
@@ -60,6 +62,7 @@ namespace Cdm.Figma.UI
             var go = new GameObject(node.name);
             var nodeObject = go.AddComponent<NodeObject>();
 
+            nodeObject.node = node;
             nodeObject.nodeId = node.id;
             nodeObject.nodeName = node.name;
             nodeObject.nodeType = node.type;
