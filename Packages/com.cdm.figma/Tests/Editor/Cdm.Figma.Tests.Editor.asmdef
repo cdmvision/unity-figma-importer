@@ -1,5 +1,5 @@
 {
-    "name": "Cdm.Figma.Editor.Tests",
+    "name": "Cdm.Figma.Tests.Editor",
     "rootNamespace": "Cdm.Figma.Tests",
     "references": [
         "UnityEngine.TestRunner",
