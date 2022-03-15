@@ -11,13 +11,13 @@ namespace Cdm.Figma.UIToolkit
         {
             var root = new VisualElement();
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                $"{PackageUtils.VisualTreeFolderPath}/UIToolkit/ComponentConverter.uxml");
+                $"{EditorHelper.VisualTreeFolderPath}/ComponentConverter.uxml");
             visualTree.CloneTree(root);
-            
-            var propertyListViewItem = 
+
+            var propertyListViewItem =
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    $"{PackageUtils.VisualTreeFolderPath}/UIToolkit/ComponentConverter_VariantListItem.uxml");
-            
+                    $"{EditorHelper.VisualTreeFolderPath}/ComponentConverter_VariantListItem.uxml");
+
             var propertyListView = root.Q<ListView>("variantList");
             propertyListView.makeItem = () => propertyListViewItem.Instantiate();
             propertyListView.bindItem = (e, i) =>
@@ -25,15 +25,15 @@ namespace Cdm.Figma.UIToolkit
                 var property = serializedObject.FindProperty("_properties").GetArrayElementAtIndex(i);
                 var propertyKey = property.FindPropertyRelative("key");
                 var propertyVariants = property.FindPropertyRelative("variants");
-                
+
                 var textField = e.Q<TextField>();
                 textField.label = propertyKey.displayName;
                 textField.BindProperty(propertyKey);
 
-                var propertyVariantListViewItem = 
+                var propertyVariantListViewItem =
                     AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                        $"{PackageUtils.VisualTreeFolderPath}/UIToolkit/ComponentConverter_VariantPropertyListItem.uxml");
-                
+                        $"{EditorHelper.VisualTreeFolderPath}/ComponentConverter_VariantPropertyListItem.uxml");
+
                 var propertyVariantListView = e.Q<ListView>();
                 propertyVariantListView.makeItem = () => propertyVariantListViewItem.Instantiate();
                 propertyVariantListView.bindItem = (se, si) =>

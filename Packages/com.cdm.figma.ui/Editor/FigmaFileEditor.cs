@@ -1,11 +1,11 @@
-using System.IO;
+﻿using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 using UnityEngine.UIElements;
 
-namespace Cdm.Figma.UIToolkit
+namespace Cdm.Figma.UI
 {
     [CustomEditor(typeof(FigmaFile))]
     public class FigmaFileEditor : Cdm.Figma.FigmaFileEditor
@@ -15,7 +15,7 @@ namespace Cdm.Figma.UIToolkit
             var root = base.CreateInspectorGUI();
            
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    $"{PackageUtils.VisualTreeFolderPath}/UIToolkit/FigmaFile.uxml");
+                    $"{EditorHelper.VisualTreeFolderPath}/FigmaFile.uxml");
             visualTree.CloneTree(root);
 
             root.Q<Button>("addFontsButton").clicked += () =>
@@ -30,7 +30,7 @@ namespace Cdm.Figma.UIToolkit
                     }
                     path = Path.Combine("Assets", path);
                     
-                    var guids = AssetDatabase.FindAssets($"t:{typeof(FontAsset)}", new []{path});
+                    var guids = AssetDatabase.FindAssets($"t:{typeof(TMP_FontAsset)}", new []{path});
                     var assets = guids.Select(AssetDatabase.GUIDToAssetPath).ToArray();
                     
                     var figmaFile = (FigmaFile) target;
@@ -56,7 +56,7 @@ namespace Cdm.Figma.UIToolkit
             return root;
         }
 
-        private static bool TryGetFontAsset(string[] assets, string fontName, out FontAsset fontAsset)
+        private static bool TryGetFontAsset(string[] assets, string fontName, out TMP_FontAsset fontAsset)
         {
             foreach (var assetPath in assets)
             {
@@ -65,7 +65,7 @@ namespace Cdm.Figma.UIToolkit
 
                 if (tokens.All(t => assetName.Contains(t.ToLower())))
                 {
-                    fontAsset = AssetDatabase.LoadAssetAtPath<FontAsset>(assetPath);
+                    fontAsset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(assetPath);
                     return fontAsset != null;
                 }
             }

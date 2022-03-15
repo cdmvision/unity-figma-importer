@@ -50,7 +50,7 @@ namespace Cdm.Figma
         {
             var root = new VisualElement();
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                $"{PackageUtils.VisualTreeFolderPath}/FigmaTaskFile.uxml");
+                $"{EditorHelper.VisualTreeFolderPath}/FigmaTaskFile.uxml");
             visualTree.CloneTree(root);
 
             root.Q<Label>("title").text = $"{GetImplementationName()} Figma Task File";

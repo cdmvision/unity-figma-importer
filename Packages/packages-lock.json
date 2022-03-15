@@ -9,6 +9,26 @@
         "com.unity.vectorgraphics": "2.0.0-preview.18"
       }
     },
+    "com.cdm.figma.ui": {
+      "version": "file:com.cdm.figma.ui",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.cdm.figma": "0.0.1",
+        "com.unity.nuget.newtonsoft-json": "2.0.2",
+        "com.unity.vectorgraphics": "2.0.0-preview.18"
+      }
+    },
+    "com.cdm.figma.uitoolkit": {
+      "version": "file:com.cdm.figma.uitoolkit",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.cdm.figma": "0.0.1",
+        "com.unity.nuget.newtonsoft-json": "2.0.2",
+        "com.unity.vectorgraphics": "2.0.0-preview.18"
+      }
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 1,

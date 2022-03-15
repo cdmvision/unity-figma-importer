@@ -36,7 +36,7 @@ namespace Cdm.Figma.UIToolkit
             sourceCode.AppendLine("\t}");
             sourceCode.AppendLine("}");
             
-            var scriptPath = $"{PackageUtils.PackageFolderPath}/Runtime/UIToolkit/Style.Properties.cs";
+            var scriptPath = $"{EditorHelper.PackageFolderPath}/Runtime/UIToolkit/Style.Properties.cs";
             File.WriteAllText(scriptPath, sourceCode.ToString());
             AssetDatabase.Refresh();
         }
