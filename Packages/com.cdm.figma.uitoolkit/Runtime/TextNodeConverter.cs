@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -45,7 +46,7 @@ namespace Cdm.Figma.UIToolkit
                 Debug.LogWarning($"{fontName} could not be found.");
             }
 
-            if (node.fills != null && node.fills.Length > 0)
+            if (node.fills != null && node.fills.Any())
             {
                 if (node.fills[0] is SolidPaint solidPaint)
                 {

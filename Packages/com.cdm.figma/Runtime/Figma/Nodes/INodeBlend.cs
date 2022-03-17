@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace Cdm.Figma
 {
@@ -21,8 +20,28 @@ namespace Cdm.Figma
         public BlendMode? blendMode { get; set; }
 
         /// <summary>
+        /// An array of fill paints applied to the node.
+        /// </summary>
+        public List<Paint> fills { get; }
+        
+        /// <summary>
+        /// An array of stroke paints applied to the node.
+        /// </summary>
+        public List<Paint> strokes { get; }
+        
+        /// <summary>
+        /// The weight of strokes on the node.
+        /// </summary>
+        public float? strokeWeight { get; set; }
+
+        /// <summary>
+        /// Position of stroke relative to vector outline.
+        /// </summary>
+        public StrokeAlign? strokeAlign { get; set; }
+        
+        /// <summary>
         /// A list of effects attached to this node.
         /// </summary>
-        public List<Effect> effects { get; set; }
+        public List<Effect> effects { get; }
     }
 }

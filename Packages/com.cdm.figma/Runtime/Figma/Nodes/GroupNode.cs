@@ -15,16 +15,17 @@ namespace Cdm.Figma
     /// In Figma, groups must always have children. A group with no children will delete itself.
     /// </summary>
     [DataContract]
-    public class GroupNode : SceneNode, INodeTransform, INodeLayout, INodeBlend, INodeTransition, INodeExport
+    public class GroupNode
+        : SceneNode, INodeTransform, INodeLayout, INodeBlend, INodeTransition, INodeExport, INodeRect
     {
         public override string type => NodeType.Group;
-        
+
         /// <summary>
         /// A list of nodes that are direct children of this node.
         /// </summary>
         [DataMember(Name = "children")]
         public Node[] children { get; set; }
-        
+
         /// <summary>
         /// An array of fill paints applied to the node.
         /// </summary>
@@ -48,17 +49,10 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "strokeAlign")]
         public StrokeAlign? strokeAlign { get; set; }
-
-        /// <summary>
-        /// Radius of each corner of the frame if a single radius is set for all corners.
-        /// </summary>
+        
         [DataMember(Name = "cornerRadius")]
         public float? cornerRadius { get; set; }
-
-        /// <summary>
-        /// Array of length 4 of the radius of each corner of the frame, starting in the top left and
-        /// proceeding clockwise.
-        /// </summary>
+        
         [DataMember(Name = "rectangleCornerRadii")]
         public float[] rectangleCornerRadii { get; set; }
 
@@ -226,25 +220,25 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "layoutGrids")]
         public OverflowDirection overflowDirection { get; set; } = OverflowDirection.None;
-        
+
         /// <summary>
         /// A list of effects attached to this node.
         /// </summary>
         [DataMember(Name = "effects")]
         public List<Effect> effects { get; set; } = new List<Effect>();
-        
+
         /// <summary>
         /// Does this node mask sibling nodes in front of it?
         /// </summary>
         [DataMember(Name = "isMask")]
         public bool isMask { get; set; } = false;
-        
+
         /// <summary>
         /// Does this mask ignore fill style (like gradients) and effects?
         /// </summary>
         [DataMember(Name = "isMaskOutline")]
         public bool isMaskOutline { get; set; } = false;
-        
+
         public override Node[] GetChildren() => children;
     }
 
@@ -253,13 +247,13 @@ namespace Cdm.Figma
     {
         [EnumMember(Value = "NONE")]
         None,
-        
+
         [EnumMember(Value = "HORIZONTAL_SCROLLING")]
         HorizontalScrolling,
-        
+
         [EnumMember(Value = "VERTICAL_SCROLLING")]
         VerticalScrolling,
-        
+
         [EnumMember(Value = "HORIZONTAL_AND_VERTICAL_SCROLLING")]
         HorizontalAndVerticalScrolling
     }

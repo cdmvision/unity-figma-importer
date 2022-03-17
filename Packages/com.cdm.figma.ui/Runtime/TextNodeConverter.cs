@@ -1,3 +1,4 @@
+using System.Linq;
 using Cdm.Figma.Utils;
 using TMPro;
 using UnityEngine;
@@ -28,7 +29,7 @@ namespace Cdm.Figma.UI
                     break;
             }
 
-            if (textNode.fills != null && textNode.fills.Length > 0)
+            if (textNode.fills != null && textNode.fills.Any())
             {
                 if (textNode.fills[0] is SolidPaint solidPaint)
                 {

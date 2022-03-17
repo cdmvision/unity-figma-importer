@@ -1,4 +1,5 @@
-using Unity.VectorGraphics;
+using System.Linq;
+using Cdm.Figma.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,14 +15,12 @@ namespace Cdm.Figma.UI
             SetRotation(vectorNode, nodeObject);
             SetPosition(vectorNode, nodeObject);
 
-            if ((vectorNode.fills.Length > 0 || vectorNode.strokes.Length > 0) && vectorNode.type != NodeType.Text)
+            if ((vectorNode.fills.Count > 0 || vectorNode.strokes.Any()) && vectorNode.type != NodeType.Text)
             {
-                nodeObject.gameObject.AddComponent<Image>();
-                int layer = HowManyParents(vectorNode);
-                //nodeObject.gameObject.GetComponent<SpriteRenderer>().sortingOrder = layer - 1;
-                nodeObject.gameObject.GetComponent<Image>().type = Image.Type.Sliced;
-                VectorDrawer vDrawer = new VectorDrawer();
-                nodeObject.gameObject.GetComponent<Image>().sprite = vDrawer.DrawVector(vectorNode);
+                var sprite = VectorImageUtils.CreateSprite(vectorNode);
+                var image = nodeObject.gameObject.AddComponent<Image>();
+                image.sprite = sprite;
+                image.type = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
             }
 
             NodeConverterHelper.ConvertEffects(nodeObject, vectorNode.effects);
@@ -32,13 +31,6 @@ namespace Cdm.Figma.UI
         public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
         {
             return Convert(parentObject, (VectorNode) node, args);
-        }
-
-        private static int HowManyParents(Node node)
-        {
-            if (node.hasParent)
-                return HowManyParents(node.parent) + 1;
-            return 0;
         }
 
         private static void SetPosition(VectorNode vectorNode, NodeObject vectorNodeObject)

@@ -113,25 +113,25 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "isMask")]
         public bool isMask { get; set; } = false;
-        
+
         /// <summary>
         /// An array of fill paints applied to the node.
         /// </summary>
         [DataMember(Name = "fills")]
-        public Paint[] fills { get; set; }
+        public List<Paint> fills { get; private set; } = new List<Paint>();
+        
+        /// <summary>
+        /// An array of stroke paints applied to the node.
+        /// </summary>
+        [DataMember(Name = "strokes")]
+        public List<Paint> strokes { get; private set; } = new List<Paint>();
         
         /// <summary>
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object fill.
         /// </summary>
         [DataMember(Name = "fillGeometry")]
         public Path[] fillGeometry { get; set; }
-        
-        /// <summary>
-        /// An array of stroke paints applied to the node.
-        /// </summary>
-        [DataMember(Name = "strokes")]
-        public Paint[] strokes { get; set; }
-        
+
         /// <summary>
         /// The weight of strokes on the node.
         /// </summary>

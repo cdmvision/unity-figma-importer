@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Xml.Linq;
 using UnityEngine.UIElements;
 
@@ -90,7 +91,7 @@ namespace Cdm.Figma.UIToolkit
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             var strokes = rectangleNode.strokes;
-            if (strokes.Length > 0)
+            if (strokes.Any())
             {
                 var strokeWeight = rectangleNode.strokeWeight;
                 if (strokeWeight.HasValue)
@@ -115,7 +116,7 @@ namespace Cdm.Figma.UIToolkit
         {
             RectangleNode rectangleNode = (RectangleNode) node;
             var fills = rectangleNode.fills;
-            if (fills.Length > 0)
+            if (fills.Any())
             {
                 //only getting the base color
                 var solidColor = (SolidPaint) fills[0];

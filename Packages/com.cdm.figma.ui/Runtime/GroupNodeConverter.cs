@@ -1,5 +1,4 @@
-using System;
-using Unity.VectorGraphics;
+using Cdm.Figma.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,12 +16,10 @@ namespace Cdm.Figma.UI
 
             if (groupNode.fills.Count > 0 || groupNode.strokes.Count > 0)
             {
-                groupNodeObject.gameObject.AddComponent<Image>();
-                int layer = HowManyParents(groupNode);
-                //groupNodeObject.gameObject.GetComponent<SpriteRenderer>().sortingOrder = layer - 1;
-                groupNodeObject.gameObject.GetComponent<Image>().type = Image.Type.Sliced;
-                VectorDrawer vDrawer = new VectorDrawer();
-                groupNodeObject.gameObject.GetComponent<Image>().sprite = vDrawer.DrawPseudoVector(groupNode);
+                var sprite = VectorImageUtils.CreateSprite(groupNode);
+                var image = groupNodeObject.gameObject.AddComponent<Image>();
+                image.type = Image.Type.Sliced;
+                image.sprite = sprite;
             }
 
             return groupNodeObject;
@@ -31,13 +28,6 @@ namespace Cdm.Figma.UI
         public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
         {
             return Convert(parentObject, (GroupNode) node, args);
-        }
-
-        private static int HowManyParents(Node node)
-        {
-            if (node.hasParent)
-                return HowManyParents(node.parent) + 1;
-            return 0;
         }
 
         private static void BuildUIObject(NodeObject groupNodeObject, GroupNode groupNode)
