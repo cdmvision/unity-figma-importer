@@ -30,28 +30,7 @@ namespace Cdm.Figma.UI
             get => _fallbackFont;
             set => _fallbackFont = value;
         }
-        
-        [SerializeField]
-        private List<GraphicSource> _graphics = new List<GraphicSource>();
-        
-        /// <summary>
-        /// Gets the graphic assets. 
-        /// </summary>
-        public IList<GraphicSource> graphics => _graphics;
-        
-        public bool TryGetGraphic(string graphicId, out Sprite graphic)
-        {
-            var graphicSource = _graphics.FirstOrDefault(x => x.id == graphicId);
-            if (graphicSource != null)
-            {
-                graphic = graphicSource.graphic.GetComponent<SpriteRenderer>().sprite;
-                return true;
-            }
 
-            graphic = null;
-            return false;
-        }
-        
         public bool TryGetFont(string fontName, out TMP_FontAsset font)
         {
             var fontSource = _fonts.FirstOrDefault(
@@ -72,14 +51,7 @@ namespace Cdm.Figma.UI
             return false;
         }
     }
-    
-    [Serializable]
-    public class GraphicSource
-    {
-        public string id;
-        public GameObject graphic;
-    }
-    
+
     [Serializable]
     public class FontSource
     {

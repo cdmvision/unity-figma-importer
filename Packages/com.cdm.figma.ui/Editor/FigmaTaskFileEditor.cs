@@ -1,10 +1,7 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.VectorGraphics.Editor;
 using UnityEditor;
-using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
@@ -38,62 +35,6 @@ namespace Cdm.Figma.UI
             }
             
             return Task.CompletedTask;
-        }
-        
-        protected override async Task OnFigmaFileSaved(
-            Figma.FigmaTaskFile taskFile, Figma.FigmaFile file, FigmaFileContent fileContent)
-        {
-            await SaveGraphicsAsync((FigmaTaskFile) taskFile, (FigmaFile) file, fileContent);
-        }
-        
-        private static async Task SaveGraphicsAsync(
-            FigmaTaskFile taskFile, FigmaFile file, FigmaFileContent fileContent)
-        {
-            if (!file.graphics.Any())
-                return;
-            
-            var graphics = 
-                await FigmaApi.GetImageAsync(new FigmaImageRequest(taskFile.personalAccessToken, file.id)
-                {
-                    ids = file.graphics.Select(x => x.id).ToArray(),
-                    format = "svg",
-                    svgIncludeId = false,
-                    svgSimplifyStroke = true
-                });
-            
-            var directory = Path.Combine("Assets", taskFile.graphicsPath);
-            Directory.CreateDirectory(directory);
-
-            foreach (var graphic in graphics)
-            {
-                if (graphic.Value != null)
-                {
-                    var fileName = $"{graphic.Key.Replace(":", "-").Replace(";", "_")}.svg";
-                    
-                    var path = Path.Combine(Application.dataPath, taskFile.graphicsPath, fileName);
-                    await File.WriteAllBytesAsync(path, graphic.Value);
-
-                    var graphicPath = Path.Combine("Assets", taskFile.graphicsPath, fileName);
-                    AssetDatabase.ImportAsset(graphicPath, ImportAssetOptions.ForceSynchronousImport);
-
-                    var svgImporter = (SVGImporter) AssetImporter.GetAtPath(graphicPath);
-                    svgImporter.PreserveSVGImageAspect = true;
-                    svgImporter.SvgType = SVGType.VectorSprite;
-
-                    EditorUtility.SetDirty(svgImporter);
-                    svgImporter.SaveAndReimport();
-                    
-                    var vectorImage = AssetDatabase.LoadAssetAtPath<GameObject>(graphicPath);
-                    var graphicSource = file.graphics.First(x => x.id == graphic.Key);
-                    graphicSource.graphic = vectorImage;
-                }
-                else
-                {
-                    Debug.LogWarning($"Graphic could not be rendered: {graphic.Key}");
-                }
-            }
-            
-            EditorUtility.SetDirty(file);
         }
     }
 }
