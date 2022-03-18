@@ -17,7 +17,12 @@ namespace Cdm.Figma.UI
 
             if ((vectorNode.fills.Count > 0 || vectorNode.strokes.Any()) && vectorNode.type != NodeType.Text)
             {
-                var sprite = VectorImageUtils.CreateSprite(vectorNode);
+                var sprite = VectorImageUtils.CreateSprite(vectorNode, new VectorImageUtils.SpriteOptions()
+                {
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp,
+                    textureSize = 1024
+                });
                 var image = nodeObject.gameObject.AddComponent<Image>();
                 image.sprite = sprite;
                 image.type = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
