@@ -155,11 +155,12 @@ namespace Cdm.Figma.Utils
             };
 
             // Left, bottom, right and top.
+            var strokePadding = strokeWidth * 2 + 4;
             var borders = new Vector4(
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokeWidth * 2),
-                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokeWidth * 2),
-                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokeWidth * 2),
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokeWidth * 2)
+                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
+                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
+                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
+                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
             );
 
             return CreateSpriteWithTexture(node, options, scene, borders);
@@ -183,7 +184,7 @@ namespace Cdm.Figma.Utils
             var height = (int) (sprite.rect.height * ratio);
 
             var material = new Material(Shader.Find("Unlit/Vector"));
-            var texture = VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, 1, true);
+            var texture = VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, options.sampleCount, true);
 
             if (texture != null)
             {

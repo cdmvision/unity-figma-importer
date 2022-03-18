@@ -21,6 +21,7 @@ namespace Cdm.Figma.UI
                 {
                     filterMode = FilterMode.Bilinear,
                     wrapMode = TextureWrapMode.Clamp,
+                    sampleCount = 8,
                     textureSize = 1024
                 });
                 var image = nodeObject.gameObject.AddComponent<Image>();
