@@ -41,8 +41,12 @@ namespace Cdm.Figma.UI
 
         private static void SetPosition(VectorNode vectorNode, NodeObject vectorNodeObject)
         {
-            vectorNodeObject.rectTransform.position = new Vector3(vectorNode.relativeTransform.GetPosition().x,
-                vectorNode.relativeTransform.GetPosition().y * -1, 0);
+            var scale = vectorNode.relativeTransform.GetScale();
+            var offset = Vector2.Scale((Vector2) vectorNode.size * 0.5f, scale);
+            var position = vectorNode.relativeTransform.GetPosition();
+
+            vectorNodeObject.rectTransform.localPosition = new Vector3(position.x + offset.x, position.y - offset.y, 0);
+            vectorNodeObject.rectTransform.localScale = new Vector3(scale.x, scale.y, 1);
         }
 
         private static void SetSize(VectorNode vectorNode, NodeObject vectorNodeObject)
@@ -52,7 +56,7 @@ namespace Cdm.Figma.UI
 
         private static void SetTransformOrigin(NodeObject nodeObject)
         {
-            nodeObject.rectTransform.pivot = new Vector2(0, 1);
+            nodeObject.rectTransform.pivot = new Vector2(0.5f, 0.5f);
         }
 
         private static void SetRotation(Node node, NodeObject nodeObject)
@@ -60,11 +64,7 @@ namespace Cdm.Figma.UI
             VectorNode vectorNode = (VectorNode) node;
             var relativeTransform = vectorNode.relativeTransform;
             var rotation = relativeTransform.GetRotationAngle();
-            rotation = float.Parse(rotation.ToString("F2"));
-            if (rotation != 0.0f)
-            {
-                nodeObject.rectTransform.transform.eulerAngles = new Vector3(0, 0, rotation * -1);
-            }
+            nodeObject.rectTransform.localRotation = relativeTransform.GetRotation();
         }
     }
 }

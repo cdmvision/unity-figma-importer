@@ -306,7 +306,7 @@ namespace Cdm.Figma.UI
         private static void SetPosition(GroupNode groupNode, NodeObject groupNodeObject)
         {
             groupNodeObject.rectTransform.position = new Vector3(groupNode.relativeTransform.GetPosition().x,
-                groupNode.relativeTransform.GetPosition().y * -1, 0);
+                groupNode.relativeTransform.GetPosition().y, 0);
         }
 
         private static void SetSize(GroupNode groupNode, NodeObject groupNodeObject)
