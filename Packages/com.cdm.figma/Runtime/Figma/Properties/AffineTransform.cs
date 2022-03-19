@@ -38,7 +38,7 @@ namespace Cdm.Figma
         public Vector2 GetScale()
         {
             // There is no scale in Figma. There is only a horizontal/vertical mirror.
-            var cosSign = Mathf.Cos(GetRotationAngle()) < 0f ? -1 : 1;
+            var cosSign = Mathf.Cos(GetRotationAngle() * Mathf.Deg2Rad) < 0 ? -1 : 1;
             return new Vector2(values[0][0] < 0 ? -1 : 1, values[1][1] < 0 ? -1 : 1) * cosSign;
         }
 
