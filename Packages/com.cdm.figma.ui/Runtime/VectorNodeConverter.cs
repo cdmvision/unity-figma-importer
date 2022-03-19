@@ -11,8 +11,8 @@ namespace Cdm.Figma.UI
         {
             var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
 
-            nodeObject.SetTransform(vectorNode);
-            nodeObject.SetSize(vectorNode);
+            nodeObject.SetPivot();
+            
             if ((vectorNode.fills.Count > 0 || vectorNode.strokes.Any()) && vectorNode.type != NodeType.Text)
             {
                 var options = new VectorImageUtils.SpriteOptions()
@@ -26,10 +26,17 @@ namespace Cdm.Figma.UI
                 Sprite sprite = null;
                 if (vectorNode is RectangleNode)
                 {
+                    // Use scale only gor manually generated image.
+                    // Mirroring value is baked for pre-rendered graphics by Figma.
+                    nodeObject.SetTransform(vectorNode, TransformType.Relative);
+                    nodeObject.SetSize(vectorNode, TransformType.Relative);
                     sprite = VectorImageUtils.CreateSpriteFromRect(vectorNode, options);
                 }
                 else
                 {
+                    nodeObject.SetTransform(vectorNode, TransformType.Absolute);
+                    nodeObject.SetSize(vectorNode, TransformType.Absolute);
+                    
                     if (args.file.TryGetGraphic(vectorNode.id, out var svg))
                     {
                         sprite = VectorImageUtils.CreateSpriteFromSvg(vectorNode, svg, options);    

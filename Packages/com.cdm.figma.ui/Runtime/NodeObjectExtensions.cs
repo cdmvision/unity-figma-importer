@@ -1,7 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
+    public enum TransformType
+    {
+        Relative,
+        Absolute
+    }
+    
     public static class NodeObjectExtensions
     {
         /// <summary>
@@ -11,12 +18,16 @@ namespace Cdm.Figma.UI
         /// <seealso cref="SetPosition"/>
         /// <seealso cref="SetRotation"/>
         /// <seealso cref="SetScale"/>
-        public static void SetTransform(this NodeObject nodeObject, INodeTransform nodeTransform)
+        public static void SetTransform(this NodeObject nodeObject, INodeTransform nodeTransform, TransformType type)
         {
             nodeObject.SetPivot();
-            nodeObject.SetPosition(nodeTransform);
-            nodeObject.SetRotation(nodeTransform);
-            nodeObject.SetScale(nodeTransform);
+            nodeObject.SetPosition(nodeTransform, type);
+
+            if (type == TransformType.Relative)
+            {
+                nodeObject.SetRotation(nodeTransform);
+                nodeObject.SetScale(nodeTransform);
+            }
         }
 
         /// <summary>
@@ -31,9 +42,20 @@ namespace Cdm.Figma.UI
         /// <summary>
         /// Sets the position of the figma node.
         /// </summary>
-        public static void SetPosition(this NodeObject nodeObject, INodeTransform nodeTransform)
+        public static void SetPosition(this NodeObject nodeObject, INodeTransform nodeTransform, TransformType type)
         {
-            nodeObject.rectTransform.position = nodeTransform.relativeTransform.GetPosition();
+            switch (type)
+            {
+                case TransformType.Relative:
+                    nodeObject.rectTransform.position = nodeTransform.relativeTransform.GetPosition();
+                    break;
+                case TransformType.Absolute:
+                    nodeObject.rectTransform.position = 
+                        new Vector3(nodeTransform.absoluteBoundingBox.x, -nodeTransform.absoluteBoundingBox.y);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
         
         /// <summary>
@@ -60,9 +82,20 @@ namespace Cdm.Figma.UI
         /// <summary>
         /// Sets the size of the figma node.
         /// </summary>
-        public static void SetSize(this NodeObject nodeObject, INodeTransform nodeTransform)
+        public static void SetSize(this NodeObject nodeObject, INodeTransform nodeTransform, TransformType type)
         {
-            nodeObject.rectTransform.sizeDelta = new Vector2(nodeTransform.size.x, nodeTransform.size.y);
+            switch (type)
+            {
+                case TransformType.Relative:
+                    nodeObject.rectTransform.sizeDelta = new Vector2(nodeTransform.size.x, nodeTransform.size.y);
+                    break;
+                case TransformType.Absolute:
+                    nodeObject.rectTransform.sizeDelta = 
+                        new Vector2(nodeTransform.absoluteBoundingBox.width, nodeTransform.absoluteBoundingBox.height);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
     }
 }
