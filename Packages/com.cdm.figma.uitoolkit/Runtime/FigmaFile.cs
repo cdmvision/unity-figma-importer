@@ -37,12 +37,12 @@ namespace Cdm.Figma.UIToolkit
         /// </summary>
         public IList<GraphicSource> graphics => _graphics;
         
-        public bool TryGetGraphic(string graphicId, out VectorImage graphic)
+        public bool TryGetGraphic(string graphicId, out string graphic)
         {
             var graphicSource = _graphics.FirstOrDefault(x => x.id == graphicId);
             if (graphicSource != null)
             {
-                graphic = graphicSource.graphic;
+                graphic = graphicSource.content;
                 return true;
             }
 
@@ -75,7 +75,7 @@ namespace Cdm.Figma.UIToolkit
     public class GraphicSource
     {
         public string id;
-        public VectorImage graphic;
+        public string content;
     }
     
     [Serializable]

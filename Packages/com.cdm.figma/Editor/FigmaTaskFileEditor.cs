@@ -31,8 +31,7 @@ namespace Cdm.Figma
             return Task.CompletedTask;
         }
         
-        protected virtual Task OnFigmaFileSaved(
-            FigmaTaskFile taskFile, FigmaFile file, FigmaFileContent fileContent)
+        protected virtual Task OnFigmaFileSaved(FigmaTaskFile taskFile, FigmaFile file)
         {
             return Task.CompletedTask;
         }
@@ -176,19 +175,9 @@ namespace Cdm.Figma
                 
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) i / fileCount);
                     
-                    var fileContentJson = await FigmaApi.GetFileAsTextAsync(
-                        new FigmaFileRequest(taskFile.personalAccessToken, fileId)
-                        {
-                            geometry = "paths",
-                            plugins = new []{ PluginData.Id }
-                        });
-
-                    var fileContent = FigmaFileContent.FromString(fileContentJson);
-                    var thumbnail = await FigmaApi.GetThumbnailImageAsync(fileContent.thumbnailUrl);
-                    
                     // Save figma file asset.
-                    var file = await SaveFigmaFileAsync(taskFile, fileId, fileContentJson, thumbnail);
-                    await OnFigmaFileSaved(taskFile, file, fileContent);
+                    var file = await DownloadAndSaveFigmaFileAsync(taskFile, fileId);
+                    await OnFigmaFileSaved(taskFile, file);
                     
                     AssetDatabase.SaveAssetIfDirty(file);
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}", (float) (i + 1) / fileCount);
@@ -204,19 +193,18 @@ namespace Cdm.Figma
             }
         }
 
-        private async Task<FigmaFile> SaveFigmaFileAsync(
-            FigmaTaskFile taskFile, string fileId, string fileContent, byte[] thumbnail)
+        private async Task<FigmaFile> DownloadAndSaveFigmaFileAsync(FigmaTaskFile taskFile, string fileID)
         {
+            var newFile = await taskFile.GetDownloader().DownloadFileAsync(fileID, taskFile.personalAccessToken);
+            
             var directory = Path.Combine("Assets", taskFile.assetsPath);
             Directory.CreateDirectory(directory);
             
-            var figmaAssetPath = GetFigmaAssetPath(taskFile, fileId);
+            var figmaAssetPath = GetFigmaAssetPath(taskFile, fileID);
 
             var oldFile = AssetDatabase.LoadAssetAtPath<FigmaFile>(figmaAssetPath);
-            var oldPages = oldFile != null ? oldFile.pages : new FigmaFilePage[0];
+            var oldPages = oldFile != null ? oldFile.pages : Array.Empty<FigmaFilePage>();
 
-            var newFile = taskFile.GetImporter().CreateFile(fileId, fileContent, thumbnail);
-            
             for (var i = 0; i < newFile.pages.Length; i++)
             {
                 var oldPage = oldPages.FirstOrDefault(x => x.id == newFile.pages[i].id);

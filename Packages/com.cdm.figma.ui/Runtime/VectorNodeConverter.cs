@@ -15,13 +15,31 @@ namespace Cdm.Figma.UI
             nodeObject.SetSize(vectorNode);
             if ((vectorNode.fills.Count > 0 || vectorNode.strokes.Any()) && vectorNode.type != NodeType.Text)
             {
-                var sprite = VectorImageUtils.CreateSprite(vectorNode, new VectorImageUtils.SpriteOptions()
+                var options = new VectorImageUtils.SpriteOptions()
                 {
                     filterMode = FilterMode.Bilinear,
                     wrapMode = TextureWrapMode.Clamp,
                     sampleCount = 8,
                     textureSize = 1024
-                });
+                };
+                
+                Sprite sprite = null;
+                if (vectorNode is RectangleNode)
+                {
+                    sprite = VectorImageUtils.CreateSpriteFromRect(vectorNode, options);
+                }
+                else
+                {
+                    if (args.file.TryGetGraphic(vectorNode.id, out var svg))
+                    {
+                        sprite = VectorImageUtils.CreateSpriteFromSvg(vectorNode, svg, options);    
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Graphic could not be found: {vectorNode.id}");
+                    }
+                }
+
                 var image = nodeObject.gameObject.AddComponent<Image>();
                 image.sprite = sprite;
                 image.type = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;

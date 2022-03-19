@@ -4,8 +4,6 @@ namespace Cdm.Figma
 {
     public interface IFigmaImporter
     {
-        FigmaFile CreateFile(string fileId, string fileContent, byte[] thumbnailData = null);
-
         /// <summary>
         /// Imports pages and all their nodes from Figma file given into Unity.
         /// </summary>

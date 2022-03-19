@@ -44,10 +44,10 @@ namespace Cdm.Figma.UIToolkit
             return Task.CompletedTask;
         }
 
-        protected override async Task OnFigmaFileSaved(
-            Figma.FigmaTaskFile taskFile, Figma.FigmaFile file, FigmaFileContent fileContent)
+        protected override Task OnFigmaFileSaved(Figma.FigmaTaskFile taskFile, Figma.FigmaFile file)
         {
-            await SaveVectorGraphicsAsync((FigmaTaskFile) taskFile, (FigmaFile) file, fileContent);
+            return Task.CompletedTask;
+            //await SaveVectorGraphicsAsync((FigmaTaskFile) taskFile, (FigmaFile) file);
         }
 
         protected override async Task OnFigmaFileImported(Figma.FigmaTaskFile taskFile, Figma.FigmaFile file)
@@ -107,25 +107,15 @@ namespace Cdm.Figma.UIToolkit
             AssetDatabase.Refresh();
         }
 
-        private static async Task SaveVectorGraphicsAsync(
-            FigmaTaskFile taskFile, FigmaFile file, FigmaFileContent fileContent)
+       /* private static async Task SaveVectorGraphicsAsync(FigmaTaskFile taskFile, FigmaFile file)
         {
             if (!file.graphics.Any())
                 return;
             
-            var graphics = 
-                await FigmaApi.GetImageAsync(new FigmaImageRequest(taskFile.personalAccessToken, file.id)
-                {
-                    ids = file.graphics.Select(x => x.id).ToArray(),
-                    format = "svg",
-                    svgIncludeId = false,
-                    svgSimplifyStroke = true
-                });
-            
             var directory = Path.Combine("Assets", taskFile.graphicsPath);
             Directory.CreateDirectory(directory);
 
-            foreach (var graphic in graphics)
+            foreach (var graphic in file.graphics)
             {
                 if (graphic.Value != null)
                 {
@@ -155,6 +145,6 @@ namespace Cdm.Figma.UIToolkit
             }
             
             EditorUtility.SetDirty(file);
-        }
+        }*/
     }
 }
