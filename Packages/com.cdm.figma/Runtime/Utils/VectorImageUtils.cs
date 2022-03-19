@@ -35,7 +35,7 @@ namespace Cdm.Figma.Utils
             options ??= new SpriteOptions();
             var sceneInfo = SVGParser.ImportSVG(
                 new StringReader(svg), ViewportOptions.PreserveViewport);
-            return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene);
+            return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
         }
 
         [Obsolete("Use CreateSpriteFromSvg()")]
@@ -87,7 +87,7 @@ namespace Cdm.Figma.Utils
 
             var sceneInfo = SVGParser.ImportSVG(
                 new StringReader(svgString.ToString()), ViewportOptions.PreserveViewport);
-            return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene);
+            return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
         }
 
         public static Sprite CreateSpriteFromRect(SceneNode node, SpriteOptions options = null)
@@ -174,14 +174,15 @@ namespace Cdm.Figma.Utils
                 Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
             );
-
-            return CreateSpriteWithTexture(node, options, scene, borders);
+            
+            return CreateSpriteWithTexture(node, options, scene, null, borders);
         }
 
         private static Sprite CreateSpriteWithTexture(
-            SceneNode node, SpriteOptions options, Scene svg, Vector4? borders = null)
+            SceneNode node, SpriteOptions options, Scene svg, SVGParser.SceneInfo? sceneInfo = null, Vector4? borders = null)
         {
-            var geometries = VectorUtils.TessellateScene(svg, options.tessellationOptions);
+            
+            var geometries = VectorUtils.TessellateScene(svg, options.tessellationOptions, sceneInfo?.NodeOpacity);
             var sprite = VectorUtils.BuildSprite(geometries, options.svgPixelsPerUnit, VectorUtils.Alignment.TopLeft, 
                 Vector2.zero, options.gradientResolution, true);
             if (sprite == null)
@@ -195,8 +196,11 @@ namespace Cdm.Figma.Utils
             var width = (int) (sprite.rect.width * ratio);
             var height = (int) (sprite.rect.height * ratio);
 
-            var material = new Material(Shader.Find("Unlit/Vector"));
-            var texture = VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, options.sampleCount, true);
+            
+            bool expandEdges = options.filterMode != FilterMode.Point || options.sampleCount > 1;
+            
+            var material = new Material(Shader.Find("Unlit/VectorGradient"));
+            var texture = VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, options.sampleCount, expandEdges);
 
             if (texture != null)
             {
