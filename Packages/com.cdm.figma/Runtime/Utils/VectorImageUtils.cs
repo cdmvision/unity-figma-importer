@@ -112,8 +112,7 @@ namespace Cdm.Figma.Utils
             var radiusTR = Vector3.one * nodeRect.topRightRadius;
             var radiusBR = Vector3.one * nodeRect.bottomRightRadius;
             var radiusBL = Vector3.one * nodeRect.bottomLeftRadius;
-
-
+            
             var fillColor = new SolidPaint();
             if (nodeBlend.fills.Count > 0)
             {
@@ -197,10 +196,10 @@ namespace Cdm.Figma.Utils
             var height = (int) (sprite.rect.height * ratio);
 
             
-            bool expandEdges = options.filterMode != FilterMode.Point || options.sampleCount > 1;
-            
+            var expandEdges = options.filterMode != FilterMode.Point || options.sampleCount > 1;
             var material = new Material(Shader.Find("Unlit/VectorGradient"));
-            var texture = VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, options.sampleCount, expandEdges);
+            var texture = 
+                VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, options.sampleCount, expandEdges);
 
             if (texture != null)
             {
@@ -217,16 +216,18 @@ namespace Cdm.Figma.Utils
             var spriteRect = new Rect(0, 0, texture.width, texture.height);
             var spritePivot = spriteRect.center;
 
+            var pixelsPerUnity = options.pixelsPerUnit * ratio;
+            
             Sprite spriteWithTexture = null;
             if (borders.HasValue)
             {
                 borders *= ratio;
                 spriteWithTexture = Sprite.Create(
-                    texture, spriteRect, spritePivot, options.pixelsPerUnit, 0, SpriteMeshType.FullRect, borders.Value);
+                    texture, spriteRect, spritePivot, pixelsPerUnity, 0, SpriteMeshType.FullRect, borders.Value);
             }
             else
             {
-                spriteWithTexture = Sprite.Create(texture, spriteRect, spritePivot, options.pixelsPerUnit, 0);
+                spriteWithTexture = Sprite.Create(texture, spriteRect, spritePivot, pixelsPerUnity, 0);
             }
 
             spriteWithTexture.name = node.id;
