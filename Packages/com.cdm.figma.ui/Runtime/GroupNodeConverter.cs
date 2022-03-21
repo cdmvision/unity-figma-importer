@@ -1,4 +1,3 @@
-using Cdm.Figma.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,8 +11,7 @@ namespace Cdm.Figma.UI
 
             BuildUIObject(groupNodeObject, groupNode);
             BuildChildren(groupNode, groupNodeObject, groupNodeObject, args);
-            SetPosition(groupNode, groupNodeObject);
-            
+
             return groupNodeObject;
         }
 
@@ -86,10 +84,12 @@ namespace Cdm.Figma.UI
             {
                 if (groupNodeLayoutMode == LayoutMode.Horizontal)
                 {
+                    groupNodeObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().preferredHeight = childTransform.size.y;
                 }
                 else
                 {
+                    groupNodeObject.GetComponent<VerticalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().preferredWidth = childTransform.size.x;
                 }
             }
@@ -111,10 +111,12 @@ namespace Cdm.Figma.UI
             {
                 if (groupNodeLayoutMode == LayoutMode.Horizontal)
                 {
+                    groupNodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().preferredWidth = childTransform.size.x;
                 }
                 else
                 {
+                    groupNodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().preferredHeight = childTransform.size.y;
                 }
             }
@@ -294,27 +296,6 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void SetPosition(GroupNode groupNode, NodeObject groupNodeObject)
-        {
-            groupNodeObject.rectTransform.position = new Vector3(groupNode.relativeTransform.GetPosition().x,
-                groupNode.relativeTransform.GetPosition().y, 0);
-        }
-
-        private static void SetSize(GroupNode groupNode, NodeObject groupNodeObject)
-        {
-            groupNodeObject.rectTransform.sizeDelta = new Vector2(groupNode.size.x, groupNode.size.y);
-        }
-
-        private static void SetTransformOrigin(NodeObject nodeObject)
-        {
-            nodeObject.rectTransform.pivot = new Vector2(0, 1);
-        }
-
-        private static void SetRotation(INodeTransform nodeTransform, NodeObject nodeObject)
-        {
-            nodeObject.rectTransform.rotation = nodeTransform.relativeTransform.GetRotation();
-        }
-
         private static void HandleConstraints(Vector2 parentSize, NodeObject nodeObject)
         {
             //anchors:
@@ -339,10 +320,18 @@ namespace Cdm.Figma.UI
             {
                 var parentWidth = parentSize.x;
                 var parentHeight = parentSize.y;
-                var nodeLeft = positionX;
+                var nodeLeft = positionX<0 ?  positionX*-1 : positionX;
                 var nodeRight = parentWidth - (nodeLeft + nodeTransform.size.x);
-                var nodeTop = positionY;
+                if (nodeRight < 0)
+                {
+                    nodeRight *= -1;
+                }
+                var nodeTop = positionY<0 ? positionY*-1 : positionY;
                 var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                if (nodeBottom < 0)
+                {
+                    nodeBottom *= -1;
+                }
                 var topPercentage = nodeTop / parentHeight;
                 topPercentage = 1f - float.Parse(topPercentage.ToString("F"));
                 var bottomPercentage = nodeBottom / parentHeight;
@@ -383,8 +372,12 @@ namespace Cdm.Figma.UI
                 else if (constraintY == Vertical.Scale)
                 {
                     var parentHeight = parentSize.y;
-                    var nodeTop = positionY;
+                    var nodeTop = positionY<0 ? positionY*-1 : positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    if (nodeBottom < 0)
+                    {
+                        nodeBottom *= -1;
+                    }
                     var topPercentage = nodeTop / parentHeight;
                     topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
                     var bottomPercentage = nodeBottom / parentHeight;
@@ -418,8 +411,12 @@ namespace Cdm.Figma.UI
                 else if (constraintY == Vertical.Scale)
                 {
                     var parentHeight = parentSize.y;
-                    var nodeTop = positionY;
+                    var nodeTop = positionY<0 ? positionY*-1 : positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    if (nodeBottom < 0)
+                    {
+                        nodeBottom *= -1;
+                    }
                     var topPercentage = nodeTop / parentHeight;
                     topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
                     var bottomPercentage = nodeBottom / parentHeight;
@@ -453,8 +450,12 @@ namespace Cdm.Figma.UI
                 else if (constraintY == Vertical.Scale)
                 {
                     var parentHeight = parentSize.y;
-                    var nodeTop = positionY;
+                    var nodeTop = positionY<0 ? positionY*-1 : positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    if (nodeBottom < 0)
+                    {
+                        nodeBottom *= -1;
+                    }
                     var topPercentage = nodeTop / parentHeight;
                     topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
                     var bottomPercentage = nodeBottom / parentHeight;
@@ -488,8 +489,12 @@ namespace Cdm.Figma.UI
                 else if (constraintY == Vertical.Scale)
                 {
                     var parentHeight = parentSize.y;
-                    var nodeTop = positionY;
+                    var nodeTop = positionY<0 ? positionY*-1 : positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    if (nodeBottom < 0)
+                    {
+                        nodeBottom *= -1;
+                    }
                     var topPercentage = nodeTop / parentHeight;
                     topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
                     var bottomPercentage = nodeBottom / parentHeight;
@@ -501,8 +506,12 @@ namespace Cdm.Figma.UI
             else if (constraintX == Horizontal.Scale)
             {
                 var parentWidth = parentSize.x;
-                var nodeLeft = positionX;
+                var nodeLeft = positionX<0 ? positionX*-1 : positionX;
                 var nodeRight = parentWidth - (nodeLeft + nodeTransform.size.x);
+                if (nodeRight < 0)
+                {
+                    nodeRight *= -1;
+                }
                 var leftPercentage = nodeLeft / parentWidth;
                 leftPercentage = float.Parse(leftPercentage.ToString("F2"));
                 var rightPercentage = nodeRight / parentWidth;
@@ -530,8 +539,12 @@ namespace Cdm.Figma.UI
                 else if (constraintY == Vertical.Scale)
                 {
                     var parentHeight = parentSize.y;
-                    var nodeTop = positionY;
+                    var nodeTop = positionY<0 ? positionY*-1 : positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    if (nodeBottom < 0)
+                    {
+                        nodeBottom *= -1;
+                    }
                     var topPercentage = nodeTop / parentHeight;
                     topPercentage = 1f - float.Parse(topPercentage.ToString("F"));
                     var bottomPercentage = nodeBottom / parentHeight;
