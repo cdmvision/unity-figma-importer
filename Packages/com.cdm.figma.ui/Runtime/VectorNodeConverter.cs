@@ -11,9 +11,7 @@ namespace Cdm.Figma.UI
         {
             var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
 
-            nodeObject.SetPivot();
-            
-            if ((vectorNode.fills.Count > 0 || vectorNode.strokes.Any()) && vectorNode.type != NodeType.Text)
+            if ((vectorNode.fills.Any() || vectorNode.strokes.Any()) && vectorNode.type != NodeType.Text)
             {
                 var options = new VectorImageUtils.SpriteOptions()
                 {
@@ -50,7 +48,7 @@ namespace Cdm.Figma.UI
                 var image = nodeObject.gameObject.AddComponent<Image>();
                 image.sprite = sprite;
                 image.type = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
-                image.gameObject.SetActive(vectorNode.visible);
+                image.color = new UnityEngine.Color(1f, 1f, 1f, vectorNode.opacity);
             }
 
             NodeConverterHelper.ConvertEffects(nodeObject, vectorNode.effects);

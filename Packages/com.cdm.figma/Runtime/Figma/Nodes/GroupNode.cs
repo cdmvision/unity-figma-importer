@@ -16,7 +16,7 @@ namespace Cdm.Figma
     /// </summary>
     [DataContract]
     public class GroupNode
-        : SceneNode, INodeTransform, INodeLayout, INodeBlend, INodeTransition, INodeExport, INodeRect
+        : SceneNode, INodeTransform, INodeLayout, INodeTransition, INodeExport
     {
         public override string type => NodeType.Group;
 
@@ -25,48 +25,12 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "children")]
         public Node[] children { get; set; }
-
-        /// <summary>
-        /// An array of fill paints applied to the node.
-        /// </summary>
-        [DataMember(Name = "fills")]
-        public List<Paint> fills { get; private set; } = new List<Paint>();
-
-        /// <summary>
-        /// An array of stroke paints applied to the node.
-        /// </summary>
-        [DataMember(Name = "strokes")]
-        public List<Paint> strokes { get; private set; } = new List<Paint>();
-
-        /// <summary>
-        /// The weight of strokes on the node.
-        /// </summary>
-        [DataMember(Name = "strokeWeight")]
-        public float? strokeWeight { get; set; }
-
-        /// <summary>
-        /// Position of stroke relative to vector outline.
-        /// </summary>
-        [DataMember(Name = "strokeAlign")]
-        public StrokeAlign? strokeAlign { get; set; }
         
-        [DataMember(Name = "cornerRadius")]
-        public float? cornerRadius { get; set; }
-        
-        [DataMember(Name = "rectangleCornerRadii")]
-        public float[] rectangleCornerRadii { get; set; }
-
         /// <summary>
         /// A list of export settings representing images to export from the canvas.
         /// </summary>
         [DataMember(Name = "exportSettings")]
         public List<ExportSetting> exportSettings { get; set; } = new List<ExportSetting>();
-
-        /// <summary>
-        /// How this node blends with nodes behind it in the scene.
-        /// </summary>
-        [DataMember(Name = "blendMode")]
-        public BlendMode? blendMode { get; set; }
 
         /// <summary>
         /// Keep height and width constrained to same ratio.
@@ -109,12 +73,6 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "transitionEasing")]
         public EasingType? transitionEasing { get; set; } = null;
-
-        /// <summary>
-        /// Opacity of the node.
-        /// </summary>
-        [DataMember(Name = "opacity")]
-        public float opacity { get; set; } = 1f;
 
         /// <summary>
         /// Bounding box of the node in absolute space coordinates.
@@ -238,6 +196,10 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "isMaskOutline")]
         public bool isMaskOutline { get; set; } = false;
+        
+        public float[] strokeDashes { get; set; }
+        public float strokeMiterAngle { get; set; }
+        public StrokeJoin strokeJoin { get; set; }
 
         public override Node[] GetChildren() => children;
     }

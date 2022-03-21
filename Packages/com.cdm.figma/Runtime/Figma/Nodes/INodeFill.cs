@@ -2,7 +2,7 @@
 
 namespace Cdm.Figma
 {
-    public interface INodeBlend
+    public interface INodeFill
     {
         /// <summary>
         /// Opacity of the node.
@@ -33,7 +33,26 @@ namespace Cdm.Figma
         /// The weight of strokes on the node.
         /// </summary>
         public float? strokeWeight { get; set; }
-
+        
+        /// <summary>
+        /// An array of floating point numbers describing the pattern of dash length and gap lengths that the vector
+        /// path follows. For example a value of [1, 2] indicates that the path has a dash of length 1 followed
+        /// by a gap of length 2, repeated.
+        /// </summary>
+        public float[] strokeDashes { get; set; }
+        
+        /// <summary>
+        /// Only valid if <see cref="strokeJoin"/> is <see cref="StrokeJoin.Miter"/>. The corner angle, in degrees,
+        /// below which <see cref="strokeJoin"/>  will be set to <see cref="StrokeJoin.Bevel"/> to avoid super
+        /// sharp corners. By default this is 28.96 degrees.
+        /// </summary>
+        public float strokeMiterAngle { get; set; }
+        
+        /// <summary>
+        /// The stroke join type.
+        /// </summary>
+        public StrokeJoin strokeJoin { get; set; }
+        
         /// <summary>
         /// Position of stroke relative to vector outline.
         /// </summary>

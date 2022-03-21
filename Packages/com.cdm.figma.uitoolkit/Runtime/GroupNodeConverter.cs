@@ -109,16 +109,16 @@ namespace Cdm.Figma.UIToolkit
             SetOpacity(node, style);
             SetRotation(node, style);
             AddPadding(node, style);
-            AddBackgroundColor(node, style);
-            AddCorners(node, style);
+            //AddBackgroundColor(node, style);
+            //AddCorners(node, style);
             SetTransformOrigin(style);
         }
 
         private static void SetOpacity(Node node, Style style)
         {
             GroupNode groupNode = (GroupNode) node;
-            var opacity = groupNode.opacity;
-            style.opacity = new StyleFloat(opacity);
+            //var opacity = groupNode.opacity;
+            //style.opacity = new StyleFloat(opacity);
         }
 
         private static void SetClipContent(Node node, Style style)
@@ -425,7 +425,7 @@ namespace Cdm.Figma.UIToolkit
                 new StyleTransformOrigin(new TransformOrigin(Length.Percent(0f), Length.Percent(0f), 0.0f));
         }
 
-        private static void AddCorners(Node node, Style style)
+        /*private static void AddCorners(Node node, Style style)
         {
             GroupNode groupNode = (GroupNode) node;
             var cornerRadius = groupNode.cornerRadius;
@@ -482,6 +482,6 @@ namespace Cdm.Figma.UIToolkit
                 var solidColor = (SolidPaint) fills[0];
                 style.backgroundColor = new StyleColor(solidColor.color);
             }
-        }
+        }*/
     }
 }

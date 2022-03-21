@@ -12,7 +12,7 @@ namespace Cdm.Figma
     /// fit its vertices. For example, the positions returned by vector paths is relative to the vector object position.
     /// </summary>
     [DataContract]
-    public class VectorNode : SceneNode, INodeTransform, INodeLayout, INodeBlend, INodeTransition, INodeExport
+    public class VectorNode : SceneNode, INodeTransform, INodeLayout, INodeFill, INodeTransition, INodeExport
     {
         public override string type => NodeType.Vector;
         

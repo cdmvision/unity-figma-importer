@@ -13,15 +13,7 @@ namespace Cdm.Figma.UI
             BuildUIObject(groupNodeObject, groupNode);
             BuildChildren(groupNode, groupNodeObject, groupNodeObject, args);
             SetPosition(groupNode, groupNodeObject);
-
-            if (groupNode.fills.Count > 0 || groupNode.strokes.Count > 0)
-            {
-                var sprite = VectorImageUtils.CreateSpriteFromRect(groupNode);
-                var image = groupNodeObject.gameObject.AddComponent<Image>();
-                image.type = Image.Type.Sliced;
-                image.sprite = sprite;
-            }
-
+            
             return groupNodeObject;
         }
 
