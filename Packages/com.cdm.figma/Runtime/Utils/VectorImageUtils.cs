@@ -90,6 +90,48 @@ namespace Cdm.Figma.Utils
             return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
         }
 
+        private static IFill CreateShapeFill(Paint paint)
+        {
+            IFill fill = null;
+            
+            if (paint is SolidPaint solidPaint)
+            {
+                var solidFill = new SolidFill();
+                solidFill.Color = solidPaint.color;
+                solidFill.Opacity = solidPaint.opacity;
+                fill = solidFill;
+            }
+
+            if (paint is GradientPaint gradientPaint)
+            {
+                var gradientFill = new GradientFill();
+                gradientFill.Opacity = gradientPaint.opacity;
+
+                var gradientStops = new List<GradientStop>();
+                foreach (var gs in gradientPaint.gradientStops)
+                {
+                    var gradientStop = new GradientStop();
+                    gradientStop.Color = gs.color;
+                    gradientStop.StopPercentage = gs.position;
+                    gradientStops.Add(gradientStop);
+                }
+                gradientFill.Stops = gradientStops.ToArray();
+                
+                if (gradientPaint is LinearGradientPaint)
+                {
+                    gradientFill.Type = GradientFillType.Linear;
+                } 
+                else if (gradientPaint is RadialGradientPaint)
+                {
+                    gradientFill.Type = GradientFillType.Radial;
+                }
+
+                fill = gradientFill;
+            }
+            
+            return fill;
+        }
+
         public static Sprite CreateSpriteFromRect(SceneNode node, SpriteOptions options = null)
         {
             options ??= new SpriteOptions();
@@ -103,15 +145,40 @@ namespace Cdm.Figma.Utils
                 return null;
             }
 
-            var hasFill = false;
-            var hasStroke = false;
-            var width = nodeTransform.size.x;
-            var height = nodeTransform.size.y;
+            var scene = new Scene()
+            {
+                Root = new Unity.VectorGraphics.SceneNode()
+                {
+                    Shapes = new List<Shape>(),
+                }
+            };
 
-            var radiusTL = Vector3.one * nodeRect.topLeftRadius;
-            var radiusTR = Vector3.one * nodeRect.topRightRadius;
-            var radiusBR = Vector3.one * nodeRect.bottomRightRadius;
-            var radiusBL = Vector3.one * nodeRect.bottomLeftRadius;
+
+            foreach (var fill in nodeBlend.fills)
+            {
+                var width = nodeTransform.size.x;
+                var height = nodeTransform.size.y;
+                var radiusTL = Vector2.one * nodeRect.topLeftRadius;
+                var radiusTR = Vector2.one * nodeRect.topRightRadius;
+                var radiusBR = Vector2.one * nodeRect.bottomRightRadius;
+                var radiusBL = Vector2.one * nodeRect.bottomLeftRadius;
+                
+                var rect = VectorUtils.BuildRectangleContour(
+                    new Rect(0, 0, width, height), radiusTL, radiusTR, radiusBR, radiusBL);
+
+                var shape = new Shape()
+                {
+                    Contours = new BezierContour[] { rect },
+                    Fill = CreateShapeFill(fill),
+                };
+                
+                scene.Root.Shapes.Add(shape);
+            }
+            
+            /*var hasFill = false;
+            var hasStroke = false;
+
+            
             
             var fillColor = new SolidPaint();
             if (nodeBlend.fills.Count > 0)
@@ -121,17 +188,17 @@ namespace Cdm.Figma.Utils
             }
 
             var strokeColor = new SolidPaint();
-            if (nodeBlend.strokes.Count > 0)
+            if (nodeBlend.strokes.Count > 0 && nodeBlend.strokes[0] is SolidPaint)
             {
                 hasStroke = true;
-                strokeColor = (SolidPaint)nodeBlend.strokes[0];
+                strokeColor = (SolidPaint) nodeBlend.strokes[0];
             }
 
-            var strokeWidth = nodeBlend.strokeWeight ?? 0f;
+            var strokeWidth = nodeBlend.strokeWeight ?? 0f;*/
 
-            var rect = VectorUtils.BuildRectangleContour(
-                new Rect(0, 0, width, height), radiusTL, radiusTR, radiusBR, radiusBL);
-            var scene = new Scene()
+            //var rect = VectorUtils.BuildRectangleContour(
+             //   new Rect(0, 0, width, height), radiusTL, radiusTR, radiusBR, radiusBL);
+            /*var scene = new Scene()
             {
                 Root = new Unity.VectorGraphics.SceneNode()
                 {
@@ -163,9 +230,10 @@ namespace Cdm.Figma.Utils
                         }
                     }
                 }
-            };
+            };*/
 
             // Left, bottom, right and top.
+            var strokeWidth = nodeBlend.strokeWeight ?? 0f;
             var strokePadding = strokeWidth * 2 + 4;
             var borders = new Vector4(
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
