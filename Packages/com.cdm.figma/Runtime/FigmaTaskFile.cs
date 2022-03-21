@@ -51,18 +51,16 @@ namespace Cdm.Figma
         public List<string> fileIds => _files;
 
         public abstract IFigmaImporter GetImporter();
+        public abstract IFigmaDownloader GetDownloader();
     }
 
-    public abstract class FigmaTaskFile<TImporter> : FigmaTaskFile where TImporter : IFigmaImporter, new()
+    public abstract class FigmaTaskFile<TImporter, TDownloader> : FigmaTaskFile 
+        where TImporter : IFigmaImporter, new() where TDownloader : IFigmaDownloader, new() 
     {
-        private TImporter _importer = new TImporter();
-
-        public TImporter importer
-        {
-            get => _importer;
-            set => _importer = value;
-        }
+        public TImporter importer { get; private set; } = new TImporter();
+        public TDownloader downloader { get; private set; } = new TDownloader();
         
         public override IFigmaImporter GetImporter() => importer;
+        public override IFigmaDownloader GetDownloader() => downloader;
     }
 }

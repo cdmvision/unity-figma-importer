@@ -16,7 +16,7 @@ namespace Cdm.Figma.UI
 
             if (groupNode.fills.Count > 0 || groupNode.strokes.Count > 0)
             {
-                var sprite = VectorImageUtils.CreateSprite(groupNode);
+                var sprite = VectorImageUtils.CreateSpriteFromRect(groupNode);
                 var image = groupNodeObject.gameObject.AddComponent<Image>();
                 image.type = Image.Type.Sliced;
                 image.sprite = sprite;
@@ -319,16 +319,9 @@ namespace Cdm.Figma.UI
             nodeObject.rectTransform.pivot = new Vector2(0, 1);
         }
 
-        private static void SetRotation(Node node, NodeObject nodeObject)
+        private static void SetRotation(INodeTransform nodeTransform, NodeObject nodeObject)
         {
-            GroupNode groupNode = (GroupNode)node;
-            var relativeTransform = groupNode.relativeTransform;
-            var rotation = relativeTransform.GetRotationAngle();
-            rotation = float.Parse(rotation.ToString("F2"));
-            if (rotation != 0.0f)
-            {
-                nodeObject.rectTransform.transform.eulerAngles = new Vector3(0, 0, rotation * -1);
-            }
+            nodeObject.rectTransform.rotation = nodeTransform.relativeTransform.GetRotation();
         }
 
         private static void HandleConstraints(Vector2 parentSize, NodeObject nodeObject)

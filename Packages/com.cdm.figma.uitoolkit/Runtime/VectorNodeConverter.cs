@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Xml.Linq;
+using Cdm.Figma.Utils;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UIToolkit
@@ -33,10 +34,11 @@ namespace Cdm.Figma.UIToolkit
             // Override width and height if SVG contains these properties.
             if (args.file.TryGetGraphic(node.id, out var graphic))
             {
-                style.backgroundImage = new StyleBackground(graphic);
+                var sprite = VectorImageUtils.CreateSpriteFromSvg(node, graphic);
+                style.backgroundImage = new StyleBackground(sprite);
                 
 #if UNITY_EDITOR
-                var path = UnityEditor.AssetDatabase.GetAssetPath(graphic);
+                var path = UnityEditor.AssetDatabase.GetAssetPath(sprite);
                 if (!string.IsNullOrEmpty(path))
                 {
                     var svg = XDocument.Load(path);

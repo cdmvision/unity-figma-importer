@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.Serialization;
 using UnityEngine;
 
@@ -34,18 +35,21 @@ namespace Cdm.Figma
         /// <summary>
         /// Gets the 2D scale.
         /// </summary>
-        public Vector2 GetScale() =>
-            // There is no scale in Figma. It's only a horizontal/vertical mirror.
-            new Vector2(values[0][0] < 0 ? -1 : 1, values[1][1] < 0 ? -1 : 1);
-        
+        public Vector2 GetScale()
+        {
+            // There is no scale in Figma. There is only a horizontal/vertical mirror.
+            var cosSign = Mathf.Cos(GetRotationAngle() * Mathf.Deg2Rad) < 0 ? -1 : 1;
+            return new Vector2(values[0][0] < 0 ? -1 : 1, values[1][1] < 0 ? -1 : 1) * cosSign;
+        }
+
         /// <summary>
         /// Gets the 2D rotation as <see cref="Quaternion"/>.
         /// </summary>
-        public Quaternion GetRotation() => Quaternion.Euler(0, 0, -GetRotationAngle());
+        public Quaternion GetRotation() => Quaternion.Euler(0, 0, GetRotationAngle());
         
         /// <summary>
         /// Gets 2D rotation angle in degrees.
         /// </summary>
-        public float GetRotationAngle() => Mathf.Rad2Deg * Mathf.Atan2(values[1][0], values[0][0]);
+        public float GetRotationAngle() => -Mathf.Rad2Deg * Mathf.Atan2(values[1][0], values[0][0]);
     }
 }

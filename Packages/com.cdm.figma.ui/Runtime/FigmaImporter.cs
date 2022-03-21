@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -50,55 +49,6 @@ namespace Cdm.Figma.UI
             };
         }
         
-        public Figma.FigmaFile CreateFile(string fileId, string fileJson, byte[] thumbnailData = null)
-        {
-            var fileContent = FigmaFileContent.FromString(fileJson);
-
-            var figmaFile = FigmaFile.CreateInstance<FigmaFile>();
-            figmaFile.id = fileId;
-            figmaFile.title = fileContent.name;
-            figmaFile.version = fileContent.version;
-            figmaFile.lastModified = fileContent.lastModified.ToString("u");
-            figmaFile.content = new TextAsset(JObject.Parse(fileJson).ToString(Newtonsoft.Json.Formatting.Indented));
-            figmaFile.content.name = "File";
-
-            if (thumbnailData != null)
-            {
-                figmaFile.thumbnail = new Texture2D(1, 1);
-                figmaFile.thumbnail.name = "Thumbnail";
-                figmaFile.thumbnail.LoadImage(thumbnailData);
-            }
-
-            var pages = fileContent.document.children;
-            figmaFile.pages = new FigmaFilePage[pages.Length];
-
-            for (var i = 0; i < pages.Length; i++)
-            {
-                figmaFile.pages[i] = new FigmaFilePage()
-                {
-                    id = pages[i].id,
-                    name = pages[i].name
-                };
-            }
-
-            // Add required fonts.
-            var fonts = new HashSet<string>();
-            fileContent.document.Traverse(node =>
-            {
-                var style = ((TextNode) node).style;
-                var fontName = FontSource.GetFontName(style.fontFamily, style.fontWeight, style.italic);
-                fonts.Add(fontName);
-                return true;
-            }, NodeType.Text);
-
-            foreach (var font in fonts)
-            {
-                figmaFile.fonts.Add(new FontSource() {fontName = font, font = null});
-            }
-            
-            return figmaFile;
-        }
-
         public Task ImportFileAsync(Figma.FigmaFile file)
         {
             _documents.Clear();

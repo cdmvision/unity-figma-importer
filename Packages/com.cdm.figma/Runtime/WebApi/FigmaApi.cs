@@ -11,9 +11,7 @@ namespace Cdm.Figma
     public class FigmaApi
     {
         private const string BaseUri = "https://api.figma.com/v1";
-
         
-
         /// <summary>
         /// Returns the document referred to by :key as a JSON object string. The file key can be parsed from any
         /// Figma file url: https://www.figma.com/file/:key/:title

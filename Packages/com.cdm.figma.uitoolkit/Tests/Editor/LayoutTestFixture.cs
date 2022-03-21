@@ -16,14 +16,14 @@ namespace Tests.Editor.UIToolkit
         {
             var fileJson = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("Layout.json"));
 
-            var figmaImporter = new FigmaImporter();
+            /*var figmaImporter = new FigmaImporter();
             var figmaFile = figmaImporter.CreateFile("file-id", fileJson.text);
             figmaImporter.ImportFileAsync(figmaFile).WaitOrThrow();
 
             foreach (var document in figmaImporter.GetImportedDocuments())
             {
                 Debug.Log(document.page.name);
-            }
+            }*/
         }
         
         [OneTimeTearDown]

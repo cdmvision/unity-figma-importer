@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Unity.VectorGraphics;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.Utils
 {
@@ -28,25 +30,19 @@ namespace Cdm.Figma.Utils
             public float pixelsPerUnit { get; set; } = 100f;
         }
 
-        public static Sprite CreateSprite(SceneNode sceneNode, SpriteOptions options = null)
+        public static Sprite CreateSpriteFromSvg(VectorNode vectorNode, string svg, SpriteOptions options = null)
+        {
+            options ??= new SpriteOptions();
+            var sceneInfo = SVGParser.ImportSVG(
+                new StringReader(svg), ViewportOptions.PreserveViewport);
+            return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
+        }
+
+        [Obsolete("Use CreateSpriteFromSvg()")]
+        public static Sprite CreateSpriteFromPath(VectorNode vectorNode, SpriteOptions options = null)
         {
             options ??= new SpriteOptions();
             
-            if (sceneNode is VectorNode vectorNode)
-            {
-                if (vectorNode is INodeRect)
-                {
-                    return CreateSpriteByRect(sceneNode, options);
-                }
-
-                return CreateSpriteByVectorPath(vectorNode, options);
-            }
-
-            return CreateSpriteByRect(sceneNode, options);
-        }
-
-        private static Sprite CreateSpriteByVectorPath(VectorNode vectorNode, SpriteOptions options)
-        {
             var width = vectorNode.size.x;
             var height = vectorNode.size.y;
             var strokeWidth = vectorNode.strokeWeight ?? 0;
@@ -56,9 +52,21 @@ namespace Cdm.Figma.Utils
 
             for (var i = 0; i < vectorNode.fillGeometry.Length; i++)
             {
-                var svgPath = vectorNode.fillGeometry[i].path;
-                svgString.Append($@"<path d=""{svgPath}"" ");
+                var path = vectorNode.fillGeometry[i].path;
+                var windingRule = vectorNode.fillGeometry[i].windingRule;
+                svgString.Append($@"<path ");
 
+                if (!string.IsNullOrEmpty(windingRule))
+                {
+                    svgString.Append($@"fill-rule=""{windingRule.ToLowerInvariant()}"" ");
+                    svgString.Append($@"clip-rule=""{windingRule.ToLowerInvariant()}"" ");
+                }
+
+                if (!string.IsNullOrEmpty(path))
+                {
+                    svgString.Append($@"d=""{path}"" ");
+                }
+                
                 if (i < vectorNode.fills.Count && vectorNode.fills[i] is SolidPaint fill)
                 {
                     svgString.Append($@"fill=""{fill.color.ToString("rgb-hex")}"" ");
@@ -74,14 +82,18 @@ namespace Cdm.Figma.Utils
             }
 
             svgString.AppendLine("</svg>");
+            
+            Debug.Log($"{vectorNode.id}: {svgString}");
 
             var sceneInfo = SVGParser.ImportSVG(
                 new StringReader(svgString.ToString()), ViewportOptions.PreserveViewport);
-            return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene);
+            return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
         }
 
-        private static Sprite CreateSpriteByRect(SceneNode node, SpriteOptions options)
+        public static Sprite CreateSpriteFromRect(SceneNode node, SpriteOptions options = null)
         {
+            options ??= new SpriteOptions();
+            
             var nodeTransform = (INodeTransform)node;
             var nodeBlend = (INodeBlend)node;
             var nodeRect = (INodeRect)node;
@@ -100,8 +112,7 @@ namespace Cdm.Figma.Utils
             var radiusTR = Vector3.one * nodeRect.topRightRadius;
             var radiusBR = Vector3.one * nodeRect.bottomRightRadius;
             var radiusBL = Vector3.one * nodeRect.bottomLeftRadius;
-
-
+            
             var fillColor = new SolidPaint();
             if (nodeBlend.fills.Count > 0)
             {
@@ -162,14 +173,15 @@ namespace Cdm.Figma.Utils
                 Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
             );
-
-            return CreateSpriteWithTexture(node, options, scene, borders);
+            
+            return CreateSpriteWithTexture(node, options, scene, null, borders);
         }
 
         private static Sprite CreateSpriteWithTexture(
-            SceneNode node, SpriteOptions options, Scene svg, Vector4? borders = null)
+            SceneNode node, SpriteOptions options, Scene svg, SVGParser.SceneInfo? sceneInfo = null, Vector4? borders = null)
         {
-            var geometries = VectorUtils.TessellateScene(svg, options.tessellationOptions);
+            
+            var geometries = VectorUtils.TessellateScene(svg, options.tessellationOptions, sceneInfo?.NodeOpacity);
             var sprite = VectorUtils.BuildSprite(geometries, options.svgPixelsPerUnit, VectorUtils.Alignment.TopLeft, 
                 Vector2.zero, options.gradientResolution, true);
             if (sprite == null)
@@ -183,8 +195,11 @@ namespace Cdm.Figma.Utils
             var width = (int) (sprite.rect.width * ratio);
             var height = (int) (sprite.rect.height * ratio);
 
-            var material = new Material(Shader.Find("Unlit/Vector"));
-            var texture = VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, options.sampleCount, true);
+            
+            var expandEdges = options.filterMode != FilterMode.Point || options.sampleCount > 1;
+            var material = new Material(Shader.Find("Unlit/VectorGradient"));
+            var texture = 
+                VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, options.sampleCount, expandEdges);
 
             if (texture != null)
             {
@@ -201,16 +216,18 @@ namespace Cdm.Figma.Utils
             var spriteRect = new Rect(0, 0, texture.width, texture.height);
             var spritePivot = spriteRect.center;
 
+            var pixelsPerUnity = options.pixelsPerUnit * ratio;
+            
             Sprite spriteWithTexture = null;
             if (borders.HasValue)
             {
                 borders *= ratio;
                 spriteWithTexture = Sprite.Create(
-                    texture, spriteRect, spritePivot, options.pixelsPerUnit, 0, SpriteMeshType.FullRect, borders.Value);
+                    texture, spriteRect, spritePivot, pixelsPerUnity, 0, SpriteMeshType.FullRect, borders.Value);
             }
             else
             {
-                spriteWithTexture = Sprite.Create(texture, spriteRect, spritePivot, options.pixelsPerUnit, 0);
+                spriteWithTexture = Sprite.Create(texture, spriteRect, spritePivot, pixelsPerUnity, 0);
             }
 
             spriteWithTexture.name = node.id;

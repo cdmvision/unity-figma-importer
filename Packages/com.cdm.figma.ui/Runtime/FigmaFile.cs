@@ -5,6 +5,7 @@ using TMPro;
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UI
@@ -31,6 +32,14 @@ namespace Cdm.Figma.UI
             set => _fallbackFont = value;
         }
 
+        [SerializeField]
+        private List<GraphicSource> _graphics = new List<GraphicSource>();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IList<GraphicSource> graphics => _graphics;
+
         public bool TryGetFont(string fontName, out TMP_FontAsset font)
         {
             var fontSource = _fonts.FirstOrDefault(
@@ -50,6 +59,19 @@ namespace Cdm.Figma.UI
             font = null;
             return false;
         }
+
+        public bool TryGetGraphic(string graphicId, out string graphicContent)
+        {
+            var graphicSource = _graphics.FirstOrDefault(x => x.id == graphicId);
+            if (graphicSource != null)
+            {
+                graphicContent = graphicSource.content;
+                return true;
+            }
+
+            graphicContent = null;
+            return false;
+        }
     }
 
     [Serializable]
@@ -60,5 +82,12 @@ namespace Cdm.Figma.UI
 
         public static string GetFontName(string family, int weight, bool italic)
             => $"{family}-{(TextFontWeight) weight}{(italic ? "-Italic" : "")}";
+    }
+    
+    [Serializable]
+    public class GraphicSource
+    {
+        public string id;
+        public string content;
     }
 }
