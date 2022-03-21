@@ -90,9 +90,10 @@ namespace Cdm.Figma.Utils
             return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
         }
 
-        private static IFill CreateShapeFill(Paint paint)
+        private static IFill CreateShapeFill(Paint paint, out float angle)
         {
             IFill fill = null;
+            angle = 0f;
             
             if (paint is SolidPaint solidPaint)
             {
@@ -105,8 +106,18 @@ namespace Cdm.Figma.Utils
             if (paint is GradientPaint gradientPaint)
             {
                 var gradientFill = new GradientFill();
+                gradientFill.Addressing = AddressMode.Clamp;
                 gradientFill.Opacity = gradientPaint.opacity;
 
+                var handleStart = (Vector2) gradientPaint.gradientHandlePositions[0];
+                var handleEnd = (Vector2) gradientPaint.gradientHandlePositions[1];
+
+                var direction = (handleEnd - handleStart).normalized;
+                angle = Vector2.Angle(Vector2.right, direction);
+                
+                // TODO: gradient handles
+                
+                // Add gradient stops.
                 var gradientStops = new List<GradientStop>();
                 foreach (var gs in gradientPaint.gradientStops)
                 {
@@ -128,6 +139,7 @@ namespace Cdm.Figma.Utils
 
                 fill = gradientFill;
             }
+
             
             return fill;
         }
@@ -137,10 +149,10 @@ namespace Cdm.Figma.Utils
             options ??= new SpriteOptions();
             
             var nodeTransform = (INodeTransform)node;
-            var nodeBlend = (INodeBlend)node;
+            var nodeFill = (INodeFill)node;
             var nodeRect = (INodeRect)node;
 
-            if (nodeTransform == null || nodeBlend == null || nodeRect == null)
+            if (nodeTransform == null || nodeFill == null || nodeRect == null)
             {
                 return null;
             }
@@ -153,23 +165,46 @@ namespace Cdm.Figma.Utils
                 }
             };
 
-
-            foreach (var fill in nodeBlend.fills)
+            var rect = new Rect(0, 0, nodeTransform.size.x, nodeTransform.size.y);
+            var radiusTL = Vector2.one * nodeRect.topLeftRadius;
+            var radiusTR = Vector2.one * nodeRect.topRightRadius;
+            var radiusBR = Vector2.one * nodeRect.bottomRightRadius;
+            var radiusBL = Vector2.one * nodeRect.bottomLeftRadius;
+            var rectContour = VectorUtils.BuildRectangleContour(rect, radiusTL, radiusTR, radiusBR, radiusBL);
+            
+            foreach (var paint in nodeFill.fills)
             {
-                var width = nodeTransform.size.x;
-                var height = nodeTransform.size.y;
-                var radiusTL = Vector2.one * nodeRect.topLeftRadius;
-                var radiusTR = Vector2.one * nodeRect.topRightRadius;
-                var radiusBR = Vector2.one * nodeRect.bottomRightRadius;
-                var radiusBL = Vector2.one * nodeRect.bottomLeftRadius;
-                
-                var rect = VectorUtils.BuildRectangleContour(
-                    new Rect(0, 0, width, height), radiusTL, radiusTR, radiusBR, radiusBL);
-
+                var fill = CreateShapeFill(paint, out var angle);
                 var shape = new Shape()
                 {
-                    Contours = new BezierContour[] { rect },
-                    Fill = CreateShapeFill(fill),
+                    Contours = new BezierContour[] { rectContour },
+                    Fill = fill,
+                    FillTransform = Matrix2D.RotateLH(angle * Mathf.Deg2Rad),
+                    IsConvex = true
+                };
+                
+                scene.Root.Shapes.Add(shape);
+            }
+            
+            // Add strokes at top of fills.
+            var strokeWidth = nodeFill.strokeWeight ?? 0f;
+            foreach (var stroke in nodeFill.strokes)
+            {
+                var fill = CreateShapeFill(stroke, out var angle);
+                var shape = new Shape()
+                {
+                    Contours = new BezierContour[] { rectContour },
+                    IsConvex = true,
+                    PathProps = new PathProperties()
+                    {
+                        Stroke = new Stroke()
+                        {
+                            Fill = fill,
+                            FillTransform = Matrix2D.RotateLH(angle * Mathf.Deg2Rad),
+                            HalfThickness = strokeWidth * 0.5f,
+                            Pattern = nodeFill.strokeDashes
+                        }
+                    }
                 };
                 
                 scene.Root.Shapes.Add(shape);
@@ -233,7 +268,6 @@ namespace Cdm.Figma.Utils
             };*/
 
             // Left, bottom, right and top.
-            var strokeWidth = nodeBlend.strokeWeight ?? 0f;
             var strokePadding = strokeWidth * 2 + 4;
             var borders = new Vector4(
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),

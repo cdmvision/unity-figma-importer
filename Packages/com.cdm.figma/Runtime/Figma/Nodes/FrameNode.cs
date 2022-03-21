@@ -11,7 +11,7 @@ namespace Cdm.Figma
     /// in the case of auto-layout frames.
     /// </summary>
     [DataContract]
-    public class FrameNode : GroupNode
+    public class FrameNode : GroupNode, INodeFill, INodeRect
     {
         public override string type => NodeType.Frame;
         
@@ -20,5 +20,29 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "layoutGrids")]
         public List<LayoutGrid> layoutGrids { get; private set; } = new List<LayoutGrid>();
+        
+        [DataMember(Name = "fills")]
+        public List<Paint> fills { get; private set; } = new List<Paint>();
+        
+        [DataMember(Name = "strokes")]
+        public List<Paint> strokes { get; private set; } = new List<Paint>();
+        
+        [DataMember(Name = "strokeWeight")]
+        public float? strokeWeight { get; set; }
+        
+        [DataMember(Name = "strokeAlign")]
+        public StrokeAlign? strokeAlign { get; set; }
+        
+        [DataMember(Name = "cornerRadius")]
+        public float? cornerRadius { get; set; }
+        
+        [DataMember(Name = "rectangleCornerRadii")]
+        public float[] rectangleCornerRadii { get; set; }
+        
+        [DataMember(Name = "blendMode")]
+        public BlendMode? blendMode { get; set; }
+        
+        [DataMember(Name = "opacity")]
+        public float opacity { get; set; } = 1f;
     }
 }
