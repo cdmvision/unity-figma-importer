@@ -84,10 +84,12 @@ namespace Cdm.Figma.UI
             {
                 if (groupNodeLayoutMode == LayoutMode.Horizontal)
                 {
+                    groupNodeObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().preferredHeight = childTransform.size.y;
                 }
                 else
                 {
+                    groupNodeObject.GetComponent<VerticalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().preferredWidth = childTransform.size.x;
                 }
             }
@@ -109,10 +111,12 @@ namespace Cdm.Figma.UI
             {
                 if (groupNodeLayoutMode == LayoutMode.Horizontal)
                 {
+                    groupNodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().preferredWidth = childTransform.size.x;
                 }
                 else
                 {
+                    groupNodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().preferredHeight = childTransform.size.y;
                 }
             }
