@@ -21,10 +21,7 @@ namespace Cdm.Figma.UI
                     sampleCount = 8,
                     textureSize = 1024
                 };
-                
-                nodeObject.SetTransform(frameNode, TransformType.Relative);
-                nodeObject.SetSize(frameNode, TransformType.Relative);
-                
+
                 var sprite = VectorImageUtils.CreateSpriteFromRect(frameNode, options);
                 
                 var image = nodeObject.gameObject.AddComponent<Image>();

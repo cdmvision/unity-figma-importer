@@ -11,6 +11,7 @@ namespace Cdm.Figma.UI
         {
             var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
 
+            nodeObject.SetLayoutConstraints(((INodeTransform)vectorNode.parent).size);
             if ((vectorNode.fills.Any() || vectorNode.strokes.Any()) && vectorNode.type != NodeType.Text)
             {
                 var options = new VectorImageUtils.SpriteOptions()
@@ -20,7 +21,7 @@ namespace Cdm.Figma.UI
                     sampleCount = 8,
                     textureSize = 1024
                 };
-                
+
                 Sprite sprite = null;
                 if (vectorNode is RectangleNode)
                 {
@@ -51,6 +52,7 @@ namespace Cdm.Figma.UI
                 image.color = new UnityEngine.Color(1f, 1f, 1f, vectorNode.opacity);
             }
 
+            
             NodeConverterHelper.ConvertEffects(nodeObject, vectorNode.effects);
 
             return nodeObject;
