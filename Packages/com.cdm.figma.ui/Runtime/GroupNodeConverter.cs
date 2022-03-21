@@ -30,17 +30,16 @@ namespace Cdm.Figma.UI
             return Convert(parentObject, (GroupNode)node, args);
         }
 
-        private static void BuildUIObject(NodeObject groupNodeObject, GroupNode groupNode)
+        private static void BuildUIObject(NodeObject nodeObject, GroupNode groupNode)
         {
-            SetTransformOrigin(groupNodeObject);
-            SetSize(groupNode, groupNodeObject);
-            SetRotation(groupNode, groupNodeObject);
+            nodeObject.SetTransform(groupNode, TransformType.Relative);
+            nodeObject.SetSize(groupNode, TransformType.Relative);
 
             if (groupNode.layoutMode != LayoutMode.None)
             {
-                AddLayoutComponent(groupNode, groupNodeObject);
-                AddPadding(groupNode, groupNodeObject);
-                AddContentSizeFitter(groupNode, groupNodeObject);
+                AddLayoutComponent(groupNode, nodeObject);
+                AddPadding(groupNode, nodeObject);
+                AddContentSizeFitter(groupNode, nodeObject);
             }
         }
 
