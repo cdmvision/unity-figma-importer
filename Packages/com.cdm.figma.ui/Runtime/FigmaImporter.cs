@@ -106,7 +106,7 @@ namespace Cdm.Figma.UI
                 pageNode.rectTransform.anchorMin = new Vector2(0, 0);
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);
                 pageNode.rectTransform.offsetMin = new Vector2(0, 0);
-                pageNode.rectTransform.offsetMax = new Vector2(1, 1);
+                pageNode.rectTransform.offsetMax = new Vector2(0, 0);
 
                 var nodes = page.children;
                 foreach (var node in nodes)
@@ -118,7 +118,7 @@ namespace Cdm.Figma.UI
                             frameNode.rectTransform.anchorMin = new Vector2(0, 0);
                             frameNode.rectTransform.anchorMax = new Vector2(1, 1);
                             frameNode.rectTransform.offsetMin = new Vector2(0, 0);
-                            frameNode.rectTransform.offsetMax = new Vector2(1, 1);
+                            frameNode.rectTransform.offsetMax = new Vector2(0, 0);
                             frameNode.transform.SetParent(pageNode.rectTransform, false);
                         }
                     }

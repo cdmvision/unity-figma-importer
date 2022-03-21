@@ -50,6 +50,7 @@ namespace Cdm.Figma.UI
                 var image = nodeObject.gameObject.AddComponent<Image>();
                 image.sprite = sprite;
                 image.type = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
+                image.gameObject.SetActive(vectorNode.visible);
             }
 
             NodeConverterHelper.ConvertEffects(nodeObject, vectorNode.effects);
