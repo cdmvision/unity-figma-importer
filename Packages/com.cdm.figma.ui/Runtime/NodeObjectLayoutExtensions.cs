@@ -4,7 +4,7 @@ namespace Cdm.Figma.UI
 {
     public static class NodeObjectLayoutExtensions
     {
-        public static void SetLayoutConstraints(this NodeObject nodeObject, Vector2 parentSize)
+        public static void SetLayoutConstraints(this NodeObject nodeObject, INodeTransform parentTransform)
         {
             //anchors:
             //min x = left
@@ -23,6 +23,8 @@ namespace Cdm.Figma.UI
             var positionX = position.x;
             var positionY = position.y;
 
+            var parentSize = parentTransform.size;
+            
             if (nodeObject.node.type is NodeType.Group and not NodeType.Frame)
             {
                 var parentWidth = parentSize.x;

@@ -22,11 +22,7 @@ namespace Cdm.Figma.UI
         private void BuildUIObject(NodeObject parentObject, NodeObject nodeObject, GroupNode groupNode)
         {
             nodeObject.SetTransform(groupNode);
-            
-            if (groupNode is INodeTransform parentTransform)
-            {
-                nodeObject.SetLayoutConstraints(parentTransform.size);
-            }
+            nodeObject.SetLayoutConstraints(groupNode);
 
             if (groupNode.layoutMode != LayoutMode.None)
             {

@@ -9,7 +9,7 @@ namespace Cdm.Figma.UI
     {
         public Sprite sourceSprite { get; set; }
         public bool generateSprite { get; set; } = true;
-        
+
         public VectorImageUtils.SpriteOptions spriteOptions { get; set; } = new VectorImageUtils.SpriteOptions()
         {
             filterMode = FilterMode.Bilinear,
@@ -18,21 +18,21 @@ namespace Cdm.Figma.UI
             textureSize = 1024
         };
     }
-    
+
     public abstract class VectorNodeConverter<TNode> : NodeConverter<TNode> where TNode : VectorNode
     {
         protected NodeObject Convert(NodeObject parentObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
             var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
-            nodeObject.SetLayoutConstraints(((INodeTransform)vectorNode.parent).size);
             nodeObject.SetTransform(vectorNode);
+            nodeObject.SetLayoutConstraints((INodeTransform)vectorNode.parent);
 
             if (vectorConvertArgs.generateSprite && (vectorNode.fills.Any() || vectorNode.strokes.Any()))
             {
                 if (vectorConvertArgs.sourceSprite == null)
                 {
-                    vectorConvertArgs.sourceSprite = 
+                    vectorConvertArgs.sourceSprite =
                         VectorImageUtils.CreateSpriteFromPath(vectorNode, vectorConvertArgs.spriteOptions);
                 }
 
@@ -52,7 +52,7 @@ namespace Cdm.Figma.UI
             return Convert(parentObject, vectorNode, args, new VectorConvertArgs());
         }
     }
-    
+
     public class VectorNodeConverter : VectorNodeConverter<VectorNode>
     {
     }
