@@ -1,10 +1,15 @@
+using Cdm.Figma.Utils;
+
 namespace Cdm.Figma.UI
 {
-    public class RectangleNodeConverter : NodeConverter<RectangleNode>
+    public class RectangleNodeConverter : VectorNodeConverter<RectangleNode>
     {
-        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
+        protected override NodeObject Convert(NodeObject parentObject, RectangleNode node, NodeConvertArgs args)
         {
-            return VectorNodeConverter.Convert(parentObject, (RectangleNode) node, args);
+            var convertArgs = new VectorConvertArgs();
+            convertArgs.generateSprite = true;
+            convertArgs.sourceSprite = VectorImageUtils.CreateSpriteFromRect(node, convertArgs.spriteOptions);
+            return Convert(parentObject, node, args, convertArgs);
         }
     }
 }

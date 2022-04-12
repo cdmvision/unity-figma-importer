@@ -6,12 +6,14 @@ using UnityEngine.Localization.Components;
 
 namespace Cdm.Figma.UI
 {
-    public class TextNodeConverter : NodeConverter<TextNode>
+    public class TextNodeConverter : VectorNodeConverter<TextNode>
     {
-        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
+        protected override NodeObject Convert(NodeObject parentObject, TextNode textNode, NodeConvertArgs args)
         {
-            var textNode = (TextNode)node;
-            var nodeObject = VectorNodeConverter.Convert(parentObject, textNode, args);
+            var convertArgs = new VectorConvertArgs();
+            convertArgs.generateSprite = false;
+
+            var nodeObject = base.Convert(parentObject, textNode, args, convertArgs);
 
             var textComponent = nodeObject.gameObject.AddComponent<TextMeshProUGUI>();
             textComponent.text = textNode.characters;

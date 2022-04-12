@@ -5,62 +5,55 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class VectorNodeConverter : NodeConverter<VectorNode>
+    public class VectorConvertArgs
     {
-        public static NodeObject Convert(NodeObject parentObject, VectorNode vectorNode, NodeConvertArgs args)
+        public Sprite sourceSprite { get; set; }
+        public bool generateSprite { get; set; } = true;
+        
+        public VectorImageUtils.SpriteOptions spriteOptions { get; set; } = new VectorImageUtils.SpriteOptions()
+        {
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            sampleCount = 8,
+            textureSize = 1024
+        };
+    }
+    
+    public abstract class VectorNodeConverter<TNode> : NodeConverter<TNode> where TNode : VectorNode
+    {
+        protected NodeObject Convert(NodeObject parentObject, TNode vectorNode, NodeConvertArgs args,
+            VectorConvertArgs vectorConvertArgs)
         {
             var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
-
             nodeObject.SetLayoutConstraints(((INodeTransform)vectorNode.parent).size);
-            if ((vectorNode.fills.Any() || vectorNode.strokes.Any()) && vectorNode.type != NodeType.Text)
-            {
-                var options = new VectorImageUtils.SpriteOptions()
-                {
-                    filterMode = FilterMode.Bilinear,
-                    wrapMode = TextureWrapMode.Clamp,
-                    sampleCount = 8,
-                    textureSize = 1024
-                };
+            nodeObject.SetTransform(vectorNode);
 
-                Sprite sprite = null;
-                if (vectorNode is RectangleNode)
+            if (vectorConvertArgs.generateSprite && (vectorNode.fills.Any() || vectorNode.strokes.Any()))
+            {
+                if (vectorConvertArgs.sourceSprite == null)
                 {
-                    // Use scale only gor manually generated image.
-                    // Mirroring value is baked for pre-rendered graphics by Figma.
-                    nodeObject.SetTransform(vectorNode, TransformType.Relative);
-                    nodeObject.SetSize(vectorNode, TransformType.Relative);
-                    sprite = VectorImageUtils.CreateSpriteFromRect(vectorNode, options);
-                }
-                else
-                {
-                    nodeObject.SetTransform(vectorNode, TransformType.Absolute);
-                    nodeObject.SetSize(vectorNode, TransformType.Absolute);
-                    
-                    if (args.file.TryGetGraphic(vectorNode.id, out var svg))
-                    {
-                        sprite = VectorImageUtils.CreateSpriteFromSvg(vectorNode, svg, options);    
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Graphic could not be found: {vectorNode.id}");
-                    }
+                    vectorConvertArgs.sourceSprite = 
+                        VectorImageUtils.CreateSpriteFromPath(vectorNode, vectorConvertArgs.spriteOptions);
                 }
 
                 var image = nodeObject.gameObject.AddComponent<Image>();
-                image.sprite = sprite;
+                image.sprite = vectorConvertArgs.sourceSprite;
                 image.type = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
                 image.color = new UnityEngine.Color(1f, 1f, 1f, vectorNode.opacity);
             }
 
-            
             NodeConverterHelper.ConvertEffects(nodeObject, vectorNode.effects);
 
             return nodeObject;
         }
 
-        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
+        protected override NodeObject Convert(NodeObject parentObject, TNode vectorNode, NodeConvertArgs args)
         {
-            return Convert(parentObject, (VectorNode)node, args);
+            return Convert(parentObject, vectorNode, args, new VectorConvertArgs());
         }
+    }
+    
+    public class VectorNodeConverter : VectorNodeConverter<VectorNode>
+    {
     }
 }

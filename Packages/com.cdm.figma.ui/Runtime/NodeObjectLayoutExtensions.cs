@@ -19,8 +19,7 @@ namespace Cdm.Figma.UI
             var anchorMin = nodeObject.rectTransform.anchorMin;
             var anchorMax = nodeObject.rectTransform.anchorMax;
 
-            var relativeTransform = nodeTransform.relativeTransform;
-            var position = relativeTransform.GetPosition();
+            var position = nodeTransform.GetPosition();
             var positionX = position.x;
             var positionY = position.y;
 
