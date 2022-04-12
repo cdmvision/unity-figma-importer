@@ -3,12 +3,6 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
-    public enum TransformType
-    {
-        Relative,
-        Absolute
-    }
-    
     public static class NodeObjectExtensions
     {
         /// <summary>
@@ -18,16 +12,14 @@ namespace Cdm.Figma.UI
         /// <seealso cref="SetPosition"/>
         /// <seealso cref="SetRotation"/>
         /// <seealso cref="SetScale"/>
-        public static void SetTransform(this NodeObject nodeObject, INodeTransform nodeTransform, TransformType type)
+        /// <seealso cref="SetScale"/>
+        public static void SetTransform(this NodeObject nodeObject, INodeTransform nodeTransform)
         {
             nodeObject.SetPivot();
-            nodeObject.SetPosition(nodeTransform, type);
-
-            if (type == TransformType.Relative)
-            {
-                nodeObject.SetRotation(nodeTransform);
-                nodeObject.SetScale(nodeTransform);
-            }
+            nodeObject.SetPosition(nodeTransform);
+            nodeObject.SetRotation(nodeTransform);
+            nodeObject.SetScale(nodeTransform);
+            nodeObject.SetSize(nodeTransform);
         }
 
         /// <summary>
@@ -40,30 +32,19 @@ namespace Cdm.Figma.UI
         }
         
         /// <summary>
-        /// Sets the position of the figma node.
+        /// Sets the rotation of the figma node.
         /// </summary>
-        public static void SetPosition(this NodeObject nodeObject, INodeTransform nodeTransform, TransformType type)
+        public static void SetPosition(this NodeObject nodeObject, INodeTransform nodeTransform)
         {
-            switch (type)
-            {
-                case TransformType.Relative:
-                    nodeObject.rectTransform.position = nodeTransform.relativeTransform.GetPosition();
-                    break;
-                case TransformType.Absolute:
-                    nodeObject.rectTransform.position = 
-                        new Vector3(nodeTransform.absoluteBoundingBox.x, -nodeTransform.absoluteBoundingBox.y);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
+            nodeObject.rectTransform.position = nodeTransform.GetPosition();
         }
-        
+
         /// <summary>
         /// Sets the rotation of the figma node.
         /// </summary>
         public static void SetRotation(this NodeObject nodeObject, INodeTransform nodeTransform)
         {
-            nodeObject.rectTransform.rotation = nodeTransform.relativeTransform.GetRotation();
+            nodeObject.rectTransform.rotation = nodeTransform.GetRotation();
         }
         
         /// <summary>
@@ -75,27 +56,13 @@ namespace Cdm.Figma.UI
         /// </remarks>
         public static void SetScale(this NodeObject nodeObject, INodeTransform nodeTransform)
         {
-            var scale = nodeTransform.relativeTransform.GetScale();
+            var scale = nodeTransform.GetScale();
             nodeObject.rectTransform.localScale = new Vector3(scale.x, scale.y, 1);
         }
-        
-        /// <summary>
-        /// Sets the size of the figma node.
-        /// </summary>
-        public static void SetSize(this NodeObject nodeObject, INodeTransform nodeTransform, TransformType type)
+
+        public static void SetSize(this NodeObject nodeObject, INodeTransform nodeTransform)
         {
-            switch (type)
-            {
-                case TransformType.Relative:
-                    nodeObject.rectTransform.sizeDelta = new Vector2(nodeTransform.size.x, nodeTransform.size.y);
-                    break;
-                case TransformType.Absolute:
-                    nodeObject.rectTransform.sizeDelta = 
-                        new Vector2(nodeTransform.absoluteBoundingBox.width, nodeTransform.absoluteBoundingBox.height);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
+            nodeObject.rectTransform.sizeDelta = nodeTransform.size;
         }
     }
 }

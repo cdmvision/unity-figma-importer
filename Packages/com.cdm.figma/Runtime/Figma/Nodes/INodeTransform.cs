@@ -1,4 +1,6 @@
-﻿namespace Cdm.Figma
+﻿using UnityEngine;
+
+namespace Cdm.Figma
 {
     public interface INodeTransform
     {
@@ -19,5 +21,17 @@
         /// Only present if geometry=paths is passed.
         /// </summary>
         public AffineTransform relativeTransform { get; set; }
+        
+        /// <inheritdoc cref="AffineTransform.GetPosition"/>
+        public Vector2 GetPosition() => relativeTransform.GetPosition();
+
+        /// <inheritdoc cref="AffineTransform.GetScale"/>
+        public Vector2 GetScale() => relativeTransform.GetScale();
+
+        /// <inheritdoc cref="AffineTransform.GetRotation"/>
+        public Quaternion GetRotation() => relativeTransform.GetRotation();
+
+        /// <inheritdoc cref="AffineTransform.GetRotationAngle"/>
+        public float GetRotationAngle() => relativeTransform.GetRotationAngle();
     }
 }

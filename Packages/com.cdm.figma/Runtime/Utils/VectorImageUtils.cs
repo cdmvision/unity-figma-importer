@@ -38,7 +38,6 @@ namespace Cdm.Figma.Utils
             return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
         }
 
-        [Obsolete("Use CreateSpriteFromSvg()")]
         public static Sprite CreateSpriteFromPath(VectorNode vectorNode, SpriteOptions options = null)
         {
             options ??= new SpriteOptions();
@@ -66,13 +65,15 @@ namespace Cdm.Figma.Utils
                 {
                     svgString.Append($@"d=""{path}"" ");
                 }
-                
-                if (i < vectorNode.fills.Count && vectorNode.fills[i] is SolidPaint fill)
+
+                var fillIndex = i < vectorNode.fills.Count ? i : vectorNode.fills.Count - 1;
+                if (fillIndex >= 0 && vectorNode.fills[fillIndex] is SolidPaint fill)
                 {
                     svgString.Append($@"fill=""{fill.color.ToString("rgb-hex")}"" ");
                 }
 
-                if (i < vectorNode.strokes.Count && vectorNode.strokes[i] is SolidPaint stroke)
+                var strokeIndex = i < vectorNode.strokes.Count ? i : vectorNode.strokes.Count - 1;
+                if (strokeIndex >= 0 && vectorNode.strokes[strokeIndex] is SolidPaint stroke)
                 {
                     svgString.Append($@"stroke=""{stroke.color.ToString("rgb-hex")}"" ");
                     svgString.Append($@"stroke-width=""{strokeWidth}"" ");
@@ -83,11 +84,9 @@ namespace Cdm.Figma.Utils
 
             svgString.AppendLine("</svg>");
             
-            Debug.Log($"{vectorNode.id}: {svgString}");
+            //Debug.Log($"{vectorNode.id}: {svgString}");
 
-            var sceneInfo = SVGParser.ImportSVG(
-                new StringReader(svgString.ToString()), ViewportOptions.PreserveViewport);
-            return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
+            return CreateSpriteFromSvg(vectorNode, svgString.ToString(), options);
         }
 
         private static IFill CreateShapeFill(Paint paint, out float angle)
@@ -210,63 +209,6 @@ namespace Cdm.Figma.Utils
                 scene.Root.Shapes.Add(shape);
             }
             
-            /*var hasFill = false;
-            var hasStroke = false;
-
-            
-            
-            var fillColor = new SolidPaint();
-            if (nodeBlend.fills.Count > 0)
-            {
-                hasFill = true;
-                fillColor = (SolidPaint)nodeBlend.fills[0];
-            }
-
-            var strokeColor = new SolidPaint();
-            if (nodeBlend.strokes.Count > 0 && nodeBlend.strokes[0] is SolidPaint)
-            {
-                hasStroke = true;
-                strokeColor = (SolidPaint) nodeBlend.strokes[0];
-            }
-
-            var strokeWidth = nodeBlend.strokeWeight ?? 0f;*/
-
-            //var rect = VectorUtils.BuildRectangleContour(
-             //   new Rect(0, 0, width, height), radiusTL, radiusTR, radiusBR, radiusBL);
-            /*var scene = new Scene()
-            {
-                Root = new Unity.VectorGraphics.SceneNode()
-                {
-                    Shapes = new List<Shape>
-                    {
-                        new Shape()
-                        {
-                            Contours = new BezierContour[] { rect },
-                            Fill = new SolidFill()
-                            {
-                                Color = hasFill
-                                    ? new UnityEngine.Color(fillColor.color.r, fillColor.color.g, fillColor.color.b)
-                                    : UnityEngine.Color.clear,
-                                Opacity = nodeBlend.opacity,
-                                Mode = FillMode.NonZero
-                            },
-
-                            PathProps = new PathProperties()
-                            {
-                                Stroke = new Stroke()
-                                {
-                                    Color = hasStroke
-                                        ? new UnityEngine.Color(strokeColor.color.r, strokeColor.color.g,
-                                            strokeColor.color.b)
-                                        : UnityEngine.Color.clear,
-                                    HalfThickness = strokeWidth
-                                }
-                            }
-                        }
-                    }
-                }
-            };*/
-
             // Left, bottom, right and top.
             var strokePadding = strokeWidth * 2 + 4;
             var borders = new Vector4(

@@ -2,7 +2,7 @@
 {
     public class ComponentConverter : NodeConverter<InstanceNode>
     {
-        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
+        protected override NodeObject Convert(NodeObject parentObject, InstanceNode node, NodeConvertArgs args)
         {
             throw new System.NotImplementedException();
         }

@@ -3,9 +3,13 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class GroupNodeConverter : NodeConverter<GroupNode>
+    public class GroupNodeConverter : GroupNodeConverter<GroupNode>
     {
-        public static NodeObject Convert(NodeObject parentObject, GroupNode groupNode, NodeConvertArgs args)
+    }
+    
+    public abstract class GroupNodeConverter<TNode> : NodeConverter<TNode> where TNode : GroupNode
+    {
+        protected override NodeObject Convert(NodeObject parentObject, TNode groupNode, NodeConvertArgs args)
         {
             var groupNodeObject = NodeObject.NewNodeObject(groupNode, args);
 
@@ -15,21 +19,11 @@ namespace Cdm.Figma.UI
             return groupNodeObject;
         }
 
-        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
+        private void BuildUIObject(NodeObject parentObject, NodeObject nodeObject, GroupNode groupNode)
         {
-            return Convert(parentObject, (GroupNode)node, args);
-        }
+            nodeObject.SetTransform(groupNode);
+            nodeObject.SetLayoutConstraints(groupNode);
 
-        private static void BuildUIObject(NodeObject parentObject, NodeObject nodeObject, GroupNode groupNode)
-        {
-            nodeObject.SetTransform(groupNode, TransformType.Relative);
-            nodeObject.SetSize(groupNode, TransformType.Relative);
-
-            if (groupNode is INodeTransform parentTransform)
-            {
-                nodeObject.SetLayoutConstraints(parentTransform.size);    
-            }
-            
             if (groupNode.layoutMode != LayoutMode.None)
             {
                 AddLayoutComponent(groupNode, nodeObject);

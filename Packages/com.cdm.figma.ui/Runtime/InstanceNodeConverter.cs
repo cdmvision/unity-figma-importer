@@ -2,9 +2,10 @@ namespace Cdm.Figma.UI
 {
     public class InstanceNodeConverter : NodeConverter<InstanceNode>
     {
-        public override NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args)
+        protected override NodeObject Convert(NodeObject parentObject, InstanceNode node, NodeConvertArgs args)
         {
-            return GroupNodeConverter.Convert(parentObject, (InstanceNode) node, args);
+            // TODO: Implement proper way.
+            return new GroupNodeConverter().Convert(parentObject, (InstanceNode) node, args);
         }
     }
 }

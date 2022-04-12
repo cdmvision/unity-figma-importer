@@ -23,8 +23,8 @@ namespace Cdm.Figma.UI
             var thumbnail = await FigmaApi.GetThumbnailImageAsync(fileContent.thumbnailUrl);
             var figmaFile = FigmaFile.Create<FigmaFile>(fileID, fileContentJson, thumbnail);
 
-            Debug.Log($"Downloading file graphics...");
-            await DownloadGraphicsAsync(figmaFile, fileContent, personalAccessToken);
+            //Debug.Log($"Downloading file graphics...");
+            //await DownloadGraphicsAsync(figmaFile, fileContent, personalAccessToken);
             AddFonts(figmaFile, fileContent);
             
             return figmaFile;
