@@ -6,7 +6,7 @@ namespace Cdm.Figma.UI
     public class GroupNodeConverter : GroupNodeConverter<GroupNode>
     {
     }
-    
+
     public abstract class GroupNodeConverter<TNode> : NodeConverter<TNode> where TNode : GroupNode
     {
         protected override NodeObject Convert(NodeObject parentObject, TNode groupNode, NodeConvertArgs args)
@@ -15,14 +15,18 @@ namespace Cdm.Figma.UI
 
             BuildUIObject(parentObject, groupNodeObject, groupNode);
             BuildChildren(groupNode, groupNodeObject, groupNodeObject, args);
-            
+
             return groupNodeObject;
         }
 
         private void BuildUIObject(NodeObject parentObject, NodeObject nodeObject, GroupNode groupNode)
         {
             nodeObject.SetTransform(groupNode);
-            nodeObject.SetLayoutConstraints(groupNode);
+            //group node's parent may be a page so check if it is INodeTransform otherwise it will throw InvalidCast exception
+            if (groupNode.parent is INodeTransform parent)
+            {
+                nodeObject.SetLayoutConstraints(parent);
+            }
 
             if (groupNode.layoutMode != LayoutMode.None)
             {
@@ -35,8 +39,6 @@ namespace Cdm.Figma.UI
         private static void BuildChildren(GroupNode currentNode, NodeObject currentNodeObject, NodeObject parentObject,
             NodeConvertArgs args)
         {
-            GroupNode parentNode = (GroupNode) parentObject.node;
-            INodeTransform parentTransform = (INodeTransform) parentNode;
             var children = currentNode.children;
             if (children != null)
             {
@@ -49,11 +51,11 @@ namespace Cdm.Figma.UI
                             childObject.gameObject.AddComponent<LayoutElement>();
                             HandleFillContainer(currentNode.layoutMode, currentNodeObject, childObject);
                         }
-                        
+
                         if (childObject != parentObject)
                         {
                             childObject.rectTransform.SetParent(parentObject.rectTransform, false);
-                            childObject.AdjustPosition(currentNode.size, new Vector2(currentNode.absoluteBoundingBox.x, -currentNode.absoluteBoundingBox.y), currentNode.type);
+                            childObject.AdjustPosition(currentNode.size);
                         }
                     }
                 }

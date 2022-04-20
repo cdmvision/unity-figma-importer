@@ -265,8 +265,7 @@ namespace Cdm.Figma.UI
             //nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
         }
 
-        public static void AdjustPosition(this NodeObject nodeObject, Vector2 parentSize, Vector2 parentPos,
-            string parentType)
+        public static void AdjustPosition(this NodeObject nodeObject, Vector2 parentSize)
         {
             INodeLayout nodeLayout = (INodeLayout) nodeObject.node;
             INodeTransform nodeTransform = (INodeTransform) nodeObject.node;
