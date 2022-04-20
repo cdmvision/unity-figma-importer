@@ -15,7 +15,7 @@ namespace Cdm.Figma.UI
 
             BuildUIObject(parentObject, groupNodeObject, groupNode);
             BuildChildren(groupNode, groupNodeObject, groupNodeObject, args);
-
+            
             return groupNodeObject;
         }
 
@@ -35,8 +35,8 @@ namespace Cdm.Figma.UI
         private static void BuildChildren(GroupNode currentNode, NodeObject currentNodeObject, NodeObject parentObject,
             NodeConvertArgs args)
         {
-            GroupNode parentNode = (GroupNode)parentObject.node;
-            INodeTransform parentTransform = (INodeTransform)parentNode;
+            GroupNode parentNode = (GroupNode) parentObject.node;
+            INodeTransform parentTransform = (INodeTransform) parentNode;
             var children = currentNode.children;
             if (children != null)
             {
@@ -49,12 +49,11 @@ namespace Cdm.Figma.UI
                             childObject.gameObject.AddComponent<LayoutElement>();
                             HandleFillContainer(currentNode.layoutMode, currentNodeObject, childObject);
                         }
-
-                        //HandleConstraints(parentTransform.size, childObject);
-
+                        
                         if (childObject != parentObject)
                         {
                             childObject.rectTransform.SetParent(parentObject.rectTransform, false);
+                            childObject.AdjustPosition(currentNode.size, new Vector2(currentNode.absoluteBoundingBox.x, -currentNode.absoluteBoundingBox.y), currentNode.type);
                         }
                     }
                 }
@@ -64,8 +63,8 @@ namespace Cdm.Figma.UI
         private static void HandleFillContainer(LayoutMode groupNodeLayoutMode, NodeObject groupNodeObject,
             NodeObject childElement)
         {
-            INodeLayout childLayout = (INodeLayout)childElement.node;
-            INodeTransform childTransform = (INodeTransform)childElement.node;
+            INodeLayout childLayout = (INodeLayout) childElement.node;
+            INodeTransform childTransform = (INodeTransform) childElement.node;
             if (childLayout.layoutAlign == LayoutAlign.Stretch)
             {
                 if (groupNodeLayoutMode == LayoutMode.Horizontal)
@@ -163,14 +162,14 @@ namespace Cdm.Figma.UI
             if (groupNode.layoutMode == LayoutMode.Horizontal)
             {
                 groupNodeObject.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(
-                    (int)groupNode.paddingLeft,
-                    (int)groupNode.paddingRight, (int)groupNode.paddingTop, (int)groupNode.paddingBottom);
+                    (int) groupNode.paddingLeft,
+                    (int) groupNode.paddingRight, (int) groupNode.paddingTop, (int) groupNode.paddingBottom);
             }
             else
             {
                 groupNodeObject.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(
-                    (int)groupNode.paddingLeft,
-                    (int)groupNode.paddingRight, (int)groupNode.paddingTop, (int)groupNode.paddingBottom);
+                    (int) groupNode.paddingLeft,
+                    (int) groupNode.paddingRight, (int) groupNode.paddingTop, (int) groupNode.paddingBottom);
             }
         }
 

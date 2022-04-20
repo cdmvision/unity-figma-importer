@@ -27,7 +27,6 @@ namespace Cdm.Figma.UI
             var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
             nodeObject.SetTransform(vectorNode);
             nodeObject.SetLayoutConstraints((INodeTransform)vectorNode.parent);
-
             if (vectorConvertArgs.generateSprite && (vectorNode.fills.Any() || vectorNode.strokes.Any()))
             {
                 if (vectorConvertArgs.sourceSprite == null)
@@ -51,6 +50,7 @@ namespace Cdm.Figma.UI
         {
             return Convert(parentObject, vectorNode, args, new VectorConvertArgs());
         }
+        
     }
 
     public class VectorNodeConverter : VectorNodeConverter<VectorNode>
