@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Packages/com.cdm.figma/Editor%20Default%20Resources/Style.uss?fileID=7433441132597879392&amp;guid=273b1e4f0a689b542b301e64df41e3b5&amp;type=3#Style" />
+    <ui:GroupBox text="Component Converter">
+        <ui:TextField picking-mode="Ignore" label="Type ID" readonly="true" binding-path="_typeId" />
+        <ui:VisualElement style="align-items: flex-end; flex-direction: row-reverse;" />
+    </ui:GroupBox>
+    <ui:GroupBox text="Properties/Variants">
+        <ui:ListView binding-path="_properties" virtualization-method="DynamicHeight" show-bound-collection-size="false" name="variantList" selection-type="None" />
+    </ui:GroupBox>
+</ui:UXML>
