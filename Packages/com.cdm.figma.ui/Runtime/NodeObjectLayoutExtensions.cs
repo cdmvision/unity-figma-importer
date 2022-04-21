@@ -11,9 +11,8 @@ namespace Cdm.Figma.UI
             //min y = bottom
             //max x = 100-right
             //max y = 100-top
-
-            INodeLayout nodeLayout = (INodeLayout)nodeObject.node;
-            INodeTransform nodeTransform = (INodeTransform)nodeObject.node;
+            INodeLayout nodeLayout = (INodeLayout) nodeObject.node;
+            INodeTransform nodeTransform = (INodeTransform) nodeObject.node;
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
             var anchorMin = nodeObject.rectTransform.anchorMin;
@@ -22,6 +21,8 @@ namespace Cdm.Figma.UI
             var position = nodeTransform.GetPosition();
             var positionX = position.x;
             var positionY = position.y;
+            var nodeWidth = nodeTransform.size.x;
+            var nodeHeight = nodeTransform.size.y;
 
             var parentSize = parentTransform.size;
             
@@ -30,26 +31,24 @@ namespace Cdm.Figma.UI
                 var parentWidth = parentSize.x;
                 var parentHeight = parentSize.y;
                 var nodeLeft = positionX < 0 ? positionX * -1 : positionX;
-                var nodeRight = parentWidth - (nodeLeft + nodeTransform.size.x);
+                var nodeRight = parentWidth - (positionX + nodeTransform.size.x);
                 if (nodeRight < 0)
                 {
                     nodeRight *= -1;
                 }
 
                 var nodeTop = positionY < 0 ? positionY * -1 : positionY;
-                var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                var nodeBottom = parentHeight - (-1 * positionY + nodeTransform.size.y);
                 if (nodeBottom < 0)
                 {
                     nodeBottom *= -1;
                 }
 
-                var topPercentage = nodeTop / parentHeight;
-                topPercentage = 1f - topPercentage;
+                var topPercentage = 1f - nodeTop / parentHeight;
                 var bottomPercentage = nodeBottom / parentHeight;
                 var leftPercentage = nodeLeft / parentWidth;
-                var rightPercentage = nodeRight / parentWidth;
-                rightPercentage = 1f - rightPercentage;
-                
+                var rightPercentage = 1f - nodeRight / parentWidth;
+
                 anchorMin = new Vector2(leftPercentage, bottomPercentage);
                 anchorMax = new Vector2(rightPercentage, topPercentage);
                 nodeObject.rectTransform.anchorMin = anchorMin;
@@ -85,16 +84,14 @@ namespace Cdm.Figma.UI
                 {
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY < 0 ? positionY * -1 : positionY;
-                    var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    var nodeBottom = parentHeight - (-1 * positionY + nodeTransform.size.y);
                     if (nodeBottom < 0)
                     {
                         nodeBottom *= -1;
                     }
 
-                    var topPercentage = nodeTop / parentHeight;
-                    topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
+                    var topPercentage = 1f - nodeTop / parentHeight;
                     var bottomPercentage = nodeBottom / parentHeight;
-                    bottomPercentage = float.Parse(bottomPercentage.ToString("F2"));
                     anchorMin = new Vector2(0.5f, bottomPercentage);
                     anchorMax = new Vector2(0.5f, topPercentage);
                 }
@@ -125,16 +122,14 @@ namespace Cdm.Figma.UI
                 {
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY < 0 ? positionY * -1 : positionY;
-                    var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    var nodeBottom = parentHeight - (-1 * positionY + nodeTransform.size.y);
                     if (nodeBottom < 0)
                     {
                         nodeBottom *= -1;
                     }
 
-                    var topPercentage = nodeTop / parentHeight;
-                    topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
+                    var topPercentage = 1f - nodeTop / parentHeight;
                     var bottomPercentage = nodeBottom / parentHeight;
-                    bottomPercentage = float.Parse(bottomPercentage.ToString("F2"));
                     anchorMin = new Vector2(0f, bottomPercentage);
                     anchorMax = new Vector2(0f, topPercentage);
                 }
@@ -165,7 +160,7 @@ namespace Cdm.Figma.UI
                 {
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY < 0 ? positionY * -1 : positionY;
-                    var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    var nodeBottom = parentHeight - (-1 * positionY + nodeTransform.size.y);
                     if (nodeBottom < 0)
                     {
                         nodeBottom *= -1;
@@ -204,16 +199,14 @@ namespace Cdm.Figma.UI
                 {
                     var parentHeight = parentSize.y;
                     var nodeTop = positionY < 0 ? positionY * -1 : positionY;
-                    var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    var nodeBottom = parentHeight - (-1 * positionY + nodeTransform.size.y);
                     if (nodeBottom < 0)
                     {
                         nodeBottom *= -1;
                     }
 
-                    var topPercentage = nodeTop / parentHeight;
-                    topPercentage = 1f - float.Parse(topPercentage.ToString("F2"));
+                    var topPercentage = 1f - nodeTop / parentHeight;
                     var bottomPercentage = nodeBottom / parentHeight;
-                    bottomPercentage = float.Parse(bottomPercentage.ToString("F2"));
                     anchorMin = new Vector2(0f, bottomPercentage);
                     anchorMax = new Vector2(1f, topPercentage);
                 }
@@ -222,16 +215,14 @@ namespace Cdm.Figma.UI
             {
                 var parentWidth = parentSize.x;
                 var nodeLeft = positionX < 0 ? positionX * -1 : positionX;
-                var nodeRight = parentWidth - (nodeLeft + nodeTransform.size.x);
+                var nodeRight = parentWidth - (nodeLeft + nodeWidth);
                 if (nodeRight < 0)
                 {
                     nodeRight *= -1;
                 }
 
                 var leftPercentage = nodeLeft / parentWidth;
-                leftPercentage = float.Parse(leftPercentage.ToString("F2"));
-                var rightPercentage = nodeRight / parentWidth;
-                rightPercentage = 1f - float.Parse(rightPercentage.ToString("F2"));
+                var rightPercentage = 1f - nodeRight / parentWidth;
                 if (constraintY == Vertical.Center)
                 {
                     anchorMin = new Vector2(leftPercentage, 0.5f);
@@ -255,26 +246,91 @@ namespace Cdm.Figma.UI
                 else if (constraintY == Vertical.Scale)
                 {
                     var parentHeight = parentSize.y;
-                    var nodeTop = positionY < 0 ? positionY * -1 : positionY;
-                    var nodeBottom = parentHeight - (nodeTop + nodeTransform.size.y);
+                    var nodeTop = positionY < 0 ? -1*positionY : positionY;
+                    var nodeBottom = parentHeight - (nodeTop + nodeHeight);
                     if (nodeBottom < 0)
                     {
                         nodeBottom *= -1;
                     }
-
-                    var topPercentage = nodeTop / parentHeight;
-                    topPercentage = 1f - float.Parse(topPercentage.ToString("F"));
+                    
+                    var topPercentage = 1f - nodeTop / parentHeight;
                     var bottomPercentage = nodeBottom / parentHeight;
-                    bottomPercentage = float.Parse(bottomPercentage.ToString("F"));
                     anchorMin = new Vector2(leftPercentage, bottomPercentage);
                     anchorMax = new Vector2(rightPercentage, topPercentage);
                 }
             }
-
             nodeObject.rectTransform.anchorMin = anchorMin;
             nodeObject.rectTransform.anchorMax = anchorMax;
-            nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
-            nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
+            //nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
+            //nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
+        }
+
+        public static void AdjustPosition(this NodeObject nodeObject, Vector2 parentSize)
+        {
+            INodeLayout nodeLayout = (INodeLayout) nodeObject.node;
+            INodeTransform nodeTransform = (INodeTransform) nodeObject.node;
+            var constraintX = nodeLayout.constraints.horizontal;
+            var constraintY = nodeLayout.constraints.vertical;
+
+            if (constraintX == Horizontal.Center)
+            {
+                nodeObject.rectTransform.anchoredPosition =
+                    new Vector3(
+                        (nodeTransform.relativeTransform.GetPosition().x - parentSize.x / 2),
+                        nodeObject.rectTransform.anchoredPosition.y, nodeObject.rectTransform.position.z);
+            }
+
+            if (constraintX == Horizontal.Right)
+            {
+                nodeObject.rectTransform.position =
+                    new Vector3(-1 * (parentSize.x - nodeObject.rectTransform.position.x),
+                        nodeObject.rectTransform.position.y, nodeObject.rectTransform.position.z);
+            }
+
+            if (constraintX == Horizontal.LeftRight)
+            {
+                float left = 0, right = 0;
+                left = nodeTransform.relativeTransform.GetPosition().x;
+                right = parentSize.x - (left + nodeTransform.size.x);
+                nodeObject.rectTransform.offsetMin = new Vector2(left, nodeObject.rectTransform.offsetMin.y);
+                nodeObject.rectTransform.offsetMax = new Vector2(-right, nodeObject.rectTransform.offsetMax.y);
+            }
+
+            if (constraintX == Horizontal.Scale)
+            {
+                nodeObject.rectTransform.offsetMin = new Vector2(0, nodeObject.rectTransform.offsetMin.y);
+                nodeObject.rectTransform.offsetMax = new Vector2(0, nodeObject.rectTransform.offsetMax.y);
+            }
+
+            if (constraintY == Vertical.Center)
+            {
+                nodeObject.rectTransform.anchoredPosition =
+                    new Vector3(nodeObject.rectTransform.anchoredPosition.x,
+                        -1 * (-1*nodeTransform.relativeTransform.GetPosition().y - parentSize.y / 2),
+                        nodeObject.rectTransform.position.z);
+            }
+
+            if (constraintY == Vertical.Bottom)
+            {
+                nodeObject.rectTransform.position =
+                    new Vector3(nodeObject.rectTransform.position.x,
+                        (parentSize.y + nodeObject.rectTransform.position.y), nodeObject.rectTransform.position.z);
+            }
+
+            if (constraintY == Vertical.TopBottom)
+            {
+                float top = 0, bottom = 0;
+                top = nodeTransform.relativeTransform.GetPosition().y;
+                bottom = parentSize.y - (-top + nodeTransform.size.y);
+                nodeObject.rectTransform.offsetMin = new Vector2(nodeObject.rectTransform.offsetMin.x, bottom);
+                nodeObject.rectTransform.offsetMax = new Vector2(nodeObject.rectTransform.offsetMax.x, top);
+            }
+
+            if (constraintY == Vertical.Scale)
+            {
+                nodeObject.rectTransform.offsetMin = new Vector2(nodeObject.rectTransform.offsetMin.x, 0);
+                nodeObject.rectTransform.offsetMax = new Vector2(nodeObject.rectTransform.offsetMax.x, 0);
+            }
         }
     }
 }

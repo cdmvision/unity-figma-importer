@@ -6,7 +6,7 @@ namespace Cdm.Figma.UI
     public class GroupNodeConverter : GroupNodeConverter<GroupNode>
     {
     }
-    
+
     public abstract class GroupNodeConverter<TNode> : NodeConverter<TNode> where TNode : GroupNode
     {
         protected override NodeObject Convert(NodeObject parentObject, TNode groupNode, NodeConvertArgs args)
@@ -22,7 +22,11 @@ namespace Cdm.Figma.UI
         private void BuildUIObject(NodeObject parentObject, NodeObject nodeObject, GroupNode groupNode)
         {
             nodeObject.SetTransform(groupNode);
-            nodeObject.SetLayoutConstraints(groupNode);
+            //group node's parent may be a page so check if it is INodeTransform otherwise it will throw InvalidCast exception
+            if (groupNode.parent is INodeTransform parent)
+            {
+                nodeObject.SetLayoutConstraints(parent);
+            }
 
             if (groupNode.layoutMode != LayoutMode.None)
             {
@@ -35,8 +39,6 @@ namespace Cdm.Figma.UI
         private static void BuildChildren(GroupNode currentNode, NodeObject currentNodeObject, NodeObject parentObject,
             NodeConvertArgs args)
         {
-            GroupNode parentNode = (GroupNode)parentObject.node;
-            INodeTransform parentTransform = (INodeTransform)parentNode;
             var children = currentNode.children;
             if (children != null)
             {
@@ -50,11 +52,10 @@ namespace Cdm.Figma.UI
                             HandleFillContainer(currentNode.layoutMode, currentNodeObject, childObject);
                         }
 
-                        //HandleConstraints(parentTransform.size, childObject);
-
                         if (childObject != parentObject)
                         {
                             childObject.rectTransform.SetParent(parentObject.rectTransform, false);
+                            childObject.AdjustPosition(currentNode.size);
                         }
                     }
                 }
@@ -64,8 +65,8 @@ namespace Cdm.Figma.UI
         private static void HandleFillContainer(LayoutMode groupNodeLayoutMode, NodeObject groupNodeObject,
             NodeObject childElement)
         {
-            INodeLayout childLayout = (INodeLayout)childElement.node;
-            INodeTransform childTransform = (INodeTransform)childElement.node;
+            INodeLayout childLayout = (INodeLayout) childElement.node;
+            INodeTransform childTransform = (INodeTransform) childElement.node;
             if (childLayout.layoutAlign == LayoutAlign.Stretch)
             {
                 if (groupNodeLayoutMode == LayoutMode.Horizontal)
@@ -163,14 +164,14 @@ namespace Cdm.Figma.UI
             if (groupNode.layoutMode == LayoutMode.Horizontal)
             {
                 groupNodeObject.GetComponent<HorizontalLayoutGroup>().padding = new RectOffset(
-                    (int)groupNode.paddingLeft,
-                    (int)groupNode.paddingRight, (int)groupNode.paddingTop, (int)groupNode.paddingBottom);
+                    (int) groupNode.paddingLeft,
+                    (int) groupNode.paddingRight, (int) groupNode.paddingTop, (int) groupNode.paddingBottom);
             }
             else
             {
                 groupNodeObject.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(
-                    (int)groupNode.paddingLeft,
-                    (int)groupNode.paddingRight, (int)groupNode.paddingTop, (int)groupNode.paddingBottom);
+                    (int) groupNode.paddingLeft,
+                    (int) groupNode.paddingRight, (int) groupNode.paddingTop, (int) groupNode.paddingBottom);
             }
         }
 
