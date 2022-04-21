@@ -284,7 +284,6 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 25
-  m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -337,7 +336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5e3f0dc4492dc429f2de92c093c374, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  figmaFile: {fileID: 11400000, guid: 7ded26a1a08a47f41997d0a9d2d16c35, type: 2}
+  figmaFile: {fileID: 11400000, guid: 19f9faa697212154a80f015a8097be59, type: 2}
   canvas: {fileID: 1220467535}
 --- !u!4 &1371876955
 Transform:

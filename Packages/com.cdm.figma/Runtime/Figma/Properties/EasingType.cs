@@ -33,9 +33,30 @@ namespace Cdm.Figma
         Linear,
         
         /// <summary>
+        /// No easing, similar to CSS linear.
+        /// </summary>
+        [EnumMember(Value = "EASE_IN_BACK")]
+        LinearInBack,
+        
+        /// <summary>
+        /// No easing, similar to CSS linear.
+        /// </summary>
+        [EnumMember(Value = "EASE_OUT_BACK")]
+        LinearOutBack,
+
+        /// <summary>
+        /// No easing, similar to CSS linear.
+        /// </summary>
+        [EnumMember(Value = "EASE_IN_AND_OUT_BACK")]
+        LinearInAndOutBack,
+        
+        /// <summary>
         /// Describes the points that define the cubic bezier easing curve (x1, y1, x2, y2).
         /// </summary>
-        [EnumMember(Value = "CUSTOM_CUBIC")]
-        CustomCubic
+        [EnumMember(Value = "CUSTOM_CUBIC_BEZIER")]
+        CustomCubicBezier,
+        
+        [EnumMember(Value = "CUSTOM_BEZIER")]
+        CustomBezier = CustomCubicBezier
     }
 }

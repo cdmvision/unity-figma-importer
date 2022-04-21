@@ -19,16 +19,6 @@
         "com.unity.vectorgraphics": "2.0.0-preview.18"
       }
     },
-    "com.cdm.figma.uitoolkit": {
-      "version": "file:com.cdm.figma.uitoolkit",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.cdm.figma": "0.0.1",
-        "com.unity.nuget.newtonsoft-json": "2.0.2",
-        "com.unity.vectorgraphics": "2.0.0-preview.18"
-      }
-    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 1,
@@ -36,11 +26,11 @@
       "dependencies": {}
     },
     "com.unity.addressables": {
-      "version": "1.19.15",
+      "version": "1.19.19",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.scriptablebuildpipeline": "1.19.5",
+        "com.unity.scriptablebuildpipeline": "1.19.6",
         "com.unity.modules.assetbundle": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0",
@@ -57,7 +47,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.12",
+      "version": "3.0.14",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -66,7 +56,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.14",
+      "version": "2.0.15",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -92,7 +82,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.mono-cecil": {
-      "version": "1.10.2",
+      "version": "1.10.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -106,7 +96,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.package-validation-suite": {
-      "version": "0.23.5-preview",
+      "version": "0.23.7-preview",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -115,7 +105,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.scriptablebuildpipeline": {
-      "version": "1.19.5",
+      "version": "1.19.6",
       "depth": 2,
       "source": "registry",
       "dependencies": {},
@@ -142,7 +132,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.timeline": {
-      "version": "1.7.0-pre.1",
+      "version": "1.7.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -173,7 +163,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.vectorgraphics": {
-      "version": "2.0.0-preview.18",
+      "version": "2.0.0-preview.19",
       "depth": 0,
       "source": "registry",
       "dependencies": {
