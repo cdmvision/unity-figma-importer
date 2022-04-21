@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
@@ -63,7 +64,7 @@ namespace Cdm.Figma
         /// Gets the children of the node if exist.
         /// </summary>
         /// <returns>Array of nodes if exist; otherwise, <c>null</c>.</returns>
-        public virtual Node[] GetChildren() => null;
+        public virtual Node[] GetChildren() => Array.Empty<Node>();
     }
 
     /// <summary>
