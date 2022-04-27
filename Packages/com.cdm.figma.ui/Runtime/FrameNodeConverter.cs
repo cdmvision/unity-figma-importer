@@ -28,6 +28,11 @@ namespace Cdm.Figma.UI
                 image.type = Image.Type.Sliced;
                 image.color = new UnityEngine.Color(1f, 1f, 1f, frameNode.opacity);
             }
+            
+            if (frameNode.clipsContent)
+            {
+                nodeObject.gameObject.AddComponent<Mask>();
+            }
 
             return nodeObject;
         }
