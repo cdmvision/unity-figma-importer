@@ -100,11 +100,13 @@ namespace Cdm.Figma.UI
                 {
                     groupNodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().flexibleWidth = 1;
+                    childElement.gameObject.GetComponent<LayoutElement>().minWidth = 1;
                 }
                 else if (groupNodeLayoutMode == LayoutMode.Vertical)
                 {
                     groupNodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().flexibleHeight = 1;
+                    childElement.gameObject.GetComponent<LayoutElement>().minHeight = 1;
                 }
             }
             else
