@@ -28,6 +28,11 @@ namespace Cdm.Figma.UI
             
             if (nodeObject.node.type is NodeType.Group and not NodeType.Frame)
             {
+                nodeObject.rectTransform.anchorMin = new Vector2(0, 0);
+                nodeObject.rectTransform.anchorMax = new Vector2(1, 1);
+                nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
+                nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
+                return;
                 var parentWidth = parentSize.x;
                 var parentHeight = parentSize.y;
                 var nodeLeft = positionX < 0 ? positionX * -1 : positionX;
