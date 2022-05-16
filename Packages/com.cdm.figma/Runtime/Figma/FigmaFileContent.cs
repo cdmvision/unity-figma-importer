@@ -81,6 +81,7 @@ namespace Cdm.Figma
             InitInstanceNodes();
             
             BuildHierarchy(document);
+            FixRelativePositionGroupNodeChildren(document);
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace Cdm.Figma
                 if (string.IsNullOrEmpty(instanceNode.componentId))
                     throw new ArgumentException($"Instance node's {instanceNode.componentId} does not exist.");
                 
-               //// Find component definition.
+               // Find component definition.
                //if (!components.TryGetValue(instanceNode.componentId, out var component))
                //    throw new ArgumentException($"Component definition could not be found: {instanceNode.componentId}");
 
@@ -134,6 +135,49 @@ namespace Cdm.Figma
                 }
                 return true;
             }, NodeType.Component);
+        }
+
+        private static void FixRelativePositionGroupNodeChildren(Node node)
+        {
+            // Accumulate relative position for nodes that is child of a group node.
+            // Frame
+            //  - Group 1
+            //      - Group 4
+            //          - Rect 1
+            //          - Rect 2
+            //      - Group 5
+            //          - Rect 3
+            //  - Group 6
+            //      - Rect 4
+            //  - Frame 2
+            //      - Group 7
+            //          - Rect 5
+            
+            node.Traverse(current =>
+            {
+                if (current.type != NodeType.Group)
+                {
+                    FixRelativePositionGroupNodeChild(current);
+                }
+                
+                return true;
+            });
+        }
+
+        private static void FixRelativePositionGroupNodeChild(Node node)
+        {
+            if (node is INodeTransform nodeTransform)
+            {
+                var position = nodeTransform.relativeTransform.position;
+                
+                for (var parent = node.parent; parent != null && parent.type == NodeType.Group; parent = parent.parent)
+                {
+                    var groupTransform = (INodeTransform) parent;
+                    position += groupTransform.relativeTransform.position;
+                }
+
+                nodeTransform.relativeTransform.position = position;
+            }
         }
         
         private static void BuildHierarchy(Node node)

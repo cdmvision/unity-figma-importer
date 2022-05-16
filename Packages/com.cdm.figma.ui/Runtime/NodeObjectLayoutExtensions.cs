@@ -11,8 +11,8 @@ namespace Cdm.Figma.UI
             //min y = bottom
             //max x = 100-right
             //max y = 100-top
-            INodeLayout nodeLayout = (INodeLayout) nodeObject.node;
-            INodeTransform nodeTransform = (INodeTransform) nodeObject.node;
+            INodeLayout nodeLayout = (INodeLayout)nodeObject.node;
+            INodeTransform nodeTransform = (INodeTransform)nodeObject.node;
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
             var anchorMin = nodeObject.rectTransform.anchorMin;
@@ -25,43 +25,6 @@ namespace Cdm.Figma.UI
             var nodeHeight = nodeTransform.size.y;
 
             var parentSize = parentTransform.size;
-            
-            if (nodeObject.node.type is NodeType.Group and not NodeType.Frame)
-            {
-                nodeObject.rectTransform.anchorMin = new Vector2(0, 0);
-                nodeObject.rectTransform.anchorMax = new Vector2(1, 1);
-                nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
-                nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
-                return;
-                var parentWidth = parentSize.x;
-                var parentHeight = parentSize.y;
-                var nodeLeft = positionX < 0 ? positionX * -1 : positionX;
-                var nodeRight = parentWidth - (positionX + nodeTransform.size.x);
-                if (nodeRight < 0)
-                {
-                    nodeRight *= -1;
-                }
-
-                var nodeTop = positionY < 0 ? positionY * -1 : positionY;
-                var nodeBottom = parentHeight - (-1 * positionY + nodeTransform.size.y);
-                if (nodeBottom < 0)
-                {
-                    nodeBottom *= -1;
-                }
-
-                var topPercentage = 1f - nodeTop / parentHeight;
-                var bottomPercentage = nodeBottom / parentHeight;
-                var leftPercentage = nodeLeft / parentWidth;
-                var rightPercentage = 1f - nodeRight / parentWidth;
-
-                anchorMin = new Vector2(leftPercentage, bottomPercentage);
-                anchorMax = new Vector2(rightPercentage, topPercentage);
-                nodeObject.rectTransform.anchorMin = anchorMin;
-                nodeObject.rectTransform.anchorMax = anchorMax;
-                nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
-                nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
-                return;
-            }
 
             if (constraintX == Horizontal.Center)
             {
@@ -251,19 +214,20 @@ namespace Cdm.Figma.UI
                 else if (constraintY == Vertical.Scale)
                 {
                     var parentHeight = parentSize.y;
-                    var nodeTop = positionY < 0 ? -1*positionY : positionY;
+                    var nodeTop = positionY < 0 ? -1 * positionY : positionY;
                     var nodeBottom = parentHeight - (nodeTop + nodeHeight);
                     if (nodeBottom < 0)
                     {
                         nodeBottom *= -1;
                     }
-                    
+
                     var topPercentage = 1f - nodeTop / parentHeight;
                     var bottomPercentage = nodeBottom / parentHeight;
                     anchorMin = new Vector2(leftPercentage, bottomPercentage);
                     anchorMax = new Vector2(rightPercentage, topPercentage);
                 }
             }
+
             nodeObject.rectTransform.anchorMin = anchorMin;
             nodeObject.rectTransform.anchorMax = anchorMax;
             //nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
@@ -272,8 +236,8 @@ namespace Cdm.Figma.UI
 
         public static void AdjustPosition(this NodeObject nodeObject, Vector2 parentSize)
         {
-            INodeLayout nodeLayout = (INodeLayout) nodeObject.node;
-            INodeTransform nodeTransform = (INodeTransform) nodeObject.node;
+            INodeLayout nodeLayout = (INodeLayout)nodeObject.node;
+            INodeTransform nodeTransform = (INodeTransform)nodeObject.node;
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
 
@@ -311,7 +275,7 @@ namespace Cdm.Figma.UI
             {
                 nodeObject.rectTransform.anchoredPosition =
                     new Vector3(nodeObject.rectTransform.anchoredPosition.x,
-                        -1 * (-1*nodeTransform.relativeTransform.GetPosition().y - parentSize.y / 2),
+                        -1 * (-1 * nodeTransform.relativeTransform.GetPosition().y - parentSize.y / 2),
                         nodeObject.rectTransform.position.z);
             }
 

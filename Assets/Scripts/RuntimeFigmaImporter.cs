@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using Cdm.Figma.UI;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class RuntimeFigmaImporter : MonoBehaviour
 {
@@ -11,6 +13,8 @@ public class RuntimeFigmaImporter : MonoBehaviour
     {
         try
         {
+            var stopwatch = Stopwatch.StartNew();
+            
             var figmaImporter = new FigmaImporter();
             await figmaImporter.ImportFileAsync(figmaFile);
 
@@ -20,7 +24,9 @@ public class RuntimeFigmaImporter : MonoBehaviour
                 document.nodeObject.rectTransform.SetParent(canvas.transform, false);
             }
             
-            Debug.Log($"Figma file has been imported successfully: {figmaFile.name} ({figmaFile.id})");
+            stopwatch.Stop();
+            
+            Debug.Log($"Figma file has been imported successfully in {stopwatch.ElapsedMilliseconds} ms: {figmaFile.name} ({figmaFile.id})");
         }
         catch (Exception e)
         {

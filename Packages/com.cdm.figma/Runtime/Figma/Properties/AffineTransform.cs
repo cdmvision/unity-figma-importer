@@ -33,6 +33,19 @@ namespace Cdm.Figma
         public Vector2 GetPosition() => new Vector2(values[0][2], -values[1][2]);
 
         /// <summary>
+        /// Gets or set the raw position of node.
+        /// </summary>
+        public Vector2 position
+        {
+            get => new Vector2(values[0][2], values[1][2]);
+            set
+            {
+                values[0][2] = value.x;
+                values[1][2] = value.y;
+            }
+        }
+
+        /// <summary>
         /// Gets the 2D scale.
         /// </summary>
         public Vector2 GetScale()
