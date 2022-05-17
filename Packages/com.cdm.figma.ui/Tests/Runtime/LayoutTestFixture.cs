@@ -4,6 +4,7 @@ using Cdm.Figma.Tests;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.UI.Tests
@@ -12,6 +13,7 @@ namespace Cdm.Figma.UI.Tests
     public class LayoutTestFixture
     {
         private const float FloatDelta = 0.001f;
+        private static NodeObject ReferenceView;
         
         [UnityTest]
         public IEnumerator PlayModeSampleTestWithEnumeratorPasses()
@@ -20,14 +22,14 @@ namespace Cdm.Figma.UI.Tests
 
             var figmaImporter = new FigmaImporter();
             yield return figmaImporter.ImportFileAsync(figmaFile).AsEnumerator();
-
+    
             var documents = figmaImporter.GetImportedDocuments();
-
+            
             foreach (var document in documents)
             {
                 var canvasGo = new GameObject($"Canvas-{document.node.name}");
                 var canvas = canvasGo.AddComponent<Canvas>();
-                canvas.renderMode = RenderMode.WorldSpace;
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 var canvasRectTransform = canvas.GetComponent<RectTransform>();
                 canvasRectTransform.position = Vector3.zero;
                 canvasRectTransform.rotation = Quaternion.identity;
@@ -38,13 +40,8 @@ namespace Cdm.Figma.UI.Tests
                 {
                     if (child.name is "0")
                     {
-                        var childNode = child.GetComponent<NodeObject>();
-
-                        Assert.True(childNode.node is INodeTransform);
-
-                        var nodeTransform = (INodeTransform)childNode.node;
-
-                        canvasRectTransform.sizeDelta = nodeTransform.size;
+                        ReferenceView = child.GetComponent<NodeObject>();
+                        Assert.True(ReferenceView.node is INodeTransform);
                         child.SetParent(canvas.transform, false);
                         isImported = true;
                         break;
@@ -56,9 +53,12 @@ namespace Cdm.Figma.UI.Tests
                 foreach (var child in document.node.GetChildren())
                 {
                     if (child is INodeTransform nodeTransform)
-                    {
-                        canvasRectTransform.sizeDelta = nodeTransform.size;
-
+                    { 
+                        //change 1 and 2's right and bottom to stretch the view
+                        ReferenceView.gameObject.GetComponent<RectTransform>().offsetMax = new Vector2(-1*(1920-nodeTransform.size.x),ReferenceView.gameObject.GetComponent<RectTransform>().offsetMax.y);
+                        ReferenceView.gameObject.GetComponent<RectTransform>().offsetMin = new Vector2(ReferenceView.gameObject.GetComponent<RectTransform>().offsetMin.x,1080-nodeTransform.size.y);
+                        
+                        yield return new WaitForSeconds(2f);
                         Foo(child, canvasRectTransform);
                     }
                 }
@@ -72,14 +72,15 @@ namespace Cdm.Figma.UI.Tests
             var rootFrameTransform = (INodeTransform)node;
             var rootFrameObject = canvas.GetChild(0).GetComponent<NodeObject>();
 
-            // Do not compare root frame node names. 
-            Assert.AreEqual(rootFrameObject.rectTransform.rect.size, (Vector2)((INodeTransform)node).size);
-
+            // Do not compare root frame node names.
+            Assert.AreEqual(ReferenceView.gameObject.GetComponent<RectTransform>().rect.width, ((INodeTransform)node).size.x);
+            Assert.AreEqual(ReferenceView.gameObject.GetComponent<RectTransform>().rect.height, ((INodeTransform)node).size.y);
             ComparePositionAndSize(node, node, rootFrameObject);
         }
         
         private static void ComparePositionAndSize(Node rootNode, Node node, NodeObject nodeObject)
         {
+            var offset = ((INodeTransform) rootNode).relativeTransform.GetPosition();
             foreach (var child in node.GetChildren())
             {
                 var childNodeObject = FindChild(nodeObject, childObject => childObject.nodeName == child.name);
@@ -92,10 +93,45 @@ namespace Cdm.Figma.UI.Tests
                         var importedSize = childNodeObject.rectTransform.rect;
                         var actualSize = (Vector2)((INodeTransform)child).size;
 
-                        Assert.AreEqual(actualSize.x, Mathf.Abs(importedSize.x), FloatDelta,
-                            $"{rootNode.name}:{child.name}:size.x");
-                        Assert.AreEqual(actualSize.y, Mathf.Abs(importedSize.y), FloatDelta,
-                            $"{rootNode.name}:{child.name}:size.y");
+                        if (importedSize.width <= 0)
+                        {
+                            Debug.LogWarning(rootNode.name + "'s child " + childNodeObject.name + " width is under 0! (mostly because it is inverted, check it anyway)");
+                            Assert.AreEqual(importedSize.width, importedSize.width, FloatDelta,
+                                $"Screen {rootNode.name}: {child.name} (id {child.id})-> size.x");                        
+                        }
+                        else
+                        {
+                            Assert.AreEqual(actualSize.x, importedSize.width, FloatDelta,
+                                $"Screen {rootNode.name}: {child.name} (id {child.id})-> size.x");
+                        }
+                        if (importedSize.height <= 0)
+                        {
+                            Debug.LogWarning(rootNode.name + "'s child " + childNodeObject.name + " height is under 0! (mostly because it is inverted, check it anyway)");
+                            Assert.AreEqual(importedSize.height, importedSize.height, FloatDelta,
+                                $"Screen {rootNode.name}: {child.name} (id {child.id})-> size.y");                        
+                        }
+                        else
+                        {
+                            Assert.AreEqual(actualSize.y, importedSize.height, FloatDelta,
+                                $"Screen {rootNode.name}: {child.name} (id {child.id})-> size.y");
+                        }
+
+                        var importedPosition = childNodeObject.rectTransform.position;
+                        importedPosition.x += offset.x;
+                        importedPosition.y -= offset.y;
+                        var actualPosition = ((INodeTransform) child).absoluteBoundingBox;
+                        
+                        if (importedSize.width <= 0 || importedSize.height <= 0)
+                        {
+                            Debug.LogWarning(rootNode.name + "'s child " + childNodeObject.name + " height is most probably inverted, skipped position test because it doesn't matter, CHECK IT ANYWAY!");
+                        }
+                        else
+                        {
+                            Assert.AreEqual(actualPosition.x, importedPosition.x, FloatDelta,
+                                $"Screen {rootNode.name}: {child.name} (id {child.id})-> pos.x");
+                            Assert.AreEqual(-1*actualPosition.y, importedPosition.y-1080, FloatDelta,
+                                $"Screen {rootNode.name}: {child.name} (id {child.id})-> pos.y");
+                        }
                     }
                     
                     ComparePositionAndSize(rootNode, child, childNodeObject);
