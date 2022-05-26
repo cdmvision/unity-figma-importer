@@ -84,6 +84,16 @@ namespace Cdm.Figma.UI.Tests
             foreach (var child in node.GetChildren())
             {
                 var childNodeObject = FindChild(nodeObject, childObject => childObject.nodeName == child.name);
+                var parentNodeObject = childNodeObject.gameObject.GetComponentInParent<RectTransform>();
+                if (parentNodeObject.rect.width <= 0 || parentNodeObject.rect.height <= 0)
+                {
+                    Debug.LogWarning(childNodeObject.nodeName + "'s parent is most probably inverted," +
+                              " skipping position and size test for children. DOUBLE CHECK IT ANYWAY.");
+                    //TODO: Disable visibility for nodes which have their parent inverted? (Unity and Figma behave different in this case)
+                    Debug.Log(childNodeObject.nodeName + "'s parent is most probably inverted," +
+                                     " possible implementation needed: Disable visibility for nodes which have their parent inverted?");
+                    return;
+                }
                 if (childNodeObject != null)
                 {
                     if (child.GetType() != typeof(GroupNode))
@@ -123,7 +133,7 @@ namespace Cdm.Figma.UI.Tests
                         
                         if (importedSize.width <= 0 || importedSize.height <= 0)
                         {
-                            Debug.LogWarning(rootNode.name + "'s child " + childNodeObject.name + " height is most probably inverted, skipped position test because it doesn't matter, CHECK IT ANYWAY!");
+                            Debug.LogWarning(rootNode.name + "'s child " + childNodeObject.name + " width or height is most probably inverted, skipped position test because it doesn't matter, CHECK IT ANYWAY!");
                         }
                         else
                         {
