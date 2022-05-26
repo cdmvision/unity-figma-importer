@@ -230,8 +230,6 @@ namespace Cdm.Figma.UI
 
             nodeObject.rectTransform.anchorMin = anchorMin;
             nodeObject.rectTransform.anchorMax = anchorMax;
-            //nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
-            //nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
         }
 
         public static void AdjustPosition(this NodeObject nodeObject, Vector2 parentSize)
@@ -251,9 +249,9 @@ namespace Cdm.Figma.UI
 
             if (constraintX == Horizontal.Right)
             {
-                nodeObject.rectTransform.position =
-                    new Vector3(-1 * (parentSize.x - nodeObject.rectTransform.position.x),
-                        nodeObject.rectTransform.position.y, nodeObject.rectTransform.position.z);
+                var position = nodeObject.rectTransform.position;
+                position = new Vector3(-1 * (parentSize.x - position.x), position.y, position.z);
+                nodeObject.rectTransform.position = position;
             }
 
             if (constraintX == Horizontal.LeftRight)
@@ -281,9 +279,9 @@ namespace Cdm.Figma.UI
 
             if (constraintY == Vertical.Bottom)
             {
-                nodeObject.rectTransform.position =
-                    new Vector3(nodeObject.rectTransform.position.x,
-                        (parentSize.y + nodeObject.rectTransform.position.y), nodeObject.rectTransform.position.z);
+                var position = nodeObject.rectTransform.position;
+                position = new Vector3(position.x, (parentSize.y + position.y), position.z);
+                nodeObject.rectTransform.position = position;
             }
 
             if (constraintY == Vertical.TopBottom)

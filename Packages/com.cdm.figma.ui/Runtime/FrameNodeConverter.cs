@@ -68,6 +68,14 @@ namespace Cdm.Figma.UI
                 image.sprite = sprite;
                 image.type = Image.Type.Sliced;
                 image.color = new UnityEngine.Color(1f, 1f, 1f, frameNode.opacity);
+                foreach (var fill in frameNode.fills)
+                {
+                    if (!fill.visible)
+                    {
+                        //Multiple fill is not supported, only one image is attached to the node object
+                        image.enabled = false;
+                    }
+                }
             }
         }
 
