@@ -36,6 +36,17 @@ namespace Cdm.Figma
             });
         }
 
+        public static void TraverseUp(this Node node, Func<Node, bool> handler)
+        {
+            for (var current = node; current != null; current = current.parent)
+            {
+                if (!handler(current))
+                {
+                    break;
+                }
+            }
+        }
+        
         public static Node Find(this Node node, string nodeId)
         {
             Node target = null;

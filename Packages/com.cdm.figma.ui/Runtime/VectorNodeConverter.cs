@@ -28,6 +28,7 @@ namespace Cdm.Figma.UI
             nodeObject.SetTransform(vectorNode);
             //any vector's parent will ALWAYS be INodeTransform
             nodeObject.SetLayoutConstraints((INodeTransform)vectorNode.parent);
+            
             if (vectorConvertArgs.generateSprite && (vectorNode.fills.Any() || vectorNode.strokes.Any()))
             {
                 if (vectorConvertArgs.sourceSprite == null)
