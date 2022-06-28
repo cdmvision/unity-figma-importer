@@ -5,7 +5,7 @@ namespace Cdm.Figma.UI
         protected override NodeObject Convert(NodeObject parentObject, InstanceNode node, NodeConvertArgs args)
         {
             // TODO: Implement proper way.
-            return new GroupNodeConverter().Convert(parentObject, (InstanceNode) node, args);
+            return new FrameNodeConverter().Convert(parentObject, (InstanceNode) node, args);
         }
     }
 }
