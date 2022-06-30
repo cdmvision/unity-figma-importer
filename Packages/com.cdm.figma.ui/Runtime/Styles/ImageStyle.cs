@@ -1,6 +1,5 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles.Properties;
-using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,20 +24,13 @@ namespace Cdm.Figma.UI.Styles
             }
         }
 
-        public override bool SetStyle(GameObject gameObject, StyleArgs args)
+        public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            if (!base.SetStyle(gameObject, args))
-                return false;
-
-            if (TryGetComponent<SVGImage>(gameObject, out var svgImage, false))
+            var image = GetOrAddComponent<Image>(gameObject);
+            if (image != null)
             {
-                if (sprite.enabled)
-                    svgImage.sprite = sprite.value;
-                return true;
-            }
-
-            if (TryGetComponent<Image>(gameObject, out var image, false))
-            {
+                base.SetStyle(gameObject, args);
+                
                 if (sprite.enabled)
                     image.sprite = sprite.value;
 
@@ -50,11 +42,7 @@ namespace Cdm.Figma.UI.Styles
 
                 if (pixelsPerUnitMultiplier.enabled)
                     image.pixelsPerUnitMultiplier = image.pixelsPerUnitMultiplier;
-                return true;
             }
-
-            Debug.LogWarning($"Neither {nameof(SVGImage)} nor {nameof(Image)} component is found.", gameObject);
-            return false;
         }
     }
 }

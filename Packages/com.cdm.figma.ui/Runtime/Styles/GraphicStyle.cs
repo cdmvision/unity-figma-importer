@@ -22,21 +22,18 @@ namespace Cdm.Figma.UI.Styles
             }
         }
 
-        public override bool SetStyle(GameObject gameObject, StyleArgs args)
+        public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
             base.SetStyle(gameObject, args);
 
-            if (TryGetComponent<Graphic>(gameObject, out var graphic))
+            var graphic = GetOrAddComponent<Graphic>(gameObject);
+            if (graphic != null)
             {
                 if (color.enabled)
                 {
                     graphic.CrossFadeColor(args, color, fadeDuration);
                 }
-
-                return true;
             }
-
-            return false;
         }
     }
 }

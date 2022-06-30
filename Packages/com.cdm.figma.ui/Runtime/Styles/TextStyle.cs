@@ -7,10 +7,9 @@ using UnityEngine.Localization.Components;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class TextStyle : Style
+    public class TextStyle : GraphicStyle
     {
         public StylePropertyFont font = new StylePropertyFont();
-        public StylePropertyColor color = new StylePropertyColor(UnityEngine.Color.white);
         public StylePropertyFontStyle fontStyle = new StylePropertyFontStyle();
         public StylePropertyFontWeight fontWeight = new StylePropertyFontWeight(FontWeight.Regular);
         public StylePropertyMaterial fontMaterial = new StylePropertyMaterial();
@@ -24,7 +23,6 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyVerticalAlignmentOptions verticalAlignment = 
             new StylePropertyVerticalAlignmentOptions();
         public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
-        public StylePropertyFloat fadeDuration = new StylePropertyFloat(0.1f);
         public StylePropertyLocalizedString localizedString = new StylePropertyLocalizedString();
 
         public override void CopyTo(Style other)
@@ -50,12 +48,13 @@ namespace Cdm.Figma.UI.Styles
             }
         }
 
-        public override bool SetStyle(GameObject gameObject, StyleArgs args)
+        public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            base.SetStyle(gameObject, args);
-
-            if (TryGetComponent<TMP_Text>(gameObject, out var text))
+            var text = GetOrAddComponent<TextMeshProUGUI>(gameObject);
+            if (text != null)
             {
+                base.SetStyle(gameObject, args);
+                
                 if (font.enabled)
                     text.font = font.value;
 
@@ -92,28 +91,14 @@ namespace Cdm.Figma.UI.Styles
                 if (fontMaterial.enabled)
                     text.fontMaterial = fontMaterial.value;
 
-                if (color.enabled)
-                {
-                    text.CrossFadeColor(args, color, fadeDuration);
-                }
-
                 if (localizedString.enabled)
                 {
-                    var stringEvent = text.GetComponent<LocalizeStringEvent>();
-                    if (stringEvent == null)
-                    {
-                        stringEvent = text.gameObject.AddComponent<LocalizeStringEvent>();
-                    }
-
+                    var stringEvent = GetOrAddComponent<LocalizeStringEvent>(text.gameObject);
                     stringEvent.StringReference = localizedString.value;
                     stringEvent.OnUpdateString.AddListener(str => { text.text = str; });
                     stringEvent.RefreshString();
                 }
-
-                return true;
             }
-
-            return false;
         }
     }
 }

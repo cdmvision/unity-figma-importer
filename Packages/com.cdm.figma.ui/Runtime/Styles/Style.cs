@@ -24,9 +24,8 @@ namespace Cdm.Figma.UI.Styles
             return false;
         }
 
-        public virtual bool SetStyle(GameObject gameObject, StyleArgs args)
+        public virtual void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            return false;
         }
 
         protected static bool TryGetComponent<T>(GameObject gameObject, out T component, bool giveWarning = true)
@@ -42,6 +41,17 @@ namespace Cdm.Figma.UI.Styles
                 Debug.LogWarning($"Component not found: {typeof(T).Name}", gameObject);
 
             return false;
+        }
+
+        protected static T GetOrAddComponent<T>(GameObject gameObject) where T : UnityEngine.Component
+        {
+            var component = gameObject.GetComponent<T>();
+            if (component == null)
+            {
+                component = gameObject.AddComponent<T>();
+            }
+
+            return component;
         }
     }
 }

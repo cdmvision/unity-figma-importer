@@ -31,12 +31,13 @@ namespace Cdm.Figma.UI.Styles
             }
         }
 
-        public override bool SetStyle(GameObject gameObject, StyleArgs args)
+        public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
             base.SetStyle(gameObject, args);
 
 #if LETAI_TRUESHADOW
-            if (TryGetComponent<LeTai.TrueShadow.TrueShadow>(gameObject, out var shadow))
+            var shadow = GetOrAddComponent<LeTai.TrueShadow.TrueShadow>(gameObject);
+            if (shadow != null)
             {
                 shadow.UseCasterAlpha = true;
                 shadow.IgnoreCasterColor = true;
@@ -88,12 +89,8 @@ namespace Cdm.Figma.UI.Styles
                             break;
                     }
                 }
-
-                return true;
             }
 #endif
-
-            return false;
         }
     }
 }
