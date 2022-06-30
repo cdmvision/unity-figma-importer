@@ -35,7 +35,7 @@ namespace Cdm.Figma.UI.Styles
             }
         }
 
-        public override void SetStyle(GameObject gameObject, StyleArgs args)
+        public override bool SetStyle(GameObject gameObject, StyleArgs args)
         {
             base.SetStyle(gameObject, args);
 
@@ -92,8 +92,12 @@ namespace Cdm.Figma.UI.Styles
                             break;
                     }
                 }
+
+                return true;
             }
 #endif
+
+            return false;
         }
     }
 }

@@ -62,6 +62,11 @@ namespace Cdm.Figma.UI.Styles
             selectable = GetComponent<Selectable>();
             canvasGroup = GetComponentInParent<CanvasGroup>();
 
+            InitializeComponents();
+        }
+
+        public void InitializeComponents()
+        {
             InitializeComponents(transform);
         }
 

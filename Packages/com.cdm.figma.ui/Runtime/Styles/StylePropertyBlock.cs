@@ -24,8 +24,9 @@ namespace Cdm.Figma.UI.Styles
             return false;
         }
 
-        public virtual void SetStyle(GameObject gameObject, StyleArgs args)
+        public virtual bool SetStyle(GameObject gameObject, StyleArgs args)
         {
+            return false;
         }
 
         protected static bool TryGetComponent<T>(GameObject gameObject, out T component, bool giveWarning = true)

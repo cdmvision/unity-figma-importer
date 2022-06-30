@@ -29,16 +29,19 @@ namespace Cdm.Figma.UI.Styles
             }
         }
 
-        public override void SetStyle(GameObject gameObject, StyleArgs args)
+        public override bool SetStyle(GameObject gameObject, StyleArgs args)
         {
-            base.SetStyle(gameObject, args);
+            if (!base.SetStyle(gameObject, args))
+                return false;
             
             if (TryGetComponent<SVGImage>(gameObject, out var svgImage, false))
             {
                 if (sprite.enabled)
                     svgImage.sprite = sprite.value;
+                return true;
             }
-            else if (TryGetComponent<Image>(gameObject, out var image, false))
+            
+            if (TryGetComponent<Image>(gameObject, out var image, false))
             {
                 if (sprite.enabled)
                     image.sprite = sprite.value;
@@ -51,11 +54,11 @@ namespace Cdm.Figma.UI.Styles
 
                 if (pixelsPerUnitMultiplier.enabled)
                     image.pixelsPerUnitMultiplier = image.pixelsPerUnitMultiplier;
+                return true;
             }
-            else
-            {
-                Debug.LogWarning($"Neither {nameof(SVGImage)} nor {nameof(Image)} component is found.", gameObject);
-            }
+            
+            Debug.LogWarning($"Neither {nameof(SVGImage)} nor {nameof(Image)} component is found.", gameObject);
+            return false;
         }
     }
 }

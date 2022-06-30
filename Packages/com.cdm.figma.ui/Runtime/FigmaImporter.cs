@@ -29,14 +29,14 @@ namespace Cdm.Figma.UI
             {
                 new GroupNodeConverter(),
                 new FrameNodeConverter(),
-                new InstanceNodeConverter(),
                 new VectorNodeConverter(),
                 new RectangleNodeConverter(),
                 new EllipseNodeConverter(),
                 new LineNodeConverter(),
                 new PolygonNodeConverter(),
                 new StarNodeConverter(),
-                new TextNodeConverter()
+                new TextNodeConverter(),
+                new InstanceNodeConverter()
             };
         }
 
@@ -44,8 +44,8 @@ namespace Cdm.Figma.UI
         {
             return new ComponentConverter[]
             {
-                //new ButtonComponentConverter(),
-                //new ToggleComponentConverter()
+                new ButtonConverter(),
+                new ToggleConverter()
             };
         }
         
