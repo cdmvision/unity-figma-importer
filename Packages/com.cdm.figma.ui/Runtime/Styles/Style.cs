@@ -1,103 +1,47 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles
 {
-    /// <summary>
-    /// An enumeration of selected states of objects
-    /// </summary>
-    public enum Selector
+    [Serializable]
+    public class Style
     {
-        /// <summary>
-        /// The UI object can be selected.
-        /// </summary>
-        Normal,
-
-        /// <summary>
-        /// The UI object is highlighted.
-        /// </summary>
-        Highlighted,
-
-        /// <summary>
-        /// The UI object is pressed.
-        /// </summary>
-        Pressed,
-        
-        /// <summary>
-        /// The UI object is selected.
-        /// </summary>
-        Selected,
-
-        /// <summary>
-        /// The UI object cannot be selected.
-        /// </summary>
-        Disabled,
-    }
-    
-    public abstract class Style : MonoBehaviour
-    {
-        protected Selector currentSelector { get; private set; } = Selector.Normal;
-        
-        private bool _interactable = true;
-
-        public bool interactable
-        {
-            get => _interactable;
-            set
-            {
-                if (_interactable != value)
-                {
-                    _interactable = value;
-                
-                    Apply(_interactable ? Selector.Normal : Selector.Disabled, true);
-                }
-            }
-        }
-
-        protected virtual void Start()
-        {
-            Apply(Selector.Normal, true, true);
-        }
+        public bool enabled = false;
 
         public virtual void CopyTo(Style other)
         {
-            other.interactable = interactable;
+            other.enabled = enabled;
         }
 
-        public void Apply(Selector selector, bool forceUpdate = false)
+        public bool SetStyleIfEnabled(GameObject gameObject, StyleArgs args)
         {
-            Apply(selector, false, forceUpdate);
-        }
-        
-        protected abstract void Apply(StyleArgs args);
-
-        private void Apply(Selector selector, bool instant, bool forceUpdate)
-        {
-            if (!_interactable)
-                selector = Selector.Disabled;
-
-            if (forceUpdate || currentSelector != selector)
+            if (enabled)
             {
-                currentSelector = selector;
-                Apply(new StyleArgs(currentSelector, instant));
+                SetStyle(gameObject, args);
+                return true;
             }
-        }
-    }
-    
-    public readonly struct StyleArgs
-    {
-        public Selector selector { get; }
-        public bool instant { get; }
 
-        public StyleArgs(Selector selector)
-        {
-            this.selector = selector;
-            this.instant = false;
+            return false;
         }
 
-        public StyleArgs(Selector selector, bool instant)
+        public virtual bool SetStyle(GameObject gameObject, StyleArgs args)
         {
-            this.selector = selector;
-            this.instant = instant;
+            return false;
+        }
+
+        protected static bool TryGetComponent<T>(GameObject gameObject, out T component, bool giveWarning = true)
+            where T : UnityEngine.Component
+        {
+            component = gameObject.GetComponent<T>();
+            if (component != null)
+            {
+                return true;
+            }
+
+            if (giveWarning)
+                Debug.LogWarning($"Component not found: {typeof(T).Name}", gameObject);
+
+            return false;
         }
     }
 }

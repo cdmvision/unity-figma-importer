@@ -15,9 +15,9 @@ namespace Cdm.Figma.UI.Styles
             base.Awake();
         }
 
-        protected override void InitializeStyle(Style style)
+        protected override void InitializeStyle(StyleSetter styleSetter)
         {
-            base.InitializeStyle(style);
+            base.InitializeStyle(styleSetter);
             
             /*if (style is StyleSetterToggle s)
             {

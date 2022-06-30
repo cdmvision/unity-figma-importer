@@ -6,12 +6,8 @@ using UnityEngine.Localization.Components;
 
 namespace Cdm.Figma.UI.Styles
 {
-    public class TextStyle : StyleWithSelectors<TextStylePropertyBlock>
-    {
-    }
-
     [Serializable]
-    public class TextStylePropertyBlock : StylePropertyBlock
+    public class TextStyle : Style
     {
         public StylePropertyFont font = new StylePropertyFont();
         public StylePropertyColor color = new StylePropertyColor(UnityEngine.Color.white);
@@ -23,20 +19,19 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyFloat fontSizeMax = new StylePropertyFloat();
         public StylePropertyBool enableAutoSizing = new StylePropertyBool();
         public StylePropertyBool autoSizeTextContainer = new StylePropertyBool();
-        
-        public StylePropertyHorizontalAlignmentOptions horizontalAlignment = new StylePropertyHorizontalAlignmentOptions();
-        public StylePropertyVerticalAlignmentOptions verticalAlignment = new StylePropertyVerticalAlignmentOptions();
-
-
+        public StylePropertyHorizontalAlignmentOptions horizontalAlignment =
+            new StylePropertyHorizontalAlignmentOptions();
+        public StylePropertyVerticalAlignmentOptions verticalAlignment = 
+            new StylePropertyVerticalAlignmentOptions();
         public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
         public StylePropertyFloat fadeDuration = new StylePropertyFloat(0.1f);
         public StylePropertyLocalizedString localizedString = new StylePropertyLocalizedString();
 
-        public override void CopyTo(StylePropertyBlock other)
+        public override void CopyTo(Style other)
         {
             base.CopyTo(other);
 
-            if (other is TextStylePropertyBlock otherStyle)
+            if (other is TextStyle otherStyle)
             {
                 font.CopyTo(otherStyle.font);
                 color.CopyTo(otherStyle.color);
@@ -87,7 +82,7 @@ namespace Cdm.Figma.UI.Styles
 
                 if (horizontalAlignment.enabled)
                     text.horizontalAlignment = horizontalAlignment.value;
-                
+
                 if (verticalAlignment.enabled)
                     text.verticalAlignment = verticalAlignment.value;
 
@@ -109,7 +104,7 @@ namespace Cdm.Figma.UI.Styles
                     {
                         stringEvent = text.gameObject.AddComponent<LocalizeStringEvent>();
                     }
-                    
+
                     stringEvent.StringReference = localizedString.value;
                     stringEvent.OnUpdateString.AddListener(str => { text.text = str; });
                     stringEvent.RefreshString();

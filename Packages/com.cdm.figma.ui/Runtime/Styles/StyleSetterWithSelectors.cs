@@ -2,7 +2,7 @@
 
 namespace Cdm.Figma.UI.Styles
 {
-    public abstract class StyleWithSelectors<T> : Style where T : StylePropertyBlock, new()
+    public abstract class StyleSetterWithSelectors<T> : StyleSetter where T : Style, new()
     {
         public T normal = new T();
         public T highlighted = new T();
@@ -10,11 +10,11 @@ namespace Cdm.Figma.UI.Styles
         public T selected = new T();
         public T disabled = new T();
         
-        public override void CopyTo(Style other)
+        public override void CopyTo(StyleSetter other)
         {
             base.CopyTo(other);
 
-            if (other is StyleWithSelectors<T> o)
+            if (other is StyleSetterWithSelectors<T> o)
             {
                 normal.CopyTo(o.normal);
                 highlighted.CopyTo(o.highlighted);

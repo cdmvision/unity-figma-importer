@@ -4,12 +4,8 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles
 {
-    public class ShadowStyle : StyleWithSelectors<ShadowStylePropertyBlock>
-    {
-    }
-
     [Serializable]
-    public class ShadowStylePropertyBlock : StylePropertyBlock
+    public class ShadowStyle : Style
     {
         public StylePropertyBool visible = new StylePropertyBool(true);
         public StylePropertyBool inner = new StylePropertyBool(false);
@@ -19,11 +15,11 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyVector2 offset = new StylePropertyVector2(Vector2.zero);
         public StylePropertyBlendMode blendMode = new StylePropertyBlendMode(BlendMode.Normal);
 
-        public override void CopyTo(StylePropertyBlock other)
+        public override void CopyTo(Style other)
         {
             base.CopyTo(other);
 
-            if (other is ShadowStylePropertyBlock otherStyle)
+            if (other is ShadowStyle otherStyle)
             {
                 visible.CopyTo(otherStyle.visible);
                 inner.CopyTo(otherStyle.inner);

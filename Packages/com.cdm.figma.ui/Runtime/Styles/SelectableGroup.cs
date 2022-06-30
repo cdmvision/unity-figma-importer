@@ -28,7 +28,7 @@ namespace Cdm.Figma.UI.Styles
         }
 
         protected CanvasGroup canvasGroup { get; private set; }
-        protected List<Style> styles { get; } = new List<Style>();
+        protected List<StyleSetter> styles { get; } = new List<StyleSetter>();
 
         protected Selectable selectable { get; private set; }
         protected bool isPointerInside { get; set; }
@@ -75,7 +75,7 @@ namespace Cdm.Figma.UI.Styles
             var selectableGroup = node.GetComponent<SelectableGroup>();
             if (selectableGroup == null || selectableGroup == this)
             {
-                var styles2 = node.GetComponents<Style>();
+                var styles2 = node.GetComponents<StyleSetter>();
                 foreach (var style in styles2)
                 {
                     InitializeStyle(style);
@@ -89,9 +89,9 @@ namespace Cdm.Figma.UI.Styles
             }
         }
 
-        protected virtual void InitializeStyle(Style style)
+        protected virtual void InitializeStyle(StyleSetter styleSetter)
         {
-            style.interactable = IsInteractable();
+            styleSetter.interactable = IsInteractable();
         }
 
         protected virtual void Update()

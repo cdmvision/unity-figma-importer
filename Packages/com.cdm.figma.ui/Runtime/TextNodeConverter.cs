@@ -38,9 +38,9 @@ namespace Cdm.Figma.UI
             return nodeObject;
         }
 
-        public StylePropertyBlock GenerateStyle(NodeObject nodeObject, TextNode textNode, NodeConvertArgs args)
+        public Styles.Style GenerateStyle(NodeObject nodeObject, TextNode textNode, NodeConvertArgs args)
         {
-            var style = new TextStylePropertyBlock();
+            var style = new TextStyle();
 
             SetTextFont(style, textNode, args);
             SetTextAlignment(style, textNode);
@@ -52,7 +52,7 @@ namespace Cdm.Figma.UI
             return style;
         }
 
-        private static void SetTextFont(TextStylePropertyBlock style, TextNode textNode, NodeConvertArgs args)
+        private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
         {
             var fontName =
                 FontSource.GetFontName(textNode.style.fontFamily, textNode.style.fontWeight, textNode.style.italic);
@@ -75,7 +75,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void SetTextAlignment(TextStylePropertyBlock style, TextNode textNode)
+        private static void SetTextAlignment(TextStyle style, TextNode textNode)
         {
             style.verticalAlignment.enabled = true;
             style.horizontalAlignment.enabled = true;
@@ -114,7 +114,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void SetTextAutoResize(TextStylePropertyBlock style, TextNode textNode)
+        private static void SetTextAutoResize(TextStyle style, TextNode textNode)
         {
             style.autoSizeTextContainer.enabled = true;
             
@@ -138,7 +138,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void SetTextDecoration(TextStylePropertyBlock style, TextNode textNode)
+        private static void SetTextDecoration(TextStyle style, TextNode textNode)
         {
             switch (textNode.style.textDecoration)
             {
@@ -158,7 +158,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void SetFills(TextStylePropertyBlock style, TextNode textNode)
+        private static void SetFills(TextStyle style, TextNode textNode)
         {
             style.color.enabled = false;
             
@@ -172,7 +172,7 @@ namespace Cdm.Figma.UI
             }
         }
         
-        private static void SetLocalization(TextStylePropertyBlock style, NodeObject nodeObject)
+        private static void SetLocalization(TextStyle style, NodeObject nodeObject)
         {
             style.localizedString.enabled = false;
             
