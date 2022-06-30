@@ -1,4 +1,6 @@
-﻿namespace Cdm.Figma.UI
+﻿using System.Collections.Generic;
+
+namespace Cdm.Figma.UI
 {
     public class InstanceNodeConverter : NodeConverter<InstanceNode>
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Cdm.Figma.UI.Styles;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -63,6 +64,14 @@ namespace Cdm.Figma.UI
         public static void SetSize(this NodeObject nodeObject, INodeTransform nodeTransform)
         {
             nodeObject.rectTransform.sizeDelta = nodeTransform.size;
+        }
+
+        public static void ApplyStyles(this NodeObject nodeObject)
+        {
+            foreach (var style in nodeObject.styles)
+            {
+                style.SetStyle(nodeObject.gameObject, new StyleArgs("", true));
+            }
         }
     }
 }

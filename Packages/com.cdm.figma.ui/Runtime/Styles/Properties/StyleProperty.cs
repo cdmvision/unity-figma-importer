@@ -44,5 +44,14 @@ namespace Cdm.Figma.UI.Styles.Properties
                 otherProperty._value = _value;
             }
         }
+
+        /// <summary>
+        /// Sets the property value and enables automatically.
+        /// </summary>
+        public void SetValue(TValue v)
+        {
+            enabled = true;
+            value = v;
+        }
     }
 }

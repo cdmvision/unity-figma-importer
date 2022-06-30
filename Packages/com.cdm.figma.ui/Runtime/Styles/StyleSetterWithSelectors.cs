@@ -1,14 +1,13 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles
 {
     public abstract class StyleSetterWithSelectors<T> : StyleSetter where T : Style, new()
     {
-        public T normal = new T();
-        public T highlighted = new T();
-        public T pressed = new T();
-        public T selected = new T();
-        public T disabled = new T();
+        [SerializeField]
+        private List<T> _styles = new List<T>();
         
         public override void CopyTo(StyleSetter other)
         {
@@ -16,43 +15,37 @@ namespace Cdm.Figma.UI.Styles
 
             if (other is StyleSetterWithSelectors<T> o)
             {
-                normal.CopyTo(o.normal);
-                highlighted.CopyTo(o.highlighted);
-                pressed.CopyTo(o.pressed);
-                selected.CopyTo(o.selected);
-                disabled.CopyTo(o.disabled);
+                o._styles = new List<T>();
+
+                foreach (var style in _styles)
+                {
+                    var otherStyle = new T();
+                    style.CopyTo(otherStyle);
+                    
+                    o._styles.Add(otherStyle);
+                }
             }
         }
         
         protected override void Apply(StyleArgs args)
         {
-            switch (args.selector)
+            var style = _styles.FirstOrDefault(s => s.selector == args.selector);
+            if (style != null)
             {
-                case Selector.Normal:
-                    normal.SetStyleIfEnabled(gameObject, args);
-                    break;
-                case Selector.Highlighted:
-                    SetStyleOrNormal(args, highlighted);
-                    break;
-                case Selector.Pressed:
-                    SetStyleOrNormal(args, pressed);
-                    break;
-                case Selector.Selected:
-                    SetStyleOrNormal(args, selected);
-                    break;
-                case Selector.Disabled:
-                    SetStyleOrNormal(args, disabled);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }    
+                SetStyleOrNormal(args, style);
+            }
+            else
+            {
+                Debug.LogWarning($"Style with selector could not found: {args.selector}");
+            }
         }
 
         private void SetStyleOrNormal(StyleArgs args, T styleBlock)
         {
             if (!styleBlock.SetStyleIfEnabled(gameObject, args))
             {
-                normal.SetStyleIfEnabled(gameObject, args);
+                var style = _styles.FirstOrDefault();
+                style?.SetStyleIfEnabled(gameObject, args);
             }
         }
     }

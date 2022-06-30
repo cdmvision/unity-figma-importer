@@ -9,6 +9,7 @@ namespace Cdm.Figma.UI.Styles
     [Serializable]
     public class TextStyle : GraphicStyle
     {
+        public StylePropertyString text = new StylePropertyString();
         public StylePropertyFont font = new StylePropertyFont();
         public StylePropertyFontStyle fontStyle = new StylePropertyFontStyle();
         public StylePropertyFontWeight fontWeight = new StylePropertyFontWeight(FontWeight.Regular);
@@ -31,6 +32,7 @@ namespace Cdm.Figma.UI.Styles
 
             if (other is TextStyle otherStyle)
             {
+                text.CopyTo(otherStyle.text);
                 font.CopyTo(otherStyle.font);
                 color.CopyTo(otherStyle.color);
                 fontStyle.CopyTo(otherStyle.fontStyle);
@@ -50,52 +52,55 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var text = GetOrAddComponent<TextMeshProUGUI>(gameObject);
-            if (text != null)
+            var textComponent = GetOrAddComponent<TextMeshProUGUI>(gameObject);
+            if (textComponent != null)
             {
                 base.SetStyle(gameObject, args);
+
+                if (textComponent.enabled)
+                    textComponent.text = text.value;
                 
                 if (font.enabled)
-                    text.font = font.value;
+                    textComponent.font = font.value;
 
                 if (fontStyle.enabled)
-                    text.fontStyle = fontStyle.value;
+                    textComponent.fontStyle = fontStyle.value;
 
                 if (fontWeight.enabled)
-                    text.fontWeight = fontWeight.value;
+                    textComponent.fontWeight = fontWeight.value;
 
                 if (fontSize.enabled)
-                    text.fontSize = fontSize.value;
+                    textComponent.fontSize = fontSize.value;
 
                 if (fontSizeMin.enabled)
-                    text.fontSizeMin = fontSizeMin.value;
+                    textComponent.fontSizeMin = fontSizeMin.value;
 
                 if (fontSizeMax.enabled)
-                    text.fontSizeMax = fontSizeMax.value;
+                    textComponent.fontSizeMax = fontSizeMax.value;
 
                 if (enableAutoSizing.enabled)
-                    text.enableAutoSizing = enableAutoSizing.value;
+                    textComponent.enableAutoSizing = enableAutoSizing.value;
 
                 if (autoSizeTextContainer.enabled)
-                    text.autoSizeTextContainer = autoSizeTextContainer.value;
+                    textComponent.autoSizeTextContainer = autoSizeTextContainer.value;
 
                 if (horizontalAlignment.enabled)
-                    text.horizontalAlignment = horizontalAlignment.value;
+                    textComponent.horizontalAlignment = horizontalAlignment.value;
 
                 if (verticalAlignment.enabled)
-                    text.verticalAlignment = verticalAlignment.value;
+                    textComponent.verticalAlignment = verticalAlignment.value;
 
                 if (characterSpacing.enabled)
-                    text.characterSpacing = characterSpacing.value;
+                    textComponent.characterSpacing = characterSpacing.value;
 
                 if (fontMaterial.enabled)
-                    text.fontMaterial = fontMaterial.value;
+                    textComponent.fontMaterial = fontMaterial.value;
 
                 if (localizedString.enabled)
                 {
-                    var stringEvent = GetOrAddComponent<LocalizeStringEvent>(text.gameObject);
+                    var stringEvent = GetOrAddComponent<LocalizeStringEvent>(textComponent.gameObject);
                     stringEvent.StringReference = localizedString.value;
-                    stringEvent.OnUpdateString.AddListener(str => { text.text = str; });
+                    stringEvent.OnUpdateString.AddListener(str => { textComponent.text = str; });
                     stringEvent.RefreshString();
                 }
             }

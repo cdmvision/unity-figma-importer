@@ -78,23 +78,23 @@ namespace Cdm.Figma.UI.Styles
             if (forceUpdate || currentSelector != selector)
             {
                 currentSelector = selector;
-                Apply(new StyleArgs(currentSelector, instant));
+                Apply(new StyleArgs(currentSelector.ToString(), instant));
             }
         }
     }
     
     public readonly struct StyleArgs
     {
-        public Selector selector { get; }
+        public string selector { get; }
         public bool instant { get; }
 
-        public StyleArgs(Selector selector)
+        public StyleArgs(string selector)
         {
             this.selector = selector;
             this.instant = false;
         }
 
-        public StyleArgs(Selector selector, bool instant)
+        public StyleArgs(string selector, bool instant)
         {
             this.selector = selector;
             this.instant = instant;

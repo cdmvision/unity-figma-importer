@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Cdm.Figma.UI.Styles;
-using Cdm.Figma.UI.Styles.Properties;
 using Cdm.Figma.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Components;
+using UnityEngine.Localization;
 
 namespace Cdm.Figma.UI
 {
@@ -18,38 +16,29 @@ namespace Cdm.Figma.UI
             convertArgs.generateSprite = false;
 
             var nodeObject = base.Convert(parentObject, textNode, args, convertArgs);
-
-            var textComponent = nodeObject.gameObject.AddComponent<TextMeshProUGUI>();
-            textComponent.text = textNode.characters;
-            textComponent.characterSpacing = textNode.style.letterSpacing;
-            textComponent.fontSize = textNode.style.fontSize;
-            textComponent.fontWeight = (FontWeight)textNode.style.fontWeight;
-
-            //SetTextFont(textComponent, textNode, args);
-            //SetTextAlignment(textComponent, textNode);
-            //SetTextDecoration(textComponent, textNode);
-            //SetTextAutoResize(textComponent, textNode);
-            //SetFills(textComponent, textNode);
-            //SetLocalization(textComponent, nodeObject);
-
-            var style = GenerateStyle(nodeObject, textNode, args);
-            style.SetStyle(nodeObject.gameObject, new StyleArgs(Selector.Normal, true));
+            
+            GenerateStyles(nodeObject, textNode, args);
+            
+            if (args.applyStyles)
+            {
+                nodeObject.ApplyStyles();
+            }
             
             return nodeObject;
         }
 
-        public Styles.Style GenerateStyle(NodeObject nodeObject, TextNode textNode, NodeConvertArgs args)
+        private static void GenerateStyles(NodeObject nodeObject, TextNode textNode, NodeConvertArgs args)
         {
             var style = new TextStyle();
-
+            
             SetTextFont(style, textNode, args);
             SetTextAlignment(style, textNode);
             SetTextDecoration(style, textNode);
             SetTextAutoResize(style, textNode);
             SetFills(style, textNode);
-            SetLocalization(style, nodeObject);
+            SetLocalization(style, textNode);
             
-            return style;
+            nodeObject.styles.Add(style);
         }
 
         private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
@@ -73,6 +62,18 @@ namespace Cdm.Figma.UI
                 style.fontStyle.enabled = true;
                 style.fontStyle.value |= FontStyles.Italic;
             }
+
+            style.text.enabled = true;
+            style.text.value = textNode.characters;
+
+            style.characterSpacing.enabled = true;
+            style.characterSpacing.value = textNode.style.letterSpacing;
+            
+            style.fontSize.enabled = true;
+            style.fontSize.value = textNode.style.fontSize;
+            
+            style.fontWeight.enabled = true;
+            style.fontWeight.value = (FontWeight)textNode.style.fontWeight;
         }
 
         private static void SetTextAlignment(TextStyle style, TextNode textNode)
@@ -172,18 +173,18 @@ namespace Cdm.Figma.UI
             }
         }
         
-        private static void SetLocalization(TextStyle style, NodeObject nodeObject)
+        private static void SetLocalization(TextStyle style, TextNode textNode)
         {
             style.localizedString.enabled = false;
             
-            var localizationKey = nodeObject.localizationKey;
+            var localizationKey = textNode.GetLocalizationKey();
             if (!string.IsNullOrEmpty(localizationKey))
             {
                 if (LocalizationHelper.TryGetTableAndEntryReference(
                         localizationKey, out var tableReference, out var tableEntryReference))
                 {
                     style.localizedString.enabled = true;
-                    style.localizedString.value.SetReference(tableReference, tableEntryReference);
+                    style.localizedString.value = new LocalizedString(tableReference, tableEntryReference);
                 }
                 else
                 {

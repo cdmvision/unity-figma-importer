@@ -15,11 +15,11 @@ namespace Cdm.Figma.UI
         public const string Disabled = "Disabled";
         public const string Selected = "Selected";
     }
-    
+
     public abstract class ComponentConverter : NodeConverter<InstanceNode>
     {
         public string typeId { get; set; }
-        
+
         private List<ComponentProperty> _properties = new List<ComponentProperty>();
 
         public List<ComponentProperty> properties
@@ -27,17 +27,17 @@ namespace Cdm.Figma.UI
             get => _properties;
             protected set => _properties = value ?? new List<ComponentProperty>();
         }
-        
+
         protected ComponentConverter()
         {
         }
-        
+
         public override bool CanConvert(Node node, NodeConvertArgs args)
         {
             if (!base.CanConvert(node, args))
                 return false;
-            
-            var instanceNode = (InstanceNode) node;
+
+            var instanceNode = (InstanceNode)node;
             if (instanceNode.mainComponent == null)
                 return false;
 
@@ -53,14 +53,14 @@ namespace Cdm.Figma.UI
 
             return !string.IsNullOrEmpty(componentType) && componentType == typeId;
         }
-        
+
         protected bool IsSameVariant(string[] variant, params string[] query)
         {
             if (variant.Length.Equals(query.Length))
             {
                 Array.Sort(variant);
                 Array.Sort(query);
-                
+
                 for (var i = 0; i < variant.Length; i++)
                 {
                     if (variant[i] != query[i])
@@ -70,7 +70,6 @@ namespace Cdm.Figma.UI
                 }
 
                 return true;
-
             }
 
             return false;
@@ -85,13 +84,13 @@ namespace Cdm.Figma.UI
             if (instanceNode.mainComponent.componentSet != null)
             {
                 Debug.Assert(instanceNode.mainComponent != null);
-            
+
                 var nodeObject = new FrameNodeConverter().Convert(parentObject, instanceNode, args);
                 var selectable = nodeObject.gameObject.AddComponent<TComponent>();
                 selectable.transition = Selectable.Transition.None;
 
                 nodeObject.gameObject.AddComponent<SelectableGroup>();
-                
+
                 ConvertComponentSet(nodeObject, parentObject, instanceNode, args);
                 return nodeObject;
             }
@@ -100,7 +99,8 @@ namespace Cdm.Figma.UI
             return instanceNodeConverter.Convert(parentObject, instanceNode, args);
         }
 
-        private void ConvertComponentSet(NodeObject instanceObject, NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
+        private void ConvertComponentSet(NodeObject instanceObject, NodeObject parentObject, InstanceNode instanceNode,
+            NodeConvertArgs args)
         {
             var mainComponent = instanceNode.mainComponent;
             var componentSet = mainComponent.componentSet;
@@ -109,9 +109,10 @@ namespace Cdm.Figma.UI
             foreach (var componentVariant in componentSetVariants)
             {
                 // Array of State=Hover, Checked=On etc.
-                var propertyVariants = 
-                    componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray();
-                Debug.Log($"Property variants: {string.Join("," ,propertyVariants)}");
+                var propertyVariants =
+                    componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
+                        .ToArray();
+                Debug.Log($"Property variants: {string.Join(",", propertyVariants)}");
 
                 if (TryGetSelector(propertyVariants, out var selector))
                 {
@@ -122,22 +123,20 @@ namespace Cdm.Figma.UI
                             if (args.importer.TryConvertNode(parentObject, child, args, out var nodeObject))
                             {
                                 nodeObject.name = $"{nodeObject.name}:{selector}";
-                                
+
                                 nodeObject.rectTransform.SetParent(instanceObject.rectTransform, false);
                             }
                         }
                     }
                 }
             }
-            
         }
 
         private static void SetStyleRecurse(Node node)
         {
-            
         }
-        
-        
+
+
         protected abstract bool TryGetSelector(string[] variant, out Selector selector);
     }
 }

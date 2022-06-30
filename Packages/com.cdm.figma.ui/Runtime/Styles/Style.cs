@@ -6,16 +6,33 @@ namespace Cdm.Figma.UI.Styles
     [Serializable]
     public class Style
     {
-        public bool enabled = false;
+        [SerializeField]
+        private string _selector;
+
+        public string selector
+        {
+            get => _selector;
+            set => _selector = value;
+        }
+        
+        [SerializeField]
+        public bool _enabled = false;
+
+        public bool enabled
+        {
+            get => _enabled;
+            set => _enabled = value;
+        }
 
         public virtual void CopyTo(Style other)
         {
-            other.enabled = enabled;
+            other._enabled = _enabled;
+            other._selector = _selector;
         }
 
         public bool SetStyleIfEnabled(GameObject gameObject, StyleArgs args)
         {
-            if (enabled)
+            if (_enabled)
             {
                 SetStyle(gameObject, args);
                 return true;

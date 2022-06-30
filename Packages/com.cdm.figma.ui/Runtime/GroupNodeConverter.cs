@@ -1,15 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class GroupNodeConverter : GroupNodeConverter<GroupNode>
+    public class GroupNodeConverter : NodeConverter<GroupNode>
     {
-    }
-
-    public abstract class GroupNodeConverter<TNode> : NodeConverter<TNode> where TNode : GroupNode
-    {
-        protected override NodeObject Convert(NodeObject parentObject, TNode groupNode, NodeConvertArgs args)
+        protected override NodeObject Convert(NodeObject parentObject, GroupNode groupNode, NodeConvertArgs args)
         {
             var nodeObject = NodeObject.NewNodeObject(groupNode, args);
 
@@ -17,7 +12,7 @@ namespace Cdm.Figma.UI
             nodeObject.rectTransform.anchorMax = new Vector2(1, 1);
             nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
             nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
-            
+
             Node parentNode = null;
             groupNode.TraverseUp(n =>
             {
@@ -26,7 +21,7 @@ namespace Cdm.Figma.UI
                     parentNode = n;
                     return false;
                 }
-                
+
                 return true;
             });
 
@@ -35,7 +30,7 @@ namespace Cdm.Figma.UI
                 groupNode.relativeTransform = parentTransform.relativeTransform;
                 groupNode.size = parentTransform.size;
             }
-            
+
             BuildChildren(groupNode, nodeObject, args);
 
             return nodeObject;
@@ -43,17 +38,16 @@ namespace Cdm.Figma.UI
 
         private static void BuildChildren(GroupNode currentNode, NodeObject nodeObject, NodeConvertArgs args)
         {
-            var children = currentNode.children;
+            var children = currentNode.GetChildren();
             if (children != null)
             {
-                for (var child = 0; child < children.Length; child++)
+                foreach (var child in children)
                 {
-                    if (args.importer.TryConvertNode(nodeObject, children[child], args, out var childObject))
+                    if (args.importer.TryConvertNode(nodeObject, child, args, out var childObject))
                     {
                         if (childObject != nodeObject)
                         {
                             childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
-                            
                             childObject.AdjustPosition(currentNode.size);
                         }
                     }
