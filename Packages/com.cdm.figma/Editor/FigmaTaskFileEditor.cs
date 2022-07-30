@@ -201,24 +201,23 @@ namespace Cdm.Figma
             Directory.CreateDirectory(directory);
             
             var figmaAssetPath = GetFigmaAssetPath(taskFile, fileID);
-
             var oldFile = AssetDatabase.LoadAssetAtPath<FigmaFile>(figmaAssetPath);
-            var oldPages = oldFile != null ? oldFile.pages : Array.Empty<FigmaFilePage>();
-
-            for (var i = 0; i < newFile.pages.Length; i++)
-            {
-                var oldPage = oldPages.FirstOrDefault(x => x.id == newFile.pages[i].id);
-                if (oldPage != null)
-                {
-                    newFile.pages[i].enabled = oldPage.enabled;
-                }
-            }
 
             await OnFigmaFileSaving(taskFile, newFile, oldFile);
             
-            AssetDatabase.DeleteAsset(figmaAssetPath);
-            AssetDatabase.CreateAsset(newFile, figmaAssetPath);
-
+            if (oldFile != null)
+            {
+                newFile.MergeTo(oldFile);
+                DestroyImmediate(newFile, true);
+                newFile = oldFile;
+                
+                EditorUtility.SetDirty(newFile);
+            }
+            else
+            {
+                AssetDatabase.CreateAsset(newFile, figmaAssetPath);
+            }
+            
             AssetDatabase.AddObjectToAsset(newFile.content, newFile);
             AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(newFile.content));
 
@@ -228,6 +227,7 @@ namespace Cdm.Figma
                 AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(newFile.thumbnail));    
             }
             
+            AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
