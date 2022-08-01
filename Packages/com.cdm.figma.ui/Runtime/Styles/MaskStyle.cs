@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,7 +17,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            GetOrAddComponent<Mask>(gameObject);
+            GetOrAddComponent<RectMask2D>(gameObject);
         }
     }
 }
