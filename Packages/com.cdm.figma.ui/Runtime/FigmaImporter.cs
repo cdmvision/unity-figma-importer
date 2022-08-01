@@ -44,8 +44,9 @@ namespace Cdm.Figma.UI
         {
             return new ComponentConverter[]
             {
-                new ButtonConverter(),
-                new ToggleConverter()
+                new UnknownComponentConverter(),
+                new ButtonComponentConverter(),
+                new ToggleComponentConverter()
             };
         }
         
@@ -98,11 +99,10 @@ namespace Cdm.Figma.UI
             foreach (var page in pages)
             {
                 // Do not import ignored pages.
-                var pageIndex = Array.FindIndex(figmaFile.pages, p => p.id == page.id);
-                if (pageIndex >= 0 || !figmaFile.pages[pageIndex].enabled)
+                var filePage = figmaFile.pages.FirstOrDefault(p => p.id == page.id);
+                if (filePage == null || !filePage.enabled)
                     continue;
 
-                var filePage = figmaFile.pages[pageIndex];
                 var pageNode = NodeObject.NewNodeObject(page, conversionArgs);
                 pageNode.rectTransform.anchorMin = new Vector2(0, 0);
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);

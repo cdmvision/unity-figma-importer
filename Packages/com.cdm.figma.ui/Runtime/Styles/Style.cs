@@ -1,10 +1,11 @@
 ﻿using System;
+using Cdm.Figma.UI.Styles.Properties;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class Style
+    public abstract class Style
     {
         [SerializeField]
         private string _selector;
@@ -16,7 +17,7 @@ namespace Cdm.Figma.UI.Styles
         }
         
         [SerializeField]
-        public bool _enabled = false;
+        public bool _enabled = true;
 
         public bool enabled
         {
@@ -24,10 +25,31 @@ namespace Cdm.Figma.UI.Styles
             set => _enabled = value;
         }
 
-        public virtual void CopyTo(Style other)
+        public void CopyTo(Style other)
         {
             other._enabled = _enabled;
             other._selector = _selector;
+
+            MergeTo(other, true);
+        }
+
+        public virtual void MergeTo(Style other)
+        {
+            MergeTo(other, false);
+        }
+
+        
+        public abstract void SetStyle(GameObject gameObject, StyleArgs args);
+        public abstract void SetStyleAsSelector(GameObject gameObject, StyleArgs args);
+        
+        protected abstract void MergeTo(Style other, bool force);
+        
+        protected void OverwriteProperty(StylePropertyBase property, StylePropertyBase other, bool force)
+        {
+            if (property.enabled || force)
+            {
+                property.CopyTo(other);
+            }
         }
 
         public bool SetStyleIfEnabled(GameObject gameObject, StyleArgs args)
@@ -41,8 +63,22 @@ namespace Cdm.Figma.UI.Styles
             return false;
         }
 
-        public virtual void SetStyle(GameObject gameObject, StyleArgs args)
+        protected void SetStyleAsSelector<T>(GameObject gameObject, StyleArgs args) 
+            where T : StyleSetterWithSelectorsBase
         {
+            var styleSetter = GetOrAddComponent<T>(gameObject);
+            if (styleSetter != null)
+            {
+                var existingStyle = styleSetter.GetStyle(x => x.selector == selector);
+                if (existingStyle != null)
+                {
+                    MergeTo(existingStyle);
+                }
+                else
+                {
+                    styleSetter.AddStyle(this);
+                }
+            }
         }
 
         protected static bool TryGetComponent<T>(GameObject gameObject, out T component, bool giveWarning = true)

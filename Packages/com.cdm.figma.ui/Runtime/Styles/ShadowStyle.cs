@@ -14,27 +14,28 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyFloat spread = new StylePropertyFloat(4f);
         public StylePropertyVector2 offset = new StylePropertyVector2(Vector2.zero);
         public StylePropertyBlendMode blendMode = new StylePropertyBlendMode(BlendMode.Normal);
-
-        public override void CopyTo(Style other)
+        
+        protected override void MergeTo(Style other, bool force)
         {
-            base.CopyTo(other);
-
             if (other is ShadowStyle otherStyle)
             {
-                visible.CopyTo(otherStyle.visible);
-                inner.CopyTo(otherStyle.inner);
-                color.CopyTo(otherStyle.color);
-                radius.CopyTo(otherStyle.radius);
-                spread.CopyTo(otherStyle.spread);
-                offset.CopyTo(otherStyle.offset);
-                blendMode.CopyTo(otherStyle.blendMode);
+                OverwriteProperty(visible, otherStyle.visible, force);
+                OverwriteProperty(inner, otherStyle.inner, force);
+                OverwriteProperty(color, otherStyle.color, force);
+                OverwriteProperty(radius, otherStyle.radius, force);
+                OverwriteProperty(spread, otherStyle.spread, force);
+                OverwriteProperty(offset, otherStyle.offset, force);
+                OverwriteProperty(blendMode, otherStyle.blendMode, force);
             }
         }
 
+        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
+        {
+            SetStyleAsSelector<ShadowStyleSetter>(gameObject, args);
+        }
+        
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            base.SetStyle(gameObject, args);
-
 #if LETAI_TRUESHADOW
             var shadow = GetOrAddComponent<LeTai.TrueShadow.TrueShadow>(gameObject);
             if (shadow != null)

@@ -26,28 +26,35 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
         public StylePropertyLocalizedString localizedString = new StylePropertyLocalizedString();
 
-        public override void CopyTo(Style other)
+        protected override void MergeTo(Style other, bool force)
         {
-            base.CopyTo(other);
-
+            base.MergeTo(other, force);
+            
             if (other is TextStyle otherStyle)
             {
-                text.CopyTo(otherStyle.text);
-                font.CopyTo(otherStyle.font);
-                color.CopyTo(otherStyle.color);
-                fontStyle.CopyTo(otherStyle.fontStyle);
-                fontWeight.CopyTo(otherStyle.fontWeight);
-                fontMaterial.CopyTo(otherStyle.fontMaterial);
-                fontSize.CopyTo(otherStyle.fontSize);
-                fontSizeMin.CopyTo(otherStyle.fontSizeMin);
-                fontSizeMax.CopyTo(otherStyle.fontSizeMax);
-                enableAutoSizing.CopyTo(otherStyle.enableAutoSizing);
-                autoSizeTextContainer.CopyTo(otherStyle.autoSizeTextContainer);
-                horizontalAlignment.CopyTo(otherStyle.horizontalAlignment);
-                verticalAlignment.CopyTo(otherStyle.verticalAlignment);
-                characterSpacing.CopyTo(otherStyle.characterSpacing);
-                localizedString.CopyTo(otherStyle.localizedString);
+                OverwriteProperty(text, otherStyle.text, force);
+                OverwriteProperty(font, otherStyle.font, force);
+                OverwriteProperty(color, otherStyle.color, force);
+                OverwriteProperty(fontStyle, otherStyle.fontStyle, force);
+                OverwriteProperty(fontWeight, otherStyle.fontWeight, force);
+                OverwriteProperty(fontMaterial, otherStyle.fontMaterial, force);
+                OverwriteProperty(fontSize, otherStyle.fontSize, force);
+                OverwriteProperty(fontSizeMin, otherStyle.fontSizeMin, force);
+                OverwriteProperty(fontSizeMax, otherStyle.fontSizeMax, force);
+                OverwriteProperty(enableAutoSizing, otherStyle.enableAutoSizing, force);
+                OverwriteProperty(autoSizeTextContainer, otherStyle.autoSizeTextContainer, force);
+                OverwriteProperty(horizontalAlignment, otherStyle.horizontalAlignment, force);
+                OverwriteProperty(verticalAlignment, otherStyle.verticalAlignment, force);
+                OverwriteProperty(characterSpacing, otherStyle.characterSpacing, force);
+                OverwriteProperty(localizedString, otherStyle.localizedString, force);
             }
+        }
+
+        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
+        {
+            base.SetStyleAsSelector(gameObject, args);
+            
+            SetStyleAsSelector<TextStyleSetter>(gameObject, args);
         }
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)

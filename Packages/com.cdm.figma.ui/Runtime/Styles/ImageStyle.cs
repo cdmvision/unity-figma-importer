@@ -8,20 +8,29 @@ namespace Cdm.Figma.UI.Styles
     [Serializable]
     public class ImageStyle : GraphicStyle
     {
+        public StylePropertyBool componentEnabled = new StylePropertyBool(true);
         public StylePropertySprite sprite = new StylePropertySprite();
         public StylePropertyImageType imageType = new StylePropertyImageType();
         public StylePropertyFloat pixelsPerUnitMultiplier = new StylePropertyFloat();
-
-        public override void CopyTo(Style other)
+        
+        protected override void MergeTo(Style other, bool force)
         {
-            base.CopyTo(other);
-
+            base.MergeTo(other, force);
+            
             if (other is ImageStyle otherStyle)
             {
-                sprite.CopyTo(otherStyle.sprite);
-                imageType.CopyTo(otherStyle.imageType);
-                pixelsPerUnitMultiplier.CopyTo(otherStyle.pixelsPerUnitMultiplier);
+                OverwriteProperty(componentEnabled, otherStyle.componentEnabled, force);
+                OverwriteProperty(sprite, otherStyle.sprite, force);
+                OverwriteProperty(imageType, otherStyle.imageType, force);
+                OverwriteProperty(pixelsPerUnitMultiplier, otherStyle.pixelsPerUnitMultiplier, force);
             }
+        }
+
+        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
+        {
+            base.SetStyleAsSelector(gameObject, args);
+            
+            SetStyleAsSelector<ImageStyleSetter>(gameObject, args);
         }
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
@@ -30,6 +39,9 @@ namespace Cdm.Figma.UI.Styles
             if (image != null)
             {
                 base.SetStyle(gameObject, args);
+
+                if (componentEnabled.enabled)
+                    image.enabled = componentEnabled.value;
                 
                 if (sprite.enabled)
                     image.sprite = sprite.value;

@@ -57,7 +57,10 @@ namespace Cdm.Figma.UI
                     vectorConvertArgs.sourceSprite =
                         VectorImageUtils.CreateSpriteFromPath(vectorNode, vectorConvertArgs.spriteOptions);
                 }
-
+                
+                style.componentEnabled.enabled = true;
+                style.componentEnabled.value = vectorNode.fills.Any(fill => fill.visible);
+                
                 style.sprite.enabled = true;
                 style.sprite.value = vectorConvertArgs.sourceSprite;
 

@@ -73,5 +73,13 @@ namespace Cdm.Figma.UI
                 style.SetStyle(nodeObject.gameObject, new StyleArgs("", true));
             }
         }
+
+        public static void ApplyStylesSelectors(this NodeObject nodeObject)
+        {
+            foreach (var style in nodeObject.styles)
+            {
+                style.SetStyleAsSelector(nodeObject.gameObject, new StyleArgs("", true));
+            }
+        }
     }
 }

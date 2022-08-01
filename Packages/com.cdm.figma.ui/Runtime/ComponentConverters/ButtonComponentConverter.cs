@@ -4,8 +4,9 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class ButtonConverter : ComponentConverter<Button>
+    public class ButtonComponentConverter : ComponentConverter<Button>
     {
+        private const string TypeID = "Button";
         private const int Default = 0;
         private const int Hover = 1;
         private const int Press = 2;
@@ -19,9 +20,8 @@ namespace Cdm.Figma.UI
             ComponentState.Disabled,
         });
         
-        public ButtonConverter()
+        public ButtonComponentConverter()
         {
-            typeId = "Button";
             properties = new List<ComponentProperty>() { stateProperty };
         }
 
@@ -53,6 +53,11 @@ namespace Cdm.Figma.UI
 
             selector = Selector.Normal;
             return false;
+        }
+
+        protected override bool CanConvertType(string typeID)
+        {
+            return typeID == TypeID;
         }
     }
 }

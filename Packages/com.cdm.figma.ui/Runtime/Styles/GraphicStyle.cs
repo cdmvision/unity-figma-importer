@@ -11,21 +11,21 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyColor color = new StylePropertyColor(UnityEngine.Color.white);
         public StylePropertyFloat fadeDuration = new StylePropertyFloat(0.1f);
 
-        public override void CopyTo(Style other)
+        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
         {
-            base.CopyTo(other);
+        }
 
+        protected override void MergeTo(Style other, bool force)
+        {
             if (other is GraphicStyle otherStyle)
             {
-                color.CopyTo(otherStyle.color);
-                fadeDuration.CopyTo(otherStyle.fadeDuration);
+                OverwriteProperty(color, otherStyle.color, force);
+                OverwriteProperty(fadeDuration, otherStyle.fadeDuration, force);
             }
         }
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            base.SetStyle(gameObject, args);
-
             var graphic = GetOrAddComponent<Graphic>(gameObject);
             if (graphic != null)
             {

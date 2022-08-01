@@ -58,7 +58,7 @@ namespace Cdm.Figma.UI
         [SerializeField]
         private List<Styles.Style> _styles = new List<Styles.Style>();
 
-        public IList<Styles.Style> styles => _styles;
+        public List<Styles.Style> styles => _styles;
 
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.

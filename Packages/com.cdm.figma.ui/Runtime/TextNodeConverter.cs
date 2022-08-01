@@ -30,6 +30,7 @@ namespace Cdm.Figma.UI
         private static void GenerateStyles(NodeObject nodeObject, TextNode textNode, NodeConvertArgs args)
         {
             var style = new TextStyle();
+            style.enabled = true;
             
             SetTextFont(style, textNode, args);
             SetTextAlignment(style, textNode);

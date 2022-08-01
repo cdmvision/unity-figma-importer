@@ -7,7 +7,7 @@ namespace Cdm.Figma.UI.Styles
 {
     [RequireComponent(typeof(Selectable))]
     public class SelectableGroup : UIBehaviour, IPointerDownHandler, IPointerUpHandler,
-        IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
+        IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] 
         private bool _inheritCanvasGroupInteractable = true;
@@ -150,7 +150,7 @@ namespace Cdm.Figma.UI.Styles
             SetCurrentSelectorForStyles();
         }
 
-        public void OnSelect(BaseEventData eventData)
+        /*public void OnSelect(BaseEventData eventData)
         {
             hasSelection = true;
             SetCurrentSelectorForStyles();
@@ -161,7 +161,7 @@ namespace Cdm.Figma.UI.Styles
             hasSelection = false;
 
             SetCurrentSelectorForStyles();
-        }
+        }*/
 
         private void SetCurrentSelectorForStyles()
         {

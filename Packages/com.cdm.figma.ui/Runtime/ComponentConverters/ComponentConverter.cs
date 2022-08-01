@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cdm.Figma.UI.Styles;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,13 +14,10 @@ namespace Cdm.Figma.UI
         public const string Hover = "Hover";
         public const string Press = "Press";
         public const string Disabled = "Disabled";
-        public const string Selected = "Selected";
     }
 
     public abstract class ComponentConverter : NodeConverter<InstanceNode>
     {
-        public string typeId { get; set; }
-
         private List<ComponentProperty> _properties = new List<ComponentProperty>();
 
         public List<ComponentProperty> properties
@@ -31,6 +29,9 @@ namespace Cdm.Figma.UI
         protected ComponentConverter()
         {
         }
+
+        protected abstract bool CanConvertType(string typeID);
+        protected abstract bool TryGetSelector(string[] variant, out Selector selector);
 
         public override bool CanConvert(Node node, NodeConvertArgs args)
         {
@@ -51,7 +52,125 @@ namespace Cdm.Figma.UI
                 componentType = instanceNode.mainComponent.GetComponentType();
             }
 
-            return !string.IsNullOrEmpty(componentType) && componentType == typeId;
+            return CanConvertType(componentType);
+        }
+
+        protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
+        {
+            Debug.Log($"Instance name: {instanceNode.name}");
+            if (instanceNode.mainComponent.componentSet != null)
+            {
+                Debug.Assert(instanceNode.mainComponent != null);
+
+                var nodeObject = new FrameNodeConverter().Convert(parentObject, instanceNode, args);
+                ConvertComponentSet(nodeObject, parentObject, instanceNode, args);
+                return nodeObject;
+            }
+
+            var instanceNodeConverter = new InstanceNodeConverter();
+            return instanceNodeConverter.Convert(parentObject, instanceNode, args);
+        }
+
+        private void ConvertComponentSet(NodeObject instanceObject, NodeObject parentObject, InstanceNode instanceNode,
+            NodeConvertArgs args)
+        {
+            var mainComponent = instanceNode.mainComponent;
+            var componentSet = mainComponent.componentSet;
+            var componentSetVariants = componentSet.variants;
+
+            foreach (var componentVariant in componentSetVariants)
+            {
+                // Array of State=Hover, Checked=On etc.
+                var propertyVariants =
+                    componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
+                        .ToArray();
+                //Debug.Log($"Property variants: {string.Join(",", propertyVariants)}");
+
+                if (TryGetSelector(propertyVariants, out var selector))
+                {
+                    ConvertComponentSetRecurse(parentObject, instanceObject, componentVariant, args, selector);
+                    ApplyStyleSelectorsRecurse(instanceObject);
+                    
+                    /*if (componentVariant.hasChildren)
+                    {
+                        if (componentVariant.children.Length != instanceObject.transform.childCount)
+                            throw new ArgumentException("Component variant ");
+                            
+                        for (var i = 0; i < componentVariant.children.Length; i++)
+                        {
+                            var child = componentVariant.children[i];
+                            
+                            if (args.importer.TryConvertNode(parentObject, child, args, out var variantNode))
+                            {
+                                var styles = variantNode.styles;
+
+                                ObjectUtils.Destroy(variantNode.gameObject);
+
+                                foreach (var style in styles)
+                                {
+                                    style.selector = selector.ToString();
+                                }
+
+                                var childNode = instanceObject.transform.GetChild(i).GetComponent<NodeObject>();
+                                childNode.styles.AddRange(styles);
+                            }
+                        }
+
+                        for (var i = 0; i < instanceObject.transform.childCount; i++)
+                        {
+                            var childNode = instanceObject.transform.GetChild(i).GetComponent<NodeObject>();
+                            childNode.ApplyStylesSelectors();
+                        }
+                    }*/
+                }
+            }
+        }
+
+        private void ConvertComponentSetRecurse(NodeObject parentObject, NodeObject nodeObject, Node nodeVariant, 
+            NodeConvertArgs args, Selector selector)
+        {
+            if (args.importer.TryConvertNode(parentObject, nodeVariant, args, out var variantNode))
+            {
+                var styles = variantNode.styles;
+
+                ObjectUtils.Destroy(variantNode.gameObject);
+
+                foreach (var style in styles)
+                {
+                    style.selector = selector.ToString();
+                }
+                
+                Debug.Log("add " + styles.Count);
+                nodeObject.styles.AddRange(styles);
+                
+                if (nodeObject.transform.childCount > 0 && !nodeVariant.hasChildren)
+                    throw new ArgumentException("Component variant has invalid number of children!");
+                
+                if (nodeVariant.hasChildren)
+                {
+                    var variantChildren = nodeVariant.GetChildren();
+                    if (variantChildren.Length != nodeObject.transform.childCount)
+                        throw new ArgumentException("Component variant has invalid number of children!");
+
+                    for (var i = 0; i < variantChildren.Length; i++)
+                    {
+                        var nextNodeVariant = variantChildren[i];
+                        var nextNodeObject = nodeObject.transform.GetChild(i).GetComponent<NodeObject>();
+
+                        ConvertComponentSetRecurse(nodeObject, nextNodeObject, nextNodeVariant, args, selector);
+                    }
+                }
+            }
+        }
+
+        private void ApplyStyleSelectorsRecurse(NodeObject nodeObject)
+        {
+            nodeObject.ApplyStylesSelectors();
+
+            foreach (Transform child in nodeObject.transform)
+            {
+                ApplyStyleSelectorsRecurse(child.GetComponent<NodeObject>());
+            }
         }
 
         protected bool IsSameVariant(string[] variant, params string[] query)
@@ -80,63 +199,18 @@ namespace Cdm.Figma.UI
     {
         protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
-            Debug.Log($"Instance name: {instanceNode.name}");
-            if (instanceNode.mainComponent.componentSet != null)
-            {
-                Debug.Assert(instanceNode.mainComponent != null);
+            var nodeObject = base.Convert(parentObject, instanceNode, args);
 
-                var nodeObject = new FrameNodeConverter().Convert(parentObject, instanceNode, args);
+            if (nodeObject != null)
+            {
                 var selectable = nodeObject.gameObject.AddComponent<TComponent>();
                 selectable.transition = Selectable.Transition.None;
 
-                nodeObject.gameObject.AddComponent<SelectableGroup>();
-
-                ConvertComponentSet(nodeObject, parentObject, instanceNode, args);
-                return nodeObject;
+                var selectableGroup = nodeObject.gameObject.AddComponent<SelectableGroup>();
+                selectableGroup.InitializeComponents();
             }
 
-            var instanceNodeConverter = new InstanceNodeConverter();
-            return instanceNodeConverter.Convert(parentObject, instanceNode, args);
+            return nodeObject;
         }
-
-        private void ConvertComponentSet(NodeObject instanceObject, NodeObject parentObject, InstanceNode instanceNode,
-            NodeConvertArgs args)
-        {
-            var mainComponent = instanceNode.mainComponent;
-            var componentSet = mainComponent.componentSet;
-            var componentSetVariants = componentSet.variants;
-
-            foreach (var componentVariant in componentSetVariants)
-            {
-                // Array of State=Hover, Checked=On etc.
-                var propertyVariants =
-                    componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
-                        .ToArray();
-                Debug.Log($"Property variants: {string.Join(",", propertyVariants)}");
-
-                if (TryGetSelector(propertyVariants, out var selector))
-                {
-                    if (componentVariant.hasChildren)
-                    {
-                        foreach (var child in componentVariant.children)
-                        {
-                            if (args.importer.TryConvertNode(parentObject, child, args, out var nodeObject))
-                            {
-                                nodeObject.name = $"{nodeObject.name}:{selector}";
-
-                                nodeObject.rectTransform.SetParent(instanceObject.rectTransform, false);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void SetStyleRecurse(Node node)
-        {
-        }
-
-
-        protected abstract bool TryGetSelector(string[] variant, out Selector selector);
     }
 }
