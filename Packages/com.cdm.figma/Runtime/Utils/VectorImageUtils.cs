@@ -103,7 +103,7 @@ namespace Cdm.Figma.Utils
 
             svgString.AppendLine("</svg>");
 
-            //Debug.Log($"{vectorNode.id}: {svgString}");
+            //Debug.Log($"{vectorNode.id} ({vectorNode.name}): {svgString}");
 
             return CreateSpriteFromSvg(vectorNode, svgString.ToString(), options);
         }

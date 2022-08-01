@@ -1,37 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cdm.Figma.UI.Styles;
 using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public static class ComponentState
-    {
-        public const string Default = "Default";
-        public const string Hover = "Hover";
-        public const string Press = "Press";
-        public const string Disabled = "Disabled";
-    }
-
     public abstract class ComponentConverter : NodeConverter<InstanceNode>
     {
-        private List<ComponentProperty> _properties = new List<ComponentProperty>();
-
-        public List<ComponentProperty> properties
-        {
-            get => _properties;
-            protected set => _properties = value ?? new List<ComponentProperty>();
-        }
+        protected List<ComponentProperty> properties { get; } = new List<ComponentProperty>();
 
         protected ComponentConverter()
         {
         }
 
         protected abstract bool CanConvertType(string typeID);
-        protected abstract bool TryGetSelector(string[] variant, out Selector selector);
+        protected abstract bool TryGetSelector(string[] variant, out string selector);
 
         public override bool CanConvert(Node node, NodeConvertArgs args)
         {
@@ -58,7 +43,7 @@ namespace Cdm.Figma.UI
         protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             // Debug.Log($"Instance name: {instanceNode.name}");
-            
+
             if (instanceNode.mainComponent.componentSet != null)
             {
                 Debug.Assert(instanceNode.mainComponent != null);
@@ -95,7 +80,7 @@ namespace Cdm.Figma.UI
                     try
                     {
                         MergeComponentVariant(instanceObject, nodeVariant, selector);
-                        ApplyStyleSelectorsRecurse(instanceObject);   
+                        ApplyStyleSelectorsRecurse(instanceObject);
                     }
                     finally
                     {
@@ -109,7 +94,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private void MergeComponentVariant(NodeObject node, NodeObject variant, Selector selector)
+        private void MergeComponentVariant(NodeObject node, NodeObject variant, string selector)
         {
             if (node.transform.childCount != variant.transform.childCount)
                 throw new ArgumentException("Component variant has invalid number of children!");
@@ -143,27 +128,19 @@ namespace Cdm.Figma.UI
 
         protected bool IsSameVariant(string[] variant, params string[] query)
         {
-            if (variant.Length.Equals(query.Length))
+            foreach (var q in query)
             {
-                Array.Sort(variant);
-                Array.Sort(query);
-
-                for (var i = 0; i < variant.Length; i++)
-                {
-                    if (variant[i] != query[i])
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                if (!variant.Contains(q))
+                    return false;
             }
 
-            return false;
+            return true;
         }
     }
 
-    public abstract class ComponentConverter<TComponent> : ComponentConverter where TComponent : Selectable
+    public abstract class ComponentConverter<TComponent, TComponentVariantFilter> : ComponentConverter
+        where TComponent : Selectable
+        where TComponentVariantFilter : ComponentVariantFilter
     {
         protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
@@ -174,8 +151,8 @@ namespace Cdm.Figma.UI
                 var selectable = nodeObject.gameObject.AddComponent<TComponent>();
                 selectable.transition = Selectable.Transition.None;
 
-                var selectableGroup = nodeObject.gameObject.AddComponent<SelectableGroup>();
-                selectableGroup.InitializeComponents();
+                var variantFilter = nodeObject.gameObject.AddComponent<TComponentVariantFilter>();
+                variantFilter.Initialize();
             }
 
             return nodeObject;

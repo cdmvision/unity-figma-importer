@@ -1,6 +1,4 @@
-﻿using Cdm.Figma.UI.Styles;
-
-namespace Cdm.Figma.UI
+﻿namespace Cdm.Figma.UI
 {
     public class UnknownComponentConverter : ComponentConverter
     {
@@ -13,9 +11,9 @@ namespace Cdm.Figma.UI
             return string.IsNullOrWhiteSpace(typeID);
         }
 
-        protected override bool TryGetSelector(string[] variant, out Selector selector)
+        protected override bool TryGetSelector(string[] variant, out string selector)
         {
-            selector = Selector.Normal;
+            selector = "";
             return false;
         }
     }

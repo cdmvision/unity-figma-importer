@@ -47,7 +47,7 @@ namespace Cdm.Figma.UI
 
                 // Multiple fill is not supported, only one image can be attached to the node object.
                 var style = new ImageStyle();
-                style.enabled = node.fills.All(fill => fill.visible);
+                style.enabled = node.fills.Any(f => f.visible) || node.strokes.Any(s => s.visible);
                 style.sprite.SetValue(VectorImageUtils.CreateSpriteFromRect(node, options));
                 style.imageType.SetValue(Image.Type.Sliced);
                 style.color.SetValue(new UnityEngine.Color(1f, 1f, 1f, node.opacity));

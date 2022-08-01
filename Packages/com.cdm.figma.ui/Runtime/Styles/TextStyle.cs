@@ -64,6 +64,8 @@ namespace Cdm.Figma.UI.Styles
             {
                 base.SetStyle(gameObject, args);
 
+                textComponent.raycastTarget = false;
+                
                 if (textComponent.enabled)
                     textComponent.text = text.value;
                 
