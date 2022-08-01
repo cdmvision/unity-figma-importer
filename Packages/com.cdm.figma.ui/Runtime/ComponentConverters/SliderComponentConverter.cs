@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
     public class SliderComponentConverter : SelectableComponentConverter<Slider, SelectableComponentVariantFilter>
     {
+        private const string HandleKey = "@Handle";
+        private const string FillKey = "@Fill";
+        
         protected override bool CanConvertType(string typeID)
         {
             return typeID == "Slider";
@@ -18,27 +22,19 @@ namespace Cdm.Figma.UI
             {
                 var slider = nodeObject.GetComponent<Slider>();
 
+                var handle = nodeObject.Find(x => x.bindingKey == HandleKey);
+                if (handle == null)
+                    throw new ArgumentException($"Slider handle node could not be found. Did you set '{HandleKey}' as binding key?");
                 
-                slider.fillRect = (RectTransform) Find(slider.transform, "Fill");
-                slider.handleRect = (RectTransform) Find(slider.transform, "Handle");
+                var fill = nodeObject.Find(x => x.bindingKey == FillKey);
+                if (fill == null)
+                    throw new ArgumentException($"Slider fill node could not be found. Did you set '{FillKey}' as binding key?");
+                
+                slider.fillRect = (RectTransform) fill.transform;
+                slider.handleRect = (RectTransform)handle.transform;
             }
 
             return nodeObject;
-        }
-
-        private static Transform Find(Transform target, string name)
-        {
-            if (target.name == name)
-                return target;
-
-            foreach (Transform child in target)
-            {
-                var t = Find(child, name);
-                if (t != null)
-                    return t;
-            }
-
-            return null;
         }
     }
 }

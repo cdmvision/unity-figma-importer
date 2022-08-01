@@ -31,7 +31,7 @@ namespace Cdm.Figma.UI
             // Pivot location is located at top left corner in Figma.
             nodeObject.rectTransform.pivot = new Vector2(0f, 1f);
         }
-        
+
         /// <summary>
         /// Sets the rotation of the figma node.
         /// </summary>
@@ -47,7 +47,7 @@ namespace Cdm.Figma.UI
         {
             nodeObject.rectTransform.rotation = nodeTransform.GetRotation();
         }
-        
+
         /// <summary>
         /// Sets the scale of the figma node.
         /// </summary>
@@ -80,6 +80,53 @@ namespace Cdm.Figma.UI
             {
                 style.SetStyleAsSelector(nodeObject.gameObject, new StyleArgs("", true));
             }
+        }
+
+        public static void Traverse(this NodeObject node, Func<NodeObject, bool> handler)
+        {
+            if (handler(node))
+            {
+                foreach (Transform child in node.transform)
+                {
+                    var childObject = child.GetComponent<NodeObject>();
+                    if (childObject != null)
+                    {
+                        childObject.Traverse(handler);
+                    }
+                }
+            }
+        }
+
+        public static void TraverseUp(this NodeObject node, Func<NodeObject, bool> handler)
+        {
+            for (var current = node.transform; current != null; current = current.transform.parent)
+            {
+                var currentNode = current.GetComponent<NodeObject>();
+                if (currentNode != null)
+                {
+                    if (!handler(currentNode))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        public static NodeObject Find(this NodeObject node, Func<NodeObject, bool> handler)
+        {
+            NodeObject target = null;
+            node.Traverse(x =>
+            {
+                if (handler(x))
+                {
+                    target = x;
+                    return false;
+                }
+
+                return true;
+            });
+
+            return target;
         }
     }
 }
