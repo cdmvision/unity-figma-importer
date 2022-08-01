@@ -63,7 +63,7 @@ namespace Cdm.Figma.UI
             var mainComponent = instanceNode.mainComponent;
             var componentSet = mainComponent.componentSet;
             var componentSetVariants = componentSet.variants;
-
+            
             foreach (var componentVariant in componentSetVariants)
             {
                 // Array of State=Hover, Checked=On etc.
@@ -76,7 +76,7 @@ namespace Cdm.Figma.UI
                 {
                     var frameNodeConverter = new FrameNodeConverter();
                     var nodeVariant = frameNodeConverter.Convert(parentObject, componentVariant, args);
-
+                    
                     try
                     {
                         MergeComponentVariant(instanceObject, nodeVariant, selector);
@@ -118,6 +118,8 @@ namespace Cdm.Figma.UI
 
         private void ApplyStyleSelectorsRecurse(NodeObject nodeObject)
         {
+            // Remove default styles.
+            nodeObject.styles.RemoveAll(s => string.IsNullOrEmpty(s.selector));
             nodeObject.ApplyStylesSelectors();
 
             foreach (Transform child in nodeObject.transform)

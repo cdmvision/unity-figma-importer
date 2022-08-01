@@ -18,6 +18,13 @@ namespace Cdm.Figma.UI
             Initialize(transform);
         }
 
+        protected override void Start()
+        {
+            base.Start();
+            
+            UpdateVariant();
+        }
+
         protected void UpdateVariant()
         {
             SetSelectorForStyles(GetSelector());

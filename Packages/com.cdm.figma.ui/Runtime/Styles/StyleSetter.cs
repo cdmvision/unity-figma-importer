@@ -6,11 +6,6 @@ namespace Cdm.Figma.UI.Styles
     {
         protected string currentSelector { get; private set; }
         
-        protected virtual void Start()
-        {
-            Apply("", true, true);
-        }
-
         public virtual void CopyTo(StyleSetter other)
         {
         }
