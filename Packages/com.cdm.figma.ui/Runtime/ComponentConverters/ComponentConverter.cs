@@ -57,7 +57,8 @@ namespace Cdm.Figma.UI
 
         protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
-            Debug.Log($"Instance name: {instanceNode.name}");
+            // Debug.Log($"Instance name: {instanceNode.name}");
+            
             if (instanceNode.mainComponent.componentSet != null)
             {
                 Debug.Assert(instanceNode.mainComponent != null);
@@ -84,82 +85,49 @@ namespace Cdm.Figma.UI
                 var propertyVariants =
                     componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
                         .ToArray();
-                //Debug.Log($"Property variants: {string.Join(",", propertyVariants)}");
+                // Debug.Log($"Property variants: {string.Join(",", propertyVariants)}");
 
                 if (TryGetSelector(propertyVariants, out var selector))
                 {
-                    ConvertComponentSetRecurse(parentObject, instanceObject, componentVariant, args, selector);
-                    ApplyStyleSelectorsRecurse(instanceObject);
-                    
-                    /*if (componentVariant.hasChildren)
+                    var frameNodeConverter = new FrameNodeConverter();
+                    var nodeVariant = frameNodeConverter.Convert(parentObject, componentVariant, args);
+
+                    try
                     {
-                        if (componentVariant.children.Length != instanceObject.transform.childCount)
-                            throw new ArgumentException("Component variant ");
-                            
-                        for (var i = 0; i < componentVariant.children.Length; i++)
+                        MergeComponentVariant(instanceObject, nodeVariant, selector);
+                        ApplyStyleSelectorsRecurse(instanceObject);   
+                    }
+                    finally
+                    {
+                        // We don't need variant object.
+                        if (nodeVariant != null)
                         {
-                            var child = componentVariant.children[i];
-                            
-                            if (args.importer.TryConvertNode(parentObject, child, args, out var variantNode))
-                            {
-                                var styles = variantNode.styles;
-
-                                ObjectUtils.Destroy(variantNode.gameObject);
-
-                                foreach (var style in styles)
-                                {
-                                    style.selector = selector.ToString();
-                                }
-
-                                var childNode = instanceObject.transform.GetChild(i).GetComponent<NodeObject>();
-                                childNode.styles.AddRange(styles);
-                            }
+                            ObjectUtils.Destroy(nodeVariant.gameObject);
                         }
-
-                        for (var i = 0; i < instanceObject.transform.childCount; i++)
-                        {
-                            var childNode = instanceObject.transform.GetChild(i).GetComponent<NodeObject>();
-                            childNode.ApplyStylesSelectors();
-                        }
-                    }*/
+                    }
                 }
             }
         }
 
-        private void ConvertComponentSetRecurse(NodeObject parentObject, NodeObject nodeObject, Node nodeVariant, 
-            NodeConvertArgs args, Selector selector)
+        private void MergeComponentVariant(NodeObject node, NodeObject variant, Selector selector)
         {
-            if (args.importer.TryConvertNode(parentObject, nodeVariant, args, out var variantNode))
+            if (node.transform.childCount != variant.transform.childCount)
+                throw new ArgumentException("Component variant has invalid number of children!");
+
+            var styles = variant.styles;
+            foreach (var style in styles)
             {
-                var styles = variantNode.styles;
+                style.selector = selector.ToString();
+            }
 
-                ObjectUtils.Destroy(variantNode.gameObject);
+            node.styles.AddRange(styles);
 
-                foreach (var style in styles)
-                {
-                    style.selector = selector.ToString();
-                }
-                
-                Debug.Log("add " + styles.Count);
-                nodeObject.styles.AddRange(styles);
-                
-                if (nodeObject.transform.childCount > 0 && !nodeVariant.hasChildren)
-                    throw new ArgumentException("Component variant has invalid number of children!");
-                
-                if (nodeVariant.hasChildren)
-                {
-                    var variantChildren = nodeVariant.GetChildren();
-                    if (variantChildren.Length != nodeObject.transform.childCount)
-                        throw new ArgumentException("Component variant has invalid number of children!");
+            for (var i = 0; i < node.transform.childCount; i++)
+            {
+                var nextNode = node.transform.GetChild(i).GetComponent<NodeObject>();
+                var nextVariant = variant.transform.GetChild(i).GetComponent<NodeObject>();
 
-                    for (var i = 0; i < variantChildren.Length; i++)
-                    {
-                        var nextNodeVariant = variantChildren[i];
-                        var nextNodeObject = nodeObject.transform.GetChild(i).GetComponent<NodeObject>();
-
-                        ConvertComponentSetRecurse(nodeObject, nextNodeObject, nextNodeVariant, args, selector);
-                    }
-                }
+                MergeComponentVariant(nextNode, nextVariant, selector);
             }
         }
 
