@@ -21,10 +21,7 @@ namespace Cdm.Figma.UI
 
             GenerateStyles(nodeObject, frameNode, args);
 
-            if (args.applyStyles)
-            {
-                nodeObject.ApplyStyles();
-            }
+            nodeObject.ApplyStyles();
             
             AddLayoutComponentIfNeeded(nodeObject, frameNode);
             AddContentSizeFitterIfNeeded(nodeObject, frameNode);

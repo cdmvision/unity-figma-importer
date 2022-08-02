@@ -13,16 +13,13 @@ namespace Cdm.Figma.UI
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
         public FigmaFileContent fileContent { get; }
-        public bool applyStyles { get; }
         public List<ComponentSetNode> componentSets { get; } = new List<ComponentSetNode>();
 
-        public NodeConvertArgs(FigmaImporter importer, FigmaFile file, FigmaFileContent fileContent,
-            bool applyStyles = true)
+        public NodeConvertArgs(FigmaImporter importer, FigmaFile file, FigmaFileContent fileContent)
         {
             this.importer = importer;
             this.file = file;
             this.fileContent = fileContent;
-            this.applyStyles = applyStyles;
         }
     }
 }

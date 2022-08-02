@@ -32,12 +32,8 @@ namespace Cdm.Figma.UI
             nodeObject.SetLayoutConstraints((INodeTransform)vectorNode.parent);
 
             GenerateStyles(nodeObject, vectorNode, args, vectorConvertArgs);
-
-            if (args.applyStyles)
-            {
-                nodeObject.ApplyStyles();
-            }
-
+            
+            nodeObject.ApplyStyles();
             return nodeObject;
         }
 

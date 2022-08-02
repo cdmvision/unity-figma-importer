@@ -9,6 +9,9 @@ namespace Cdm.Figma.UI
 {
     public abstract class ComponentConverter : NodeConverter<InstanceNode>
     {
+        private readonly Dictionary<string, List<string>> _variants = new Dictionary<string, List<string>>();
+        protected IReadOnlyDictionary<string, List<string>> variants => _variants;
+        
         protected ComponentConverter()
         {
         }
@@ -55,9 +58,6 @@ namespace Cdm.Figma.UI
             return instanceNodeConverter.Convert(parentObject, instanceNode, args);
         }
 
-        private readonly Dictionary<string, List<string>> _variants = new Dictionary<string, List<string>>();
-        protected IReadOnlyDictionary<string, List<string>> variants => _variants;
-        
         private void ConvertComponentSet(NodeObject instanceObject, NodeObject parentObject, InstanceNode instanceNode,
             NodeConvertArgs args)
         {

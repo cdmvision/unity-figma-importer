@@ -19,10 +19,7 @@ namespace Cdm.Figma.UI
             
             GenerateStyles(nodeObject, textNode, args);
             
-            if (args.applyStyles)
-            {
-                nodeObject.ApplyStyles();
-            }
+            nodeObject.ApplyStyles();
             
             return nodeObject;
         }

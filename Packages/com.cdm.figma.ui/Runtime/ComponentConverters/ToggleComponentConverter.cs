@@ -10,8 +10,6 @@ namespace Cdm.Figma.UI
     
     public class ToggleComponentConverter : SelectableComponentConverter<Toggle, ToggleComponentVariantFilter>
     {
-        private const string TypeID = "Toggle";
-        
         protected override bool TryGetSelector(string[] variant, out string selector)
         {
             if (!base.TryGetSelector(variant, out selector))
@@ -28,7 +26,7 @@ namespace Cdm.Figma.UI
 
         protected override bool CanConvertType(string typeID)
         {
-            return typeID == TypeID;
+            return typeID == "Toggle";
         }
     }
 }

@@ -48,7 +48,8 @@ namespace Cdm.Figma.UI
                 new ButtonComponentConverter(),
                 new ToggleComponentConverter(),
                 new SliderComponentConverter(),
-                new InputFieldComponentConverter()
+                new InputFieldComponentConverter(),
+                new ScrollbarComponentConverter()
             };
         }
         
