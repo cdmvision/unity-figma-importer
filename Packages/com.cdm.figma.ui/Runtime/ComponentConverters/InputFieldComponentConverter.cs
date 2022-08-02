@@ -13,14 +13,6 @@ namespace Cdm.Figma.UI
         private const string TextComponentKey = "@Text";
         private const string PlaceholderKey = "@Placeholder";
         
-        protected override SelectableComponentVariantFilter AddVariantFilter(NodeObject nodeObject)
-        {
-            // TODO: Check component variants, then decide whether is selectable or not.
-            var variantFilter = base.AddVariantFilter(nodeObject);
-            variantFilter.isSelectable = true;
-            return variantFilter;
-        }
-
         protected override bool CanConvertType(string typeID)
         {
             return typeID == "InputField";

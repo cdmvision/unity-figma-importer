@@ -195,16 +195,11 @@ namespace Cdm.Figma.UI
                 var selectable = nodeObject.gameObject.AddComponent<TComponent>();
                 selectable.transition = Selectable.Transition.None;
                 
-                var variantFilter = AddVariantFilter(nodeObject);
+                var variantFilter = nodeObject.gameObject.AddComponent<TComponentVariantFilter>();
                 variantFilter.Initialize();
             }
 
             return nodeObject;
-        }
-
-        protected virtual TComponentVariantFilter AddVariantFilter(NodeObject nodeObject)
-        {
-            return nodeObject.gameObject.AddComponent<TComponentVariantFilter>();
         }
     }
 }
