@@ -2,57 +2,49 @@
 
 namespace Cdm.Figma.UI
 {
+    public static class ComponentPropertyState
+    {
+        public static readonly ComponentProperty Default = new ComponentProperty("State", "Default");
+        public static readonly ComponentProperty Hover = new ComponentProperty("State", "Hover");
+        public static readonly ComponentProperty Press = new ComponentProperty("State", "Press");
+        public static readonly ComponentProperty Disabled = new ComponentProperty("State", "Disabled");
+    }
+
+    public static class ComponentPropertySelected
+    {
+        public static readonly ComponentProperty Off = new ComponentProperty("Selected", "Off");
+        public static readonly ComponentProperty On = new ComponentProperty("Selected", "On");
+    }
+
     public abstract class SelectableComponentConverter<TComponent, TComponentVariantFilter> :
         ComponentConverter<TComponent, TComponentVariantFilter>
         where TComponent : Selectable
         where TComponentVariantFilter : SelectableComponentVariantFilter
     {
-        protected const int Default = 0;
-        protected const int Hover = 1;
-        protected const int Press = 2;
-        protected const int Disabled = 3;
-
-        public ComponentProperty stateProperty { get; } = new ComponentProperty("State", new[]
-        {
-            SelectableComponentState.Default,
-            SelectableComponentState.Hover,
-            SelectableComponentState.Press,
-            SelectableComponentState.Disabled,
-        });
-
-        public SelectableComponentConverter()
-        {
-            properties.Add(stateProperty);
-        }
-
+        protected bool isSelectable { get; set; } = false;
+        
         protected override bool TryGetSelector(string[] variant, out string selector)
         {
-            if (IsSameVariant(variant, stateProperty.ToString(Default)))
+            selector = "";
+
+            if (!TryGetSelector(variant, ComponentPropertyState.Default, ref selector) &&
+                !TryGetSelector(variant, ComponentPropertyState.Hover, ref selector) &&
+                !TryGetSelector(variant, ComponentPropertyState.Press, ref selector) &&
+                !TryGetSelector(variant, ComponentPropertyState.Disabled, ref selector))
             {
-                selector = SelectableComponentState.Default;
-                return true;
+                return false;
             }
 
-            if (IsSameVariant(variant, stateProperty.ToString(Hover)))
+            if (isSelectable)
             {
-                selector = SelectableComponentState.Hover;
-                return true;
+                if (!TryGetSelector(variant, ComponentPropertySelected.Off, ref selector) &&
+                    !TryGetSelector(variant, ComponentPropertySelected.On, ref selector))
+                {
+                    return false;
+                }    
             }
 
-            if (IsSameVariant(variant, stateProperty.ToString(Press)))
-            {
-                selector = SelectableComponentState.Press;
-                return true;
-            }
-
-            if (IsSameVariant(variant, stateProperty.ToString(Disabled)))
-            {
-                selector = SelectableComponentState.Disabled;
-                return true;
-            }
-
-            selector = SelectableComponentState.Default;
-            return false;
+            return true;
         }
     }
 }

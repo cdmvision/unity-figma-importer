@@ -66,7 +66,7 @@ namespace Cdm.Figma.UI.Styles
 
                 textComponent.raycastTarget = false;
                 
-                if (textComponent.enabled)
+                if (text.enabled)
                     textComponent.text = text.value;
                 
                 if (font.enabled)

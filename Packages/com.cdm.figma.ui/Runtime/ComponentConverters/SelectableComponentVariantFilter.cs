@@ -4,17 +4,23 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public static class SelectableComponentState
+    public static class ComponentStateVariants
     {
         public const string Default = "Default";
         public const string Hover = "Hover";
         public const string Press = "Press";
         public const string Disabled = "Disabled";
     }
+    
+    public static class ComponentSelectedVariants
+    {
+        public const string On = "On";
+        public const string Off = "Off";
+    }
 
     [RequireComponent(typeof(Selectable))]
     public class SelectableComponentVariantFilter : ComponentVariantFilter,
-        IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
+        IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
     {
         [SerializeField]
         private bool _inheritCanvasGroupInteractable = true;
@@ -31,6 +37,9 @@ namespace Cdm.Figma.UI
         protected bool isPointerDown { get; set; }
         protected bool interactable { get; set; }
 
+        protected bool hasSelection { get; set; }
+        public bool isSelectable { get; set; }
+        
         protected override void Awake()
         {
             base.Awake();
@@ -52,16 +61,34 @@ namespace Cdm.Figma.UI
 
         protected override string GetSelector()
         {
+            var selector = ComponentStateVariants.Default;
+
             if (!interactable)
-                return SelectableComponentState.Disabled;
+            {
+                selector = ComponentStateVariants.Disabled;
+            }
+            else if (isPointerDown)
+            {
+                selector  = ComponentStateVariants.Press;
+            }
+            else if (isPointerInside)
+            {
+                selector = ComponentStateVariants.Hover;
+            }
 
-            if (isPointerDown)
-                return SelectableComponentState.Press;
+            if (isSelectable)
+            {
+                if (hasSelection)
+                {
+                    selector += $":{ComponentSelectedVariants.On}";
+                }
+                else
+                {
+                    selector += $":{ComponentSelectedVariants.Off}";
+                }
+            }
 
-            if (isPointerInside)
-                return SelectableComponentState.Hover;
-
-            return SelectableComponentState.Default;
+            return selector;
         }
         
         private bool IsInteractable()
@@ -81,7 +108,6 @@ namespace Cdm.Figma.UI
         {
             //Debug.Log($"OnPointerDown: {name}");
             isPointerDown = true;
-            
             UpdateVariant();
         }
 
@@ -89,7 +115,6 @@ namespace Cdm.Figma.UI
         {
             //Debug.Log($"OnPointerUp: {name}");
             isPointerDown = false;
-            
             UpdateVariant();
         }
 
@@ -97,7 +122,6 @@ namespace Cdm.Figma.UI
         {
             //Debug.Log($"OnPointerEnter: {name}");
             isPointerInside = true;
-            
             UpdateVariant();
         }
 
@@ -105,7 +129,20 @@ namespace Cdm.Figma.UI
         {
             //Debug.Log($"OnPointerExit: {name}");
             isPointerInside = false;
-            
+            UpdateVariant();
+        }
+        
+        public void OnSelect(BaseEventData eventData)
+        {
+            //Debug.Log($"OnSelect: {name}");
+            hasSelection = true;
+            UpdateVariant();
+        }
+
+        public void OnDeselect(BaseEventData eventData)
+        {
+            //Debug.Log($"OnDeselect: {name}");
+            hasSelection = false;
             UpdateVariant();
         }
     }

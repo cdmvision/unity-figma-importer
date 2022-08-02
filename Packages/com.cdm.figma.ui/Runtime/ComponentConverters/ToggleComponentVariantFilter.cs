@@ -3,22 +3,16 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public static class ToggleComponentState
-    {
-        public const string On = "On";
-        public const string Off = "Off";
-    }
-    
     [RequireComponent(typeof(Toggle))]
     public class ToggleComponentVariantFilter : SelectableComponentVariantFilter
     {
         private Toggle _toggle;
         private bool _isToggleOn;
-        
+
         protected override void Awake()
         {
             base.Awake();
-            
+
             _toggle = GetComponent<Toggle>();
             _toggle.onValueChanged.AddListener(Toggle_OnValueChanged);
         }
@@ -26,10 +20,18 @@ namespace Cdm.Figma.UI
         protected override string GetSelector()
         {
             var selector = base.GetSelector();
-            return $"{selector}:{toggleSelector}";
-        }
 
-        private string toggleSelector => _isToggleOn ? ToggleComponentState.On : ToggleComponentState.Off;
+            if (_isToggleOn)
+            {
+                selector += $":{ComponentPropertyChecked.On.value}";
+            }
+            else
+            {
+                selector += $":{ComponentPropertyChecked.Off.value}";
+            }
+
+            return selector;
+        }
 
         protected override void OnEnable()
         {
@@ -42,7 +44,7 @@ namespace Cdm.Figma.UI
             _isToggleOn = isOn;
             UpdateVariant();
         }
-        
+
         private void UpdateToggleState()
         {
             if (_toggle != null)

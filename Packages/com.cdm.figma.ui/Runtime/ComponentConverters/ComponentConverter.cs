@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Cdm.Figma.UI.Utils;
 using UnityEngine;
@@ -9,8 +8,6 @@ namespace Cdm.Figma.UI
 {
     public abstract class ComponentConverter : NodeConverter<InstanceNode>
     {
-        protected List<ComponentProperty> properties { get; } = new List<ComponentProperty>();
-
         protected ComponentConverter()
         {
         }
@@ -128,11 +125,30 @@ namespace Cdm.Figma.UI
             }
         }
 
-        protected bool IsSameVariant(string[] variant, params string[] query)
+        protected bool TryGetSelector(string[] variant, ComponentProperty property, ref string selector)
+        {
+            if (IsSameVariant(variant, property))
+            {
+                if (string.IsNullOrEmpty(selector))
+                {
+                    selector = property.value;    
+                }
+                else
+                {
+                    selector = $":{property.value}";
+                }
+                
+                return true;
+            }
+
+            return false;
+        }
+
+        protected bool IsSameVariant(string[] variant, params ComponentProperty[] query)
         {
             foreach (var q in query)
             {
-                if (!variant.Contains(q))
+                if (!variant.Contains(q.ToString()))
                     return false;
             }
 
@@ -152,12 +168,17 @@ namespace Cdm.Figma.UI
             {
                 var selectable = nodeObject.gameObject.AddComponent<TComponent>();
                 selectable.transition = Selectable.Transition.None;
-
-                var variantFilter = nodeObject.gameObject.AddComponent<TComponentVariantFilter>();
+                
+                var variantFilter = AddVariantFilter(nodeObject);
                 variantFilter.Initialize();
             }
 
             return nodeObject;
+        }
+
+        protected virtual TComponentVariantFilter AddVariantFilter(NodeObject nodeObject)
+        {
+            return nodeObject.gameObject.AddComponent<TComponentVariantFilter>();
         }
     }
 }
