@@ -12,11 +12,6 @@ namespace Cdm.Figma.UI
         private const string TextViewportKey = "@TextViewport";
         private const string TextComponentKey = "@Text";
         private const string PlaceholderKey = "@Placeholder";
-
-        public InputFieldComponentConverter()
-        {
-            isSelectable = true;
-        }
         
         protected override SelectableComponentVariantFilter AddVariantFilter(NodeObject nodeObject)
         {

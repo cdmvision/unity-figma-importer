@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cdm.Figma.UI.Utils;
 using UnityEngine;
@@ -54,19 +55,44 @@ namespace Cdm.Figma.UI
             return instanceNodeConverter.Convert(parentObject, instanceNode, args);
         }
 
+        private readonly Dictionary<string, List<string>> _variants = new Dictionary<string, List<string>>();
+        protected IReadOnlyDictionary<string, List<string>> variants => _variants;
+        
         private void ConvertComponentSet(NodeObject instanceObject, NodeObject parentObject, InstanceNode instanceNode,
             NodeConvertArgs args)
         {
             var mainComponent = instanceNode.mainComponent;
             var componentSet = mainComponent.componentSet;
             var componentSetVariants = componentSet.variants;
-            
+
+            // Initialize property variants dictionary.
+            foreach (var componentVariant in componentSetVariants)
+            {
+                var propertyVariants =
+                    componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
+                        .ToArray();
+
+                foreach (var propertyVariant in propertyVariants)
+                {
+                    var tokens = propertyVariant.Split("=");
+                    var key = tokens[0];
+                    var value = tokens[1];
+                    
+                    if (!_variants.ContainsKey(key))
+                    {
+                        _variants.Add(key, new List<string>());
+                    }
+                    _variants[key].Add(value);
+                }
+            }
+
             foreach (var componentVariant in componentSetVariants)
             {
                 // Array of State=Hover, Checked=On etc.
                 var propertyVariants =
                     componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
                         .ToArray();
+
                 // Debug.Log($"Property variants: {string.Join(",", propertyVariants)}");
 
                 if (TryGetSelector(propertyVariants, out var selector))
@@ -135,7 +161,7 @@ namespace Cdm.Figma.UI
                 }
                 else
                 {
-                    selector = $":{property.value}";
+                    selector += $":{property.value}";
                 }
                 
                 return true;

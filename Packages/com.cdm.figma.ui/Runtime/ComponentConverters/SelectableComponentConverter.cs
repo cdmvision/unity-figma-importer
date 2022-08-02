@@ -4,16 +4,18 @@ namespace Cdm.Figma.UI
 {
     public static class ComponentPropertyState
     {
-        public static readonly ComponentProperty Default = new ComponentProperty("State", "Default");
-        public static readonly ComponentProperty Hover = new ComponentProperty("State", "Hover");
-        public static readonly ComponentProperty Press = new ComponentProperty("State", "Press");
-        public static readonly ComponentProperty Disabled = new ComponentProperty("State", "Disabled");
+        public const string Key = "State";
+        public static readonly ComponentProperty Default = new ComponentProperty(Key, "Default");
+        public static readonly ComponentProperty Hover = new ComponentProperty(Key, "Hover");
+        public static readonly ComponentProperty Press = new ComponentProperty(Key, "Press");
+        public static readonly ComponentProperty Disabled = new ComponentProperty(Key, "Disabled");
     }
 
     public static class ComponentPropertySelected
     {
-        public static readonly ComponentProperty Off = new ComponentProperty("Selected", "Off");
-        public static readonly ComponentProperty On = new ComponentProperty("Selected", "On");
+        public const string Key = "Selected";
+        public static readonly ComponentProperty Off = new ComponentProperty(Key, "Off");
+        public static readonly ComponentProperty On = new ComponentProperty(Key, "On");
     }
 
     public abstract class SelectableComponentConverter<TComponent, TComponentVariantFilter> :
@@ -21,8 +23,16 @@ namespace Cdm.Figma.UI
         where TComponent : Selectable
         where TComponentVariantFilter : SelectableComponentVariantFilter
     {
-        protected bool isSelectable { get; set; } = false;
+        private bool isSelectable => variants.ContainsKey(ComponentPropertySelected.Key);
         
+        protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
+        {
+            var nodeObject = base.Convert(parentObject, instanceNode, args);
+            var variantFilter = nodeObject.GetComponent<TComponentVariantFilter>();
+            variantFilter.isSelectable = isSelectable;
+            return nodeObject;
+        }
+
         protected override bool TryGetSelector(string[] variant, out string selector)
         {
             selector = "";
@@ -41,7 +51,7 @@ namespace Cdm.Figma.UI
                     !TryGetSelector(variant, ComponentPropertySelected.On, ref selector))
                 {
                     return false;
-                }    
+                }
             }
 
             return true;
