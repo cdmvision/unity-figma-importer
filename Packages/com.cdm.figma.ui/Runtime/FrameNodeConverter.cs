@@ -1,4 +1,5 @@
 using System.Linq;
+using Cdm.Figma.UI.Styles;
 using Cdm.Figma.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,14 +19,45 @@ namespace Cdm.Figma.UI
                 nodeObject.SetLayoutConstraints(parent);
             }
 
-            AddImageIfNeeded(nodeObject, frameNode);
+            GenerateStyles(nodeObject, frameNode, args);
+
+            nodeObject.ApplyStyles();
+            
             AddLayoutComponentIfNeeded(nodeObject, frameNode);
             AddContentSizeFitterIfNeeded(nodeObject, frameNode);
-            AddMaskIfNeeded(nodeObject, frameNode);
 
             BuildChildren(frameNode, nodeObject, args);
-
             return nodeObject;
+        }
+
+        private static void GenerateStyles(NodeObject nodeObject, FrameNode node, NodeConvertArgs args)
+        {
+            if (node.fills.Any() || node.strokes.Any())
+            {
+                var options = new VectorImageUtils.SpriteOptions()
+                {
+                    filterMode = FilterMode.Bilinear,
+                    wrapMode = TextureWrapMode.Clamp,
+                    sampleCount = 8,
+                    textureSize = 1024
+                };
+
+                // Multiple fill is not supported, only one image can be attached to the node object.
+                var style = new ImageStyle();
+                style.enabled = node.fills.Any(f => f.visible) || node.strokes.Any(s => s.visible);
+                style.sprite.SetValue(VectorImageUtils.CreateSpriteFromRect(node, options));
+                style.imageType.SetValue(Image.Type.Sliced);
+                style.color.SetValue(new UnityEngine.Color(1f, 1f, 1f, node.opacity));
+                nodeObject.styles.Add(style);
+            }
+
+            // Add mask if enabled.
+            if (node.clipsContent)
+            {
+                var style = new MaskStyle();
+                style.enabled = true;
+                nodeObject.styles.Add(style);
+            }
         }
 
         private static void BuildChildren(FrameNode currentNode, NodeObject nodeObject, NodeConvertArgs args)
@@ -50,48 +82,11 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void AddImageIfNeeded(NodeObject nodeObject, FrameNode frameNode)
-        {
-            if (frameNode.fills.Any() || frameNode.strokes.Any())
-            {
-                var options = new VectorImageUtils.SpriteOptions()
-                {
-                    filterMode = FilterMode.Bilinear,
-                    wrapMode = TextureWrapMode.Clamp,
-                    sampleCount = 8,
-                    textureSize = 1024
-                };
-
-                var sprite = VectorImageUtils.CreateSpriteFromRect(frameNode, options);
-
-                var image = nodeObject.gameObject.AddComponent<Image>();
-                image.sprite = sprite;
-                image.type = Image.Type.Sliced;
-                image.color = new UnityEngine.Color(1f, 1f, 1f, frameNode.opacity);
-                foreach (var fill in frameNode.fills)
-                {
-                    if (!fill.visible)
-                    {
-                        //Multiple fill is not supported, only one image is attached to the node object
-                        image.enabled = false;
-                    }
-                }
-            }
-        }
-
-        private static void AddMaskIfNeeded(NodeObject nodeObject, FrameNode frameNode)
-        {
-            if (frameNode.clipsContent)
-            {
-                nodeObject.gameObject.AddComponent<Mask>();
-            }
-        }
-
         private static void HandleFillContainer(LayoutMode layoutMode, NodeObject nodeObject, NodeObject childElement)
         {
             INodeLayout childLayout = (INodeLayout)childElement.node;
             INodeTransform childTransform = (INodeTransform)childElement.node;
-            
+
             if (childLayout.layoutAlign == LayoutAlign.Stretch)
             {
                 if (layoutMode == LayoutMode.Horizontal)
@@ -153,7 +148,7 @@ namespace Cdm.Figma.UI
         {
             if (groupNode.layoutMode == LayoutMode.None)
                 return;
-            
+
             if (groupNode.primaryAxisSizingMode == AxisSizingMode.Auto ||
                 groupNode.counterAxisSizingMode == AxisSizingMode.Auto)
             {

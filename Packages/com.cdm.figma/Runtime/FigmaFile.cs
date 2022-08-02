@@ -10,6 +10,21 @@ namespace Cdm.Figma
         public bool enabled = true;
         public string id;
         public string name;
+
+        public FigmaFilePage()
+        {
+        }
+        
+        public FigmaFilePage(string id, string name)
+        {
+        }
+        
+        public FigmaFilePage(FigmaFilePage other)
+        {
+            enabled = other.enabled;
+            id = other.id;
+            name = other.name;
+        } 
     }
 
     public class FigmaFile : ScriptableObject
@@ -69,7 +84,7 @@ namespace Cdm.Figma
         }
 
         [SerializeField]
-        private FigmaFilePage[] _pages = new FigmaFilePage[0];
+        private FigmaFilePage[] _pages = Array.Empty<FigmaFilePage>();
 
         public FigmaFilePage[] pages
         {
@@ -108,12 +123,58 @@ namespace Cdm.Figma
             {
                 figmaFile.pages[i] = new FigmaFilePage()
                 {
+                    enabled = true,
                     id = pages[i].id,
                     name = pages[i].name
                 };
             }
             
             return figmaFile;
+        }
+
+        public void CopyTo(FigmaFile other)
+        {
+            MergeTo(other, true);
+        }
+
+        public virtual void MergeTo(FigmaFile other, bool overwrite = false)
+        {
+            var oldPages = other.pages;
+
+            if (other.content != null)
+            {
+                DestroyImmediate(other.content, true);
+                other.content = null;
+            }
+            
+            if (other.thumbnail != null)
+            {
+                DestroyImmediate(other.thumbnail, true);
+                other.thumbnail = null;
+            }
+
+            other.id = _id;
+            other.title = title;
+            other.version = version;
+            other.lastModified = lastModified;
+            other.content = content;
+            other.thumbnail = thumbnail;
+            other.pages = new FigmaFilePage[pages.Length];
+
+            if (!overwrite)
+            {
+                // Preserve old page selection.
+                for (var i = 0; i < other.pages.Length; i++)
+                {
+                    other.pages[i] = new FigmaFilePage(pages[i]);
+                    
+                    var pageIndex = Array.FindIndex(oldPages, x => x.id == other.pages[i].id);
+                    if (pageIndex >= 0)
+                    {
+                        other.pages[i].enabled = oldPages[pageIndex].enabled;
+                    }
+                }
+            }
         }
     }
 }

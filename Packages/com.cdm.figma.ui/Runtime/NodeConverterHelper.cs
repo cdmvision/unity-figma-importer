@@ -1,82 +1,53 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using Cdm.Figma.UI.Styles;
 
 namespace Cdm.Figma.UI
 {
     public static class NodeConverterHelper
     {
-        public static void ConvertEffects(NodeObject nodeObject, IEnumerable<Effect> effects)
+        public static void GenerateEffectsStyles(NodeObject nodeObject, IEnumerable<Effect> effects)
         {
             foreach (var effect in effects)
             {
-                ConvertEffect(nodeObject, effect);
+                GenerateEffectStyle(nodeObject, effect);
             }
         }
         
-        public static bool ConvertEffect(NodeObject nodeObject, Effect effect)
+        public static void GenerateEffectStyle(NodeObject nodeObject, Effect effect)
         {
-            if (effect is BlurEffect blurEffect)
+            switch (effect)
             {
-                return ConvertBlurEffect(nodeObject, blurEffect);
+                case BlurEffect blurEffect:
+                    GenerateBlurEffectStyle(nodeObject, blurEffect);
+                    break;
+                case ShadowEffect shadowEffect:
+                    GenerateShadowEffectStyle(nodeObject, shadowEffect);
+                    break;
             }
-
-            if (effect is ShadowEffect shadowEffect)
-            {
-                return ConvertShadowEffect(nodeObject, shadowEffect);
-            }
-
-            return false;
         }
 
-        public static bool ConvertBlurEffect(NodeObject nodeObject, BlurEffect effect)
+        public static void GenerateBlurEffectStyle(NodeObject nodeObject, BlurEffect effect)
         {
             // TODO: Implement with LeTai Translucent Image plugin
-            return false;
         }
 
-        public static bool ConvertShadowEffect(NodeObject nodeObject, ShadowEffect effect)
+        public static void GenerateShadowEffectStyle(NodeObject nodeObject, ShadowEffect effect)
         {
-#if LETAI_TRUESHADOW
-            var shadow = nodeObject.gameObject.AddComponent<LeTai.TrueShadow.TrueShadow>();
-            shadow.enabled = effect.visible;
-            shadow.Color = effect.color;
-            shadow.Size = effect.radius;
-            shadow.Inset = effect is InnerShadowEffect;
-
-            var offset = (Vector2)effect.offset;
-            shadow.OffsetDistance = offset.magnitude;
-            shadow.OffsetAngle = Vector2.SignedAngle(Vector2.right, offset); // TODO: test
+            var style = new ShadowStyle();
+            style.enabled = effect.visible;
+            
+            style.color.SetValue(effect.color);
+            style.radius.SetValue(effect.radius);
+            style.inner.SetValue(effect is InnerShadowEffect);
+            style.offset.SetValue(effect.offset);
+            style.spread.SetValue(effect.spread);
 
             if (effect.blendMode.HasValue)
             {
-                switch (effect.blendMode.Value)
-                {
-                    case BlendMode.ColorDodge:
-                        shadow.BlendMode = LeTai.TrueShadow.BlendMode.Additive;
-                        break;
-                    case BlendMode.Multiply:
-                        shadow.BlendMode = LeTai.TrueShadow.BlendMode.Multiply;
-                        break;
-                    case BlendMode.Normal:
-                        shadow.BlendMode = LeTai.TrueShadow.BlendMode.Normal;
-                        break;
-                    case BlendMode.Screen:
-                        shadow.BlendMode = LeTai.TrueShadow.BlendMode.Screen;
-                        break;
-                    default:
-                        shadow.BlendMode = LeTai.TrueShadow.BlendMode.Normal;
-
-                        Debug.LogWarning(
-                            $"Shadow does not support {nameof(effect.blendMode.Value)} blend mode." +
-                            $"{BlendMode.Normal} blend mode is used.");
-                        break;
-                }
+                style.blendMode.SetValue(effect.blendMode.Value);
             }
-
-            return true;
-#endif
-
-            return false;
+            
+            nodeObject.styles.Add(style);
         }
     }
 }

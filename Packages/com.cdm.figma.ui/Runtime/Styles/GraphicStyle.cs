@@ -5,48 +5,35 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI.Styles
 {
-    public class GraphicStyle : StyleWithSelectors<GraphicStylePropertyBlock>
-    {
-    }
-    
     [Serializable]
-    public class GraphicStylePropertyBlock : StylePropertyBlock
+    public class GraphicStyle : Style
     {
         public StylePropertyColor color = new StylePropertyColor(UnityEngine.Color.white);
         public StylePropertyFloat fadeDuration = new StylePropertyFloat(0.1f);
-        
-        public override void CopyTo(StylePropertyBlock other)
+
+        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
         {
-            base.CopyTo(other);
-            
-            if (other is GraphicStylePropertyBlock otherStyle)
+        }
+
+        protected override void MergeTo(Style other, bool force)
+        {
+            if (other is GraphicStyle otherStyle)
             {
-                color.CopyTo(otherStyle.color);
-                fadeDuration.CopyTo(otherStyle.fadeDuration);
+                OverwriteProperty(color, otherStyle.color, force);
+                OverwriteProperty(fadeDuration, otherStyle.fadeDuration, force);
             }
         }
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            base.SetStyle(gameObject, args);
-            
-            if (TryGetComponent<Graphic>(gameObject, out var graphic))
+            var graphic = GetOrAddComponent<Graphic>(gameObject);
+            if (graphic != null)
             {
                 if (color.enabled)
                 {
                     graphic.CrossFadeColor(args, color, fadeDuration);
                 }
             }
-        }
-    }
-
-    public static class GraphicExtensions
-    {
-        public static void CrossFadeColor(this Graphic graphic, StyleArgs args, 
-            StylePropertyColor color, StylePropertyFloat fadeDuration)
-        {
-            var duration = !fadeDuration.enabled || args.instant ? 0f : fadeDuration.value;
-            graphic.CrossFadeColor(color.value, duration, false, true);    
         }
     }
 }

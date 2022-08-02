@@ -1,4 +1,5 @@
 using System.Linq;
+using Cdm.Figma.UI.Styles;
 using Cdm.Figma.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,25 +27,13 @@ namespace Cdm.Figma.UI
         {
             var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
             nodeObject.SetTransform(vectorNode);
-            //any vector's parent will ALWAYS be INodeTransform
+
+            // Any vector's parent will ALWAYS be INodeTransform
             nodeObject.SetLayoutConstraints((INodeTransform)vectorNode.parent);
+
+            GenerateStyles(nodeObject, vectorNode, args, vectorConvertArgs);
             
-            if (vectorConvertArgs.generateSprite && (vectorNode.fills.Any() || vectorNode.strokes.Any()))
-            {
-                if (vectorConvertArgs.sourceSprite == null)
-                {
-                    vectorConvertArgs.sourceSprite =
-                        VectorImageUtils.CreateSpriteFromPath(vectorNode, vectorConvertArgs.spriteOptions);
-                }
-
-                var image = nodeObject.gameObject.AddComponent<Image>();
-                image.sprite = vectorConvertArgs.sourceSprite;
-                image.type = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
-                image.color = new UnityEngine.Color(1f, 1f, 1f, vectorNode.opacity);
-            }
-
-            NodeConverterHelper.ConvertEffects(nodeObject, vectorNode.effects);
-
+            nodeObject.ApplyStyles();
             return nodeObject;
         }
 
@@ -52,7 +41,35 @@ namespace Cdm.Figma.UI
         {
             return Convert(parentObject, vectorNode, args, new VectorConvertArgs());
         }
-        
+
+        private void GenerateStyles(NodeObject nodeObject, TNode vectorNode, NodeConvertArgs args,
+            VectorConvertArgs vectorConvertArgs)
+        {
+            if (vectorConvertArgs.generateSprite && (vectorNode.fills.Any() || vectorNode.strokes.Any()))
+            {
+                var style = new ImageStyle();
+                if (vectorConvertArgs.sourceSprite == null)
+                {
+                    vectorConvertArgs.sourceSprite =
+                        VectorImageUtils.CreateSpriteFromPath(vectorNode, vectorConvertArgs.spriteOptions);
+                }
+                
+                style.componentEnabled.enabled = true;
+                style.componentEnabled.value = vectorNode.fills.Any(fill => fill.visible);
+                
+                style.sprite.enabled = true;
+                style.sprite.value = vectorConvertArgs.sourceSprite;
+
+                style.imageType.enabled = true;
+                style.imageType.value = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
+
+                style.color.enabled = true;
+                style.color.value = new UnityEngine.Color(1f, 1f, 1f, vectorNode.opacity);
+                nodeObject.styles.Add(style);
+            }
+            
+            NodeConverterHelper.GenerateEffectsStyles(nodeObject, vectorNode.effects);
+        }
     }
 
     public class VectorNodeConverter : VectorNodeConverter<VectorNode>

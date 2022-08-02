@@ -1,24 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
-using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 namespace Cdm.Figma.UI
 {
     public class FigmaFile : Figma.FigmaFile
     {
         [SerializeField]
-        private List<FontSource> _fonts = new List<FontSource>();
-        
+        private FontSource[] _fonts = Array.Empty<FontSource>();
+
         /// <summary>
         /// Gets the font assets.
         /// </summary>
-        public IList<FontSource> fonts => _fonts;
+        public FontSource[] fonts
+        {
+            get => _fonts;
+            set => _fonts = value;
+        }
 
         [SerializeField]
         private TMP_FontAsset _fallbackFont;
@@ -32,21 +31,47 @@ namespace Cdm.Figma.UI
             set => _fallbackFont = value;
         }
 
-        [SerializeField]
-        private List<GraphicSource> _graphics = new List<GraphicSource>();
+        public override void MergeTo(Figma.FigmaFile otherFile, bool overwrite = false)
+        {
+            base.MergeTo(otherFile, overwrite);
+            
+            
+            var other = (FigmaFile)otherFile;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public IList<GraphicSource> graphics => _graphics;
+            if (overwrite || other.fallbackFont == null)
+            {
+                other.fallbackFont = fallbackFont;
+            }
+
+            var oldFonts = other.fonts;
+            
+            // Deep copy font sources.
+            other.fonts = new FontSource[fonts.Length];
+            for (var i = 0; i < fonts.Length; i++)
+            {
+                other.fonts[i] = new FontSource(fonts[i]);
+
+                if (!overwrite)
+                {
+                    var fontIndex = Array.FindIndex(oldFonts, 
+                        x => x.fontName.Equals(other.fonts[i].fontName, StringComparison.OrdinalIgnoreCase));
+
+                    if (fontIndex >= 0 && oldFonts[fontIndex].font != null)
+                    {
+                        other.fonts[i].font = oldFonts[fontIndex].font;
+                    }
+                }
+            }
+        }
 
         public bool TryGetFont(string fontName, out TMP_FontAsset font)
         {
-            var fontSource = _fonts.FirstOrDefault(
-                x => string.Equals(x.fontName, fontName, StringComparison.OrdinalIgnoreCase));
-            if (fontSource != null && fontSource.font != null)
+            var fontIndex = 
+                Array.FindIndex(fonts, x => string.Equals(x.fontName, fontName, StringComparison.OrdinalIgnoreCase));
+
+            if (fontIndex >= 0 && fonts[fontIndex].font != null)
             {
-                font = fontSource.font;
+                font = fonts[fontIndex].font;
                 return true;
             }
 
@@ -59,19 +84,6 @@ namespace Cdm.Figma.UI
             font = null;
             return false;
         }
-
-        public bool TryGetGraphic(string graphicId, out string graphicContent)
-        {
-            var graphicSource = _graphics.FirstOrDefault(x => x.id == graphicId);
-            if (graphicSource != null)
-            {
-                graphicContent = graphicSource.content;
-                return true;
-            }
-
-            graphicContent = null;
-            return false;
-        }
     }
 
     [Serializable]
@@ -80,14 +92,23 @@ namespace Cdm.Figma.UI
         public string fontName;
         public TMP_FontAsset font;
 
+        public FontSource()
+        {
+        }
+        
+        public FontSource(string fontName, TMP_FontAsset font)
+        {
+            this.fontName = fontName;
+            this.font = font;
+        }
+        
+        public FontSource(FontSource other)
+        {
+            this.fontName = other.fontName;
+            this.font = other.font;
+        }
+        
         public static string GetFontName(string family, int weight, bool italic)
             => $"{family}-{(TextFontWeight) weight}{(italic ? "-Italic" : "")}";
-    }
-    
-    [Serializable]
-    public class GraphicSource
-    {
-        public string id;
-        public string content;
     }
 }

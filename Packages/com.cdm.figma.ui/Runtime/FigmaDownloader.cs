@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -22,69 +21,29 @@ namespace Cdm.Figma.UI
             var fileContent = FigmaFileContent.FromString(fileContentJson);
             var thumbnail = await FigmaApi.GetThumbnailImageAsync(fileContent.thumbnailUrl);
             var figmaFile = FigmaFile.Create<FigmaFile>(fileID, fileContentJson, thumbnail);
-
-            //Debug.Log($"Downloading file graphics...");
-            //await DownloadGraphicsAsync(figmaFile, fileContent, personalAccessToken);
-            AddFonts(figmaFile, fileContent);
+            
+            AddUsedFonts(figmaFile, fileContent);
             
             return figmaFile;
         }
-
-        private static async Task DownloadGraphicsAsync(
-            FigmaFile file, FigmaFileContent fileContent, string personalAccessToken)
+        
+        private static void AddUsedFonts(FigmaFile file, FigmaFileContent fileContent)
         {
-            // Add required graphics.
-            var graphicIds = new HashSet<string>();
-            fileContent.document.Traverse(node =>
-            {
-                // Invisible nodes cannot be rendered.
-                if (node is SceneNode sceneNode && sceneNode.visible)
-                {
-                    graphicIds.Add(sceneNode.id);
-                }
-                return true;
-            }, NodeType.Vector, NodeType.Ellipse, NodeType.Line, NodeType.Polygon, NodeType.Star);
-
-            var graphics = await FigmaApi.GetImageAsync(new FigmaImageRequest(personalAccessToken, file.id)
-                {
-                    ids = graphicIds.ToArray(),
-                    format = "svg",
-                    svgIncludeId = true,
-                    svgSimplifyStroke = true,
-                    version = file.version
-                });
-
-            foreach (var graphic in graphics)
-            {
-                if (graphic.Value != null)
-                {
-                    file.graphics.Add(new GraphicSource()
-                    {
-                        id = graphic.Key,
-                        content = Encoding.UTF8.GetString(graphic.Value)
-                    });
-                }
-                else
-                {
-                    Debug.LogWarning($"Graphic could not be rendered: {graphic.Key}");
-                }
-            }
-        }
-
-        private static void AddFonts(FigmaFile file, FigmaFileContent fileContent)
-        {
-            var fonts = new HashSet<string>();
+            var fontSet = new HashSet<string>();
             fileContent.document.Traverse(node =>
             {
                 var style = ((TextNode) node).style;
                 var fontName = FontSource.GetFontName(style.fontFamily, style.fontWeight, style.italic);
-                fonts.Add(fontName);
+                fontSet.Add(fontName);
                 return true;
             }, NodeType.Text);
 
-            foreach (var font in fonts)
+            var fonts = fontSet.ToArray();
+
+            file.fonts = new FontSource[fonts.Length];
+            for (var i = 0; i < file.fonts.Length; i++)
             {
-                file.fonts.Add(new FontSource() { fontName = font, font = null });
+                file.fonts[i] = new FontSource() { fontName = fonts[i], font = null };
             }
         }
     }

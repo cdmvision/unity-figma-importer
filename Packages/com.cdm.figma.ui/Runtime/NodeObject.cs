@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -53,6 +54,11 @@ namespace Cdm.Figma.UI
         public RectTransform rectTransform { get; private set; }
         
         public Node node { get; private set; }
+
+        [SerializeField]
+        private List<Styles.Style> _styles = new List<Styles.Style>();
+
+        public List<Styles.Style> styles => _styles;
 
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.

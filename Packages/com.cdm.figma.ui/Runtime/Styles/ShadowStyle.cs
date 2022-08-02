@@ -4,12 +4,8 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles
 {
-    public class ShadowStyle : StyleWithSelectors<ShadowStylePropertyBlock>
-    {
-    }
-
     [Serializable]
-    public class ShadowStylePropertyBlock : StylePropertyBlock
+    public class ShadowStyle : Style
     {
         public StylePropertyBool visible = new StylePropertyBool(true);
         public StylePropertyBool inner = new StylePropertyBool(false);
@@ -18,29 +14,31 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyFloat spread = new StylePropertyFloat(4f);
         public StylePropertyVector2 offset = new StylePropertyVector2(Vector2.zero);
         public StylePropertyBlendMode blendMode = new StylePropertyBlendMode(BlendMode.Normal);
-
-        public override void CopyTo(StylePropertyBlock other)
+        
+        protected override void MergeTo(Style other, bool force)
         {
-            base.CopyTo(other);
-
-            if (other is ShadowStylePropertyBlock otherStyle)
+            if (other is ShadowStyle otherStyle)
             {
-                visible.CopyTo(otherStyle.visible);
-                inner.CopyTo(otherStyle.inner);
-                color.CopyTo(otherStyle.color);
-                radius.CopyTo(otherStyle.radius);
-                spread.CopyTo(otherStyle.spread);
-                offset.CopyTo(otherStyle.offset);
-                blendMode.CopyTo(otherStyle.blendMode);
+                OverwriteProperty(visible, otherStyle.visible, force);
+                OverwriteProperty(inner, otherStyle.inner, force);
+                OverwriteProperty(color, otherStyle.color, force);
+                OverwriteProperty(radius, otherStyle.radius, force);
+                OverwriteProperty(spread, otherStyle.spread, force);
+                OverwriteProperty(offset, otherStyle.offset, force);
+                OverwriteProperty(blendMode, otherStyle.blendMode, force);
             }
         }
 
+        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
+        {
+            SetStyleAsSelector<ShadowStyleSetter>(gameObject, args);
+        }
+        
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            base.SetStyle(gameObject, args);
-
 #if LETAI_TRUESHADOW
-            if (TryGetComponent<LeTai.TrueShadow.TrueShadow>(gameObject, out var shadow))
+            var shadow = GetOrAddComponent<LeTai.TrueShadow.TrueShadow>(gameObject);
+            if (shadow != null)
             {
                 shadow.UseCasterAlpha = true;
                 shadow.IgnoreCasterColor = true;

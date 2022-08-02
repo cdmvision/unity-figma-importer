@@ -1,51 +1,94 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using Cdm.Figma.UI.Styles;
 using Cdm.Figma.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Components;
+using UnityEngine.Localization;
 
 namespace Cdm.Figma.UI
 {
     public class TextNodeConverter : VectorNodeConverter<TextNode>
     {
-
         protected override NodeObject Convert(NodeObject parentObject, TextNode textNode, NodeConvertArgs args)
         {
             var convertArgs = new VectorConvertArgs();
             convertArgs.generateSprite = false;
 
             var nodeObject = base.Convert(parentObject, textNode, args, convertArgs);
-
-            var textComponent = nodeObject.gameObject.AddComponent<TextMeshProUGUI>();
-            textComponent.text = textNode.characters;
-            textComponent.characterSpacing = textNode.style.letterSpacing;
-            textComponent.fontSize = textNode.style.fontSize;
-            textComponent.fontWeight = (FontWeight)textNode.style.fontWeight;
-
-            SetTextFont(textComponent, textNode, args);
-            SetTextAlignment(textComponent, textNode);
-            SetTextDecoration(textComponent, textNode);
-            SetTextAutoResize(textComponent, textNode);
-            SetFills(textComponent, textNode);
-            SetLocalization(textComponent, nodeObject);
+            
+            GenerateStyles(nodeObject, textNode, args);
+            
+            nodeObject.ApplyStyles();
             
             return nodeObject;
         }
 
-        private static void SetTextAlignment(TMP_Text textComponent, TextNode textNode)
+        private static void GenerateStyles(NodeObject nodeObject, TextNode textNode, NodeConvertArgs args)
         {
+            var style = new TextStyle();
+            style.enabled = true;
+            
+            SetTextFont(style, textNode, args);
+            SetTextAlignment(style, textNode);
+            SetTextDecoration(style, textNode);
+            SetTextAutoResize(style, textNode);
+            SetFills(style, textNode);
+            SetLocalization(style, textNode);
+            
+            nodeObject.styles.Add(style);
+        }
+
+        private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
+        {
+            var fontName =
+                FontSource.GetFontName(textNode.style.fontFamily, textNode.style.fontWeight, textNode.style.italic);
+
+            if (args.file.TryGetFont(fontName, out var font))
+            {
+                style.font.enabled = true;
+                style.font.value = font;
+            }
+            else
+            {
+                style.font.enabled = false;
+                Debug.LogWarning($"{fontName} could not be found.");
+            }
+
+            if (textNode.style.italic)
+            {
+                style.fontStyle.enabled = true;
+                style.fontStyle.value |= FontStyles.Italic;
+            }
+
+            style.text.enabled = true;
+            style.text.value = textNode.characters;
+
+            style.characterSpacing.enabled = true;
+            style.characterSpacing.value = textNode.style.letterSpacing;
+            
+            style.fontSize.enabled = true;
+            style.fontSize.value = textNode.style.fontSize;
+            
+            style.fontWeight.enabled = true;
+            style.fontWeight.value = (FontWeight)textNode.style.fontWeight;
+        }
+
+        private static void SetTextAlignment(TextStyle style, TextNode textNode)
+        {
+            style.verticalAlignment.enabled = true;
+            style.horizontalAlignment.enabled = true;
+            
             switch (textNode.style.textAlignVertical)
             {
                 case TextAlignVertical.Bottom:
-                    textComponent.verticalAlignment = VerticalAlignmentOptions.Bottom;
+                    style.verticalAlignment.value = VerticalAlignmentOptions.Bottom;
                     break;
                 case TextAlignVertical.Center:
-                    textComponent.verticalAlignment = VerticalAlignmentOptions.Middle;
+                    style.verticalAlignment.value = VerticalAlignmentOptions.Middle;
                     break;
                 case TextAlignVertical.Top:
-                    textComponent.verticalAlignment = VerticalAlignmentOptions.Top;
+                    style.verticalAlignment.value = VerticalAlignmentOptions.Top;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -54,106 +97,96 @@ namespace Cdm.Figma.UI
             switch (textNode.style.textAlignHorizontal)
             {
                 case TextAlignHorizontal.Center:
-                    textComponent.horizontalAlignment = HorizontalAlignmentOptions.Center;
+                    style.horizontalAlignment.value = HorizontalAlignmentOptions.Center;
                     break;
                 case TextAlignHorizontal.Justified:
-                    textComponent.horizontalAlignment = HorizontalAlignmentOptions.Justified;
+                    style.horizontalAlignment.value = HorizontalAlignmentOptions.Justified;
                     break;
                 case TextAlignHorizontal.Left:
-                    textComponent.horizontalAlignment = HorizontalAlignmentOptions.Left;
+                    style.horizontalAlignment.value = HorizontalAlignmentOptions.Left;
                     break;
                 case TextAlignHorizontal.Right:
-                    textComponent.horizontalAlignment = HorizontalAlignmentOptions.Right;
+                    style.horizontalAlignment.value = HorizontalAlignmentOptions.Right;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private static void SetTextAutoResize(TMP_Text textComponent, TextNode textNode)
+        private static void SetTextAutoResize(TextStyle style, TextNode textNode)
         {
+            style.autoSizeTextContainer.enabled = true;
+            
             switch (textNode.style.textAutoResize)
             {
                 case TextAutoResize.None:
-                    textComponent.autoSizeTextContainer = false;
+                    style.autoSizeTextContainer.value = false;
+                    style.fontSizeMin.enabled = false;
+                    style.fontSizeMax.enabled = false;
                     break;
                 case TextAutoResize.Height:
-                    textComponent.autoSizeTextContainer = true;
-                    textComponent.fontSizeMin = 1;
-                    textComponent.fontSizeMax = 99;
-                    break;
                 case TextAutoResize.WidthAndHeight:
-                    textComponent.autoSizeTextContainer = true;
-                    textComponent.fontSizeMin = 1;
-                    textComponent.fontSizeMax = 99;
+                    style.autoSizeTextContainer.value = true;
+                    style.fontSizeMin.enabled = true;
+                    style.fontSizeMin.value = 1;
+                    style.fontSizeMax.enabled = true;
+                    style.fontSizeMax.value = 99;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-
-        private static void SetLocalization(TMP_Text textComponent, NodeObject nodeObject)
+        private static void SetTextDecoration(TextStyle style, TextNode textNode)
         {
-            var localizationKey = nodeObject.localizationKey;
+            switch (textNode.style.textDecoration)
+            {
+                case TextDecoration.None:
+                    style.fontStyle.enabled = false;
+                    break;
+                case TextDecoration.Strikethrough:
+                    style.fontStyle.enabled = true;
+                    style.fontStyle.value |= FontStyles.Strikethrough;
+                    break;
+                case TextDecoration.Underline:
+                    style.fontStyle.enabled = true;
+                    style.fontStyle.value |= FontStyles.Underline;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private static void SetFills(TextStyle style, TextNode textNode)
+        {
+            style.color.enabled = false;
+            
+            if (textNode.fills != null && textNode.fills.Any())
+            {
+                if (textNode.fills[0] is SolidPaint solidPaint)
+                {
+                    style.color.enabled = true;
+                    style.color.value = solidPaint.color;
+                }
+            }
+        }
+        
+        private static void SetLocalization(TextStyle style, TextNode textNode)
+        {
+            style.localizedString.enabled = false;
+            
+            var localizationKey = textNode.GetLocalizationKey();
             if (!string.IsNullOrEmpty(localizationKey))
             {
                 if (LocalizationHelper.TryGetTableAndEntryReference(
                         localizationKey, out var tableReference, out var tableEntryReference))
                 {
-                    var localizeStringEvent = nodeObject.gameObject.AddComponent<LocalizeStringEvent>();
-                    localizeStringEvent.StringReference.SetReference(tableReference, tableEntryReference);
-                    localizeStringEvent.OnUpdateString.AddListener(text => { textComponent.text = text; });
-                    localizeStringEvent.RefreshString();
+                    style.localizedString.enabled = true;
+                    style.localizedString.value = new LocalizedString(tableReference, tableEntryReference);
                 }
                 else
                 {
                     Debug.LogWarning($"Localization key cannot be mapped: {localizationKey}");
-                }
-            }
-        }
-        
-        
-        private static void SetTextFont(TMP_Text textComponent, TextNode textNode, NodeConvertArgs args)
-        {
-            var fontName =
-                FontSource.GetFontName(textNode.style.fontFamily, textNode.style.fontWeight, textNode.style.italic);
-
-            if (args.file.TryGetFont(fontName, out var font))
-            {
-                textComponent.font = font;
-            }
-            else
-            {
-                Debug.LogWarning($"{fontName} could not be found.");
-            }
-
-            if (textNode.style.italic)
-            {
-                textComponent.fontStyle |= FontStyles.Italic;
-            }
-        }
-        
-        private static void SetTextDecoration(TMP_Text textComponent, TextNode textNode)
-        {
-            switch (textNode.style.textDecoration)
-            {
-                case TextDecoration.Strikethrough:
-                    textComponent.fontStyle |= FontStyles.Strikethrough;
-                    break;
-                case TextDecoration.Underline:
-                    textComponent.fontStyle |= FontStyles.Underline;
-                    break;
-            }
-        }
-
-        private static void SetFills(TMP_Text textComponent, TextNode textNode)
-        {
-            if (textNode.fills != null && textNode.fills.Any())
-            {
-                if (textNode.fills[0] is SolidPaint solidPaint)
-                {
-                    textComponent.color = solidPaint.color;
                 }
             }
         }
