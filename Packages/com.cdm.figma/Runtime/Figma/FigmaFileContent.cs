@@ -1,10 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
-using UnityEditor.Experimental.GraphView;
+using UnityEngine;
 
 namespace Cdm.Figma
 {
@@ -23,19 +22,19 @@ namespace Cdm.Figma
     {
         [DataMember(Name = "name")]
         public string name { get; set; }
-        
+
         [DataMember(Name = "version")]
         public string version { get; set; }
-        
+
         [DataMember(Name = "role")]
         public string role { get; set; }
-        
+
         [DataMember(Name = "thumbnailUrl")]
         public string thumbnailUrl { get; set; }
-        
+
         [DataMember(Name = "editorType")]
         public string editorType { get; set; }
-        
+
         [DataMember(Name = "lastModified")]
         public DateTime lastModified { get; set; }
 
@@ -44,34 +43,34 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "document")]
         public DocumentNode document { get; set; }
-        
+
         /// <summary>
         /// Data written by plugins that is visible only to the plugin that wrote it. Requires the `pluginData` to
         /// include the ID of the plugin.
         /// </summary>
         [DataMember(Name = "pluginData")]
         public Dictionary<string, JObject> pluginData { get; set; }
-        
+
         /// <summary>
         /// Data written by plugins that is visible to all plugins. Requires the `pluginData` parameter to include
         /// the string "shared".
         /// </summary>
         [DataMember(Name = "sharedPluginData")]
         public Dictionary<string, JObject> sharedPluginData { get; set; }
-        
+
         /// <summary>
         /// The components key contains a mapping from node IDs to component metadata.
         /// This is to help you determine which components each instance comes from.
         /// </summary>
         [DataMember(Name = "components")]
         public Dictionary<string, Component> components { get; set; } = new Dictionary<string, Component>();
-        
+
         [DataMember(Name = "componentSets")]
         public Dictionary<string, ComponentSet> componentSets { get; set; } = new Dictionary<string, ComponentSet>();
-        
+
         [DataMember(Name = "styles")]
         public Dictionary<string, Style> styles { get; set; } = new Dictionary<string, Style>();
-        
+
         [DataMember(Name = "schemaVersion")]
         public int schemaVersion { get; set; }
 
@@ -79,7 +78,7 @@ namespace Cdm.Figma
         {
             InitComponentNodes();
             InitInstanceNodes();
-            
+
             BuildHierarchy(document);
             FixRelativePositionGroupNodeChildren(document);
         }
@@ -91,24 +90,27 @@ namespace Cdm.Figma
         {
             document.Traverse(node =>
             {
-                var instanceNode = (InstanceNode) node;
+                var instanceNode = (InstanceNode)node;
                 if (string.IsNullOrEmpty(instanceNode.componentId))
-                    throw new ArgumentException($"Instance node's {instanceNode.componentId} does not exist.");
-                
-               // Find component definition.
-               //if (!components.TryGetValue(instanceNode.componentId, out var component))
-               //    throw new ArgumentException($"Component definition could not be found: {instanceNode.componentId}");
+                    throw new ArgumentException($"Instance node's {nameof(instanceNode.componentId)} does not exist.");
 
                 // Find component node in the hierarchy.
                 var componentNode = document.Find(instanceNode.componentId, NodeType.Component);
-                if (componentNode == null)
-                    throw new ArgumentException($"Component node could not be found: {instanceNode.componentId}");
+                if (componentNode != null)
+                {
+                    instanceNode.mainComponent = (ComponentNode)componentNode;
+                }
+                else
+                {
+                    Debug.LogWarning($"Component node '{instanceNode.componentId}' could not be found. " +
+                                     "You may have used the component shared from another file. " +
+                                     "This is not supported.");
+                }
 
-                instanceNode.mainComponent = (ComponentNode) componentNode;
                 return true;
             }, NodeType.Instance);
         }
-        
+
         /// <summary>
         /// Sets all component sets of the components if exists.
         /// </summary>
@@ -116,23 +118,23 @@ namespace Cdm.Figma
         {
             document.Traverse(node =>
             {
-                var componentNode = (ComponentNode) node;
-                
+                var componentNode = (ComponentNode)node;
+
                 if (!components.TryGetValue(componentNode.id, out var component))
                     throw new ArgumentException($"Component definition could not be found: {componentNode.id}");
 
                 if (!string.IsNullOrEmpty(component.componentSetId))
                 {
-                    //if (!componentSets.TryGetValue(component.componentSetId, out var componentSet))
-                    //    throw new ArgumentException(
-                    //        $"Component set definition could not be found: {component.componentSetId}");
-
-                    var componentSetNode = (ComponentSetNode) document.Find(component.componentSetId, NodeType.ComponentSet);
+                    var componentSetNode =
+                        (ComponentSetNode)document.Find(component.componentSetId, NodeType.ComponentSet);
+                    
                     if (componentSetNode == null)
-                        throw new ArgumentException($"Component set node could not be found: {component.componentSetId}");
+                        throw new ArgumentException(
+                            $"Component set node could not be found: {component.componentSetId}");
 
                     componentNode.componentSet = componentSetNode;
                 }
+
                 return true;
             }, NodeType.Component);
         }
@@ -152,14 +154,14 @@ namespace Cdm.Figma
             //  - Frame 2
             //      - Group 7
             //          - Rect 5
-            
+
             node.Traverse(current =>
             {
                 if (current.type != NodeType.Group)
                 {
                     FixRelativePositionGroupNodeChild(current);
                 }
-                
+
                 return true;
             });
         }
@@ -169,17 +171,17 @@ namespace Cdm.Figma
             if (node is INodeTransform nodeTransform)
             {
                 var position = nodeTransform.relativeTransform.position;
-                
+
                 for (var parent = node.parent; parent != null && parent.type == NodeType.Group; parent = parent.parent)
                 {
-                    var groupTransform = (INodeTransform) parent;
+                    var groupTransform = (INodeTransform)parent;
                     position += groupTransform.relativeTransform.position;
                 }
 
                 nodeTransform.relativeTransform.position = position;
             }
         }
-        
+
         private static void BuildHierarchy(Node node)
         {
             if (node.hasChildren)
@@ -187,20 +189,20 @@ namespace Cdm.Figma
                 foreach (var child in node.GetChildren())
                 {
                     child.parent = node;
-                    
+
                     BuildHierarchy(child);
                 }
             }
         }
-        
-        public static FigmaFileContent FromString(string json) => 
+
+        public static FigmaFileContent FromString(string json) =>
             JsonConvert.DeserializeObject<FigmaFileContent>(json, JsonSerializerHelper.Settings);
 
         public override string ToString()
         {
             return ToString("N");
         }
-        
+
         public string ToString(string format)
         {
             if (string.IsNullOrEmpty(format)) format = "N";

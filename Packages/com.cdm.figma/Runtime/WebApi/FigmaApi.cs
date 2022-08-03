@@ -28,8 +28,10 @@ namespace Cdm.Figma
                 throw new ArgumentException("File ID cannot be empty.");
 
             var uri = GetFileRequestUrl(fileRequest);
-            Debug.Log(uri);
             
+#if UNITY_EDITOR
+            Debug.Log(uri);
+#endif            
             var result = await GetContentAsync(uri, fileRequest.personalAccessToken);
             return result;
         }
