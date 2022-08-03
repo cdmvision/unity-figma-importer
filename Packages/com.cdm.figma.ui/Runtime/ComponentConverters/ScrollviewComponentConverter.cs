@@ -30,12 +30,14 @@ namespace Cdm.Figma.UI
                 var viewport = nodeObject.Find(x => x.bindingKey == ViewportKey);
                 if (viewport == null)
                     throw new ArgumentException($"Scrollview viewport node could not be found. Did you set '{ViewportKey}' as binding key?");
+
+
+                var mask = viewport.gameObject.AddComponent<Mask>();
+                mask.showMaskGraphic = false;
                 
                 var horizontalScrollbar = nodeObject.Find(x => x.bindingKey == HorizontalScrollbarKey);
                 var verticalScrollbar = nodeObject.Find(x => x.bindingKey == VerticalScrollbarKey);
                 
-                scrollrect.content = content.rectTransform;
-                scrollrect.viewport = viewport.rectTransform;
                 if (horizontalScrollbar != null)
                 {
                     scrollrect.horizontalScrollbar = horizontalScrollbar.rectTransform.GetComponent<Scrollbar>();
@@ -49,6 +51,14 @@ namespace Cdm.Figma.UI
                     scrollrect.verticalScrollbarSpacing = -3;
                 }
                 
+                scrollrect.content = content.rectTransform;
+                scrollrect.viewport = viewport.rectTransform;
+
+                //TODO: Think about how the scrollview will behave?
+                var verticalLayoutGroup = scrollrect.content.gameObject.AddComponent<VerticalLayoutGroup>();
+                var contentSizeFitter = scrollrect.content.gameObject.AddComponent<ContentSizeFitter>();
+                contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+                contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             }
             
             return nodeObject;
