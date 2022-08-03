@@ -7,12 +7,12 @@ namespace Cdm.Figma.UI
     public class NodeObject : MonoBehaviour
     {
         [SerializeField]
-        private string _nodeId;
+        private string _nodeID;
 
-        public string nodeId
+        public string nodeID
         {
-            get => _nodeId;
-            set => _nodeId = value;
+            get => _nodeID;
+            set => _nodeID = value;
         }
         
         [SerializeField]
@@ -53,13 +53,14 @@ namespace Cdm.Figma.UI
         
         public RectTransform rectTransform { get; private set; }
         
-        public Node node { get; private set; }
-
         [SerializeField]
         private List<Styles.Style> _styles = new List<Styles.Style>();
 
         public List<Styles.Style> styles => _styles;
 
+        // TODO: Should be private or at least internal. Because it is only available while importing figma file.
+        public Node node { get; private set; }
+        
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
         /// </summary>
@@ -69,7 +70,7 @@ namespace Cdm.Figma.UI
             var nodeObject = go.AddComponent<NodeObject>();
 
             nodeObject.node = node;
-            nodeObject.nodeId = node.id;
+            nodeObject.nodeID = node.id;
             nodeObject.nodeName = node.name;
             nodeObject.nodeType = node.type;
             nodeObject.rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();

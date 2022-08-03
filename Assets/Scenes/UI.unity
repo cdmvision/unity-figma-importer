@@ -257,7 +257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
-  m_ScaleFactor: 1
+  m_ScaleFactor: 2
   m_ReferenceResolution: {x: 800, y: 600}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
@@ -336,7 +336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5e3f0dc4492dc429f2de92c093c374, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  figmaFile: {fileID: 11400000, guid: 19f9faa697212154a80f015a8097be59, type: 2}
+  figmaFile: {fileID: 11400000, guid: 44149090695db9f4d9c2f9330bd69754, type: 2}
   canvas: {fileID: 1220467535}
 --- !u!4 &1371876955
 Transform:
