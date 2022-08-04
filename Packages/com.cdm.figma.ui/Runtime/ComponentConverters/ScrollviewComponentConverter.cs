@@ -56,6 +56,8 @@ namespace Cdm.Figma.UI
 
                 //TODO: Think about how the scrollview will behave?
                 var verticalLayoutGroup = scrollrect.content.gameObject.AddComponent<VerticalLayoutGroup>();
+                verticalLayoutGroup.childControlHeight = false;
+                verticalLayoutGroup.childControlWidth = false;
                 var contentSizeFitter = scrollrect.content.gameObject.AddComponent<ContentSizeFitter>();
                 contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
                 contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;

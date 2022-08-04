@@ -102,7 +102,7 @@ namespace Cdm.Figma
                 // Find component node in the hierarchy.
                 var componentNode = document.Find(instanceNode.componentId, NodeType.Component);
                 if (componentNode == null)
-                    throw new ArgumentException($"Component node could not be found: {instanceNode.componentId}");
+                    throw new ArgumentException($"Component node could not be found: {instanceNode.componentId}, {instanceNode.name}");
 
                 instanceNode.mainComponent = (ComponentNode) componentNode;
                 return true;
