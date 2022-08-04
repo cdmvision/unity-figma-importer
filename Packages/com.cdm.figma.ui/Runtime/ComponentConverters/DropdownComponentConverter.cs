@@ -29,6 +29,7 @@ namespace Cdm.Figma.UI
                     throw new ArgumentException($"Dropdown template node could not be found. Did you set '{TemplateKey}' as binding key?");
 
                 dropdown.template = template.rectTransform;
+                dropdown.template.gameObject.SetActive(false);
                 
                 var captionText = nodeObject.Find(x => x.bindingKey == CaptionTextKey);
                 if (captionText != null)
