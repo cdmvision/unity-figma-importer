@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
@@ -18,11 +19,9 @@ namespace Cdm.Figma.UI
         protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             var nodeObject = base.Convert(parentObject, instanceNode, args);
-            
             if (nodeObject != null)
             {
                 var scrollrect = nodeObject.gameObject.AddComponent<ScrollRect>();
-
                 var content = nodeObject.Find(x => x.bindingKey == ContentKey);
                 if (content == null)
                     throw new ArgumentException($"Scrollview content node could not be found. Did you set '{ContentKey}' as binding key?");
@@ -30,10 +29,6 @@ namespace Cdm.Figma.UI
                 var viewport = nodeObject.Find(x => x.bindingKey == ViewportKey);
                 if (viewport == null)
                     throw new ArgumentException($"Scrollview viewport node could not be found. Did you set '{ViewportKey}' as binding key?");
-
-
-                var mask = viewport.gameObject.AddComponent<Mask>();
-                mask.showMaskGraphic = false;
                 
                 var horizontalScrollbar = nodeObject.Find(x => x.bindingKey == HorizontalScrollbarKey);
                 var verticalScrollbar = nodeObject.Find(x => x.bindingKey == VerticalScrollbarKey);
