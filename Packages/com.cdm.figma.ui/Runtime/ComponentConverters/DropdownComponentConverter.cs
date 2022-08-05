@@ -9,7 +9,8 @@ namespace Cdm.Figma.UI
         private const string TemplateKey = "@Template";
         private const string CaptionTextKey = "@CaptionText";
         private const string ItemTextKey = "@ItemText";
-        
+        private const string ContentItemKey = "@ContentItem";
+
         protected override bool CanConvertType(string typeID)
         {
             return typeID == "Dropdown";
@@ -36,6 +37,13 @@ namespace Cdm.Figma.UI
                 {
                     dropdown.captionText = captionText.GetComponent<TextMeshProUGUI>();
                 }
+
+                var contentItem = nodeObject.Find(x => x.bindingKey == ContentItemKey);
+                if (contentItem == null)
+                    throw new ArgumentException($"Dropdown content item node could not be found. Did you set '{ContentItemKey}' as binding key?");
+
+                var scrollView = template.GetComponent<ScrollRect>();
+                contentItem.transform.SetParent(scrollView.content);
             }
             
             return nodeObject;
