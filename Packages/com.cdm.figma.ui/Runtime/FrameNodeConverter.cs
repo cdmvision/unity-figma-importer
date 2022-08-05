@@ -324,7 +324,7 @@ namespace Cdm.Figma.UI
                         gridView.spacing = new Vector2(grid.gutterSize, gridView.spacing.y);
                         gridView.padding.left = (int) grid.offset;
                         gridView.padding.right = (int) grid.offset;
-                        gridView.cellSize = new Vector2(frameNode.size.x-((grid.count-1)*grid.gutterSize+2*grid.offset), gridView.cellSize.y);
+                        gridView.cellSize = new Vector2((frameNode.size.x-((grid.count-1)*grid.gutterSize+2*grid.offset))/grid.count, gridView.cellSize.y);
                     }
                     
                     else if (grid.pattern == Pattern.Rows)
@@ -332,7 +332,7 @@ namespace Cdm.Figma.UI
                         gridView.spacing = new Vector2(gridView.spacing.x, grid.gutterSize);
                         gridView.padding.top = (int) grid.offset;
                         gridView.padding.bottom = (int) grid.offset;
-                        gridView.cellSize = new Vector2(gridView.cellSize.x, frameNode.size.y-((grid.count-1)*grid.gutterSize+2*grid.offset));
+                        gridView.cellSize = new Vector2(gridView.cellSize.x, (frameNode.size.y-((grid.count-1)*grid.gutterSize+2*grid.offset))/grid.count);
                     }
                 }
             }
