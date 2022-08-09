@@ -15,7 +15,7 @@ namespace Cdm.Figma
                     foreach (var child in children)
                     {
                         child.Traverse(handler);
-                    }    
+                    }
                 }
             }
         }
@@ -31,7 +31,7 @@ namespace Cdm.Figma
                         return false;
                     }
                 }
-                
+
                 return true;
             });
         }
@@ -46,7 +46,7 @@ namespace Cdm.Figma
                 }
             }
         }
-        
+
         public static Node Find(this Node node, string nodeId)
         {
             Node target = null;
@@ -63,7 +63,7 @@ namespace Cdm.Figma
 
             return target;
         }
-        
+
         public static Node Find(this Node node, string nodeId, params string[] nodeTypes)
         {
             Node target = null;
@@ -90,7 +90,7 @@ namespace Cdm.Figma
 
             return null;
         }
-        
+
         public static string GetLocalizationKey(this Node node)
         {
             if (node.TryGetPluginData(out var data))
@@ -100,7 +100,7 @@ namespace Cdm.Figma
 
             return null;
         }
-        
+
         public static string GetComponentType(this Node node)
         {
             if (node.TryGetPluginData(out var data))
@@ -111,7 +111,7 @@ namespace Cdm.Figma
             return null;
         }
 
-        private static bool TryGetPluginData(this Node node, out PluginData pluginData)
+        public static bool TryGetPluginData(this Node node, out PluginData pluginData)
         {
             if (node.pluginData != null && node.pluginData.TryGetValue(PluginData.Id, out var data))
             {

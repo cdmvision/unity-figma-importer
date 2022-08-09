@@ -174,7 +174,7 @@ namespace Cdm.Figma.UI
             public Node node;
         
             /// <summary>
-            /// Root game object..
+            /// Root game object.
             /// </summary>
             public NodeObject nodeObject;
         }

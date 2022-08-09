@@ -1,5 +1,6 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles;
+using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -63,6 +64,25 @@ namespace Cdm.Figma.UI
                     else
                     {
                         Debug.LogWarning($"Text placeholder node needs to have a {nameof(Graphic)} component.");
+                    }
+                }
+                
+                if (instanceNode.mainComponent.componentSet != null &&
+                    instanceNode.mainComponent.componentSet.TryGetPluginData(out var pluginData))
+                {
+                    var componentData = pluginData.GetComponentDataAs<InputFieldComponentData>();
+                    if (componentData != null)
+                    {
+                        var selectionColor = (UnityEngine.Color) componentData.selectionColor;
+                        componentData.selectionColor.a = componentData.selectionColorOpacity / 100f;
+                        inputField.selectionColor = selectionColor;
+                        
+                        var caretColor = (UnityEngine.Color) componentData.caretColor;
+                        componentData.caretColor.a = componentData.caretColorOpacity / 100f;
+                        inputField.caretColor = caretColor;
+
+                        inputField.caretWidth = componentData.caretWidth;
+                        inputField.customCaretColor = true;
                     }
                 }
 

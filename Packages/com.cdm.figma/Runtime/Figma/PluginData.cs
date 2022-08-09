@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -17,6 +18,9 @@ namespace Cdm.Figma
         
         [DataMember]
         public string componentType { get; set; }
+        
+        [DataMember]
+        private string componentData { get; set; }
 
         public bool hasBindingKey => !string.IsNullOrEmpty(bindingKey);
         public bool hasLocalizationKey => !string.IsNullOrEmpty(localizationKey);
@@ -30,6 +34,23 @@ namespace Cdm.Figma
         public static PluginData FromJson(JObject json)
         {
             return FromString(json.ToString());
+        }
+
+        public T GetComponentDataAs<T>() where T : class
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(componentData))
+                {
+                    return JsonConvert.DeserializeObject<T>(componentData, JsonSerializerHelper.Settings);    
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
+            return null;
         }
 
         public override string ToString()

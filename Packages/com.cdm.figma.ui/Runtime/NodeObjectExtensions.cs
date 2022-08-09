@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Cdm.Figma.UI.Styles;
 using UnityEngine;
 
@@ -127,6 +128,61 @@ namespace Cdm.Figma.UI
             });
 
             return target;
+        }
+        
+        public static NodeObject Find(this NodeObject node, string nodeID)
+        {
+            return node.Find(n => n.nodeID == nodeID);
+        }
+        
+        public static NodeObject Query(this NodeObject node, string bindingKey)
+        {
+            return node.Query<NodeObject>(bindingKey);
+        }
+        
+        public static NodeObject[] QueryAll(this NodeObject node, string bindingKey)
+        {
+            return node.QueryAll<NodeObject>(bindingKey);
+        }
+        
+        public static T Query<T>(this NodeObject node, string bindingKey) where T : UnityEngine.Component
+        {
+            T component = null;
+            node.Traverse(n =>
+            {
+                if (n.bindingKey == bindingKey)
+                {
+                    component = n.GetComponent<T>();
+                    if (component != null)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            return component;
+        }
+        
+        public static T[] QueryAll<T>(this NodeObject node, string bindingKey) where T : UnityEngine.Component
+        {
+            var components = new List<T>();
+            node.Traverse(n =>
+            {
+                if (n.bindingKey == bindingKey)
+                {
+                    var component = n.GetComponent<T>();
+                    if (component != null)
+                    {
+                        components.Add(component);
+                    }
+                }
+
+                return true;
+            });
+
+            return components.ToArray();
         }
     }
 }
