@@ -25,7 +25,8 @@ namespace Cdm.Figma.UI
             
             AddLayoutComponentIfNeeded(nodeObject, frameNode);
             AddContentSizeFitterIfNeeded(nodeObject, frameNode);
-
+            AddGridIfNeeded(nodeObject, frameNode);
+            
             BuildChildren(frameNode, nodeObject, args);
             return nodeObject;
         }
@@ -309,6 +310,37 @@ namespace Cdm.Figma.UI
 
             // Set spacing.
             layoutGroup.spacing = groupNode.itemSpacing;
+        }
+
+        private static void AddGridIfNeeded(NodeObject nodeObject, FrameNode frameNode)
+        {
+            if (frameNode.layoutGrids.Count==1 || frameNode.layoutGrids.Count==2)
+            {
+                var gridView = nodeObject.gameObject.AddComponent<GridLayoutGroup>();
+                foreach (var grid in frameNode.layoutGrids)
+                {
+                    if (grid.pattern == Pattern.Columns)
+                    {
+                        gridView.spacing = new Vector2(grid.gutterSize, gridView.spacing.y);
+                        gridView.padding.left = (int) grid.offset;
+                        gridView.padding.right = (int) grid.offset;
+                        gridView.cellSize = new Vector2(grid.sectionSize, gridView.cellSize.y);
+                    }
+                    
+                    else if (grid.pattern == Pattern.Rows)
+                    {
+                        gridView.spacing = new Vector2(gridView.spacing.x, grid.gutterSize);
+                        gridView.padding.top = (int) grid.offset;
+                        gridView.padding.bottom = (int) grid.offset;
+                        gridView.cellSize = new Vector2(gridView.cellSize.x, grid.sectionSize);
+                    }
+                    
+                    else if (grid.pattern == Pattern.Grid)
+                    {
+                        gridView.cellSize = new Vector2(grid.sectionSize, grid.sectionSize);
+                    }
+                }
+            }
         }
     }
 }
