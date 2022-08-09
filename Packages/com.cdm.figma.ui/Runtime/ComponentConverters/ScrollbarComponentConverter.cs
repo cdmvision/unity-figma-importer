@@ -26,8 +26,17 @@ namespace Cdm.Figma.UI
                     throw new ArgumentException($"Slider handle node could not be found. Did you set '{HandleKey}' as binding key?");
 
                 scrollbar.handleRect = handle.rectTransform;
-                scrollbar.direction = Scrollbar.Direction.LeftToRight;  // TODO: !!!
 
+                if (instanceNode.mainComponent.componentSet != null &&
+                    instanceNode.mainComponent.componentSet.TryGetPluginData(out var pluginData))
+                {
+                    var componentData = pluginData.GetComponentDataAs<ScrollbarComponentData>();
+                    if (componentData != null)
+                    {
+                        scrollbar.direction = componentData.direction;
+                    }
+                }
+                
                 // TODO: Bug ?
                 var handleParent = (RectTransform) handle.rectTransform.parent;
                 handleParent.offsetMin = new Vector2(handleParent.offsetMin.x, handleParent.offsetMin.y + 1);

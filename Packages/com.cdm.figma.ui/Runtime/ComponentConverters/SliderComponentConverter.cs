@@ -33,6 +33,16 @@ namespace Cdm.Figma.UI
 
                 slider.fillRect = fill.rectTransform;
                 slider.handleRect = handle.rectTransform;
+                
+                if (instanceNode.mainComponent.componentSet != null &&
+                    instanceNode.mainComponent.componentSet.TryGetPluginData(out var pluginData))
+                {
+                    var componentData = pluginData.GetComponentDataAs<SliderComponentData>();
+                    if (componentData != null)
+                    {
+                        slider.direction = componentData.direction;
+                    }
+                }
             }
 
             return nodeObject;
