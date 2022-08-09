@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class DropdownComponentConverter : ComponentConverter
+    public class DropdownComponentConverter : SelectableComponentConverter<TMP_Dropdown, SelectableComponentVariantFilter>
     {
         private const string TemplateKey = "@Template";
         private const string CaptionTextKey = "@CaptionText";
@@ -22,7 +22,7 @@ namespace Cdm.Figma.UI
 
             if (nodeObject != null)
             {
-                var dropdown = nodeObject.gameObject.AddComponent<TMP_Dropdown>();
+                var dropdown = nodeObject.GetComponent<TMP_Dropdown>();
                 dropdown.transition = Selectable.Transition.None;
 
                 var template = nodeObject.Find(x => x.bindingKey == TemplateKey);
@@ -47,12 +47,6 @@ namespace Cdm.Figma.UI
             }
             
             return nodeObject;
-        }
-
-        protected override bool TryGetSelector(string[] variant, out string selector)
-        {
-            selector = "";
-            return false;
         }
     }
 }
