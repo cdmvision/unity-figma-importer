@@ -102,7 +102,8 @@ namespace Cdm.Figma
                 }
                 else
                 {
-                    Debug.LogWarning($"Component node '{instanceNode.componentId}' could not be found. " +
+                    Debug.LogWarning($"Component node with id: '{instanceNode.componentId}' could not be found. " +
+                                     $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported. " +
                                      "You may have used the component shared from another file. " +
                                      "This is not supported.");
                 }
@@ -127,7 +128,7 @@ namespace Cdm.Figma
                 {
                     var componentSetNode =
                         (ComponentSetNode)document.Find(component.componentSetId, NodeType.ComponentSet);
-                    
+
                     if (componentSetNode == null)
                         throw new ArgumentException(
                             $"Component set node could not be found: {component.componentSetId}");
