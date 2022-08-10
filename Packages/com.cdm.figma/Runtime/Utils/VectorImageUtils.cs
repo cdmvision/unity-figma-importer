@@ -39,7 +39,7 @@ namespace Cdm.Figma.Utils
         }
 
         private static void AppendSvgPathElement(StringBuilder svg, INodeFill nodeFill, string path, 
-            string? windingRule = null)
+            string windingRule = null)
         {
             Debug.Assert(nodeFill != null);
             
