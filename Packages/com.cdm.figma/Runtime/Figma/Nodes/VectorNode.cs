@@ -198,11 +198,20 @@ namespace Cdm.Figma
         [DataContract]
         public enum StyleType
         {
-            [EnumMember(Value = "fill")]
+            [EnumMember(Value = "FILL")]
             Fill,
-        
-            [EnumMember(Value = "stroke")]
+            
+            [EnumMember(Value = "STROKE")]
             Stroke,
+            
+            [EnumMember(Value = "GRID")]
+            Grid,
+            
+            [EnumMember(Value = "TEXT")]
+            Text,
+            
+            [EnumMember(Value = "EFFECT")]
+            Effect,
         }
     }
 

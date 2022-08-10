@@ -204,22 +204,67 @@ namespace Cdm.Figma
         public override Node[] GetChildren() => children;
     }
 
+    /// <remarks>
+    /// Note that top-level frames (parented directly under the canvas) can still scroll even when
+    /// <see cref="OverflowDirection"/> is <see cref="None"/>.
+    /// </remarks>
     [DataContract]
     public enum OverflowDirection
     {
+        /// <summary>
+        ///  The frame does not explicitly scroll.
+        /// </summary>
         [EnumMember(Value = "NONE")]
         None,
 
+        /// <summary>
+        /// The frame can scroll in the horizontal direction if its content exceeds the frame's bounds horizontally.
+        /// </summary>
+        [EnumMember(Value = "HORIZONTAL")]
+        Horizontal,
+        
+        /// <summary>
+        /// The frame can in the vertical direction if its content exceeds the frame's bounds vertically.
+        /// </summary>
+        [EnumMember(Value = "VERTICAL")]
+        Vertical,
+        
+        /// <summary>
+        /// The frame can scroll in either direction if the content exceeds the frame's bounds.
+        /// </summary>
+        [EnumMember(Value = "BOTH")]
+        Both,
+        
+        // For backward compability.
+        /// <inheritdoc cref="Horizontal"/>
         [EnumMember(Value = "HORIZONTAL_SCROLLING")]
-        HorizontalScrolling,
+        HorizontalScrolling = Horizontal,
 
+        /// <inheritdoc cref="Vertical"/>
         [EnumMember(Value = "VERTICAL_SCROLLING")]
-        VerticalScrolling,
-
+        VerticalScrolling = Vertical,
+        
+        /// <inheritdoc cref="Both"/>
         [EnumMember(Value = "HORIZONTAL_AND_VERTICAL_SCROLLING")]
-        HorizontalAndVerticalScrolling
+        HorizontalAndVertical = Both
     }
 
+    /// <summary>
+    /// Applicable only on auto-layout frames, ignored otherwise. Determines how the auto-layout frame’s children
+    /// should be aligned in the primary axis direction.
+    /// </summary>
+    /// <remarks>
+    /// <list type="bullet">
+    /// <item>In horizontal auto-layout frames, <see cref="Min"/> and <see cref="Max"/> correspond to left and right
+    /// respectively.</item>
+    /// <item>In vertical auto-layout frames, <see cref="Min"/> and <see cref="Max"/> correspond to top and bottom
+    /// respectively.</item>
+    /// <item><see cref="SpaceBetween"/> will cause the children to space themselves evenly along the primary axis,
+    /// only putting the extra space between the children.</item>
+    /// </list>
+    ///
+    /// The corresponding property for the counter axis direction is <see cref="CounterAxisAlignItems"/>
+    /// </remarks>
     [DataContract]
     public enum PrimaryAxisAlignItems
     {
@@ -236,6 +281,21 @@ namespace Cdm.Figma
         SpaceBetween
     }
 
+    /// <summary>
+    /// Applicable only on auto-layout frames, ignored otherwise. Determines how the auto-layout frame’s children
+    /// should be aligned in the counter axis direction.
+    /// </summary>
+    /// <remarks>
+    /// <list type="bullet">
+    /// <item>In horizontal auto-layout frames, <see cref="Min"/> and <see cref="Max"/> correspond to top and bottom
+    /// respectively.</item>
+    /// <item>In vertical auto-layout frames, <see cref="Min"/> and <see cref="Max"/> correspond to left and right
+    /// respectively.</item>
+    /// <item><see cref="Baseline"/> can only be set on horizontal auto-layout frames, and aligns all children along the
+    /// text baseline.</item>
+    /// </list>
+    /// The corresponding property for the primary axis direction is <see cref="PrimaryAxisAlignItems"/>
+    /// </remarks>
     [DataContract]
     public enum CounterAxisAlignItems
     {
@@ -246,9 +306,16 @@ namespace Cdm.Figma
         Center,
 
         [EnumMember(Value = "MAX")]
-        Max
+        Max,
+        
+        [EnumMember(Value = "BASELINE")]
+        Baseline
     }
 
+    /// <summary>
+    /// Applicable only on auto-layout frames. Determines whether the primary or counter axis has a fixed length
+    /// (determined by the user) or an automatic length (determined by the layout engine).
+    /// </summary>
     [DataContract]
     public enum AxisSizingMode
     {
@@ -259,6 +326,9 @@ namespace Cdm.Figma
         Fixed
     }
 
+    /// <summary>
+    /// Determines whether this layer uses auto-layout to position its children.
+    /// </summary>
     [DataContract]
     public enum LayoutMode
     {
@@ -273,8 +343,16 @@ namespace Cdm.Figma
     }
 
     /// <summary>
-    /// In horizontal auto-layout frames, "MIN" and "MAX" correspond to "TOP" and "BOTTOM".
-    /// In vertical auto-layout frames, "MIN" and "MAX" correspond to "LEFT" and "RIGHT".
+    /// Applicable only on direct children of auto-layout frames, ignored otherwise. Determines if the layer should
+    /// stretch along the parent’s counter axis.
+    /// <list type="bullet">
+    /// <item>
+    /// In horizontal auto-layout frames, <see cref="Min"/> and <see cref="Max"/> correspond to top and bottom.
+    /// </item>
+    /// <item>
+    /// In vertical auto-layout frames, <see cref="Min"/> and <see cref="Max"/> correspond to left and right.
+    /// </item>
+    /// </list>
     /// </summary>
     [DataContract]
     public enum LayoutAlign
@@ -295,6 +373,9 @@ namespace Cdm.Figma
         Max,
     }
 
+    /// <summary>
+    /// The alignment of the stroke with respect to the boundaries of the shape.
+    /// </summary>
     [DataContract]
     public enum StrokeAlign
     {
