@@ -75,14 +75,42 @@ namespace Cdm.Figma
         [DataMember(Name = "schemaVersion")]
         public int schemaVersion { get; set; }
 
+        private readonly Dictionary<string, ComponentNode> _componentNodes = new Dictionary<string, ComponentNode>(); 
+        private readonly Dictionary<string, ComponentSetNode> _componentSetNodes = new Dictionary<string, ComponentSetNode>(); 
+
         public void BuildHierarchy()
         {
+            _componentNodes.Clear();
+            _componentSetNodes.Clear();
+            
             var stopwatch = Stopwatch.StartNew();
-            BuildHierarchy(document);
+            BuildHierarchyRecurse(document);
             FixRelativePositionGroupNodeChildren(document);
             stopwatch.Stop();
             
             Debug.Log($"Building hierarchy took {stopwatch.ElapsedMilliseconds} ms.");
+        }
+        
+        private void BuildHierarchyRecurse(Node node)
+        {
+            if (node is ComponentNode componentNode)
+            {
+                _componentNodes.TryAdd(componentNode.id, componentNode);
+            }
+            else if (node is ComponentSetNode componentSetNode)
+            {
+                _componentSetNodes.TryAdd(componentSetNode.id, componentSetNode);
+            }
+            
+            if (node.hasChildren)
+            {
+                foreach (var child in node.GetChildren())
+                {
+                    child.parent = node;
+
+                    BuildHierarchyRecurse(child);
+                }
+            }
         }
         
         public bool InitInstanceNode(InstanceNode instanceNode)
@@ -95,12 +123,11 @@ namespace Cdm.Figma
             }
             
             // Find component node in the hierarchy.
-            var componentNode = document.Find(instanceNode.componentId, NodeType.Component);
-            if (componentNode != null)
+            if (_componentNodes.TryGetValue(instanceNode.componentId, out var componentNode))
             {
-                instanceNode.mainComponent = (ComponentNode)componentNode;
+                instanceNode.mainComponent = componentNode;
 
-                if (!InitComponentNode(instanceNode.mainComponent))
+                if (!InitComponentNode(componentNode))
                 {
                     return false;
                 }
@@ -115,26 +142,6 @@ namespace Cdm.Figma
 
             return true;
         }
-        
-        // Sets all component sets of the components if exists.
-        private void InitComponentNodes()
-        {
-            document.Traverse(node =>
-            {
-                InitComponentNode((ComponentNode)node);
-                return true;
-            }, NodeType.Component);
-        }
-        
-        // Sets all main components of the instance nodes.
-        private void InitInstanceNodes()
-        {
-            document.Traverse(node =>
-            {
-                InitInstanceNode((InstanceNode)node);
-                return true;
-            }, NodeType.Instance);
-        }
 
         private bool InitComponentNode(ComponentNode componentNode)
         {
@@ -146,12 +153,10 @@ namespace Cdm.Figma
                 
             if (!string.IsNullOrEmpty(component.componentSetId))
             {
-                var componentSetNode =
-                    (ComponentSetNode)document.Find(component.componentSetId, NodeType.ComponentSet);
-
-                if (componentSetNode == null)
+                if (!_componentSetNodes.TryGetValue(component.componentSetId, out var componentSetNode))
                 {
-                    Debug.Log($"Component set node '{component.componentSetId}' could not be found for the component node: {componentNode}");
+                    Debug.LogWarning(
+                        $"Component set node '{component.componentSetId}' could not be found for the component node: {componentNode}");
                     return false;
                 }
 
@@ -203,19 +208,6 @@ namespace Cdm.Figma
                 }
 
                 nodeTransform.relativeTransform.position = position;
-            }
-        }
-
-        private static void BuildHierarchy(Node node)
-        {
-            if (node.hasChildren)
-            {
-                foreach (var child in node.GetChildren())
-                {
-                    child.parent = node;
-
-                    BuildHierarchy(child);
-                }
             }
         }
 
