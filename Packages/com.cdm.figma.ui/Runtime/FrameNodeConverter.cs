@@ -43,12 +43,21 @@ namespace Cdm.Figma.UI
                     textureSize = 1024
                 };
 
+                var sprite = VectorImageUtils.CreateSpriteFromRect(node, options);
+                
                 // Multiple fill is not supported, only one image can be attached to the node object.
                 var style = new ImageStyle();
-                style.enabled = node.fills.Any(f => f.visible) || node.strokes.Any(s => s.visible);
-                style.sprite.SetValue(VectorImageUtils.CreateSpriteFromRect(node, options));
-                style.imageType.SetValue(Image.Type.Sliced);
-                style.color.SetValue(new UnityEngine.Color(1f, 1f, 1f, node.opacity));
+                style.componentEnabled.enabled = true;
+                style.componentEnabled.value = sprite != null;
+
+                style.sprite.enabled = true;
+                style.sprite.value = sprite;
+
+                style.imageType.enabled = true;
+                style.imageType.value = Image.Type.Sliced;
+
+                style.color.enabled = true;
+                style.color.value = new UnityEngine.Color(1f, 1f, 1f, node.opacity);
                 nodeObject.styles.Add(style);
             }
 

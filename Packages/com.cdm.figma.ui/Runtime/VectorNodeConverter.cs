@@ -55,8 +55,7 @@ namespace Cdm.Figma.UI
                 }
 
                 style.componentEnabled.enabled = true;
-                style.componentEnabled.value = vectorNode.fills.Any(fill => fill.visible) ||
-                                               vectorNode.strokes.Any(stroke => stroke.visible);
+                style.componentEnabled.value = vectorConvertArgs.sourceSprite != null;
 
                 style.sprite.enabled = true;
                 style.sprite.value = vectorConvertArgs.sourceSprite;
