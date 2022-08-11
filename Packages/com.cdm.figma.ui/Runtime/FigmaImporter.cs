@@ -141,8 +141,15 @@ namespace Cdm.Figma.UI
             return Task.CompletedTask;
         }
         
-        internal bool TryConvertNode(NodeObject parentObject, Node node, NodeConvertArgs args, out NodeObject nodeObject)
+        internal bool TryConvertNode(NodeObject parentObject, Node node, NodeConvertArgs args, 
+            out NodeObject nodeObject)
         {
+            // Init instance node's main component, and main component's component set.
+            if (node is InstanceNode instanceNode)
+            {
+                args.fileContent.InitInstanceNode(instanceNode);
+            }
+            
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (componentConverter != null)

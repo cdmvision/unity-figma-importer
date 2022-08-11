@@ -65,6 +65,11 @@ namespace Cdm.Figma
         /// </summary>
         /// <returns>Array of nodes if exist; otherwise, <c>null</c>.</returns>
         public virtual Node[] GetChildren() => Array.Empty<Node>();
+
+        public override string ToString()
+        {
+            return $"('{id}', '{name}')";
+        }
     }
 
     /// <summary>

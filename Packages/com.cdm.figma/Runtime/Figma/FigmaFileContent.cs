@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Cdm.Figma
 {
@@ -76,69 +77,91 @@ namespace Cdm.Figma
 
         public void BuildHierarchy()
         {
-            InitComponentNodes();
-            InitInstanceNodes();
-
+            var stopwatch = Stopwatch.StartNew();
             BuildHierarchy(document);
             FixRelativePositionGroupNodeChildren(document);
+            stopwatch.Stop();
+            
+            Debug.Log($"Building hierarchy took {stopwatch.ElapsedMilliseconds} ms.");
         }
-
-        /// <summary>
-        /// Sets all main components of the instance nodes.
-        /// </summary>
-        private void InitInstanceNodes()
+        
+        public bool InitInstanceNode(InstanceNode instanceNode)
         {
-            document.Traverse(node =>
+            if (string.IsNullOrEmpty(instanceNode.componentId))
             {
-                var instanceNode = (InstanceNode)node;
-                if (string.IsNullOrEmpty(instanceNode.componentId))
-                    throw new ArgumentException($"Instance node's {nameof(instanceNode.componentId)} does not exist.");
+                Debug.LogWarning($"Instance node has missing component. " + 
+                                 $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported.");
+                return false;
+            }
+            
+            // Find component node in the hierarchy.
+            var componentNode = document.Find(instanceNode.componentId, NodeType.Component);
+            if (componentNode != null)
+            {
+                instanceNode.mainComponent = (ComponentNode)componentNode;
 
-                // Find component node in the hierarchy.
-                var componentNode = document.Find(instanceNode.componentId, NodeType.Component);
-                if (componentNode != null)
+                if (!InitComponentNode(instanceNode.mainComponent))
                 {
-                    instanceNode.mainComponent = (ComponentNode)componentNode;
+                    return false;
                 }
-                else
-                {
-                    Debug.LogWarning($"Component node with id: '{instanceNode.componentId}' could not be found. " +
-                                     $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported. " +
-                                     "You may have used the component shared from another file. " +
-                                     "This is not supported.");
-                }
+            }
+            else
+            {
+                Debug.LogWarning($"Instance of component node with id: '{instanceNode.componentId}' could not be found. " +
+                                 $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported. " +
+                                 "You may have used the component shared from another file. This is not supported.");
+                return false;
+            }
 
-                return true;
-            }, NodeType.Instance);
+            return true;
         }
-
-        /// <summary>
-        /// Sets all component sets of the components if exists.
-        /// </summary>
+        
+        // Sets all component sets of the components if exists.
         private void InitComponentNodes()
         {
             document.Traverse(node =>
             {
-                var componentNode = (ComponentNode)node;
-
-                if (!components.TryGetValue(componentNode.id, out var component))
-                    throw new ArgumentException($"Component definition could not be found: {componentNode.id}");
-
-                if (!string.IsNullOrEmpty(component.componentSetId))
-                {
-                    var componentSetNode =
-                        (ComponentSetNode)document.Find(component.componentSetId, NodeType.ComponentSet);
-
-                    if (componentSetNode == null)
-                        throw new ArgumentException(
-                            $"Component set node could not be found: {component.componentSetId}");
-
-                    componentNode.componentSet = componentSetNode;
-                }
-
+                InitComponentNode((ComponentNode)node);
                 return true;
             }, NodeType.Component);
         }
+        
+        // Sets all main components of the instance nodes.
+        private void InitInstanceNodes()
+        {
+            document.Traverse(node =>
+            {
+                InitInstanceNode((InstanceNode)node);
+                return true;
+            }, NodeType.Instance);
+        }
+
+        private bool InitComponentNode(ComponentNode componentNode)
+        {
+            if (!components.TryGetValue(componentNode.id, out var component))
+            {
+                Debug.LogWarning($"Component definition could not be found for component node: '{componentNode}'");
+                return false;
+            }
+                
+            if (!string.IsNullOrEmpty(component.componentSetId))
+            {
+                var componentSetNode =
+                    (ComponentSetNode)document.Find(component.componentSetId, NodeType.ComponentSet);
+
+                if (componentSetNode == null)
+                {
+                    Debug.Log($"Component set node '{component.componentSetId}' could not be found for the component node: {componentNode}");
+                    return false;
+                }
+
+                componentNode.componentSet = componentSetNode;
+            }
+
+            return true;
+        }
+
+
 
         private static void FixRelativePositionGroupNodeChildren(Node node)
         {
