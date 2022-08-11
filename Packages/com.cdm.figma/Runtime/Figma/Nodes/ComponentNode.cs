@@ -12,6 +12,12 @@ namespace Cdm.Figma
         public override string type => NodeType.Component;
         
         /// <summary>
+        /// 
+        /// </summary>
+        [DataMember(Name = "componentProperties")]
+        public ComponentProperties componentProperties { get; private set; }
+        
+        /// <summary>
         /// The component set that this component attached to.
         /// </summary>
         public ComponentSetNode componentSet { get; internal set; }

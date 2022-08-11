@@ -24,7 +24,9 @@ namespace Cdm.Figma
                     //GetGroupNodeConverter(),
                     //GetFrameNodeConverter(),
                     GetEffectConverter(),
-                    GetPaintConverter()
+                    GetPaintConverter(),
+                    GetComponentPropertyDefinitionConverter(),
+                    GetComponentPropertyAssignmentConverter()
                 },
                 NullValueHandling = NullValueHandling.Ignore,
             };
@@ -99,6 +101,30 @@ namespace Cdm.Figma
                 .RegisterSubtype<DiamondGradientPaint>(PaintType.GradientDiamond)
                 .RegisterSubtype<ImagePaint>(PaintType.Image)
                 .SetFallbackSubtype(typeof(Paint))
+                .SerializeDiscriminatorProperty()
+                .Build();
+        }
+        
+        private static JsonConverter GetComponentPropertyDefinitionConverter()
+        {
+            return JsonSubtypesConverterBuilder
+                .Of<ComponentPropertyDefinition>("type")
+                .RegisterSubtype<ComponentPropertyDefinitionInstanceSwap>(ComponentPropertyType.InstanceSwap)
+                .RegisterSubtype<ComponentPropertyDefinitionText>(ComponentPropertyType.Text)
+                .RegisterSubtype<ComponentPropertyDefinitionBoolean>(ComponentPropertyType.Boolean)
+                .SetFallbackSubtype(typeof(ComponentPropertyDefinition))
+                .SerializeDiscriminatorProperty()
+                .Build();
+        }
+        
+        private static JsonConverter GetComponentPropertyAssignmentConverter()
+        {
+            return JsonSubtypesConverterBuilder
+                .Of<ComponentPropertyAssignment>("type")
+                .RegisterSubtype<ComponentPropertyAssignmentInstanceSwap>(ComponentPropertyType.InstanceSwap)
+                .RegisterSubtype<ComponentPropertyAssignmentText>(ComponentPropertyType.Text)
+                .RegisterSubtype<ComponentPropertyAssignmentBoolean>(ComponentPropertyType.Boolean)
+                .SetFallbackSubtype(typeof(ComponentPropertyAssignment))
                 .SerializeDiscriminatorProperty()
                 .Build();
         }

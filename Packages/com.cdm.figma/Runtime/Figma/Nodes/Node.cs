@@ -68,7 +68,7 @@ namespace Cdm.Figma
 
         public override string ToString()
         {
-            return $"('{id}', '{name}')";
+            return $"[{id}, '{name}']";
         }
     }
 
