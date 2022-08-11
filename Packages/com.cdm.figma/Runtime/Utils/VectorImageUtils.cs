@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -75,6 +75,7 @@ namespace Cdm.Figma.Utils
                         svg.Append($@"clip-rule=""{windingRule.ToLowerInvariant()}"" ");
                     }
                     
+                    svg.Append($@"fill=""none"" ");
                     svg.Append($@"stroke=""{paint.color.ToString("rgb-hex")}"" ");
                     svg.Append($@"stroke-width=""{strokeWidth}"" ");
                     svg.Append($@"stroke-opacity=""{paint.opacity}"" ");

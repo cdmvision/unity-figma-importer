@@ -32,7 +32,7 @@ namespace Cdm.Figma.UI
             nodeObject.SetLayoutConstraints((INodeTransform)vectorNode.parent);
 
             GenerateStyles(nodeObject, vectorNode, args, vectorConvertArgs);
-            
+
             nodeObject.ApplyStyles();
             return nodeObject;
         }
@@ -53,10 +53,11 @@ namespace Cdm.Figma.UI
                     vectorConvertArgs.sourceSprite =
                         VectorImageUtils.CreateSpriteFromPath(vectorNode, vectorConvertArgs.spriteOptions);
                 }
-                
+
                 style.componentEnabled.enabled = true;
-                style.componentEnabled.value = vectorNode.fills.Any(fill => fill.visible);
-                
+                style.componentEnabled.value = vectorNode.fills.Any(fill => fill.visible) ||
+                                               vectorNode.strokes.Any(stroke => stroke.visible);
+
                 style.sprite.enabled = true;
                 style.sprite.value = vectorConvertArgs.sourceSprite;
 
@@ -67,7 +68,7 @@ namespace Cdm.Figma.UI
                 style.color.value = new UnityEngine.Color(1f, 1f, 1f, vectorNode.opacity);
                 nodeObject.styles.Add(style);
             }
-            
+
             NodeConverterHelper.GenerateEffectsStyles(nodeObject, vectorNode.effects);
         }
     }
