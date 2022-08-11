@@ -47,8 +47,6 @@ namespace Cdm.Figma.UI
 
             if (instanceNode.mainComponent.componentSet != null)
             {
-                Debug.Assert(instanceNode.mainComponent != null);
-
                 var nodeObject = new FrameNodeConverter().Convert(parentObject, instanceNode, args);
                 ConvertComponentSet(nodeObject, parentObject, instanceNode, args);
                 return nodeObject;
