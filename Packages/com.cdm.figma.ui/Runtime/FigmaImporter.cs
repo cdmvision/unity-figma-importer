@@ -104,7 +104,7 @@ namespace Cdm.Figma.UI
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);
                 pageNode.rectTransform.offsetMin = new Vector2(0, 0);
                 pageNode.rectTransform.offsetMax = new Vector2(0, 0);
-
+                
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
@@ -125,13 +125,18 @@ namespace Cdm.Figma.UI
                 {
                     page = filePage,
                     node = page,
-                    nodeObject = pageNode
+                    nodeObject = pageNode,
+                    sprites = conversionArgs.generatedSprites.ToArray(),
+                    materials = conversionArgs.generatedMaterials.ToArray()
                 });
+                
+                conversionArgs.generatedSprites.Clear();
+                conversionArgs.generatedMaterials.Clear();
             }
 
             return Task.CompletedTask;
         }
-        
+
         internal bool TryConvertNode(NodeObject parentObject, Node node, NodeConvertArgs args, 
             out NodeObject nodeObject)
         {
@@ -177,6 +182,16 @@ namespace Cdm.Figma.UI
             /// Root game object.
             /// </summary>
             public NodeObject nodeObject;
+            
+            /// <summary>
+            /// Generated sprites.
+            /// </summary>
+            public Sprite[] sprites;
+            
+            /// <summary>
+            /// Generated materials.
+            /// </summary>
+            public Material[] materials;
         }
         
         /*public override Task ImportFileAsync(FigmaFile file, FigmaImportOptions options = null)

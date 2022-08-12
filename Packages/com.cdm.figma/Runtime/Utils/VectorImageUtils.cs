@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -37,27 +38,105 @@ namespace Cdm.Figma.Utils
             return CreateSpriteWithTexture(vectorNode, options, sceneInfo.Scene, sceneInfo);
         }
 
-        private static void AppendSvgPathElement(StringBuilder svg, INodeFill nodeFill, string path, 
+        private static void AppendSvgGradientStops(StringBuilder svg, GradientPaint gradient)
+        {
+            foreach (var gradientStop in gradient.gradientStops)
+            {
+                svg.Append($@"<stop ");
+                svg.Append($@"offset=""{gradientStop.position}"" ");
+                svg.Append($@"stop-color=""{gradientStop.color.ToString("rgb-hex")}"" ");
+                svg.AppendLine("/>");
+            }
+        }
+        
+        private static void AppendSvgPathElement(StringBuilder svg, SceneNode node, string path, Vector2 size,
             string windingRule = null)
         {
+            var nodeFill = (INodeFill)node;
             Debug.Assert(nodeFill != null);
             
-            foreach (var paint in nodeFill.fills)
+            for (var i = 0; i < nodeFill.fills.Count; i++)
             {
-                if (paint.visible && paint is SolidPaint fill)
+                var paint = nodeFill.fills[i];
+                
+                if (!paint.visible)
+                    continue;
+                
+                
+                if (paint is SolidPaint solid)
                 {
                     svg.Append($@"<path d=""{path}"" ");
-                    
                     if (!string.IsNullOrEmpty(windingRule))
                     {
                         svg.Append($@"fill-rule=""{windingRule.ToLowerInvariant()}"" ");
                         svg.Append($@"clip-rule=""{windingRule.ToLowerInvariant()}"" ");
                     }
                     
-                    svg.Append($@"fill=""{fill.color.ToString("rgb-hex")}"" ");
-                    svg.Append($@"fill-opacity=""{fill.opacity}"" ");
+                    svg.Append($@"fill=""{solid.color.ToString("rgb-hex")}"" ");
+                    svg.Append($@"fill-opacity=""{paint.opacity}"" ");
                     svg.AppendLine("/>");
+                    
                 }
+                else if (paint is GradientPaint gradient)
+                {
+                    var gradientID = $"paint{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
+                    
+                    svg.Append($@"<path d=""{path}"" ");
+                    svg.Append($@"fill=""url(#{gradientID})"" ");
+                    svg.Append($@"fill-opacity=""{paint.opacity}"" ");
+                    svg.AppendLine("/>");
+                    
+                    if (paint is LinearGradientPaint)
+                    {
+                        // Handles are normalized. So un-normalize them.
+                        var p1 = Vector2.Scale(gradient.gradientHandlePositions[0], size);
+                        var p2 = Vector2.Scale(gradient.gradientHandlePositions[1], size);
+                    
+                        svg.AppendLine(@"<defs>");
+                        svg.Append($@"<linearGradient ");
+                        svg.Append($@"id=""{gradientID}"" ");
+                        svg.Append($@"x1=""{p1.x}"" y1=""{p1.y}"" x2=""{p2.x}"" y2=""{p2.y}"" ");
+                        svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
+                        svg.Append($@">");
+
+                        AppendSvgGradientStops(svg, gradient);
+                        
+                        svg.AppendLine(@"</linearGradient>");
+                        svg.AppendLine(@"</defs>");
+                    }
+                    else if (paint is RadialGradientPaint || 
+                             paint is DiamondGradientPaint ||
+                             paint is AngularGradientPaint)
+                    {
+                        // SVG supports only linear and radial gradients.
+                        // Handles are normalized. So un-normalize them.
+                        var p1 = Vector2.Scale(gradient.gradientHandlePositions[0], size);
+                        var p2 = Vector2.Scale(gradient.gradientHandlePositions[1], size);
+                        var p3 = Vector2.Scale(gradient.gradientHandlePositions[2], size);
+                        var sx = Vector2.Distance(p1, p2);
+                        var sy = Vector2.Distance(p1, p3);
+                        
+                        var angle = Vector2.SignedAngle(Vector2.right, p2 - p1);
+                        
+                        svg.AppendLine(@"<defs>");
+                        svg.Append($@"<radialGradient ");
+                        svg.Append($@"id=""{gradientID}"" ");
+                        svg.Append($@"cx=""0"" cy=""0"" r=""1"" ");
+                        svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
+                        svg.Append($@"gradientTransform=""translate({p1.x} {p1.y}) rotate({angle}) scale({sx} {sy})"" ");
+                        svg.AppendLine(">");
+                        
+                        AppendSvgGradientStops(svg, gradient);
+                        
+                        svg.AppendLine(@"</radialGradient>");
+                        svg.AppendLine(@"</defs>");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Gradient type is not supported: {gradient.type}");
+                    }
+                }
+
             }
 
             var strokeAlign = SvgHelpers.GetSvgValue(nodeFill.strokeAlign);
@@ -84,33 +163,34 @@ namespace Cdm.Figma.Utils
             }
         }
         
-        public static Sprite CreateSpriteFromPath(VectorNode vectorNode, SpriteOptions options = null)
+        public static Sprite CreateSpriteFromPath(VectorNode node, SpriteOptions options = null)
         {
             options ??= new SpriteOptions();
 
-            var width = vectorNode.size.x;
-            var height = vectorNode.size.y;
+            var width = node.size.x;
+            var height = node.size.y;
 
             var svgString = new StringBuilder();
             svgString.AppendLine($@"<svg width=""{width}"" height=""{height}"" xmlns=""http://www.w3.org/2000/svg"">");
 
-            foreach (var geometry in vectorNode.fillGeometry)
+            foreach (var geometry in node.fillGeometry)
             {
                 var path = geometry.path;
                 var windingRule = geometry.windingRule;
-                AppendSvgPathElement(svgString, vectorNode, path, windingRule);
+                AppendSvgPathElement(svgString, node, path, new Vector2(width, height), windingRule);
             }
 
             svgString.AppendLine("</svg>");
 
             //Debug.Log($"{vectorNode.id} ({vectorNode.name}): {svgString}");
 
-            return CreateSpriteFromSvg(vectorNode, svgString.ToString(), options);
+            return CreateSpriteFromSvg(node, svgString.ToString(), options);
         }
 
         public static Sprite CreateSpriteFromRect(SceneNode node, SpriteOptions options = null)
         {
-            return CreateSpriteSceneRect(node, options);
+            //return CreateSpriteSceneRect(node, options);
+            return CreateSpriteSvgRect(node, options);
         }
 
         private static Sprite CreateSpriteSceneRect(SceneNode node, SpriteOptions options = null)
@@ -216,11 +296,11 @@ namespace Cdm.Figma.Utils
             svgString.AppendLine(
                 $@"<svg id=""{node.id}"" width=""{width}"" height=""{height}"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">");
 
-            AppendSvgPathElement(svgString, nodeFill, path);
+            AppendSvgPathElement(svgString, node, path, new Vector2(width, height));
             
             svgString.AppendLine("</svg>");
 
-            //Debug.Log($"{node.id}: {svgString}");
+            Debug.Log($"{node}: {svgString}");
             
             // Left, bottom, right and top.
             var strokeWidth = nodeFill.strokeWeight ?? 0;
@@ -234,6 +314,7 @@ namespace Cdm.Figma.Utils
 
             var sceneInfo =
                 SVGParser.ImportSVG(new StringReader(svgString.ToString()), ViewportOptions.PreserveViewport);
+            
             return CreateSpriteWithTexture(node, options, sceneInfo.Scene, sceneInfo, borders);
         }
 
@@ -298,6 +379,7 @@ namespace Cdm.Figma.Utils
             var geometries = VectorUtils.TessellateScene(svg, options.tessellationOptions, sceneInfo?.NodeOpacity);
             var sprite = VectorUtils.BuildSprite(geometries, options.svgPixelsPerUnit, VectorUtils.Alignment.TopLeft,
                 Vector2.zero, options.gradientResolution, true);
+            
             if (sprite == null)
                 return null;
 
@@ -366,6 +448,14 @@ namespace Cdm.Figma.Utils
             var rtrk = k * rtr;
             var rbrk = k * rbr;
             var rblk = k * rbl;
+            
+            // TODO: Use code below to generate rectangle path.
+            /*var rectf = new Rect(0, 0, transform.size.x, transform.size.y);
+            var radiusTL = Vector2.one * rect.topLeftRadius;
+            var radiusTR = Vector2.one * rect.topRightRadius;
+            var radiusBR = Vector2.one * rect.bottomRightRadius;
+            var radiusBL = Vector2.one * rect.bottomLeftRadius;
+            var rectContour = VectorUtils.BuildRectangleContour(rectf, radiusTL, radiusTR, radiusBR, radiusBL);*/
 
             var svgString = new StringBuilder();
             svgString.Append($@"M 0 {rtl} ");

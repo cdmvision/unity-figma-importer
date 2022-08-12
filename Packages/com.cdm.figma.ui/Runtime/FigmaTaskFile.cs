@@ -6,6 +6,6 @@ namespace Cdm.Figma.UI
     public class FigmaTaskFile : FigmaTaskFile<FigmaImporter, FigmaDownloader>
     {
         protected new const string AssetMenuRoot = 
-            FigmaTaskFile<FigmaImporter, FigmaDownloader>.AssetMenuRoot + "UIToolkit/";
+            FigmaTaskFile<FigmaImporter, FigmaDownloader>.AssetMenuRoot + "UI/";
     }
 }
