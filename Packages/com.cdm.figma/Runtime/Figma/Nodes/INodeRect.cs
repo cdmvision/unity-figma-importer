@@ -15,8 +15,8 @@
         
         public float topLeftRadius => GetCornerRadius(0);
         public float topRightRadius => GetCornerRadius(1);
-        public float bottomLeftRadius => GetCornerRadius(2);
-        public float bottomRightRadius => GetCornerRadius(3);
+        public float bottomRightRadius => GetCornerRadius(2);
+        public float bottomLeftRadius => GetCornerRadius(3);
 
         private float GetCornerRadius(int i)
         {

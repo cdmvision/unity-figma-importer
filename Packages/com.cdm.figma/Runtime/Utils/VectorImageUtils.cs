@@ -111,34 +111,35 @@ namespace Cdm.Figma.Utils
             
             for (var i = 0; i < nodeFill.fills.Count; i++)
             {
-                var paint = nodeFill.fills[i];
+                var fill = nodeFill.fills[i];
                 
-                if (!paint.visible)
+                if (!fill.visible)
                     continue;
                 
-                if (paint is SolidPaint solid)
+                svg.Append($@"<path d=""{path}"" ");
+                svg.Append($@"fill-opacity=""{fill.opacity}"" ");
+                
+                if (!string.IsNullOrEmpty(windingRule))
                 {
-                    svg.Append($@"<path d=""{path}"" ");
-                    if (!string.IsNullOrEmpty(windingRule))
-                    {
-                        svg.Append($@"fill-rule=""{windingRule.ToLowerInvariant()}"" ");
-                        svg.Append($@"clip-rule=""{windingRule.ToLowerInvariant()}"" ");
-                    }
-                    
-                    svg.Append($@"fill=""{solid.color.ToString("rgb-hex")}"" ");
-                    svg.Append($@"fill-opacity=""{paint.opacity}"" ");
-                    svg.AppendLine("/>");
-                    
+                    svg.Append($@"fill-rule=""{windingRule.ToLowerInvariant()}"" ");
+                    svg.Append($@"clip-rule=""{windingRule.ToLowerInvariant()}"" ");
                 }
-                else if (paint is GradientPaint gradient)
+                
+                if (fill is SolidPaint solid)
                 {
-                    var gradientID = $"fill{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
-                    svg.Append($@"<path d=""{path}"" ");
-                    svg.Append($@"fill=""url(#{gradientID})"" ");
-                    svg.Append($@"fill-opacity=""{paint.opacity}"" ");
-                    svg.AppendLine("/>");
-
+                    svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
+                }
+                else if (fill is GradientPaint gradient)
+                {
+                    var gradientID = $"f{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
+                    
+                    svg.AppendLine($@"fill=""url(#{gradientID})"" />");
+                    
                     AppendSvgGradient(svg, gradient, gradientID, size);
+                }
+                else
+                {
+                    svg.AppendLine("/>");    
                 }
             }
 
@@ -151,34 +152,32 @@ namespace Cdm.Figma.Utils
                 if (!stroke.visible)
                     continue;
                 
-                if (stroke is SolidPaint paint)
+                svg.Append($@"<path d=""{path}"" ");
+                svg.Append($@"fill=""none"" ");
+                svg.Append($@"stroke-width=""{strokeWidth}"" ");
+                svg.Append($@"stroke-opacity=""{stroke.opacity}"" ");
+                svg.Append($@"stroke-alignment=""{strokeAlign}"" ");        
+                
+                if (nodeFill.strokeDashes != null)
                 {
-                    svg.Append($@"<path d=""{path}"" ");
-                    
-                    if (!string.IsNullOrEmpty(windingRule))
-                    {
-                        svg.Append($@"fill-rule=""{windingRule.ToLowerInvariant()}"" ");
-                        svg.Append($@"clip-rule=""{windingRule.ToLowerInvariant()}"" ");
-                    }
-                    
-                    svg.Append($@"fill=""none"" ");
-                    svg.Append($@"stroke=""{paint.color.ToString("rgb-hex")}"" ");
-                    svg.Append($@"stroke-width=""{strokeWidth}"" ");
-                    svg.Append($@"stroke-opacity=""{paint.opacity}"" ");
-                    svg.Append($@"stroke-alignment=""{strokeAlign}"" ");
-                    svg.AppendLine("/>");
+                    svg.Append($@"stroke-dasharray=""{string.Join(' ', nodeFill.strokeDashes)}"" ");    
+                }
+                
+                if (stroke is SolidPaint solid)
+                {
+                    svg.AppendLine($@"stroke=""{solid.color.ToString("rgb-hex")}"" />");
                 }
                 else if (stroke is GradientPaint gradient)
                 {
-                    var gradientID = $"stroke{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
-                    svg.Append($@"<path d=""{path}"" ");
-                    svg.Append($@"fill=""none"" ");
-                    svg.Append($@"stroke=""url(#{gradientID})"" ");
-                    svg.Append($@"stroke-width=""{strokeWidth}"" ");
-                    svg.Append($@"stroke-opacity=""{stroke.opacity}"" ");
-                    svg.AppendLine("/>");
+                    var gradientID = $"s{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
+                    
+                    svg.AppendLine($@"stroke=""url(#{gradientID})"" />");
 
                     AppendSvgGradient(svg, gradient, gradientID, size);
+                }
+                else
+                {
+                    svg.AppendLine("/>");
                 }
             }
         }
@@ -209,8 +208,8 @@ namespace Cdm.Figma.Utils
 
         public static Sprite CreateSpriteFromRect(SceneNode node, SpriteOptions options = null)
         {
-            //return CreateSpriteSceneRect(node, options);
-            return CreateSpriteSvgRect(node, options);
+            return CreateSpriteSceneRect(node, options);
+            //return CreateSpriteSvgRect(node, options);
         }
 
         private static Sprite CreateSpriteSceneRect(SceneNode node, SpriteOptions options = null)
