@@ -63,6 +63,30 @@ namespace Cdm.Figma.UI
             var componentSet = mainComponent.componentSet;
             var componentSetVariants = componentSet.variants;
 
+            // Just take ComponentPropertyType.InstanceSwap into account. Others will be handled differently.
+            var componentPropertyAssignments = instanceNode.componentProperties?.assignments?
+                .Where(x => x.Value.type == ComponentPropertyType.InstanceSwap);
+            
+            if (componentPropertyAssignments != null)
+            {
+                foreach (var assignment in componentPropertyAssignments)
+                {
+                    var assignmentInstanceSwap = (ComponentPropertyAssignmentInstanceSwap) assignment.Value;
+                    var componentId = assignmentInstanceSwap.value;
+
+                    if (args.fileContent.componentNodes.TryGetValue(componentId, out var component))
+                    {
+                        args.componentPropertyAssignments.Add(assignment.Key, component);
+                    }
+                    else
+                    {
+                        Debug.LogWarning(
+                            $"Instance swap property assignment with key '${assignment.Key}' component could not be found: ${componentId}");
+                    }
+                }    
+            }
+            
+
             // Initialize property variants dictionary.
             foreach (var componentVariant in componentSetVariants)
             {
@@ -113,6 +137,8 @@ namespace Cdm.Figma.UI
                     }
                 }
             }
+            
+            args.componentPropertyAssignments.Clear();
         }
 
         private void MergeComponentVariant(NodeObject node, NodeObject variant, string selector)
