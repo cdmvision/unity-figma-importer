@@ -172,6 +172,7 @@ namespace Cdm.Figma.Utils
                 {
                     var gradientID = $"stroke{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
                     svg.Append($@"<path d=""{path}"" ");
+                    svg.Append($@"fill=""none"" ");
                     svg.Append($@"stroke=""url(#{gradientID})"" ");
                     svg.Append($@"stroke-width=""{strokeWidth}"" ");
                     svg.Append($@"stroke-opacity=""{stroke.opacity}"" ");
