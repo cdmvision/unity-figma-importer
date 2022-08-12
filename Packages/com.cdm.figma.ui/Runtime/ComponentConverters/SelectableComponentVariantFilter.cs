@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -34,6 +34,28 @@ namespace Cdm.Figma.UI
             canvasGroup = GetComponent<CanvasGroup>();
             selectable = GetComponent<Selectable>();
             interactable = IsInteractable();
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+
+            AddRaycastBlocker();
+        }
+
+        private void AddRaycastBlocker()
+        {
+            var raycastGo = new GameObject("Raycast");
+            raycastGo.transform.SetParent(transform);
+                    
+            var raycastImage = raycastGo.AddComponent<Image>();
+            raycastImage.color = UnityEngine.Color.clear;
+                    
+            var raycastTransform = raycastGo.GetComponent<RectTransform>();
+            raycastTransform.anchorMin = new Vector2(0, 0);
+            raycastTransform.anchorMax = new Vector2(1, 1);
+            raycastTransform.offsetMin = new Vector2(0, 0);
+            raycastTransform.offsetMax = new Vector2(0, 0);    
         }
 
         protected virtual void Update()
