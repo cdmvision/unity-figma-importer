@@ -48,6 +48,60 @@ namespace Cdm.Figma.Utils
                 svg.AppendLine("/>");
             }
         }
+
+        private static void AppendSvgGradient(StringBuilder svg, GradientPaint gradient, string gradientID, 
+            Vector2 viewSize)
+        {
+            if (gradient is LinearGradientPaint)
+            {
+                // Handles are normalized. So un-normalize them.
+                var p1 = Vector2.Scale(gradient.gradientHandlePositions[0], viewSize);
+                var p2 = Vector2.Scale(gradient.gradientHandlePositions[1], viewSize);
+            
+                svg.AppendLine(@"<defs>");
+                svg.Append($@"<linearGradient ");
+                svg.Append($@"id=""{gradientID}"" ");
+                svg.Append($@"x1=""{p1.x}"" y1=""{p1.y}"" x2=""{p2.x}"" y2=""{p2.y}"" ");
+                svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
+                svg.Append($@">");
+
+                AppendSvgGradientStops(svg, gradient);
+                
+                svg.AppendLine(@"</linearGradient>");
+                svg.AppendLine(@"</defs>");
+            }
+            else if (gradient is RadialGradientPaint || 
+                     gradient is DiamondGradientPaint ||
+                     gradient is AngularGradientPaint)
+            {
+                // SVG supports only linear and radial gradients.
+                // Handles are normalized. So un-normalize them.
+                var p1 = Vector2.Scale(gradient.gradientHandlePositions[0], viewSize);
+                var p2 = Vector2.Scale(gradient.gradientHandlePositions[1], viewSize);
+                var p3 = Vector2.Scale(gradient.gradientHandlePositions[2], viewSize);
+                var sx = Vector2.Distance(p1, p2);
+                var sy = Vector2.Distance(p1, p3);
+                
+                var angle = Vector2.SignedAngle(Vector2.right, p2 - p1);
+                
+                svg.AppendLine(@"<defs>");
+                svg.Append($@"<radialGradient ");
+                svg.Append($@"id=""{gradientID}"" ");
+                svg.Append($@"cx=""0"" cy=""0"" r=""1"" ");
+                svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
+                svg.Append($@"gradientTransform=""translate({p1.x} {p1.y}) rotate({angle}) scale({sx} {sy})"" ");
+                svg.AppendLine(">");
+                
+                AppendSvgGradientStops(svg, gradient);
+                
+                svg.AppendLine(@"</radialGradient>");
+                svg.AppendLine(@"</defs>");
+            }
+            else
+            {
+                Debug.LogWarning($"Gradient type is not supported: {gradient.type}");
+            }
+        }
         
         private static void AppendSvgPathElement(StringBuilder svg, SceneNode node, string path, Vector2 size,
             string windingRule = null)
@@ -61,7 +115,6 @@ namespace Cdm.Figma.Utils
                 
                 if (!paint.visible)
                     continue;
-                
                 
                 if (paint is SolidPaint solid)
                 {
@@ -79,71 +132,26 @@ namespace Cdm.Figma.Utils
                 }
                 else if (paint is GradientPaint gradient)
                 {
-                    var gradientID = $"paint{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
-                    
+                    var gradientID = $"fill{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
                     svg.Append($@"<path d=""{path}"" ");
                     svg.Append($@"fill=""url(#{gradientID})"" ");
                     svg.Append($@"fill-opacity=""{paint.opacity}"" ");
                     svg.AppendLine("/>");
-                    
-                    if (paint is LinearGradientPaint)
-                    {
-                        // Handles are normalized. So un-normalize them.
-                        var p1 = Vector2.Scale(gradient.gradientHandlePositions[0], size);
-                        var p2 = Vector2.Scale(gradient.gradientHandlePositions[1], size);
-                    
-                        svg.AppendLine(@"<defs>");
-                        svg.Append($@"<linearGradient ");
-                        svg.Append($@"id=""{gradientID}"" ");
-                        svg.Append($@"x1=""{p1.x}"" y1=""{p1.y}"" x2=""{p2.x}"" y2=""{p2.y}"" ");
-                        svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
-                        svg.Append($@">");
 
-                        AppendSvgGradientStops(svg, gradient);
-                        
-                        svg.AppendLine(@"</linearGradient>");
-                        svg.AppendLine(@"</defs>");
-                    }
-                    else if (paint is RadialGradientPaint || 
-                             paint is DiamondGradientPaint ||
-                             paint is AngularGradientPaint)
-                    {
-                        // SVG supports only linear and radial gradients.
-                        // Handles are normalized. So un-normalize them.
-                        var p1 = Vector2.Scale(gradient.gradientHandlePositions[0], size);
-                        var p2 = Vector2.Scale(gradient.gradientHandlePositions[1], size);
-                        var p3 = Vector2.Scale(gradient.gradientHandlePositions[2], size);
-                        var sx = Vector2.Distance(p1, p2);
-                        var sy = Vector2.Distance(p1, p3);
-                        
-                        var angle = Vector2.SignedAngle(Vector2.right, p2 - p1);
-                        
-                        svg.AppendLine(@"<defs>");
-                        svg.Append($@"<radialGradient ");
-                        svg.Append($@"id=""{gradientID}"" ");
-                        svg.Append($@"cx=""0"" cy=""0"" r=""1"" ");
-                        svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
-                        svg.Append($@"gradientTransform=""translate({p1.x} {p1.y}) rotate({angle}) scale({sx} {sy})"" ");
-                        svg.AppendLine(">");
-                        
-                        AppendSvgGradientStops(svg, gradient);
-                        
-                        svg.AppendLine(@"</radialGradient>");
-                        svg.AppendLine(@"</defs>");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"Gradient type is not supported: {gradient.type}");
-                    }
+                    AppendSvgGradient(svg, gradient, gradientID, size);
                 }
-
             }
 
             var strokeAlign = SvgHelpers.GetSvgValue(nodeFill.strokeAlign);
             var strokeWidth = nodeFill.strokeWeight ?? 0;
-            foreach (var stroke in nodeFill.strokes)
+            for (var i = 0; i < nodeFill.strokes.Count; i++)
             {
-                if (stroke.visible && stroke is SolidPaint paint)
+                var stroke = nodeFill.strokes[i];
+                
+                if (!stroke.visible)
+                    continue;
+                
+                if (stroke is SolidPaint paint)
                 {
                     svg.Append($@"<path d=""{path}"" ");
                     
@@ -159,6 +167,17 @@ namespace Cdm.Figma.Utils
                     svg.Append($@"stroke-opacity=""{paint.opacity}"" ");
                     svg.Append($@"stroke-alignment=""{strokeAlign}"" ");
                     svg.AppendLine("/>");
+                }
+                else if (stroke is GradientPaint gradient)
+                {
+                    var gradientID = $"stroke{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
+                    svg.Append($@"<path d=""{path}"" ");
+                    svg.Append($@"stroke=""url(#{gradientID})"" ");
+                    svg.Append($@"stroke-width=""{strokeWidth}"" ");
+                    svg.Append($@"stroke-opacity=""{stroke.opacity}"" ");
+                    svg.AppendLine("/>");
+
+                    AppendSvgGradient(svg, gradient, gradientID, size);
                 }
             }
         }
