@@ -89,18 +89,9 @@ namespace Cdm.Figma.UI
             
             var conversionArgs = new NodeConvertArgs(this, figmaFile, fileContent);
             
-            // Collect all component sets from all pages.
-            var pages = fileContent.document.children;
-            foreach (var page in pages)
-            {
-                page.Traverse(node =>
-                {
-                    conversionArgs.componentSets.Add((ComponentSetNode) node);
-                    return true;
-                }, NodeType.ComponentSet);
-            }
-            
             // Generate all pages.
+            var pages = fileContent.document.children;
+            
             foreach (var page in pages)
             {
                 // Do not import ignored pages.

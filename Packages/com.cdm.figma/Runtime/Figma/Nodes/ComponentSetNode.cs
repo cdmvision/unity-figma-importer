@@ -15,6 +15,12 @@ namespace Cdm.Figma
         public override string type => NodeType.ComponentSet;
 
         /// <summary>
+        /// 
+        /// </summary>
+        [DataMember(Name = "componentProperties")]
+        public ComponentProperties componentProperties { get; private set; }
+        
+        /// <summary>
         /// A list of component nodes that are children of this node.
         /// </summary>
         public ComponentNode[] variants => children.Cast<ComponentNode>().ToArray();

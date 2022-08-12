@@ -10,14 +10,20 @@ namespace Cdm.Figma
     public class InstanceNode : FrameNode
     {
         public override string type => NodeType.Instance;
-        
+
         /// <summary>
         /// ID of component that this instance came from, refers to components table.
         /// </summary>
         /// <seealso cref="mainComponent"/>
         [DataMember(Name = "componentId", IsRequired = true)]
         public string componentId { get; set; }
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [DataMember(Name = "componentProperties")]
+        public ComponentProperties componentProperties { get; private set; }
+
         /// <summary>
         /// The component that this instance reflects.
         /// </summary>

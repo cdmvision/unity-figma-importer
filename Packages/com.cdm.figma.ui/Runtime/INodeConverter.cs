@@ -13,7 +13,9 @@ namespace Cdm.Figma.UI
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
         public FigmaFileContent fileContent { get; }
-        public List<ComponentSetNode> componentSets { get; } = new List<ComponentSetNode>();
+
+        public Dictionary<string, ComponentNode> componentPropertyAssignments { get; } =
+            new Dictionary<string, ComponentNode>();
 
         public NodeConvertArgs(FigmaImporter importer, FigmaFile file, FigmaFileContent fileContent)
         {

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
@@ -13,18 +13,31 @@ namespace Cdm.Figma.UI
                 return false;
             
             var instanceNode = (InstanceNode) node;
-            if (instanceNode.mainComponent == null)
+            
+            // We can convert even if main component is missing. We don't need to take main component into account.
+            if (instanceNode.mainComponent?.componentSet != null)
                 return false;
-
-            if (instanceNode.mainComponent.componentSet != null)
-                return false;
-
+            
             return true;
         }
         
         protected override NodeObject Convert(NodeObject parentObject, InstanceNode node, NodeConvertArgs args)
         {
             var frameNodeConverter = new FrameNodeConverter();
+            
+            var propertyReference = node.componentProperties?.references?.mainComponent;
+            if (!string.IsNullOrEmpty(propertyReference))
+            {
+                if (args.componentPropertyAssignments.TryGetValue(propertyReference, out var componentNode))
+                {
+                    return frameNodeConverter.Convert(parentObject, componentNode, args);
+                }
+                else
+                {
+                    Debug.LogWarning($"Instance node {node} instance swap property reference could not found: {propertyReference}");
+                }
+            }
+            
             return frameNodeConverter.Convert(parentObject, node, args);
         }
     }

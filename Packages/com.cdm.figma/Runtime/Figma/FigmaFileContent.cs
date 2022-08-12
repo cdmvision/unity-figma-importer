@@ -75,8 +75,26 @@ namespace Cdm.Figma
         [DataMember(Name = "schemaVersion")]
         public int schemaVersion { get; set; }
 
-        private readonly Dictionary<string, ComponentNode> _componentNodes = new Dictionary<string, ComponentNode>(); 
-        private readonly Dictionary<string, ComponentSetNode> _componentSetNodes = new Dictionary<string, ComponentSetNode>(); 
+        private readonly Dictionary<string, ComponentNode> _componentNodes = new Dictionary<string, ComponentNode>();
+        
+        /// <summary>
+        /// All <see cref="ComponentNode"/>s in the document.
+        /// </summary>
+        /// <remarks>
+        /// It is available after <see cref="BuildHierarchy"/> method is called.
+        /// </remarks>
+        public IReadOnlyDictionary<string, ComponentNode> componentNodes => _componentNodes;
+        
+        private readonly Dictionary<string, ComponentSetNode> _componentSetNodes = 
+            new Dictionary<string, ComponentSetNode>();
+        
+        /// <summary>
+        /// All <see cref="ComponentSetNode"/>s in the document. 
+        /// </summary>
+        /// <remarks>
+        /// It is available after <see cref="BuildHierarchy"/> method is called.
+        /// </remarks>
+        public IReadOnlyDictionary<string, ComponentSetNode> componentSetNodes => _componentSetNodes;
 
         public void BuildHierarchy()
         {
