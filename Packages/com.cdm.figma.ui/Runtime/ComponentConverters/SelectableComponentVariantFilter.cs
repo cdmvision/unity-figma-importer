@@ -50,12 +50,15 @@ namespace Cdm.Figma.UI
                     
             var raycastImage = raycastGo.AddComponent<Image>();
             raycastImage.color = UnityEngine.Color.clear;
+
+            var layoutElement = raycastGo.AddComponent<LayoutElement>();
+            layoutElement.ignoreLayout = true;
                     
             var raycastTransform = raycastGo.GetComponent<RectTransform>();
             raycastTransform.anchorMin = new Vector2(0, 0);
             raycastTransform.anchorMax = new Vector2(1, 1);
             raycastTransform.offsetMin = new Vector2(0, 0);
-            raycastTransform.offsetMax = new Vector2(0, 0);    
+            raycastTransform.offsetMax = new Vector2(0, 0);
         }
 
         protected virtual void Update()

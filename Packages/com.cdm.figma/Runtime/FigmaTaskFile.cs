@@ -3,13 +3,18 @@ using UnityEngine;
 
 namespace Cdm.Figma
 {
-    public abstract class FigmaTaskFile : ScriptableObject
-    { 
+    [CreateAssetMenu(fileName = nameof(FigmaTaskFile), menuName = AssetMenuRoot + "Figma Task File", order = 0)]
+    public class FigmaTaskFile : ScriptableObject
+    {
         protected const string AssetMenuRoot = "Cdm/Figma/";
-        
+
         [SerializeField]
         private string _personalAccessToken;
 
+        /// <summary>
+        /// A personal access token gives the holder access to a Figma account through the API to be able
+        /// to download Figma files.
+        /// </summary>
         public string personalAccessToken
         {
             get => _personalAccessToken;
@@ -17,8 +22,20 @@ namespace Cdm.Figma
         }
 
         [SerializeField]
+        private string _extension = "figma";
+
+        /// <summary>
+        /// The extension of the downloaded Figma files. Appropriate Figma asset importer used regarding to the
+        /// extension.
+        /// </summary>
+        public string extension => _extension;
+
+        [SerializeField]
         private string _assetsPath = "Resources/Figma/Files";
 
+        /// <summary>
+        /// The directory where downloaded Figma files are stored in.
+        /// </summary>
         public string assetsPath => _assetsPath;
 
         [SerializeField]
@@ -34,23 +51,18 @@ namespace Cdm.Figma
             get => _generateScripts;
             set => _generateScripts = value;
         }
-        
+
         [SerializeField]
         private List<string> _files = new List<string>();
 
-        public List<string> fileIds => _files;
+        /// <summary>
+        /// Figma file IDs to be downloaded.
+        /// </summary>
+        public List<string> files => _files;
 
-        public abstract IFigmaImporter GetImporter();
-        public abstract IFigmaDownloader GetDownloader();
-    }
-
-    public abstract class FigmaTaskFile<TImporter, TDownloader> : FigmaTaskFile 
-        where TImporter : IFigmaImporter, new() where TDownloader : IFigmaDownloader, new() 
-    {
-        public TImporter importer { get; private set; } = new TImporter();
-        public TDownloader downloader { get; private set; } = new TDownloader();
-        
-        public override IFigmaImporter GetImporter() => importer;
-        public override IFigmaDownloader GetDownloader() => downloader;
+        public virtual IFigmaDownloader GetDownloader()
+        {
+            return new FigmaDownloader();
+        }
     }
 }

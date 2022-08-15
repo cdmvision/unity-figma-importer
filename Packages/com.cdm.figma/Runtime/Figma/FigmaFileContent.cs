@@ -108,7 +108,7 @@ namespace Cdm.Figma
             
             Debug.Log($"Building hierarchy took {stopwatch.ElapsedMilliseconds} ms.");
         }
-        
+
         private void BuildHierarchyRecurse(Node node)
         {
             if (node is ComponentNode componentNode)
