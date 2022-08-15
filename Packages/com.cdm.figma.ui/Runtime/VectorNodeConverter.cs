@@ -11,7 +11,7 @@ namespace Cdm.Figma.UI
         public Sprite sourceSprite { get; set; }
         public bool generateSprite { get; set; } = true;
 
-        public VectorImageUtils.SpriteOptions spriteOptions { get; set; } = new VectorImageUtils.SpriteOptions()
+        public NodeSpriteGenerator.SpriteOptions spriteOptions { get; set; } = new NodeSpriteGenerator.SpriteOptions()
         {
             filterMode = FilterMode.Bilinear,
             wrapMode = TextureWrapMode.Clamp,
@@ -28,7 +28,7 @@ namespace Cdm.Figma.UI
             var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
             nodeObject.SetTransform(vectorNode);
 
-            // Any vector's parent will ALWAYS be INodeTransform
+            // Every vector's parent will ALWAYS be INodeTransform
             nodeObject.SetLayoutConstraints((INodeTransform)vectorNode.parent);
 
             GenerateStyles(nodeObject, vectorNode, args, vectorConvertArgs);
@@ -50,8 +50,13 @@ namespace Cdm.Figma.UI
                 var style = new ImageStyle();
                 if (vectorConvertArgs.sourceSprite == null)
                 {
+                    NodeSpriteGenerator.GenerateSprite(vectorNode, SpriteGenerateType.Path,
+                        vectorConvertArgs.spriteOptions);
+
+
                     vectorConvertArgs.sourceSprite =
-                        VectorImageUtils.CreateSpriteFromPath(vectorNode, vectorConvertArgs.spriteOptions);
+                        NodeSpriteGenerator.GenerateSprite(
+                            vectorNode, SpriteGenerateType.Path, vectorConvertArgs.spriteOptions);
                 }
 
                 style.componentEnabled.enabled = true;

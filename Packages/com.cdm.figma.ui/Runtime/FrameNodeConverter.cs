@@ -35,7 +35,7 @@ namespace Cdm.Figma.UI
         {
             if (node.fills.Any() || node.strokes.Any())
             {
-                var options = new VectorImageUtils.SpriteOptions()
+                var options = new NodeSpriteGenerator.SpriteOptions()
                 {
                     filterMode = FilterMode.Bilinear,
                     wrapMode = TextureWrapMode.Clamp,
@@ -43,8 +43,9 @@ namespace Cdm.Figma.UI
                     textureSize = 1024
                 };
 
-                var sprite = VectorImageUtils.CreateSpriteFromRect(node, options);
                 
+                var sprite = NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, options);
+
                 // Multiple fill is not supported, only one image can be attached to the node object.
                 var style = new ImageStyle();
                 style.componentEnabled.enabled = true;

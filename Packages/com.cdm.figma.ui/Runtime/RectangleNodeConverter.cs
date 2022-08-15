@@ -8,7 +8,8 @@ namespace Cdm.Figma.UI
         {
             var convertArgs = new VectorConvertArgs();
             convertArgs.generateSprite = true;
-            convertArgs.sourceSprite = VectorImageUtils.CreateSpriteFromRect(node, convertArgs.spriteOptions);
+            convertArgs.sourceSprite = 
+                NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, convertArgs.spriteOptions);
             return Convert(parentObject, node, args, convertArgs);
         }
     }
