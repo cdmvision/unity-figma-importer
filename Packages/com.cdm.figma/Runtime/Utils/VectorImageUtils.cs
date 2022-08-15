@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Unity.VectorGraphics;
@@ -63,7 +61,7 @@ namespace Cdm.Figma.Utils
                 svg.Append($@"id=""{gradientID}"" ");
                 svg.Append($@"x1=""{p1.x}"" y1=""{p1.y}"" x2=""{p2.x}"" y2=""{p2.y}"" ");
                 svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
-                svg.Append($@">");
+                svg.AppendLine($@">");
 
                 AppendSvgGradientStops(svg, gradient);
                 
@@ -208,92 +206,9 @@ namespace Cdm.Figma.Utils
 
         public static Sprite CreateSpriteFromRect(SceneNode node, SpriteOptions options = null)
         {
-            return CreateSpriteSceneRect(node, options);
-            //return CreateSpriteSvgRect(node, options);
+            return CreateSpriteSvgRect(node, options);
         }
 
-        private static Sprite CreateSpriteSceneRect(SceneNode node, SpriteOptions options = null)
-        {
-            options ??= new SpriteOptions();
-
-            var nodeTransform = (INodeTransform)node;
-            var nodeFill = (INodeFill)node;
-            var nodeRect = (INodeRect)node;
-
-            if (nodeTransform == null || nodeFill == null || nodeRect == null)
-            {
-                return null;
-            }
-
-            var scene = new Scene()
-            {
-                Root = new Unity.VectorGraphics.SceneNode()
-                {
-                    Shapes = new List<Shape>(),
-                }
-            };
-
-            var rect = new Rect(0, 0, nodeTransform.size.x, nodeTransform.size.y);
-            var radiusTL = Vector2.one * nodeRect.topLeftRadius;
-            var radiusTR = Vector2.one * nodeRect.topRightRadius;
-            var radiusBR = Vector2.one * nodeRect.bottomRightRadius;
-            var radiusBL = Vector2.one * nodeRect.bottomLeftRadius;
-            var rectContour = VectorUtils.BuildRectangleContour(rect, radiusTL, radiusTR, radiusBR, radiusBL);
-
-            foreach (var paint in nodeFill.fills)
-            {
-                if (paint.visible)
-                {
-                    var fill = CreateShapeFill(paint, out var angle);
-
-                    var shape = new Shape()
-                    {
-                        Contours = new BezierContour[] { rectContour },
-                        Fill = fill,
-                        FillTransform = Matrix2D.RotateLH(angle * Mathf.Deg2Rad),
-                        IsConvex = true
-                    };
-
-                    scene.Root.Shapes.Add(shape);
-                }
-            }
-
-            // Add strokes at top of fills.
-            var strokeWidth = nodeFill.strokeWeight ?? 0f;
-            foreach (var stroke in nodeFill.strokes)
-            {
-                var fill = CreateShapeFill(stroke, out var angle);
-                var shape = new Shape()
-                {
-                    Contours = new BezierContour[] { rectContour },
-                    IsConvex = true,
-                    PathProps = new PathProperties()
-                    {
-                        Stroke = new Stroke()
-                        {
-                            Fill = fill,
-                            FillTransform = Matrix2D.RotateLH(angle * Mathf.Deg2Rad),
-                            HalfThickness = strokeWidth * 0.5f,
-                            Pattern = nodeFill.strokeDashes
-                        }
-                    }
-                };
-
-                scene.Root.Shapes.Add(shape);
-            }
-
-            // Left, bottom, right and top.
-            var strokePadding = strokeWidth * 2 + 4;
-            var borders = new Vector4(
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
-                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
-                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
-            );
-
-            return CreateSpriteWithTexture(node, options, scene, null, borders);
-        }
-        
         private static Sprite CreateSpriteSvgRect(SceneNode node, SpriteOptions options = null)
         {
             options ??= new SpriteOptions();
@@ -306,14 +221,21 @@ namespace Cdm.Figma.Utils
             {
                 return null;
             }
-
             var width = nodeTransform.size.x;
             var height = nodeTransform.size.y;
+            var strokeWeight = nodeFill.strokeWeight ?? 0;
+            var strokeHalfWeight = strokeWeight * 0.5f;
+            var viewBox = new Rect(-strokeHalfWeight, -strokeHalfWeight, width + strokeWeight, height + strokeWeight);
             
             var path = GetRectPath(nodeTransform, nodeRect);
             var svgString = new StringBuilder();
-            svgString.AppendLine(
-                $@"<svg id=""{node.id}"" width=""{width}"" height=""{height}"" fill=""none"" xmlns=""http://www.w3.org/2000/svg"">");
+
+
+            svgString.Append($@"<svg id=""{node.id}"" ");
+            svgString.Append($@"width=""{width}"" height=""{height}"" ");
+            svgString.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
+            svgString.Append($@"fill=""none"" ");
+            svgString.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
             AppendSvgPathElement(svgString, node, path, new Vector2(width, height));
             
@@ -336,62 +258,7 @@ namespace Cdm.Figma.Utils
             
             return CreateSpriteWithTexture(node, options, sceneInfo.Scene, sceneInfo, borders);
         }
-
-        private static IFill CreateShapeFill(Paint paint, out float angle)
-        {
-            IFill fill = null;
-            angle = 0f;
-
-            if (paint is SolidPaint solidPaint)
-            {
-                var solidFill = new SolidFill();
-                solidFill.Color = solidPaint.color;
-                solidFill.Opacity = solidPaint.opacity;
-                fill = solidFill;
-            }
-
-            if (paint is GradientPaint gradientPaint)
-            {
-                var gradientFill = new GradientFill();
-                gradientFill.Addressing = AddressMode.Clamp;
-                gradientFill.Opacity = gradientPaint.opacity;
-
-                var handleStart = (Vector2)gradientPaint.gradientHandlePositions[0];
-                var handleEnd = (Vector2)gradientPaint.gradientHandlePositions[1];
-
-                var direction = (handleEnd - handleStart).normalized;
-                angle = Vector2.Angle(Vector2.right, direction);
-
-                // TODO: gradient handles
-
-                // Add gradient stops.
-                var gradientStops = new List<GradientStop>();
-                foreach (var gs in gradientPaint.gradientStops)
-                {
-                    var gradientStop = new GradientStop();
-                    gradientStop.Color = gs.color;
-                    gradientStop.StopPercentage = gs.position;
-                    gradientStops.Add(gradientStop);
-                }
-
-                gradientFill.Stops = gradientStops.ToArray();
-
-                if (gradientPaint is LinearGradientPaint)
-                {
-                    gradientFill.Type = GradientFillType.Linear;
-                }
-                else if (gradientPaint is RadialGradientPaint)
-                {
-                    gradientFill.Type = GradientFillType.Radial;
-                }
-
-                fill = gradientFill;
-            }
-
-
-            return fill;
-        }
-
+        
         private static Sprite CreateSpriteWithTexture(SceneNode node, SpriteOptions options, Scene svg,
             SVGParser.SceneInfo? sceneInfo = null, Vector4? borders = null)
         {
@@ -450,63 +317,31 @@ namespace Cdm.Figma.Utils
             return spriteWithTexture;
         }
 
-        private static string GetRectPath(INodeTransform transform, INodeRect rect)
+        private static string GetRectPath(INodeTransform nodeTransform, INodeRect nodeRect)
         {
-            var w = transform.size.x;
-            var h = transform.size.y;
-
-            // Kappa @see https://nacho4d-nacho4d.blogspot.com/2011/05/bezier-paths-rounded-corners-rectangles.html
-            const float k = 0.552228474f;
-
-            var rtl = rect.topLeftRadius;
-            var rtr = rect.topRightRadius;
-            var rbr = rect.bottomRightRadius;
-            var rbl = rect.bottomLeftRadius;
-
-            var rtlk = k * rtl;
-            var rtrk = k * rtr;
-            var rbrk = k * rbr;
-            var rblk = k * rbl;
+            var rect = new Rect(0, 0, nodeTransform.size.x, nodeTransform.size.y);
+            var radiusTL = Vector2.one * nodeRect.topLeftRadius;
+            var radiusTR = Vector2.one * nodeRect.topRightRadius;
+            var radiusBR = Vector2.one * nodeRect.bottomRightRadius;
+            var radiusBL = Vector2.one * nodeRect.bottomLeftRadius;
+            var contour = VectorUtils.BuildRectangleContour(rect, radiusTL, radiusTR, radiusBR, radiusBL);
+            var segments = contour.Segments;
             
-            // TODO: Use code below to generate rectangle path.
-            /*var rectf = new Rect(0, 0, transform.size.x, transform.size.y);
-            var radiusTL = Vector2.one * rect.topLeftRadius;
-            var radiusTR = Vector2.one * rect.topRightRadius;
-            var radiusBR = Vector2.one * rect.bottomRightRadius;
-            var radiusBL = Vector2.one * rect.bottomLeftRadius;
-            var rectContour = VectorUtils.BuildRectangleContour(rectf, radiusTL, radiusTR, radiusBR, radiusBL);*/
-
+            Debug.Assert(segments.Length > 1);
+            
             var svgString = new StringBuilder();
-            svgString.Append($@"M 0 {rtl} ");
-
-            if (rtl > 0)
+            svgString.Append($@"M {segments[0].P0.x} {segments[0].P0.y} ");
+            for (var i = 0; i < segments.Length; i++)
             {
-                svgString.Append($@"C 0 {rtl - rtlk} {rtl - rtlk} {0} {rtl} 0 ");
+                var segment = segments[i];
+                var segmentNext = i < segments.Length - 1 ? segments[i + 1] : segments[0];
+                var control1 = segment.P1;
+                var control2 = segment.P2;
+                var end = segmentNext.P0;
+                
+                svgString.Append($@"C {control1.x} {control1.y} {control2.x} {control2.y} {end.x} {end.y} ");
             }
 
-            svgString.Append($@"H {w - rtr}");
-
-            if (rtr > 0)
-            {
-                svgString.Append($@"C {w - rtr + rtrk} 0 {w} {rtr - rtrk} {w} {rtr} ");
-            }
-
-            svgString.Append($@"V {h - rbr}");
-
-            if (rbr > 0)
-            {
-                svgString.Append($@"C {w} {h - (rbr - rbrk)} {w - (rbr - rbrk)} {h} {w - rbr} {h} ");
-            }
-
-            svgString.Append($@"H {rbl}");
-
-            if (rbl > 0)
-            {
-                svgString.Append($@"C {rbl - rblk} {h} {0} {h - (rbl - rblk)} {0} {h - rbl} ");
-            }
-
-            svgString.Append($@"V {rtl}");
-            svgString.Append($@"Z");
             return svgString.ToString();
         }
     }
