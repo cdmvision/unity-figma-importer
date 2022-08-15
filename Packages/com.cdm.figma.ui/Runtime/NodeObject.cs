@@ -12,7 +12,7 @@ namespace Cdm.Figma.UI
         public string nodeID
         {
             get => _nodeID;
-            set => _nodeID = value;
+            internal set => _nodeID = value;
         }
         
         [SerializeField]
@@ -21,7 +21,7 @@ namespace Cdm.Figma.UI
         public string nodeName
         {
             get => _nodeName;
-            set => _nodeName = value;
+            internal set => _nodeName = value;
         }
         
         [SerializeField]
@@ -30,7 +30,7 @@ namespace Cdm.Figma.UI
         public string nodeType
         {
             get => _nodeType;
-            set => _nodeType = value;
+            internal set => _nodeType = value;
         }
         
         [SerializeField]
@@ -39,18 +39,9 @@ namespace Cdm.Figma.UI
         public string bindingKey
         {
             get => _bindingKey;
-            set => _bindingKey = value;
+            internal set => _bindingKey = value;
         }
-        
-        [SerializeField]
-        private string _localizationKey;
 
-        public string localizationKey
-        {
-            get => _localizationKey;
-            set => _localizationKey = value;
-        }
-        
         public RectTransform rectTransform { get; private set; }
         
         [SerializeField]
@@ -64,10 +55,10 @@ namespace Cdm.Figma.UI
         /// <summary>
         /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
         /// </summary>
-        public static NodeObject NewNodeObject(Node node, NodeConvertArgs args)
+        public static T Create<T>(Node node, NodeConvertArgs args) where T : NodeObject
         {
             var go = new GameObject(node.name);
-            var nodeObject = go.AddComponent<NodeObject>();
+            var nodeObject = go.AddComponent<T>();
 
             nodeObject.node = node;
             nodeObject.nodeID = node.id;
@@ -75,7 +66,7 @@ namespace Cdm.Figma.UI
             nodeObject.nodeType = node.type;
             nodeObject.rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();
             nodeObject.bindingKey = node.GetBindingName();
-            nodeObject.localizationKey = node.GetLocalizationKey();
+            //nodeObject.localizationKey = node.GetLocalizationKey();
             
             if (node is SceneNode sceneNode)
             {

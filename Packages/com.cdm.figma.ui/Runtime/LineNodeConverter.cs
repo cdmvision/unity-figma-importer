@@ -1,6 +1,6 @@
 namespace Cdm.Figma.UI
 {
-    public class LineNodeConverter : VectorNodeConverter<LineNode>
+    public class LineNodeConverter : VectorNodeConverter<LineNode, NodeObject>
     {
     }
 }

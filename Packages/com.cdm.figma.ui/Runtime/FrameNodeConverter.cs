@@ -10,7 +10,7 @@ namespace Cdm.Figma.UI
     {
         protected override NodeObject Convert(NodeObject parentObject, FrameNode frameNode, NodeConvertArgs args)
         {
-            var nodeObject = NodeObject.NewNodeObject(frameNode, args);
+            var nodeObject = NodeObject.Create<NodeObject>(frameNode, args);
             nodeObject.SetTransform(frameNode);
 
             // Frame node's parent may be a page so check if it is INodeTransform.
@@ -42,9 +42,15 @@ namespace Cdm.Figma.UI
                     sampleCount = 8,
                     textureSize = 1024
                 };
-
                 
-                var sprite = NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, options);
+                if (!args.generatedSprites.TryGetValue(node.id, out var sprite))
+                {
+                    sprite = NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, options);
+                    if (sprite != null)
+                    {
+                        args.generatedSprites.Add(node.id, sprite);
+                    }
+                }
 
                 // Multiple fill is not supported, only one image can be attached to the node object.
                 var style = new ImageStyle();

@@ -91,7 +91,7 @@ namespace Cdm.Figma
             return null;
         }
 
-        public static string GetLocalizationKey(this Node node)
+        public static string GetLocalizationKey(this TextNode node)
         {
             if (node.TryGetPluginData(out var data))
             {

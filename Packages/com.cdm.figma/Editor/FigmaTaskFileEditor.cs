@@ -136,7 +136,7 @@ namespace Cdm.Figma
                         if (figmaFile != null)
                         {
                             await OnFigmaFileImporting(taskFile, figmaFile);
-                            await taskFile.GetImporter().ImportFileAsync(figmaFile);
+                            taskFile.GetImporter().ImportFile(figmaFile);
                             await OnFigmaFileImported(taskFile, figmaFile);
                         }
                         else

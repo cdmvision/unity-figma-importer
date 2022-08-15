@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -55,7 +54,7 @@ namespace Cdm.Figma.UI
             };
         }
         
-        public Task ImportFileAsync(Figma.FigmaFile file)
+        public void ImportFile(Figma.FigmaFile file)
         {
             _documents.Clear();
             
@@ -99,7 +98,7 @@ namespace Cdm.Figma.UI
                 if (filePage == null || !filePage.enabled)
                     continue;
 
-                var pageNode = NodeObject.NewNodeObject(page, conversionArgs);
+                var pageNode = NodeObject.Create<PageNodeObject>(page, conversionArgs);
                 pageNode.rectTransform.anchorMin = new Vector2(0, 0);
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);
                 pageNode.rectTransform.offsetMin = new Vector2(0, 0);
@@ -126,15 +125,13 @@ namespace Cdm.Figma.UI
                     page = filePage,
                     node = page,
                     nodeObject = pageNode,
-                    sprites = conversionArgs.generatedSprites.ToArray(),
+                    sprites = conversionArgs.generatedSprites.Values.ToArray(),
                     materials = conversionArgs.generatedMaterials.ToArray()
                 });
-                
+
                 conversionArgs.generatedSprites.Clear();
                 conversionArgs.generatedMaterials.Clear();
             }
-
-            return Task.CompletedTask;
         }
 
         internal bool TryConvertNode(NodeObject parentObject, Node node, NodeConvertArgs args, 
@@ -181,7 +178,7 @@ namespace Cdm.Figma.UI
             /// <summary>
             /// Root game object.
             /// </summary>
-            public NodeObject nodeObject;
+            public PageNodeObject nodeObject;
             
             /// <summary>
             /// Generated sprites.

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
-    [CustomEditor(typeof(NodeObject))]
+    [CustomEditor(typeof(NodeObject), editorForChildClasses:true)]
     public class NodeObjectEditor : Editor
     {
         private SerializedProperty _nodeID;
@@ -31,8 +31,12 @@ namespace Cdm.Figma.UI
             
             EditorGUILayout.Separator();
             LabelField(_bindingKey);
-            LabelField(_localizationKey);
 
+            if (_localizationKey != null)
+            {
+                LabelField(_localizationKey);    
+            }
+            
             /*
             var nodeObject = (NodeObject)target;
             _stylesFoldout = EditorGUILayout.Foldout(_stylesFoldout, "Styles");

@@ -20,7 +20,7 @@ namespace Cdm.Figma.UI.Tests
             var figmaFile = Resources.Load<FigmaFile>("2282TYGl73YRNXVIB0kYYD");
 
             var figmaImporter = new FigmaImporter();
-            yield return figmaImporter.ImportFileAsync(figmaFile).AsEnumerator();
+            figmaImporter.ImportFile(figmaFile);
 
             var documents = figmaImporter.GetImportedDocuments();
 

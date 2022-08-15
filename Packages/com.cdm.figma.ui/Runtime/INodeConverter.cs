@@ -18,8 +18,10 @@ namespace Cdm.Figma.UI
         public Dictionary<string, ComponentNode> componentPropertyAssignments { get; } =
             new Dictionary<string, ComponentNode>();
         
-        public List<Sprite> generatedSprites { get; } = new List<Sprite>();
+        
         public List<Material> generatedMaterials { get; } = new List<Material>();
+
+        public Dictionary<string, Sprite> generatedSprites { get; } = new Dictionary<string, Sprite>();
 
         public NodeConvertArgs(FigmaImporter importer, FigmaFile file, FigmaFileContent fileContent)
         {

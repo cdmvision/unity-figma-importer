@@ -1,6 +1,6 @@
 ﻿namespace Cdm.Figma.UI
 {
-    public class EllipseNodeConverter : VectorNodeConverter<EllipseNode>
+    public class EllipseNodeConverter : VectorNodeConverter<EllipseNode, NodeObject>
     {
     }
 }

@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using Unity.Collections;
 using Unity.VectorGraphics;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.Utils
@@ -128,7 +132,7 @@ namespace Cdm.Figma.Utils
         private static Sprite GenerateSpriteFromSvg(SceneNode node, string svg, SpriteOptions options)
         {
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg), ViewportOptions.PreserveViewport);
-            return CreateSpriteWithTexture(node, options, sceneInfo.Scene, sceneInfo);
+            return CreateTexturedSprite(node, options, sceneInfo);
         }
 
         private static string GenerateSvgFromRect(SceneNode node)
@@ -187,7 +191,7 @@ namespace Cdm.Figma.Utils
             );
 
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg), ViewportOptions.PreserveViewport);
-            return CreateSpriteWithTexture(node, options, sceneInfo.Scene, sceneInfo, borders);
+            return CreateTexturedSprite(node, options, sceneInfo, borders);
         }
 
         private static void AppendSvgGradientStops(StringBuilder svg, GradientPaint gradient)
@@ -334,13 +338,14 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static Sprite CreateSpriteWithTexture(SceneNode node, SpriteOptions options, Scene svg,
-            SVGParser.SceneInfo? sceneInfo = null, Vector4? borders = null)
+        private static Sprite CreateTexturedSprite(SceneNode node, SpriteOptions options,
+            SVGParser.SceneInfo sceneInfo, Vector4? borders = null)
         {
-            var geometries = VectorUtils.TessellateScene(svg, options.tessellationOptions, sceneInfo?.NodeOpacity);
-            var sprite = VectorUtils.BuildSprite(geometries, options.svgPixelsPerUnit, VectorUtils.Alignment.TopLeft,
-                Vector2.zero, options.gradientResolution, true);
-
+            var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, options.tessellationOptions, sceneInfo.NodeOpacity);
+            
+            var sprite = VectorUtils.BuildSprite(geometries, sceneInfo.SceneViewport, options.svgPixelsPerUnit, 
+                VectorUtils.Alignment.TopLeft, Vector2.zero, options.gradientResolution, true);
+            
             if (sprite == null)
                 return null;
 

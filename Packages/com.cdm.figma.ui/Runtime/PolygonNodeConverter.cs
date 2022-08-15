@@ -1,6 +1,6 @@
 namespace Cdm.Figma.UI
 {
-    public class PolygonNodeConverter : VectorNodeConverter<PolygonNode>
+    public class PolygonNodeConverter : VectorNodeConverter<PolygonNode, NodeObject>
     {
     }
 }

@@ -20,12 +20,14 @@ namespace Cdm.Figma.UI
         };
     }
 
-    public abstract class VectorNodeConverter<TNode> : NodeConverter<TNode> where TNode : VectorNode
+    public abstract class VectorNodeConverter<TNode, TNodeObject> : NodeConverter<TNode> 
+        where TNode : VectorNode 
+        where TNodeObject : NodeObject
     {
         protected NodeObject Convert(NodeObject parentObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
-            var nodeObject = NodeObject.NewNodeObject(vectorNode, args);
+            var nodeObject = NodeObject.Create<TNodeObject>(vectorNode, args);
             nodeObject.SetTransform(vectorNode);
 
             // Every vector's parent will ALWAYS be INodeTransform
@@ -50,13 +52,17 @@ namespace Cdm.Figma.UI
                 var style = new ImageStyle();
                 if (vectorConvertArgs.sourceSprite == null)
                 {
-                    NodeSpriteGenerator.GenerateSprite(vectorNode, SpriteGenerateType.Path,
-                        vectorConvertArgs.spriteOptions);
-
-
-                    vectorConvertArgs.sourceSprite =
-                        NodeSpriteGenerator.GenerateSprite(
+                    if (!args.generatedSprites.TryGetValue(vectorNode.id, out var sprite))
+                    {
+                        sprite = NodeSpriteGenerator.GenerateSprite(
                             vectorNode, SpriteGenerateType.Path, vectorConvertArgs.spriteOptions);
+                        if (sprite != null)
+                        {
+                            args.generatedSprites.Add(vectorNode.id, sprite);
+                        }
+                    }
+
+                    vectorConvertArgs.sourceSprite = sprite;
                 }
 
                 style.componentEnabled.enabled = true;
@@ -77,7 +83,7 @@ namespace Cdm.Figma.UI
         }
     }
 
-    public class VectorNodeConverter : VectorNodeConverter<VectorNode>
+    public class VectorNodeConverter : VectorNodeConverter<VectorNode, NodeObject>
     {
     }
 }
