@@ -20,21 +20,11 @@ namespace Cdm.Figma
         private string _assetsPath = "Resources/Figma/Files";
 
         public string assetsPath => _assetsPath;
-        
-        [SerializeField]
-        private string _documentsPath = "Resources/Figma/Documents";
 
-        public string documentsPath => _documentsPath;
-        
         [SerializeField]
         private string _scriptsPath = "Resources/Figma/Scripts";
 
         public string scriptsPath => _scriptsPath;
-        
-        [SerializeField]
-        private string _graphicsPath = "Resources/Figma/Graphics";
-
-        public string graphicsPath => _graphicsPath;
 
         [SerializeField]
         private bool _generateScripts = true;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -16,6 +17,13 @@ namespace Cdm.Figma.UI
         public ISet<ComponentConverter> componentConverters => _componentConverters;
         
         private readonly List<ImportedDocument> _documents = new List<ImportedDocument>();
+        
+        public List<FontSource> fonts { get; } = new List<FontSource>();
+        
+        /// <summary>
+        /// Gets or sets the fallback font that is used when a font mapping does not found.
+        /// </summary>
+        public TMP_FontAsset fallbackFont { get; set; }
 
         public ImportedDocument[] GetImportedDocuments()
         {
@@ -54,17 +62,13 @@ namespace Cdm.Figma.UI
             };
         }
         
-        public void ImportFile(Figma.FigmaFile file)
+        public void ImportFile(FigmaFile file)
         {
             _documents.Clear();
             
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
-            
-            var figmaFile = file as FigmaFile;
-            if (figmaFile == null)
-                throw new ArgumentException("Wrong type of Figma file", nameof(file));
-            
+
             if (!nodeConverters.Any())
             {
                 var converters = GetDefaultNodeConverters();
@@ -83,10 +87,10 @@ namespace Cdm.Figma.UI
                 }
             }
             
-            var fileContent = figmaFile.GetFileContent();
+            var fileContent = file.GetFileContent();
             fileContent.BuildHierarchy();
             
-            var conversionArgs = new NodeConvertArgs(this, figmaFile, fileContent);
+            var conversionArgs = new NodeConvertArgs(this, file, fileContent);
             
             // Generate all pages.
             var pages = fileContent.document.children;
@@ -94,7 +98,7 @@ namespace Cdm.Figma.UI
             foreach (var page in pages)
             {
                 // Do not import ignored pages.
-                var filePage = figmaFile.pages.FirstOrDefault(p => p.id == page.id);
+                var filePage = file.pages.FirstOrDefault(p => p.id == page.id);
                 if (filePage == null || !filePage.enabled)
                     continue;
 
@@ -163,6 +167,27 @@ namespace Cdm.Figma.UI
             return false;
         }
         
+        internal bool TryGetFont(string fontName, out TMP_FontAsset font)
+        {
+            var fontIndex = fonts.FindIndex(
+                x => string.Equals(x.fontName, fontName, StringComparison.OrdinalIgnoreCase));
+
+            if (fontIndex >= 0 && fonts[fontIndex].font != null)
+            {
+                font = fonts[fontIndex].font;
+                return true;
+            }
+
+            if (fallbackFont != null)
+            {
+                font = fallbackFont;
+                return true;
+            }
+
+            font = null;
+            return false;
+        }
+        
         public struct ImportedDocument
         {
             /// <summary>
@@ -190,56 +215,5 @@ namespace Cdm.Figma.UI
             /// </summary>
             public Material[] materials;
         }
-        
-        /*public override Task ImportFileAsync(FigmaFile file, FigmaImportOptions options = null)
-        {
-            if (file == null)
-                throw new ArgumentNullException(nameof(file));
-
-            options ??= new FigmaImportOptions();
-            
-            var assetsDirectory = Path.Combine("Assets", assetsPath);
-            Directory.CreateDirectory(assetsDirectory);
-
-            var conversionArgs = new NodeConvertArgs(this, file);
-            conversionArgs.assets = options.assets;
-            
-            // Collect all component sets from all pages.
-            var pages = file.document.children;
-            foreach (var page in pages)
-            {
-                page.Traverse(node =>
-                {
-                    conversionArgs.componentSets.Add((ComponentSetNode) node);
-                    return true;
-                }, NodeType.ComponentSet);
-            }
-            
-            // Generate all pages.
-            foreach (var page in pages)
-            {
-                if (options.pages != null && options.pages.All(p => p != page.id))
-                    continue;
-
-                var nodeObject = NodeObject.NewNodeObject(page, conversionArgs);
-                var canvas = nodeObject.gameObject.AddComponent<Canvas>();
-                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                
-                var nodes = page.children;
-                foreach (var node in nodes)
-                {
-                    if (TryConvertNode(node, conversionArgs, out var childNode))
-                    {
-                        childNode.transform.SetParent(canvas.transform);
-                    }
-                }
-            }
-            
-            
-#if UNITY_EDITOR
-            UnityEditor.AssetDatabase.Refresh();
-#endif
-            return Task.CompletedTask;
-        }*/
     }
 }

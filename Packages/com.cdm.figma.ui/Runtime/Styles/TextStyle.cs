@@ -76,7 +76,7 @@ namespace Cdm.Figma.UI.Styles
                     textComponent.fontStyle = fontStyle.value;
 
                 if (fontWeight.enabled)
-                    textComponent.fontWeight = fontWeight.value;
+                    textComponent.fontWeight = (TMPro.FontWeight) fontWeight.value;
 
                 if (fontSize.enabled)
                     textComponent.fontSize = fontSize.value;

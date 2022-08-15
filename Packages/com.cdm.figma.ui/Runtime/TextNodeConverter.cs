@@ -42,10 +42,10 @@ namespace Cdm.Figma.UI
 
         private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
         {
-            var fontName =
-                FontSource.GetFontName(textNode.style.fontFamily, textNode.style.fontWeight, textNode.style.italic);
-
-            if (args.file.TryGetFont(fontName, out var font))
+            var fontName = FontHelpers.GetFontDescriptor(
+                textNode.style.fontFamily, textNode.style.fontWeight, textNode.style.italic);
+            
+            if (args.importer.TryGetFont(fontName, out var font))
             {
                 style.font.enabled = true;
                 style.font.value = font;
