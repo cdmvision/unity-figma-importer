@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace Cdm.Figma
 {
     public class FigmaDownloader : IFigmaDownloader
     {
-        public async Task<JObject> DownloadFileAsync(string fileID, string personalAccessToken)
+        public async Task<FigmaFile> DownloadFileAsync(string fileID, string personalAccessToken)
         {
             Debug.Log($"Downloading file: {fileID}");
 
@@ -18,20 +17,19 @@ namespace Cdm.Figma
                     plugins = new[] { PluginData.Id }
                 });
 
+            var file = FigmaFile.FromString(fileContentJson);
+            file.fileID = fileID;
 
-            var fileContent = JObject.Parse(fileContentJson);
-            fileContent.Add(nameof(FigmaFile.fileID), fileID);
-
-            if (fileContent.TryGetValue(nameof(FigmaFile.thumbnailUrl), out var thumbnailUrl))
+            if (!string.IsNullOrEmpty(file.thumbnailUrl))
             {
-                var thumbnail = await FigmaApi.GetThumbnailImageAsync(thumbnailUrl.Value<string>());
+                var thumbnail = await FigmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
                 if (thumbnail != null)
                 {
-                    fileContent.Add(nameof(FigmaFile.thumbnail), Convert.ToBase64String(thumbnail));
+                    file.thumbnail = Convert.ToBase64String(thumbnail);
                 }
             }
 
-            return fileContent;
+            return file;
         }
     }
 }

@@ -117,7 +117,7 @@ namespace Cdm.Figma
             FixRelativePositionGroupNodeChildren(document);
             stopwatch.Stop();
 
-            Debug.Log($"Building hierarchy took {stopwatch.ElapsedMilliseconds} ms.");
+            //Debug.Log($"Building hierarchy took {stopwatch.ElapsedMilliseconds} ms.");
         }
 
         private void BuildHierarchyRecurse(Node node)
