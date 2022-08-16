@@ -20,30 +20,33 @@ namespace Cdm.Figma
         public FigmaFilePage[] pages => _pages;
 
         [SerializeField, HideInInspector]
-        private FigmaFile _figmaFile;
+        private FigmaFileAsset _figmaFile;
 
-        internal FigmaFile figmaFile => _figmaFile;
+        internal FigmaFileAsset figmaFile => _figmaFile;
 
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var fileJson = File.ReadAllText(ctx.assetPath);
-            var fileID = Path.GetFileNameWithoutExtension(ctx.assetPath);
-            var file = FigmaFile.Create<FigmaFile>(fileID, fileJson, null);
+            var file = FigmaFile.FromString(fileJson);
+            var fileAsset = FigmaFileAsset.Create(file);
+
+            _figmaFile = fileAsset;
             
+            if (fileAsset.thumbnail != null)
+            {
+                ctx.AddObjectToAsset("FilePreview", fileAsset.thumbnail);
+            }
+
+            ctx.AddObjectToAsset("FigmaAsset", fileAsset);
+            ctx.SetMainObject(fileAsset);
+
             UpdatePages(file);
-            
-            _figmaFile = file;
-            
-            ctx.AddObjectToAsset("Figma File", file, file.thumbnail);
-            ctx.SetMainObject(file);
-            
             for (var i = 0; i < pages.Length; i++)
             {
                 file.pages[i].enabled = pages[i].enabled;
             }
 
             var figmaImporter = GetFigmaImporter();
-            
             OnAssetImporting(ctx, figmaImporter, file);
             figmaImporter.ImportFile(file);
             OnAssetImported(ctx, figmaImporter, file);

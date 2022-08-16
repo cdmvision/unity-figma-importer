@@ -13,21 +13,18 @@ namespace Cdm.Figma.UI
     {
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
-        public FigmaFileContent fileContent { get; }
 
         public Dictionary<string, ComponentNode> componentPropertyAssignments { get; } =
             new Dictionary<string, ComponentNode>();
-        
-        
+
         public List<Material> generatedMaterials { get; } = new List<Material>();
 
         public Dictionary<string, Sprite> generatedSprites { get; } = new Dictionary<string, Sprite>();
 
-        public NodeConvertArgs(FigmaImporter importer, FigmaFile file, FigmaFileContent fileContent)
+        public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
         {
             this.importer = importer;
             this.file = file;
-            this.fileContent = fileContent;
         }
     }
 }

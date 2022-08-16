@@ -74,7 +74,7 @@ namespace Cdm.Figma.UI
                     var assignmentInstanceSwap = (ComponentPropertyAssignmentInstanceSwap) assignment.Value;
                     var componentId = assignmentInstanceSwap.value;
 
-                    if (args.fileContent.componentNodes.TryGetValue(componentId, out var component))
+                    if (args.file.componentNodes.TryGetValue(componentId, out var component))
                     {
                         args.componentPropertyAssignments.Add(assignment.Key, component);
                     }

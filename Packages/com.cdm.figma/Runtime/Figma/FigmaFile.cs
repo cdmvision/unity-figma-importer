@@ -19,8 +19,11 @@ namespace Cdm.Figma
     /// be forthcoming.
     /// </summary>
     [DataContract]
-    public class FigmaFileContent
+    public class FigmaFile
     {
+        [DataMember]
+        public string fileID { get; set; }
+
         [DataMember(Name = "name")]
         public string name { get; set; }
 
@@ -35,6 +38,9 @@ namespace Cdm.Figma
 
         [DataMember(Name = "editorType")]
         public string editorType { get; set; }
+
+        [DataMember]
+        public string thumbnail { get; set; }
 
         [DataMember(Name = "lastModified")]
         public DateTime lastModified { get; set; }
@@ -76,7 +82,7 @@ namespace Cdm.Figma
         public int schemaVersion { get; set; }
 
         private readonly Dictionary<string, ComponentNode> _componentNodes = new Dictionary<string, ComponentNode>();
-        
+
         /// <summary>
         /// All <see cref="ComponentNode"/>s in the document.
         /// </summary>
@@ -84,10 +90,10 @@ namespace Cdm.Figma
         /// It is available after <see cref="BuildHierarchy"/> method is called.
         /// </remarks>
         public IReadOnlyDictionary<string, ComponentNode> componentNodes => _componentNodes;
-        
-        private readonly Dictionary<string, ComponentSetNode> _componentSetNodes = 
+
+        private readonly Dictionary<string, ComponentSetNode> _componentSetNodes =
             new Dictionary<string, ComponentSetNode>();
-        
+
         /// <summary>
         /// All <see cref="ComponentSetNode"/>s in the document. 
         /// </summary>
@@ -96,16 +102,21 @@ namespace Cdm.Figma
         /// </remarks>
         public IReadOnlyDictionary<string, ComponentSetNode> componentSetNodes => _componentSetNodes;
 
+        /// <summary>
+        /// Figma file pages.
+        /// </summary>
+        public FigmaFilePage[] pages { get; private set; } = Array.Empty<FigmaFilePage>();
+
         public void BuildHierarchy()
         {
             _componentNodes.Clear();
             _componentSetNodes.Clear();
-            
+
             var stopwatch = Stopwatch.StartNew();
             BuildHierarchyRecurse(document);
             FixRelativePositionGroupNodeChildren(document);
             stopwatch.Stop();
-            
+
             Debug.Log($"Building hierarchy took {stopwatch.ElapsedMilliseconds} ms.");
         }
 
@@ -119,7 +130,7 @@ namespace Cdm.Figma
             {
                 _componentSetNodes.TryAdd(componentSetNode.id, componentSetNode);
             }
-            
+
             if (node.hasChildren)
             {
                 foreach (var child in node.GetChildren())
@@ -130,16 +141,16 @@ namespace Cdm.Figma
                 }
             }
         }
-        
+
         public bool InitInstanceNode(InstanceNode instanceNode)
         {
             if (string.IsNullOrEmpty(instanceNode.componentId))
             {
-                Debug.LogWarning($"Instance node has missing component. " + 
+                Debug.LogWarning($"Instance node has missing component. " +
                                  $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported.");
                 return false;
             }
-            
+
             // Find component node in the hierarchy.
             if (_componentNodes.TryGetValue(instanceNode.componentId, out var componentNode))
             {
@@ -152,9 +163,10 @@ namespace Cdm.Figma
             }
             else
             {
-                Debug.LogWarning($"Instance of component node with id: '{instanceNode.componentId}' could not be found. " +
-                                 $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported. " +
-                                 "You may have used the component shared from another file. This is not supported.");
+                Debug.LogWarning(
+                    $"Instance of component node with id: '{instanceNode.componentId}' could not be found. " +
+                    $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported. " +
+                    "You may have used the component shared from another file. This is not supported.");
                 return false;
             }
 
@@ -168,7 +180,7 @@ namespace Cdm.Figma
                 Debug.LogWarning($"Component definition could not be found for component node: '{componentNode}'");
                 return false;
             }
-                
+
             if (!string.IsNullOrEmpty(component.componentSetId))
             {
                 if (!_componentSetNodes.TryGetValue(component.componentSetId, out var componentSetNode))
@@ -183,7 +195,6 @@ namespace Cdm.Figma
 
             return true;
         }
-
 
 
         private static void FixRelativePositionGroupNodeChildren(Node node)
@@ -229,8 +240,23 @@ namespace Cdm.Figma
             }
         }
 
-        public static FigmaFileContent FromString(string json) =>
-            JsonConvert.DeserializeObject<FigmaFileContent>(json, JsonSerializerHelper.Settings);
+        public static FigmaFile FromString(string json)
+        {
+            var file = JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.Settings);
+            if (file != null && file.document != null && file.document.hasChildren)
+            {
+                file.pages = new FigmaFilePage[file.document.children.Length];
+
+                for (var i = 0; i < file.pages.Length; i++)
+                {
+                    var page = file.document.children[i];
+                    file.pages[i] = new FigmaFilePage(page.id, page.name);
+                }    
+            }
+
+            return file;
+        }
+
 
         public override string ToString()
         {
@@ -250,6 +276,31 @@ namespace Cdm.Figma
                 default:
                     throw new FormatException($"The {format} format string is not supported.");
             }
+        }
+    }
+
+    [Serializable]
+    public class FigmaFilePage
+    {
+        public bool enabled = true;
+        public string id;
+        public string name;
+
+        public FigmaFilePage()
+        {
+        }
+
+        public FigmaFilePage(string id, string name)
+        {
+            this.id = id;
+            this.name = name;
+        }
+
+        public FigmaFilePage(FigmaFilePage other)
+        {
+            enabled = other.enabled;
+            id = other.id;
+            name = other.name;
         }
     }
 }

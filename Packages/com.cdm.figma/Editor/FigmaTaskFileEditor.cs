@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -40,16 +41,15 @@ namespace Cdm.Figma
                 var fileCount = taskFile.files.Count;
                 for (var i = 0; i < fileCount; i++)
                 {
-                    var fileId = taskFile.files[i];
+                    var fileID = taskFile.files[i];
 
-                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}",
+                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileID}",
                         (float)i / fileCount);
 
                     // Save figma file asset.
-                    var file = await DownloadAndSaveFigmaFileAsync(taskFile, fileId);
+                    await DownloadAndSaveFigmaFileAsync(taskFile, fileID);
 
-                    AssetDatabase.SaveAssetIfDirty(file);
-                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}",
+                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileID}",
                         (float)(i + 1) / fileCount);
                 }
             }
@@ -63,7 +63,7 @@ namespace Cdm.Figma
             }
         }
 
-        private async Task<FigmaFile> DownloadAndSaveFigmaFileAsync(FigmaTaskFile taskFile, string fileID)
+        private async Task DownloadAndSaveFigmaFileAsync(FigmaTaskFile taskFile, string fileID)
         {
             var newFile = await taskFile.GetDownloader().DownloadFileAsync(fileID, taskFile.personalAccessToken);
 
@@ -74,13 +74,12 @@ namespace Cdm.Figma
 
             if (File.Exists(figmaAssetPath))
                 File.Delete(figmaAssetPath);
-
-            await File.WriteAllTextAsync(figmaAssetPath, newFile.content.text);
+            
+            await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString(Formatting.Indented));
             AssetDatabase.Refresh();
             AssetDatabase.ImportAsset(figmaAssetPath);
 
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
-            return newFile;
         }
 
         private static string GetFigmaAssetPath(FigmaTaskFile taskFile, string fileId)

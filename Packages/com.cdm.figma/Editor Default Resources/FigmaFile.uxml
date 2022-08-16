@@ -7,8 +7,6 @@
         <ui:TextField picking-mode="Ignore" label="Last Modified" binding-path="_lastModified" readonly="true" />
         <ui:VisualElement style="align-items: flex-end; flex-direction: row-reverse;">
             <ui:Button text="Copy File Content" display-tooltip-when-elided="true" name="copyContentButton" />
-            <ui:Button text="Export File" display-tooltip-when-elided="true" name="exportFileButton" />
         </ui:VisualElement>
     </ui:GroupBox>
-    <ui:ListView focusable="true" binding-path="_pages" show-bound-collection-size="false" name="pagesList" show-alternating-row-backgrounds="ContentOnly" virtualization-method="DynamicHeight" show-border="true" header-title="Pages" show-foldout-header="true" />
 </ui:UXML>

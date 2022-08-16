@@ -37,13 +37,13 @@ namespace Cdm.Figma
         }
 
         /// <summary>
-        /// Returns the document referred to by :key as a <see cref="FigmaFileContent"/>.
+        /// Returns the document referred to by :key as a <see cref="FigmaFile"/>.
         /// </summary>
         /// <seealso cref="GetFileAsTextAsync"/>
-        public static async Task<FigmaFileContent> GetFileAsync(FigmaFileRequest fileRequest)
+        public static async Task<FigmaFile> GetFileAsync(FigmaFileRequest fileRequest)
         {
             var result = await GetFileAsTextAsync(fileRequest);
-            return FigmaFileContent.FromString(result);
+            return FigmaFile.FromString(result);
         }
         
         /// <summary>

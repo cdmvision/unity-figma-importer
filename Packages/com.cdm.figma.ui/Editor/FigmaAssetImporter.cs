@@ -85,9 +85,7 @@ namespace Cdm.Figma.UI
                 _fonts = null;
             }
 
-            var fileContent = file.GetFileContent();
-            var usedFonts = fileContent.GetUsedFonts();
-
+            var usedFonts = file.GetUsedFonts();
             var oldFonts = _fonts;
             _fonts = new FontSource[usedFonts.Length];
 

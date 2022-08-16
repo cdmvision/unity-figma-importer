@@ -15,7 +15,7 @@ namespace Cdm.Figma.Tests
         public void BuildNodeHierarchy()
         {
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("File.json"));
-            var file = FigmaFileContent.FromString(json.text);
+            var file = FigmaFile.FromString(json.text);
 
             file.BuildHierarchy();
 
@@ -54,7 +54,7 @@ namespace Cdm.Figma.Tests
         public void NodeDeserializationByType()
         {
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("File.json"));
-            var file = FigmaFileContent.FromString(json.text);
+            var file = FigmaFile.FromString(json.text);
 
             Assert.NotNull(file);
             Assert.NotNull(file.document);

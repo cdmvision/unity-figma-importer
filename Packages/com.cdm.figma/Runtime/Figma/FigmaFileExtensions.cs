@@ -4,9 +4,9 @@ using Cdm.Figma.Utils;
 
 namespace Cdm.Figma
 {
-    public static class FigmaFileContentExtensions
+    public static class FigmaFileExtensions
     {
-        public static string[] GetUsedFonts(this FigmaFileContent fileContent)
+        public static string[] GetUsedFonts(this FigmaFile fileContent)
         {
             var fonts = new HashSet<string>();
             fileContent.document.Traverse(node =>

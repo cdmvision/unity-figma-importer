@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using Cdm.Figma.Tests;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -17,10 +16,11 @@ namespace Cdm.Figma.UI.Tests
         [UnityTest]
         public IEnumerator PlayModeSampleTestWithEnumeratorPasses()
         {
-            var figmaFile = Resources.Load<FigmaFile>("2282TYGl73YRNXVIB0kYYD");
-
+            var figmaFile = Resources.Load<TextAsset>("2282TYGl73YRNXVIB0kYYD");
+            var file = FigmaFile.FromString(figmaFile.text);
+            
             var figmaImporter = new FigmaImporter();
-            figmaImporter.ImportFile(figmaFile);
+            figmaImporter.ImportFile(file);
 
             var documents = figmaImporter.GetImportedDocuments();
 

@@ -1,55 +1,26 @@
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Cdm.Figma
 {
+    [CustomEditor(typeof(FigmaFileAsset))]
     public class FigmaFileEditor : Editor
     {
         public override VisualElement CreateInspectorGUI()
         {
-            var fileAsset = ((FigmaFile) target);
+            var fileAsset = ((FigmaFileAsset) target);
 
             var root = new VisualElement();
             var visualTree =
                 AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{EditorHelper.VisualTreeFolderPath}/FigmaFile.uxml");
             visualTree.CloneTree(root);
-            
-            var listItem =
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                    $"{EditorHelper.VisualTreeFolderPath}/FigmaFile_PageListItem.uxml");
-
-            var listView = root.Q<ListView>("pagesList");
-            listView.makeItem = () => listItem.Instantiate();
-            listView.bindItem = (e, i) =>
-            {
-                var page = fileAsset.pages[i];
-                var toggle = e.Q<Toggle>();
-                toggle.label = page.name;
-                toggle.value = page.enabled;
-                toggle.RegisterValueChangedCallback(change =>
-                {
-                    page.enabled = change.newValue;
-                    EditorUtility.SetDirty(target);
-                });
-            };
 
             root.Q<Button>("copyContentButton").clicked += () =>
             {
-                if (fileAsset.content != null)
-                {
-                    GUIUtility.systemCopyBuffer = fileAsset.content.text;
-                }
-            };
-
-            root.Q<Button>("exportFileButton").clicked += () =>
-            {
-                var path = EditorUtility.SaveFilePanel("Export Figma File", "", $"{fileAsset.id}.json", "json");
-
-                if (!string.IsNullOrWhiteSpace(path))
-                {
-                    System.IO.File.WriteAllText(path, fileAsset.content.text);
-                }
+                var assetPath = AssetDatabase.GetAssetPath(fileAsset);
+                GUIUtility.systemCopyBuffer = File.ReadAllText(assetPath);
             };
             
             return root;
@@ -57,13 +28,13 @@ namespace Cdm.Figma
 
         public override bool HasPreviewGUI()
         {
-            var fileAsset = ((FigmaFile) target);
-            return fileAsset != null && fileAsset.thumbnail != null;
+            var file = (FigmaFileAsset) target;
+            return file != null && file.thumbnail != null;
         }
 
         public override void DrawPreview(Rect previewArea)
         {
-            var thumbnail = ((FigmaFile) target).thumbnail;
+            var thumbnail = ((FigmaFileAsset) target).thumbnail;
 
             var widthRatio = previewArea.width / thumbnail.width;
             var heightRatio = previewArea.height / thumbnail.height;
@@ -75,7 +46,7 @@ namespace Cdm.Figma
             var newY = previewArea.y + (previewArea.height - newHeight) * 0.5f;
             
             var newPreviewArea = new Rect(newX, newY, newWidth, newHeight);
-            GUI.DrawTexture(newPreviewArea, ((FigmaFile) target).thumbnail);
+            GUI.DrawTexture(newPreviewArea, ((FigmaFileAsset) target).thumbnail);
         }
     }
 }

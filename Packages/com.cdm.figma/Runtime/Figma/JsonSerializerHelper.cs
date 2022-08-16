@@ -21,8 +21,6 @@ namespace Cdm.Figma
                     new IsoDateTimeConverter {DateTimeStyles = DateTimeStyles.AssumeUniversal},
                     new AffineTransformConverter(),
                     GetNodeConverter(),
-                    //GetGroupNodeConverter(),
-                    //GetFrameNodeConverter(),
                     GetEffectConverter(),
                     GetPaintConverter(),
                     GetComponentPropertyDefinitionConverter(),
@@ -53,27 +51,6 @@ namespace Cdm.Figma
                 .RegisterSubtype<TextNode>(NodeType.Text)
                 .RegisterSubtype<VectorNode>(NodeType.Vector)
                 .SetFallbackSubtype(typeof(Node))
-                .SerializeDiscriminatorProperty()
-                .Build();
-        }
-
-        private static JsonConverter GetGroupNodeConverter()
-        {
-            return JsonSubtypesConverterBuilder
-                .Of<GroupNode>("type")
-                .RegisterSubtype<FrameNode>(NodeType.Frame)
-                .SetFallbackSubtype(typeof(GroupNode))
-                .SerializeDiscriminatorProperty()
-                .Build();
-        }
-        
-        private static JsonConverter GetFrameNodeConverter()
-        {
-            return JsonSubtypesConverterBuilder
-                .Of<FrameNode>("type")
-                .RegisterSubtype<InstanceNode>(NodeType.Instance)
-                .SetFallbackSubtype(typeof(FrameNode))
-                .SerializeDiscriminatorProperty()
                 .Build();
         }
 
@@ -86,7 +63,6 @@ namespace Cdm.Figma
                 .RegisterSubtype<DropShadowEffect>(EffectType.DropShadow)
                 .RegisterSubtype<InnerShadowEffect>(EffectType.InnerShadow)
                 .SetFallbackSubtype(typeof(Effect))
-                .SerializeDiscriminatorProperty()
                 .Build();
         }
 
@@ -101,7 +77,6 @@ namespace Cdm.Figma
                 .RegisterSubtype<DiamondGradientPaint>(PaintType.GradientDiamond)
                 .RegisterSubtype<ImagePaint>(PaintType.Image)
                 .SetFallbackSubtype(typeof(Paint))
-                .SerializeDiscriminatorProperty()
                 .Build();
         }
         
@@ -113,7 +88,6 @@ namespace Cdm.Figma
                 .RegisterSubtype<ComponentPropertyDefinitionText>(ComponentPropertyType.Text)
                 .RegisterSubtype<ComponentPropertyDefinitionBoolean>(ComponentPropertyType.Boolean)
                 .SetFallbackSubtype(typeof(ComponentPropertyDefinition))
-                .SerializeDiscriminatorProperty()
                 .Build();
         }
         
@@ -125,7 +99,6 @@ namespace Cdm.Figma
                 .RegisterSubtype<ComponentPropertyAssignmentText>(ComponentPropertyType.Text)
                 .RegisterSubtype<ComponentPropertyAssignmentBoolean>(ComponentPropertyType.Boolean)
                 .SetFallbackSubtype(typeof(ComponentPropertyAssignment))
-                .SerializeDiscriminatorProperty()
                 .Build();
         }
     }

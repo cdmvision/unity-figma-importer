@@ -87,13 +87,12 @@ namespace Cdm.Figma.UI
                 }
             }
             
-            var fileContent = file.GetFileContent();
-            fileContent.BuildHierarchy();
+            file.BuildHierarchy();
             
-            var conversionArgs = new NodeConvertArgs(this, file, fileContent);
+            var conversionArgs = new NodeConvertArgs(this, file);
             
             // Generate all pages.
-            var pages = fileContent.document.children;
+            var pages = file.document.children;
             
             foreach (var page in pages)
             {
@@ -101,7 +100,7 @@ namespace Cdm.Figma.UI
                 var filePage = file.pages.FirstOrDefault(p => p.id == page.id);
                 if (filePage == null || !filePage.enabled)
                     continue;
-
+                    
                 var pageNode = NodeObject.Create<PageNodeObject>(page, conversionArgs);
                 pageNode.rectTransform.anchorMin = new Vector2(0, 0);
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);
@@ -144,7 +143,7 @@ namespace Cdm.Figma.UI
             // Init instance node's main component, and main component's component set.
             if (node is InstanceNode instanceNode)
             {
-                args.fileContent.InitInstanceNode(instanceNode);
+                args.file.InitInstanceNode(instanceNode);
             }
             
             // Try with component converters first.

@@ -21,7 +21,7 @@ namespace Cdm.Figma
         
         /// <summary>
         /// Array of plugin IDs. Any data present in the document written by those plugins will be included in the
-        /// result in the <see cref="FigmaFileContent.pluginData"/> and `<see cref="FigmaFileContent.sharedPluginData"/> properties.
+        /// result in the <see cref="FigmaFile.pluginData"/> and `<see cref="FigmaFile.sharedPluginData"/> properties.
         /// </summary>
         public string[] plugins { get; set; }
 
