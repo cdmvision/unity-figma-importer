@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -31,13 +32,16 @@ namespace Cdm.Figma
             var file = (FigmaFileAsset) target;
             return file != null && file.thumbnail != null;
         }
-
-        public override void DrawPreview(Rect previewArea)
+        
+        public override void OnPreviewGUI(Rect previewArea, GUIStyle background)
         {
-            var thumbnail = ((FigmaFileAsset) target).thumbnail;
+            base.OnPreviewGUI(previewArea, background);
 
-            var widthRatio = previewArea.width / thumbnail.width;
-            var heightRatio = previewArea.height / thumbnail.height;
+            var figmaAsset = (FigmaFileAsset)target;
+            var thumbnail = figmaAsset.thumbnail;
+
+            var widthRatio = (previewArea.width - 8f) / thumbnail.width;
+            var heightRatio = (previewArea.height - 8f) / thumbnail.height;
             var ratio = widthRatio > heightRatio ? heightRatio : widthRatio;
             
             var newWidth = thumbnail.width * ratio;
@@ -46,7 +50,12 @@ namespace Cdm.Figma
             var newY = previewArea.y + (previewArea.height - newHeight) * 0.5f;
             
             var newPreviewArea = new Rect(newX, newY, newWidth, newHeight);
-            GUI.DrawTexture(newPreviewArea, ((FigmaFileAsset) target).thumbnail);
+            GUI.DrawTexture(newPreviewArea, thumbnail);
+            
+            const float labelHeight = 40;
+            EditorGUI.DropShadowLabel(
+                new Rect(previewArea.x, previewArea.height - labelHeight - 6, previewArea.width, labelHeight), 
+                $"{figmaAsset.title} - {DateTime.Parse(figmaAsset.lastModified):G}");
         }
     }
 }
