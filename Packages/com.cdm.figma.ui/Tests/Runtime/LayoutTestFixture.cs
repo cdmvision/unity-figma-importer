@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -11,12 +12,12 @@ namespace Cdm.Figma.UI.Tests
     public class LayoutTestFixture
     {
         private const float FloatDelta = 0.001f;
-        private static NodeObject ReferenceView;
+        private NodeObject _referenceView;
 
         [UnityTest]
         public IEnumerator PlayModeSampleTestWithEnumeratorPasses()
         {
-            var figmaFile = Resources.Load<TextAsset>("2282TYGl73YRNXVIB0kYYD");
+            var figmaFile = Resources.Load<TextAsset>("File");
             var file = FigmaFile.FromString(figmaFile.text);
             
             var figmaImporter = new FigmaImporter();
@@ -39,8 +40,8 @@ namespace Cdm.Figma.UI.Tests
                 {
                     if (child.name is "0")
                     {
-                        ReferenceView = child.GetComponent<NodeObject>();
-                        Assert.True(ReferenceView.node is INodeTransform);
+                        _referenceView = child.GetComponent<NodeObject>();
+                        Assert.True(_referenceView.node is INodeTransform);
                         child.SetParent(canvas.transform, false);
                         isImported = true;
                         break;
@@ -54,11 +55,11 @@ namespace Cdm.Figma.UI.Tests
                     if (child is INodeTransform nodeTransform)
                     {
                         //change 1 and 2's right and bottom to stretch the view
-                        ReferenceView.gameObject.GetComponent<RectTransform>().offsetMax = new Vector2(
+                        _referenceView.gameObject.GetComponent<RectTransform>().offsetMax = new Vector2(
                             -1 * (1920 - nodeTransform.size.x),
-                            ReferenceView.gameObject.GetComponent<RectTransform>().offsetMax.y);
-                        ReferenceView.gameObject.GetComponent<RectTransform>().offsetMin = new Vector2(
-                            ReferenceView.gameObject.GetComponent<RectTransform>().offsetMin.x,
+                            _referenceView.gameObject.GetComponent<RectTransform>().offsetMax.y);
+                        _referenceView.gameObject.GetComponent<RectTransform>().offsetMin = new Vector2(
+                            _referenceView.gameObject.GetComponent<RectTransform>().offsetMin.x,
                             1080 - nodeTransform.size.y);
 
                         yield return new WaitForSeconds(2f);
@@ -70,15 +71,15 @@ namespace Cdm.Figma.UI.Tests
             }
         }
 
-        private static void Foo(Node node, Transform canvas)
+        private void Foo(Node node, Transform canvas)
         {
             var rootFrameTransform = (INodeTransform) node;
             var rootFrameObject = canvas.GetChild(0).GetComponent<NodeObject>();
 
             // Do not compare root frame node names.
-            Assert.AreEqual(ReferenceView.gameObject.GetComponent<RectTransform>().rect.width,
+            Assert.AreEqual(_referenceView.gameObject.GetComponent<RectTransform>().rect.width,
                 ((INodeTransform) node).size.x);
-            Assert.AreEqual(ReferenceView.gameObject.GetComponent<RectTransform>().rect.height,
+            Assert.AreEqual(_referenceView.gameObject.GetComponent<RectTransform>().rect.height,
                 ((INodeTransform) node).size.y);
             CompareSize(node, node, rootFrameObject);
         }
@@ -181,6 +182,11 @@ namespace Cdm.Figma.UI.Tests
             }
 
             return null;
+        }
+        
+        private static string GetFilePath(string fileName)
+        {
+            return Path.Combine("Packages/com.cdm.figma/Tests/Editor/TestResources/", fileName);
         }
     }
 }
