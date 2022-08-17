@@ -102,7 +102,7 @@ namespace Cdm.Figma.UI
                 if (options.selectedPages != null && options.selectedPages.All(p => p != page.id))
                     continue;
 
-                var pageNode = NodeObject.Create<PageNodeObject>(page);
+                var pageNode = FigmaNode.Create<FigmaPageNode>(page);
                 pageNode.rectTransform.anchorMin = new Vector2(0, 0);
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);
                 pageNode.rectTransform.offsetMin = new Vector2(0, 0);
@@ -139,8 +139,8 @@ namespace Cdm.Figma.UI
             return FigmaDesign.Create<FigmaDesign>(file, _documents.Select(x => x.pageNodeObject));
         }
 
-        internal bool TryConvertNode(NodeObject parentObject, Node node, NodeConvertArgs args, 
-            out NodeObject nodeObject)
+        internal bool TryConvertNode(FigmaNode parentObject, Node node, NodeConvertArgs args, 
+            out FigmaNode nodeObject)
         {
             // Init instance node's main component, and main component's component set.
             if (node is InstanceNode instanceNode)
@@ -199,7 +199,7 @@ namespace Cdm.Figma.UI
             /// <summary>
             /// Root game object.
             /// </summary>
-            public PageNodeObject pageNodeObject;
+            public FigmaPageNode pageNodeObject;
             
             /// <summary>
             /// Generated sprites.

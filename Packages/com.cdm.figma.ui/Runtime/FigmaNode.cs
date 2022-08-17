@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Cdm.Figma.UI
 {
     [DisallowMultipleComponent]
-    public class NodeObject : MonoBehaviour
+    public class FigmaNode : MonoBehaviour
     {
         [SerializeField]
         private string _nodeID;
@@ -65,7 +65,7 @@ namespace Cdm.Figma.UI
             }
         }
         
-        public static T Create<T>(Node node) where T : NodeObject
+        public static T Create<T>(Node node) where T : FigmaNode
         {
             var go = new GameObject(node.name);
             var nodeObject = go.AddComponent<T>();

@@ -8,9 +8,9 @@ namespace Cdm.Figma.UI
 {
     public class FrameNodeConverter : NodeConverter<FrameNode>
     {
-        protected override NodeObject Convert(NodeObject parentObject, FrameNode frameNode, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, FrameNode frameNode, NodeConvertArgs args)
         {
-            var nodeObject = NodeObject.Create<NodeObject>(frameNode);
+            var nodeObject = FigmaNode.Create<FigmaNode>(frameNode);
             nodeObject.SetTransform(frameNode);
 
             // Frame node's parent may be a page so check if it is INodeTransform.
@@ -31,7 +31,7 @@ namespace Cdm.Figma.UI
             return nodeObject;
         }
 
-        private static void GenerateStyles(NodeObject nodeObject, FrameNode node, NodeConvertArgs args)
+        private static void GenerateStyles(FigmaNode nodeObject, FrameNode node, NodeConvertArgs args)
         {
             if (node.fills.Any() || node.strokes.Any())
             {
@@ -77,7 +77,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void BuildChildren(FrameNode currentNode, NodeObject nodeObject, NodeConvertArgs args)
+        private static void BuildChildren(FrameNode currentNode, FigmaNode nodeObject, NodeConvertArgs args)
         {
             var children = currentNode.children;
             if (children != null)
@@ -99,7 +99,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void HandleFillContainer(LayoutMode layoutMode, NodeObject nodeObject, NodeObject childElement)
+        private static void HandleFillContainer(LayoutMode layoutMode, FigmaNode nodeObject, FigmaNode childElement)
         {
             INodeLayout childLayout = (INodeLayout)childElement.node;
             INodeTransform childTransform = (INodeTransform)childElement.node;
@@ -161,7 +161,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void AddContentSizeFitterIfNeeded(NodeObject nodeObject, FrameNode groupNode)
+        private static void AddContentSizeFitterIfNeeded(FigmaNode nodeObject, FrameNode groupNode)
         {
             if (groupNode.layoutMode == LayoutMode.None)
                 return;
@@ -201,7 +201,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void AddLayoutComponentIfNeeded(NodeObject nodeObject, FrameNode groupNode)
+        private static void AddLayoutComponentIfNeeded(FigmaNode nodeObject, FrameNode groupNode)
         {
             var layoutMode = groupNode.layoutMode;
             if (layoutMode == LayoutMode.None)
@@ -328,7 +328,7 @@ namespace Cdm.Figma.UI
             layoutGroup.spacing = groupNode.itemSpacing;
         }
 
-        private static void AddGridIfNeeded(NodeObject nodeObject, FrameNode frameNode)
+        private static void AddGridIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
         {
             if (frameNode.layoutGrids.Count==1 || frameNode.layoutGrids.Count==2)
             {

@@ -2,9 +2,9 @@ using Cdm.Figma.Utils;
 
 namespace Cdm.Figma.UI
 {
-    public class RectangleNodeConverter : VectorNodeConverter<RectangleNode, NodeObject>
+    public class RectangleNodeConverter : VectorNodeConverter<RectangleNode, FigmaNode>
     {
-        protected override NodeObject Convert(NodeObject parentObject, RectangleNode node, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, RectangleNode node, NodeConvertArgs args)
         {
             var convertArgs = new VectorConvertArgs();
             convertArgs.generateSprite = true;

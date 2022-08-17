@@ -2,9 +2,9 @@
 
 namespace Cdm.Figma.UI
 {
-    public static class NodeObjectLayoutExtensions
+    public static class FigmaNodeLayoutExtensions
     {
-        public static void SetLayoutConstraints(this NodeObject nodeObject, INodeTransform parentTransform)
+        public static void SetLayoutConstraints(this FigmaNode nodeObject, INodeTransform parentTransform)
         {
             //anchors:
             //min x = left
@@ -232,10 +232,10 @@ namespace Cdm.Figma.UI
             nodeObject.rectTransform.anchorMax = anchorMax;
         }
 
-        public static void AdjustPosition(this NodeObject nodeObject, Vector2 parentSize)
+        public static void AdjustPosition(this FigmaNode nodeObject, Vector2 parentSize)
         {
-            INodeLayout nodeLayout = (INodeLayout)nodeObject.node;
-            INodeTransform nodeTransform = (INodeTransform)nodeObject.node;
+            var nodeLayout = (INodeLayout)nodeObject.node;
+            var nodeTransform = (INodeTransform)nodeObject.node;
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
 

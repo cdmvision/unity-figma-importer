@@ -6,7 +6,7 @@ namespace Cdm.Figma.UI
     public interface INodeConverter
     {
         bool CanConvert(Node node, NodeConvertArgs args);
-        NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args);
+        FigmaNode Convert(FigmaNode parentObject, Node node, NodeConvertArgs args);
     }
 
     public class NodeConvertArgs

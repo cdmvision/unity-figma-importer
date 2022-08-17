@@ -12,7 +12,7 @@ namespace Cdm.Figma.UI.Tests
     public class LayoutTestFixture
     {
         private const float FloatDelta = 0.001f;
-        private NodeObject _referenceView;
+        private FigmaNode _referenceView;
 
         [UnityTest]
         public IEnumerator PlayModeSampleTestWithEnumeratorPasses()
@@ -40,7 +40,7 @@ namespace Cdm.Figma.UI.Tests
                 {
                     if (child.name is "0")
                     {
-                        _referenceView = child.GetComponent<NodeObject>();
+                        _referenceView = child.GetComponent<FigmaNode>();
                         Assert.True(_referenceView.node is INodeTransform);
                         child.SetParent(canvas.transform, false);
                         isImported = true;
@@ -74,7 +74,7 @@ namespace Cdm.Figma.UI.Tests
         private void Foo(Node node, Transform canvas)
         {
             var rootFrameTransform = (INodeTransform) node;
-            var rootFrameObject = canvas.GetChild(0).GetComponent<NodeObject>();
+            var rootFrameObject = canvas.GetChild(0).GetComponent<FigmaNode>();
 
             // Do not compare root frame node names.
             Assert.AreEqual(_referenceView.gameObject.GetComponent<RectTransform>().rect.width,
@@ -84,7 +84,7 @@ namespace Cdm.Figma.UI.Tests
             CompareSize(node, node, rootFrameObject);
         }
 
-        private static void CompareSize(Node rootNode, Node node, NodeObject nodeObject)
+        private static void CompareSize(Node rootNode, Node node, FigmaNode nodeObject)
         {
             var offset = ((INodeTransform) rootNode).relativeTransform.GetPosition();
             foreach (var child in node.GetChildren())
@@ -155,7 +155,7 @@ namespace Cdm.Figma.UI.Tests
             }
         }
 
-        private static void ComparePosition(Node rootNode, Node child, NodeObject childNodeObject, Vector2 offset)
+        private static void ComparePosition(Node rootNode, Node child, FigmaNode childNodeObject, Vector2 offset)
         {
             var importedPosition = childNodeObject.rectTransform.position;
             importedPosition.x += offset.x;
@@ -169,11 +169,11 @@ namespace Cdm.Figma.UI.Tests
             
         }
 
-        private static NodeObject FindChild(NodeObject nodeObject, Predicate<NodeObject> predicate)
+        private static FigmaNode FindChild(FigmaNode nodeObject, Predicate<FigmaNode> predicate)
         {
             foreach (Transform child in nodeObject.transform)
             {
-                var childNode = child.GetComponent<NodeObject>();
+                var childNode = child.GetComponent<FigmaNode>();
 
                 if (predicate(childNode))
                 {

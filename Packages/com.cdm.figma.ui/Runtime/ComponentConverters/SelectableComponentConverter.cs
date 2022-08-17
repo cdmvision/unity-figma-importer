@@ -25,7 +25,7 @@ namespace Cdm.Figma.UI
     {
         private bool isSelectable => variants.ContainsKey(ComponentPropertySelected.Key);
         
-        protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             var nodeObject = base.Convert(parentObject, instanceNode, args);
             var variantFilter = nodeObject.GetComponent<TComponentVariantFilter>();

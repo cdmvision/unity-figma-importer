@@ -19,7 +19,7 @@ namespace Cdm.Figma.UI
             return typeID == "InputField";
         }
         
-        protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             var nodeObject = base.Convert(parentObject, instanceNode, args);
 

@@ -21,7 +21,7 @@ namespace Cdm.Figma.UI
             return true;
         }
         
-        protected override NodeObject Convert(NodeObject parentObject, InstanceNode node, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode node, NodeConvertArgs args)
         {
             var frameNodeConverter = new FrameNodeConverter();
             

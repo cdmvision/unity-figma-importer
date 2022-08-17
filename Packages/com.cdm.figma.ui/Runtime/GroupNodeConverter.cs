@@ -4,9 +4,9 @@ namespace Cdm.Figma.UI
 {
     public class GroupNodeConverter : NodeConverter<GroupNode>
     {
-        protected override NodeObject Convert(NodeObject parentObject, GroupNode groupNode, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, GroupNode groupNode, NodeConvertArgs args)
         {
-            var nodeObject = NodeObject.Create<NodeObject>(groupNode);
+            var nodeObject = FigmaNode.Create<FigmaNode>(groupNode);
 
             nodeObject.rectTransform.anchorMin = new Vector2(0, 0);
             nodeObject.rectTransform.anchorMax = new Vector2(1, 1);
@@ -36,7 +36,7 @@ namespace Cdm.Figma.UI
             return nodeObject;
         }
 
-        private static void BuildChildren(GroupNode currentNode, NodeObject nodeObject, NodeConvertArgs args)
+        private static void BuildChildren(GroupNode currentNode, FigmaNode nodeObject, NodeConvertArgs args)
         {
             var children = currentNode.GetChildren();
             if (children != null)

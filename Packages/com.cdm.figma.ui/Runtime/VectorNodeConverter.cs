@@ -22,12 +22,12 @@ namespace Cdm.Figma.UI
 
     public abstract class VectorNodeConverter<TNode, TNodeObject> : NodeConverter<TNode> 
         where TNode : VectorNode 
-        where TNodeObject : NodeObject
+        where TNodeObject : FigmaNode
     {
-        protected NodeObject Convert(NodeObject parentObject, TNode vectorNode, NodeConvertArgs args,
+        protected FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
-            var nodeObject = NodeObject.Create<TNodeObject>(vectorNode);
+            var nodeObject = FigmaNode.Create<TNodeObject>(vectorNode);
             nodeObject.SetTransform(vectorNode);
 
             // Every vector's parent will ALWAYS be INodeTransform
@@ -39,12 +39,12 @@ namespace Cdm.Figma.UI
             return nodeObject;
         }
 
-        protected override NodeObject Convert(NodeObject parentObject, TNode vectorNode, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args)
         {
             return Convert(parentObject, vectorNode, args, new VectorConvertArgs());
         }
 
-        private void GenerateStyles(NodeObject nodeObject, TNode vectorNode, NodeConvertArgs args,
+        private void GenerateStyles(FigmaNode nodeObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
             if (vectorConvertArgs.generateSprite && (vectorNode.fills.Any() || vectorNode.strokes.Any()))
@@ -83,7 +83,7 @@ namespace Cdm.Figma.UI
         }
     }
 
-    public class VectorNodeConverter : VectorNodeConverter<VectorNode, NodeObject>
+    public class VectorNodeConverter : VectorNodeConverter<VectorNode, FigmaNode>
     {
     }
 }

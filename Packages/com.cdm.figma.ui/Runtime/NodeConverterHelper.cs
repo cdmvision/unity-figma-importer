@@ -5,7 +5,7 @@ namespace Cdm.Figma.UI
 {
     public static class NodeConverterHelper
     {
-        public static void GenerateEffectsStyles(NodeObject nodeObject, IEnumerable<Effect> effects)
+        public static void GenerateEffectsStyles(FigmaNode nodeObject, IEnumerable<Effect> effects)
         {
             foreach (var effect in effects)
             {
@@ -13,7 +13,7 @@ namespace Cdm.Figma.UI
             }
         }
         
-        public static void GenerateEffectStyle(NodeObject nodeObject, Effect effect)
+        public static void GenerateEffectStyle(FigmaNode nodeObject, Effect effect)
         {
             switch (effect)
             {
@@ -26,12 +26,12 @@ namespace Cdm.Figma.UI
             }
         }
 
-        public static void GenerateBlurEffectStyle(NodeObject nodeObject, BlurEffect effect)
+        public static void GenerateBlurEffectStyle(FigmaNode nodeObject, BlurEffect effect)
         {
             // TODO: Implement with LeTai Translucent Image plugin
         }
 
-        public static void GenerateShadowEffectStyle(NodeObject nodeObject, ShadowEffect effect)
+        public static void GenerateShadowEffectStyle(FigmaNode nodeObject, ShadowEffect effect)
         {
             var style = new ShadowStyle();
             style.enabled = effect.visible;

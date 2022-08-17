@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
-    [CustomEditor(typeof(NodeObject), editorForChildClasses:true)]
+    [CustomEditor(typeof(FigmaNode), editorForChildClasses:true)]
     public class NodeObjectEditor : Editor
     {
         private SerializedProperty _nodeID;

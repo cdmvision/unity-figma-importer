@@ -41,7 +41,7 @@ namespace Cdm.Figma.UI
             return CanConvertType(componentType);
         }
 
-        protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             // Debug.Log($"Instance name: {instanceNode.name}");
 
@@ -56,7 +56,7 @@ namespace Cdm.Figma.UI
             return instanceNodeConverter.Convert(parentObject, instanceNode, args);
         }
 
-        private void ConvertComponentSet(NodeObject instanceObject, NodeObject parentObject, InstanceNode instanceNode,
+        private void ConvertComponentSet(FigmaNode instanceObject, FigmaNode parentObject, InstanceNode instanceNode,
             NodeConvertArgs args)
         {
             var mainComponent = instanceNode.mainComponent;
@@ -141,7 +141,7 @@ namespace Cdm.Figma.UI
             args.componentPropertyAssignments.Clear();
         }
 
-        private void MergeComponentVariant(NodeObject node, NodeObject variant, string selector)
+        private void MergeComponentVariant(FigmaNode node, FigmaNode variant, string selector)
         {
             if (node.transform.childCount != variant.transform.childCount)
                 throw new ArgumentException("Component variant has invalid number of children!");
@@ -156,14 +156,14 @@ namespace Cdm.Figma.UI
 
             for (var i = 0; i < node.transform.childCount; i++)
             {
-                var nextNode = node.transform.GetChild(i).GetComponent<NodeObject>();
-                var nextVariant = variant.transform.GetChild(i).GetComponent<NodeObject>();
+                var nextNode = node.transform.GetChild(i).GetComponent<FigmaNode>();
+                var nextVariant = variant.transform.GetChild(i).GetComponent<FigmaNode>();
 
                 MergeComponentVariant(nextNode, nextVariant, selector);
             }
         }
 
-        private void ApplyStyleSelectorsRecurse(NodeObject nodeObject)
+        private void ApplyStyleSelectorsRecurse(FigmaNode nodeObject)
         {
             // Remove default styles.
             nodeObject.styles.RemoveAll(s => string.IsNullOrEmpty(s.selector));
@@ -171,7 +171,7 @@ namespace Cdm.Figma.UI
 
             foreach (Transform child in nodeObject.transform)
             {
-                ApplyStyleSelectorsRecurse(child.GetComponent<NodeObject>());
+                ApplyStyleSelectorsRecurse(child.GetComponent<FigmaNode>());
             }
         }
 
@@ -210,7 +210,7 @@ namespace Cdm.Figma.UI
         where TComponent : Selectable
         where TComponentVariantFilter : ComponentVariantFilter
     {
-        protected override NodeObject Convert(NodeObject parentObject, InstanceNode instanceNode, NodeConvertArgs args)
+        protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             var nodeObject = base.Convert(parentObject, instanceNode, args);
 

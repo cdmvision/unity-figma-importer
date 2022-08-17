@@ -3,7 +3,7 @@
 namespace Cdm.Figma.UI
 {
     [SelectionBase]
-    public class PageNodeObject : NodeObject
+    public class FigmaPageNode : FigmaNode
     {
     }
 }
