@@ -15,21 +15,17 @@ namespace Cdm.Figma.UI
         private readonly HashSet<ComponentConverter> _componentConverters = new HashSet<ComponentConverter>();
 
         public ISet<ComponentConverter> componentConverters => _componentConverters;
-        
-        private readonly List<ImportedDocument> _documents = new List<ImportedDocument>();
-        
+
         public List<FontSource> fonts { get; } = new List<FontSource>();
-        
+
+        public AssetCache generatedAssets { get; } = new AssetCache();
+        public AssetCache dependencyAssets { get; } = new AssetCache();
+
         /// <summary>
         /// Gets or sets the fallback font that is used when a font mapping does not found.
         /// </summary>
         public TMP_FontAsset fallbackFont { get; set; }
 
-        public ImportedDocument[] GetImportedDocuments()
-        {
-            return _documents.ToArray();
-        }
-        
         public static NodeConverter[] GetDefaultNodeConverters()
         {
             return new NodeConverter[]
@@ -61,13 +57,14 @@ namespace Cdm.Figma.UI
                 new DropdownComponentConverter()
             };
         }
-        
+
         public Figma.FigmaDesign ImportFile(FigmaFile file, IFigmaImporter.Options options = null)
         {
             options ??= new IFigmaImporter.Options();
-            
-            _documents.Clear();
-            
+
+            generatedAssets.Clear();
+            dependencyAssets.Clear();
+
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
 
@@ -79,7 +76,7 @@ namespace Cdm.Figma.UI
                     nodeConverters.Add(converter);
                 }
             }
-            
+
             if (!componentConverters.Any())
             {
                 var converters = GetDefaultComponentConverters();
@@ -88,14 +85,15 @@ namespace Cdm.Figma.UI
                     componentConverters.Add(converter);
                 }
             }
-            
+
             file.BuildHierarchy();
-            
+
             var conversionArgs = new NodeConvertArgs(this, file);
-            
+
             // Generate all pages.
             var pages = file.document.children;
-            
+            var importedPages = new List<FigmaPageNode>();
+
             foreach (var page in pages)
             {
                 // Do not import ignored pages.
@@ -107,7 +105,7 @@ namespace Cdm.Figma.UI
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);
                 pageNode.rectTransform.offsetMin = new Vector2(0, 0);
                 pageNode.rectTransform.offsetMax = new Vector2(0, 0);
-                
+
                 var nodes = page.children;
                 foreach (var node in nodes)
                 {
@@ -123,23 +121,14 @@ namespace Cdm.Figma.UI
                         }
                     }
                 }
-                
-                _documents.Add(new ImportedDocument()
-                {
-                    pageNode = page,
-                    pageNodeObject = pageNode,
-                    sprites = conversionArgs.generatedSprites.Values.ToArray(),
-                    materials = conversionArgs.generatedMaterials.ToArray()
-                });
 
-                conversionArgs.generatedSprites.Clear();
-                conversionArgs.generatedMaterials.Clear();
+                importedPages.Add(pageNode);
             }
 
-            return FigmaDesign.Create<FigmaDesign>(file, _documents.Select(x => x.pageNodeObject));
+            return FigmaDesign.Create<FigmaDesign>(file, importedPages);
         }
 
-        internal bool TryConvertNode(FigmaNode parentObject, Node node, NodeConvertArgs args, 
+        internal bool TryConvertNode(FigmaNode parentObject, Node node, NodeConvertArgs args,
             out FigmaNode nodeObject)
         {
             // Init instance node's main component, and main component's component set.
@@ -147,7 +136,7 @@ namespace Cdm.Figma.UI
             {
                 args.file.InitInstanceNode(instanceNode);
             }
-            
+
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
             if (componentConverter != null)
@@ -167,7 +156,7 @@ namespace Cdm.Figma.UI
             nodeObject = null;
             return false;
         }
-        
+
         internal bool TryGetFont(string fontName, out TMP_FontAsset font)
         {
             var fontIndex = fonts.FindIndex(
@@ -188,8 +177,8 @@ namespace Cdm.Figma.UI
             font = null;
             return false;
         }
-        
-        public struct ImportedDocument
+
+        /*public struct ImportedDocument
         {
             /// <summary>
             /// Root figma node.
@@ -210,6 +199,12 @@ namespace Cdm.Figma.UI
             /// Generated materials.
             /// </summary>
             public Material[] materials;
+        }*/
+
+        public struct AssetSource
+        {
+            public string identifier { get; set; }
+            public UnityEngine.Object asset { get; set; }
         }
     }
 }

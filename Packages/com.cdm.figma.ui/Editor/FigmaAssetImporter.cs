@@ -1,5 +1,6 @@
 ﻿using System;
 using TMPro;
+using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
@@ -28,33 +29,39 @@ namespace Cdm.Figma.UI
             set => _fallbackFont = value;
         }
 
-        protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter, FigmaFile file)
+        protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter,
+            FigmaFile figmaFile)
         {
-            base.OnAssetImporting(ctx, figmaImporter, file);
+            base.OnAssetImporting(ctx, figmaImporter, figmaFile);
 
-            UpdateFonts((FigmaImporter)figmaImporter, file);
+            UpdateFonts((FigmaImporter)figmaImporter, figmaFile);
         }
 
-        protected override void OnAssetImported(AssetImportContext ctx, IFigmaImporter figmaImporter, FigmaFile file)
+        protected override void OnAssetImported(AssetImportContext ctx, IFigmaImporter figmaImporter,
+            FigmaFile figmaFile, Figma.FigmaDesign figmaDesign)
         {
-            base.OnAssetImported(ctx, figmaImporter, file);
+            base.OnAssetImported(ctx, figmaImporter, figmaFile, figmaDesign);
 
-            var documents = ((FigmaImporter)figmaImporter).GetImportedDocuments();
+            // Add imported page game objects to the asset.
+            var design = (FigmaDesign)figmaDesign;
 
-            foreach (var document in documents)
+            foreach (var page in design.pages)
             {
-                foreach (var sprite in document.sprites)
-                {
-                    ctx.AddObjectToAsset(sprite.name, sprite);
-                    ctx.AddObjectToAsset($"{sprite.name}_tex", sprite.texture);
-                }
+                ctx.AddObjectToAsset($"{page.nodeID}", page.gameObject);
+            }
 
-                foreach (var material in document.materials)
-                {
-                    ctx.AddObjectToAsset(material.name, material);
-                }
+            var importer = (FigmaImporter)figmaImporter;
 
-                ctx.AddObjectToAsset($"{document.pageNode.id}", document.pageNodeObject.gameObject);
+            // Add generated objects to the asset.
+            foreach (var generatedAsset in importer.generatedAssets)
+            {
+                ctx.AddObjectToAsset(generatedAsset.Key, generatedAsset.Value);
+            }
+
+            // Register dependency assets.
+            foreach (var dependencyAsset in importer.dependencyAssets)
+            {
+                ctx.DependsOnSourceAsset(AssetDatabase.GetAssetPath(dependencyAsset.Value));
             }
         }
 

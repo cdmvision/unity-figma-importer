@@ -25,19 +25,19 @@ namespace Cdm.Figma
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var fileJson = File.ReadAllText(ctx.assetPath);
-            var file = FigmaFile.Parse(fileJson);
+            var figmaFile = FigmaFile.Parse(fileJson);
 
-            UpdatePages(file);
+            UpdatePages(figmaFile);
             
             var figmaImporter = GetFigmaImporter();
-            OnAssetImporting(ctx, figmaImporter, file);
+            OnAssetImporting(ctx, figmaImporter, figmaFile);
             
-            var figmaDesign = figmaImporter.ImportFile(file, new IFigmaImporter.Options()
+            var figmaDesign = figmaImporter.ImportFile(figmaFile, new IFigmaImporter.Options()
             {
                 selectedPages = _pages.Where(p => p.enabled).Select(p => p.id).ToArray()
             });
             
-            OnAssetImported(ctx, figmaImporter, file);
+            OnAssetImported(ctx, figmaImporter, figmaFile, figmaDesign);
 
             if (figmaDesign.thumbnail != null)
             {
@@ -75,11 +75,13 @@ namespace Cdm.Figma
             }
         }
 
-        protected virtual void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter, FigmaFile file)
+        protected virtual void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter, 
+            FigmaFile figmaFile)
         {
         }
 
-        protected virtual void OnAssetImported(AssetImportContext ctx, IFigmaImporter figmaImporter, FigmaFile file)
+        protected virtual void OnAssetImported(AssetImportContext ctx, IFigmaImporter figmaImporter, 
+            FigmaFile figmaFile, FigmaDesign figmaDesign)
         {
         }
 

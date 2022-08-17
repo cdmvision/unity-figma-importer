@@ -52,13 +52,14 @@ namespace Cdm.Figma.UI
                 var style = new ImageStyle();
                 if (vectorConvertArgs.sourceSprite == null)
                 {
-                    if (!args.generatedSprites.TryGetValue(vectorNode.id, out var sprite))
+                    if (!args.importer.generatedAssets.TryGet<Sprite>(vectorNode.id, out var sprite))
                     {
                         sprite = NodeSpriteGenerator.GenerateSprite(
                             vectorNode, SpriteGenerateType.Path, vectorConvertArgs.spriteOptions);
                         if (sprite != null)
                         {
-                            args.generatedSprites.Add(vectorNode.id, sprite);
+                            args.importer.generatedAssets.Add(vectorNode.id, sprite);
+                            args.importer.generatedAssets.Add(vectorNode.id, sprite.texture);
                         }
                     }
 

@@ -1,4 +1,5 @@
 using Cdm.Figma.Utils;
+using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
@@ -8,14 +9,15 @@ namespace Cdm.Figma.UI
         {
             var convertArgs = new VectorConvertArgs();
             convertArgs.generateSprite = true;
-
-            if (!args.generatedSprites.TryGetValue(node.id, out var sprite))
+            
+            if (!args.importer.generatedAssets.TryGet<Sprite>(node.id, out var sprite))
             {
                 sprite =
                     NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, convertArgs.spriteOptions);
                 if (sprite != null)
                 {
-                    args.generatedSprites.Add(node.id, sprite);
+                    args.importer.generatedAssets.Add(node.id, sprite);
+                    args.importer.generatedAssets.Add(node.id, sprite.texture);
                 }
             }
 

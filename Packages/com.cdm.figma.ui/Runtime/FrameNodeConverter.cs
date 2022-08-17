@@ -43,12 +43,13 @@ namespace Cdm.Figma.UI
                     textureSize = 1024
                 };
                 
-                if (!args.generatedSprites.TryGetValue(node.id, out var sprite))
+                if (!args.importer.generatedAssets.TryGet<Sprite>(node.id, out var sprite))
                 {
                     sprite = NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, options);
                     if (sprite != null)
                     {
-                        args.generatedSprites.Add(node.id, sprite);
+                        args.importer.generatedAssets.Add(node.id, sprite);
+                        args.importer.generatedAssets.Add(node.id, sprite.texture);
                     }
                 }
 

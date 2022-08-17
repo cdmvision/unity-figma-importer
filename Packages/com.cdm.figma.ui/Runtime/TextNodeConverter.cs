@@ -49,6 +49,8 @@ namespace Cdm.Figma.UI
             {
                 style.font.enabled = true;
                 style.font.value = font;
+
+                args.importer.dependencyAssets.Add(fontName, font);
             }
             else
             {

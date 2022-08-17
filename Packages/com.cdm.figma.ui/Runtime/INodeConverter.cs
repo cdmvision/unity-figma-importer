@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
@@ -16,10 +15,6 @@ namespace Cdm.Figma.UI
 
         public Dictionary<string, ComponentNode> componentPropertyAssignments { get; } =
             new Dictionary<string, ComponentNode>();
-
-        public List<Material> generatedMaterials { get; } = new List<Material>();
-
-        public Dictionary<string, Sprite> generatedSprites { get; } = new Dictionary<string, Sprite>();
 
         public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
         {

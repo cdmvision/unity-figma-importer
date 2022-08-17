@@ -21,13 +21,13 @@ namespace Cdm.Figma.UI.Tests
             var file = FigmaFile.Parse(figmaFile.text);
             
             var figmaImporter = new FigmaImporter();
-            figmaImporter.ImportFile(file);
+            var figmaDesign = (FigmaDesign) figmaImporter.ImportFile(file);
 
-            var documents = figmaImporter.GetImportedDocuments();
+            //var documents = figmaImporter.GetImportedDocuments();
 
-            foreach (var document in documents)
+            foreach (var page in figmaDesign.pages)
             {
-                var canvasGo = new GameObject($"Canvas-{document.pageNode.name}");
+                var canvasGo = new GameObject($"Canvas-{page.name}");
                 var canvas = canvasGo.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 var canvasRectTransform = canvas.GetComponent<RectTransform>();
@@ -36,7 +36,7 @@ namespace Cdm.Figma.UI.Tests
                 canvasRectTransform.localScale = Vector3.one;
 
                 var isImported = false;
-                foreach (RectTransform child in document.pageNodeObject.rectTransform)
+                foreach (RectTransform child in page.rectTransform)
                 {
                     if (child.name is "0")
                     {
@@ -50,7 +50,7 @@ namespace Cdm.Figma.UI.Tests
 
                 Assert.True(isImported);
 
-                foreach (var child in document.pageNode.GetChildren())
+                foreach (var child in page.node.GetChildren())
                 {
                     if (child is INodeTransform nodeTransform)
                     {
