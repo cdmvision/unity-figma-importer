@@ -18,6 +18,15 @@ namespace Cdm.Figma.UI
             set => _inheritCanvasGroupInteractable = value;
         }
 
+        [SerializeField]
+        private bool _isSelectable;
+
+        public bool isSelectable
+        {
+            get => _isSelectable;
+            set => _isSelectable = value;
+        }
+        
         protected Selectable selectable { get; private set; }
         protected CanvasGroup canvasGroup { get; private set; }
         protected bool isPointerInside { get; set; }
@@ -25,7 +34,6 @@ namespace Cdm.Figma.UI
         protected bool interactable { get; set; }
 
         protected bool hasSelection { get; set; }
-        public bool isSelectable { get; set; }
 
         protected override void Awake()
         {

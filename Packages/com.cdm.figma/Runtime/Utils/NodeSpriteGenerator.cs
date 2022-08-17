@@ -50,7 +50,7 @@ namespace Cdm.Figma.Utils
             //Debug.Log($"{node}: {svg}");
             return GenerateSprite(node, svg, spriteType, options);
         }
-        
+
         /// <summary>
         /// Generates SVG string from the scene node.
         /// </summary>
@@ -341,11 +341,12 @@ namespace Cdm.Figma.Utils
         private static Sprite CreateTexturedSprite(SceneNode node, SpriteOptions options,
             SVGParser.SceneInfo sceneInfo, Vector4? borders = null)
         {
-            var geometries = VectorUtils.TessellateScene(sceneInfo.Scene, options.tessellationOptions, sceneInfo.NodeOpacity);
-            
-            var sprite = VectorUtils.BuildSprite(geometries, sceneInfo.SceneViewport, options.svgPixelsPerUnit, 
-                VectorUtils.Alignment.TopLeft, Vector2.zero, options.gradientResolution, true);
-            
+            var geometries =
+                VectorUtils.TessellateScene(sceneInfo.Scene, options.tessellationOptions, sceneInfo.NodeOpacity);
+
+            var sprite = VectorUtils.BuildSprite(geometries, options.svgPixelsPerUnit, VectorUtils.Alignment.TopLeft,
+                Vector2.zero, options.gradientResolution, true);
+
             if (sprite == null)
                 return null;
 
