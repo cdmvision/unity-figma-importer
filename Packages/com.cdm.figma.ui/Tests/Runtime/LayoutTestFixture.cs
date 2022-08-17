@@ -18,7 +18,7 @@ namespace Cdm.Figma.UI.Tests
         public IEnumerator PlayModeSampleTestWithEnumeratorPasses()
         {
             var figmaFile = Resources.Load<TextAsset>("File");
-            var file = FigmaFile.FromString(figmaFile.text);
+            var file = FigmaFile.Parse(figmaFile.text);
             
             var figmaImporter = new FigmaImporter();
             figmaImporter.ImportFile(file);
@@ -27,7 +27,7 @@ namespace Cdm.Figma.UI.Tests
 
             foreach (var document in documents)
             {
-                var canvasGo = new GameObject($"Canvas-{document.node.name}");
+                var canvasGo = new GameObject($"Canvas-{document.pageNode.name}");
                 var canvas = canvasGo.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 var canvasRectTransform = canvas.GetComponent<RectTransform>();
@@ -36,7 +36,7 @@ namespace Cdm.Figma.UI.Tests
                 canvasRectTransform.localScale = Vector3.one;
 
                 var isImported = false;
-                foreach (RectTransform child in document.nodeObject.rectTransform)
+                foreach (RectTransform child in document.pageNodeObject.rectTransform)
                 {
                     if (child.name is "0")
                     {
@@ -50,7 +50,7 @@ namespace Cdm.Figma.UI.Tests
 
                 Assert.True(isImported);
 
-                foreach (var child in document.node.GetChildren())
+                foreach (var child in document.pageNode.GetChildren())
                 {
                     if (child is INodeTransform nodeTransform)
                     {

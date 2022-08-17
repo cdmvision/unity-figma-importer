@@ -12,7 +12,7 @@ namespace Cdm.Figma.UI
         public string nodeID
         {
             get => _nodeID;
-            internal set => _nodeID = value;
+            private set => _nodeID = value;
         }
         
         [SerializeField]
@@ -21,7 +21,7 @@ namespace Cdm.Figma.UI
         public string nodeName
         {
             get => _nodeName;
-            internal set => _nodeName = value;
+            private set => _nodeName = value;
         }
         
         [SerializeField]
@@ -30,7 +30,7 @@ namespace Cdm.Figma.UI
         public string nodeType
         {
             get => _nodeType;
-            internal set => _nodeType = value;
+            private set => _nodeType = value;
         }
         
         [SerializeField]
@@ -39,10 +39,8 @@ namespace Cdm.Figma.UI
         public string bindingKey
         {
             get => _bindingKey;
-            internal set => _bindingKey = value;
+            private set => _bindingKey = value;
         }
-
-        public RectTransform rectTransform { get; private set; }
         
         [SerializeField]
         private List<Styles.Style> _styles = new List<Styles.Style>();
@@ -51,11 +49,23 @@ namespace Cdm.Figma.UI
 
         // TODO: Should be private or at least internal. Because it is only available while importing figma file.
         public Node node { get; private set; }
+
+        private RectTransform _rectTransform;
+
+        public RectTransform rectTransform
+        {
+            get
+            {
+                if (_rectTransform == null)
+                {
+                    _rectTransform = GetComponent<RectTransform>();
+                }
+
+                return _rectTransform;
+            }
+        }
         
-        /// <summary>
-        /// Initializes a new instance of the XElement class with the specified <paramref name="node"/>.
-        /// </summary>
-        public static T Create<T>(Node node, NodeConvertArgs args) where T : NodeObject
+        public static T Create<T>(Node node) where T : NodeObject
         {
             var go = new GameObject(node.name);
             var nodeObject = go.AddComponent<T>();
@@ -64,9 +74,8 @@ namespace Cdm.Figma.UI
             nodeObject.nodeID = node.id;
             nodeObject.nodeName = node.name;
             nodeObject.nodeType = node.type;
-            nodeObject.rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();
             nodeObject.bindingKey = node.GetBindingName();
-            //nodeObject.localizationKey = node.GetLocalizationKey();
+            nodeObject._rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();
             
             if (node is SceneNode sceneNode)
             {

@@ -102,11 +102,6 @@ namespace Cdm.Figma
         /// </remarks>
         public IReadOnlyDictionary<string, ComponentSetNode> componentSetNodes => _componentSetNodes;
 
-        /// <summary>
-        /// Figma file pages.
-        /// </summary>
-        public FigmaFilePage[] pages { get; private set; } = Array.Empty<FigmaFilePage>();
-
         public void BuildHierarchy()
         {
             _componentNodes.Clear();
@@ -240,21 +235,9 @@ namespace Cdm.Figma
             }
         }
 
-        public static FigmaFile FromString(string json)
+        public static FigmaFile Parse(string json)
         {
-            var file = JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.Settings);
-            if (file != null && file.document != null && file.document.hasChildren)
-            {
-                file.pages = new FigmaFilePage[file.document.children.Length];
-
-                for (var i = 0; i < file.pages.Length; i++)
-                {
-                    var page = file.document.children[i];
-                    file.pages[i] = new FigmaFilePage(page.id, page.name);
-                }    
-            }
-
-            return file;
+            return JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.Settings);
         }
 
 
@@ -276,31 +259,6 @@ namespace Cdm.Figma
                 default:
                     throw new FormatException($"The {format} format string is not supported.");
             }
-        }
-    }
-
-    [Serializable]
-    public class FigmaFilePage
-    {
-        public bool enabled = true;
-        public string id;
-        public string name;
-
-        public FigmaFilePage()
-        {
-        }
-
-        public FigmaFilePage(string id, string name)
-        {
-            this.id = id;
-            this.name = name;
-        }
-
-        public FigmaFilePage(FigmaFilePage other)
-        {
-            enabled = other.enabled;
-            id = other.id;
-            name = other.name;
         }
     }
 }

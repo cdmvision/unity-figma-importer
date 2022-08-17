@@ -17,7 +17,7 @@ namespace Cdm.Figma
                     plugins = new[] { PluginData.Id }
                 });
 
-            var file = FigmaFile.FromString(fileContentJson);
+            var file = FigmaFile.Parse(fileContentJson);
             file.fileID = fileID;
 
             if (!string.IsNullOrEmpty(file.thumbnailUrl))

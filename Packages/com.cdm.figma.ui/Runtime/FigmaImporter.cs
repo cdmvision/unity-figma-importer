@@ -62,8 +62,10 @@ namespace Cdm.Figma.UI
             };
         }
         
-        public void ImportFile(FigmaFile file)
+        public Figma.FigmaDesign ImportFile(FigmaFile file, IFigmaImporter.Options options = null)
         {
+            options ??= new IFigmaImporter.Options();
+            
             _documents.Clear();
             
             if (file == null)
@@ -97,11 +99,10 @@ namespace Cdm.Figma.UI
             foreach (var page in pages)
             {
                 // Do not import ignored pages.
-                var filePage = file.pages.FirstOrDefault(p => p.id == page.id);
-                if (filePage == null || !filePage.enabled)
+                if (options.selectedPages != null && options.selectedPages.All(p => p != page.id))
                     continue;
-                    
-                var pageNode = NodeObject.Create<PageNodeObject>(page, conversionArgs);
+
+                var pageNode = NodeObject.Create<PageNodeObject>(page);
                 pageNode.rectTransform.anchorMin = new Vector2(0, 0);
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);
                 pageNode.rectTransform.offsetMin = new Vector2(0, 0);
@@ -125,9 +126,8 @@ namespace Cdm.Figma.UI
                 
                 _documents.Add(new ImportedDocument()
                 {
-                    page = filePage,
-                    node = page,
-                    nodeObject = pageNode,
+                    pageNode = page,
+                    pageNodeObject = pageNode,
                     sprites = conversionArgs.generatedSprites.Values.ToArray(),
                     materials = conversionArgs.generatedMaterials.ToArray()
                 });
@@ -135,6 +135,8 @@ namespace Cdm.Figma.UI
                 conversionArgs.generatedSprites.Clear();
                 conversionArgs.generatedMaterials.Clear();
             }
+
+            return FigmaDesign.Create<FigmaDesign>(file, _documents.Select(x => x.pageNodeObject));
         }
 
         internal bool TryConvertNode(NodeObject parentObject, Node node, NodeConvertArgs args, 
@@ -190,19 +192,14 @@ namespace Cdm.Figma.UI
         public struct ImportedDocument
         {
             /// <summary>
-            /// Associated Figma page.
-            /// </summary>
-            public FigmaFilePage page;
-
-            /// <summary>
             /// Root figma node.
             /// </summary>
-            public Node node;
+            public PageNode pageNode;
         
             /// <summary>
             /// Root game object.
             /// </summary>
-            public PageNodeObject nodeObject;
+            public PageNodeObject pageNodeObject;
             
             /// <summary>
             /// Generated sprites.

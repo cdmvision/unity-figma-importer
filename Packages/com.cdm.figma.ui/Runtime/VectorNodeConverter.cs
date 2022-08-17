@@ -27,7 +27,7 @@ namespace Cdm.Figma.UI
         protected NodeObject Convert(NodeObject parentObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
-            var nodeObject = NodeObject.Create<TNodeObject>(vectorNode, args);
+            var nodeObject = NodeObject.Create<TNodeObject>(vectorNode);
             nodeObject.SetTransform(vectorNode);
 
             // Every vector's parent will ALWAYS be INodeTransform

@@ -6,16 +6,16 @@ using UnityEngine.UIElements;
 
 namespace Cdm.Figma
 {
-    [CustomEditor(typeof(FigmaFileAsset))]
-    public class FigmaFileEditor : Editor
+    [CustomEditor(typeof(FigmaDesign), true)]
+    public class FigmaDesignEditor : Editor
     {
         public override VisualElement CreateInspectorGUI()
         {
-            var fileAsset = ((FigmaFileAsset) target);
+            var fileAsset = ((FigmaDesign) target);
 
             var root = new VisualElement();
             var visualTree =
-                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{EditorHelper.VisualTreeFolderPath}/FigmaFile.uxml");
+                AssetDatabase.LoadAssetAtPath<VisualTreeAsset>($"{EditorHelper.VisualTreeFolderPath}/FigmaDesign.uxml");
             visualTree.CloneTree(root);
 
             root.Q<Button>("copyContentButton").clicked += () =>
@@ -29,7 +29,7 @@ namespace Cdm.Figma
 
         public override bool HasPreviewGUI()
         {
-            var file = (FigmaFileAsset) target;
+            var file = (FigmaDesign) target;
             return file != null && file.thumbnail != null;
         }
         
@@ -37,7 +37,7 @@ namespace Cdm.Figma
         {
             base.OnPreviewGUI(previewArea, background);
 
-            var figmaAsset = (FigmaFileAsset)target;
+            var figmaAsset = (FigmaDesign)target;
             var thumbnail = figmaAsset.thumbnail;
 
             var widthRatio = (previewArea.width - 8f) / thumbnail.width;

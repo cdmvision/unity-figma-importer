@@ -1,6 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Packages/com.cdm.figma/Editor%20Default%20Resources/Style.uss?fileID=7433441132597879392&amp;guid=273b1e4f0a689b542b301e64df41e3b5&amp;type=3#Style" />
-    <ui:GroupBox text="Figma File">
+    <ui:VisualElement style="margin-left: 3px; margin-right: 3px; margin-top: 6px; margin-bottom: 1px; padding-left: 3px; padding-top: 5px; padding-bottom: 5px;">
+        <ui:VisualElement style="flex-direction: row; padding-bottom: 8px;">
+            <ui:Label text="Figma Design /" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
+            <ui:Label text="Title" display-tooltip-when-elided="true" binding-path="_title" enable-rich-text="false" style="-unity-font-style: bold;" />
+        </ui:VisualElement>
         <ui:TextField picking-mode="Ignore" label="ID" readonly="true" binding-path="_id" />
         <ui:TextField picking-mode="Ignore" label="Name" binding-path="_title" readonly="true" />
         <ui:TextField picking-mode="Ignore" label="Version" binding-path="_version" readonly="true" />
@@ -8,5 +12,5 @@
         <ui:VisualElement style="align-items: flex-end; flex-direction: row-reverse;">
             <ui:Button text="Copy File Content" display-tooltip-when-elided="true" name="copyContentButton" />
         </ui:VisualElement>
-    </ui:GroupBox>
+    </ui:VisualElement>
 </ui:UXML>

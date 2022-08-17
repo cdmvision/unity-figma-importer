@@ -6,7 +6,7 @@ namespace Cdm.Figma.UI
     {
         protected override NodeObject Convert(NodeObject parentObject, GroupNode groupNode, NodeConvertArgs args)
         {
-            var nodeObject = NodeObject.Create<NodeObject>(groupNode, args);
+            var nodeObject = NodeObject.Create<NodeObject>(groupNode);
 
             nodeObject.rectTransform.anchorMin = new Vector2(0, 0);
             nodeObject.rectTransform.anchorMax = new Vector2(1, 1);

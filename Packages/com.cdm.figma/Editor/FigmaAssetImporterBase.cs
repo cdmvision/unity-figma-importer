@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
@@ -13,41 +14,38 @@ namespace Cdm.Figma
         private FigmaFilePage[] _pages;
 
         /// <summary>
-        /// All pages in the figma file.
+        /// Selected pages to be imported.
         /// </summary>
-        public FigmaFilePage[] pages => _pages;
-
-        [SerializeField, HideInInspector]
-        private FigmaFileAsset _figmaFile;
-
-        internal FigmaFileAsset figmaFile => _figmaFile;
+        public FigmaFilePage[] pages
+        {
+            get => _pages;
+            set => _pages = value;
+        }
 
         public override void OnImportAsset(AssetImportContext ctx)
         {
             var fileJson = File.ReadAllText(ctx.assetPath);
-            var file = FigmaFile.FromString(fileJson);
-            var fileAsset = FigmaFileAsset.Create(file);
-
-            _figmaFile = fileAsset;
-            
-            if (fileAsset.thumbnail != null)
-            {
-                ctx.AddObjectToAsset("FilePreview", fileAsset.thumbnail);
-            }
-
-            ctx.AddObjectToAsset("FigmaAsset", fileAsset);
-            ctx.SetMainObject(fileAsset);
+            var file = FigmaFile.Parse(fileJson);
 
             UpdatePages(file);
-            for (var i = 0; i < pages.Length; i++)
-            {
-                file.pages[i].enabled = pages[i].enabled;
-            }
-
+            
             var figmaImporter = GetFigmaImporter();
             OnAssetImporting(ctx, figmaImporter, file);
-            figmaImporter.ImportFile(file);
+            
+            var figmaDesign = figmaImporter.ImportFile(file, new IFigmaImporter.Options()
+            {
+                selectedPages = _pages.Where(p => p.enabled).Select(p => p.id).ToArray()
+            });
+            
             OnAssetImported(ctx, figmaImporter, file);
+
+            if (figmaDesign.thumbnail != null)
+            {
+                ctx.AddObjectToAsset("FigmaDesignPreview", figmaDesign.thumbnail);
+            }
+
+            ctx.AddObjectToAsset("FigmaDesign", figmaDesign);
+            ctx.SetMainObject(figmaDesign);
         }
 
         private void UpdatePages(FigmaFile file)
@@ -57,12 +55,13 @@ namespace Cdm.Figma
                 _pages = null;
             }
 
+            var newPages = file.document.children ?? Array.Empty<PageNode>();
             var oldPages = _pages;
-            _pages = new FigmaFilePage[file.pages.Length];
+            _pages = new FigmaFilePage[newPages.Length];
 
             for (var i = 0; i < _pages.Length; i++)
             {
-                _pages[i] = new FigmaFilePage(file.pages[i]);
+                _pages[i] = new FigmaFilePage(newPages[i].id, newPages[i].name);
 
                 // Restore previously page status.
                 if (oldPages != null)
@@ -85,5 +84,20 @@ namespace Cdm.Figma
         }
 
         protected abstract IFigmaImporter GetFigmaImporter();
+    }
+    
+    [Serializable]
+    public struct FigmaFilePage
+    {
+        public bool enabled;
+        public string id;
+        public string name;
+
+        public FigmaFilePage(string id, string name)
+        {
+            this.id = id;
+            this.name = name;
+            this.enabled = true;
+        }
     }
 }

@@ -54,22 +54,7 @@ namespace Cdm.Figma.UI
                     ctx.AddObjectToAsset(material.name, material);
                 }
 
-                ctx.AddObjectToAsset($"{document.page.id}", document.nodeObject.gameObject);
-
-                /*var directory = Path.GetDirectoryName(assetPath) ?? "Assets";
-                var pagePrefabPath = Path.Combine(directory, $"{pageInstance.name}.prefab");
-                
-                PrefabUtility.SaveAsPrefabAssetAndConnect(pageInstance, pagePrefabPath, InteractionMode.AutomatedAction, out var success);
-                if (success)
-                {
-                    AssetDatabase.ImportAsset(pagePrefabPath);
-                }
-                else
-                {
-                    ctx.LogImportError("Prefab saving failed.");
-                }
-                
-                DestroyImmediate(pageInstance);*/
+                ctx.AddObjectToAsset($"{document.pageNode.id}", document.pageNodeObject.gameObject);
             }
         }
 

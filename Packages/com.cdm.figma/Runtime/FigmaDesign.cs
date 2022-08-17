@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Cdm.Figma
 {
-    public class FigmaFileAsset : ScriptableObject
+    public class FigmaDesign : ScriptableObject
     {
         [SerializeField]
         private string _id;
@@ -11,7 +11,7 @@ namespace Cdm.Figma
         public string id
         {
             get => _id;
-            set => _id = value;
+            private set => _id = value;
         }
 
         [SerializeField]
@@ -20,7 +20,7 @@ namespace Cdm.Figma
         public string title
         {
             get => _title;
-            set => _title = value;
+            private set => _title = value;
         }
 
         [SerializeField]
@@ -29,7 +29,7 @@ namespace Cdm.Figma
         public string version
         {
             get => _version;
-            set => _version = value;
+            private set => _version = value;
         }
 
         [SerializeField]
@@ -38,7 +38,7 @@ namespace Cdm.Figma
         public string lastModified
         {
             get => _lastModified;
-            set => _lastModified = value;
+            private set => _lastModified = value;
         }
 
         [SerializeField]
@@ -47,12 +47,12 @@ namespace Cdm.Figma
         public Texture2D thumbnail
         {
             get => _thumbnail;
-            set => _thumbnail = value;
+            private set => _thumbnail = value;
         }
         
-        public static FigmaFileAsset Create(FigmaFile file)
+        protected static T Create<T>(FigmaFile file) where T : FigmaDesign
         {
-            var figmaFile = CreateInstance<FigmaFileAsset>();
+            var figmaFile = CreateInstance<T>();
             figmaFile.id = file.fileID;
             figmaFile.title = file.name;
             figmaFile.version = file.version;
