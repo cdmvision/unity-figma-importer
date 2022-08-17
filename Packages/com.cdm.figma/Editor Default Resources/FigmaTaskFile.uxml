@@ -1,17 +1,16 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Packages/com.cdm.figma/Editor%20Default%20Resources/Style.uss?fileID=7433441132597879392&amp;guid=273b1e4f0a689b542b301e64df41e3b5&amp;type=3#Style" />
-    <ui:Label text="Figma Task File" display-tooltip-when-elided="true" name="title" style="margin-left: 0; font-size: 14px; -unity-font-style: bold; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 7px; padding-right: 7px; padding-top: 6px; padding-bottom: 6px;" />
     <ui:GroupBox text="Settings">
         <ui:TextField picking-mode="Ignore" label="Personal Access Token" binding-path="_personalAccessToken" tooltip="Enter your Figma personal access token" />
         <ui:Button text="Click here for help generating access tokens" display-tooltip-when-elided="true" name="accessTokenHelpButton" class="link" style="background-color: rgba(0, 0, 0, 0); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
         <ui:VisualElement style="height: 8px;" />
-        <uie:PropertyField binding-path="_extension" />
         <uie:PropertyField binding-path="_assetsPath" />
         <uie:PropertyField binding-path="_scriptsPath" />
+        <uie:PropertyField binding-path="_assetExtension" />
     </ui:GroupBox>
     <ui:GroupBox text="File IDs">
-        <ui:ListView focusable="true" binding-path="_files" show-add-remove-footer="true" virtualization-method="DynamicHeight" show-border="true" show-alternating-row-backgrounds="ContentOnly" show-bound-collection-size="false" name="filesList" />
-        <ui:VisualElement style="flex-direction: row-reverse; padding-top: 8px;">
+        <ui:ListView focusable="true" binding-path="_files" show-add-remove-footer="true" virtualization-method="DynamicHeight" show-border="true" show-alternating-row-backgrounds="ContentOnly" name="filesList" show-bound-collection-size="false" selection-type="Single" horizontal-scrolling="false" reorderable="true" reorder-mode="Animated" />
+        <ui:VisualElement style="flex-direction: row-reverse; margin-top: 6px;">
             <ui:Button text="Download Files" display-tooltip-when-elided="true" name="downloadFilesButton" />
         </ui:VisualElement>
     </ui:GroupBox>

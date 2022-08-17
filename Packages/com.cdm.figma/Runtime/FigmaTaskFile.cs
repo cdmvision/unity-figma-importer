@@ -22,13 +22,13 @@ namespace Cdm.Figma
         }
 
         [SerializeField]
-        private string _extension = "figma";
+        private string _assetExtension = "figma";
 
         /// <summary>
         /// The extension of the downloaded Figma files. Appropriate Figma asset importer used regarding to the
         /// extension.
         /// </summary>
-        public string extension => _extension;
+        public string assetExtension => _assetExtension;
 
         [SerializeField]
         private string _assetsPath = "Resources/Figma/Files";

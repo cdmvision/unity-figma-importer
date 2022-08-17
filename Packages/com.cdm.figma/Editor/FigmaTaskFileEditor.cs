@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -19,8 +18,6 @@ namespace Cdm.Figma
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
                 $"{EditorHelper.VisualTreeFolderPath}/FigmaTaskFile.uxml");
             visualTree.CloneTree(root);
-
-            root.Q<Label>("title").text = $"Figma Task File";
 
             root.Q<Button>("accessTokenHelpButton").clicked += () =>
             {
@@ -83,6 +80,6 @@ namespace Cdm.Figma
         }
 
         private static string GetFigmaAssetPath(FigmaTaskFile taskFile, string fileId)
-            => Path.Combine("Assets", taskFile.assetsPath, $"{fileId}.{taskFile.extension}");
+            => Path.Combine("Assets", taskFile.assetsPath, $"{fileId}.{taskFile.assetExtension}");
     }
 }
