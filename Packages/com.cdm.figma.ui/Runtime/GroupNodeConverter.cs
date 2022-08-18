@@ -6,8 +6,7 @@ namespace Cdm.Figma.UI
     {
         protected override FigmaNode Convert(FigmaNode parentObject, GroupNode groupNode, NodeConvertArgs args)
         {
-            var nodeObject = FigmaNode.Create<FigmaNode>(groupNode);
-
+            var nodeObject = args.importer.CreateFigmaNode<FigmaNode>(groupNode);
             nodeObject.rectTransform.anchorMin = new Vector2(0, 0);
             nodeObject.rectTransform.anchorMax = new Vector2(1, 1);
             nodeObject.rectTransform.offsetMin = new Vector2(0, 0);

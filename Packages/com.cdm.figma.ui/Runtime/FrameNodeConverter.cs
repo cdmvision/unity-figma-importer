@@ -10,7 +10,7 @@ namespace Cdm.Figma.UI
     {
         protected override FigmaNode Convert(FigmaNode parentObject, FrameNode frameNode, NodeConvertArgs args)
         {
-            var nodeObject = FigmaNode.Create<FigmaNode>(frameNode);
+            var nodeObject = args.importer.CreateFigmaNode<FigmaNode>(frameNode);
             nodeObject.SetTransform(frameNode);
 
             // Frame node's parent may be a page so check if it is INodeTransform.

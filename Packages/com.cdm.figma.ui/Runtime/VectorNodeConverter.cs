@@ -27,16 +27,16 @@ namespace Cdm.Figma.UI
         protected FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
-            var nodeObject = FigmaNode.Create<TFigmaNode>(vectorNode);
-            nodeObject.SetTransform(vectorNode);
+            var figmaNode = args.importer.CreateFigmaNode<TFigmaNode>(vectorNode);
+            figmaNode.SetTransform(vectorNode);
 
             // Every vector's parent will ALWAYS be INodeTransform
-            nodeObject.SetLayoutConstraints((INodeTransform)vectorNode.parent);
+            figmaNode.SetLayoutConstraints((INodeTransform)vectorNode.parent);
 
-            GenerateStyles(nodeObject, vectorNode, args, vectorConvertArgs);
+            GenerateStyles(figmaNode, vectorNode, args, vectorConvertArgs);
 
-            nodeObject.ApplyStyles();
-            return nodeObject;
+            figmaNode.ApplyStyles();
+            return figmaNode;
         }
 
         protected override FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args)

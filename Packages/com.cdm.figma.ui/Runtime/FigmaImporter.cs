@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine;
 
@@ -18,6 +19,7 @@ namespace Cdm.Figma.UI
 
         public List<FontSource> fonts { get; } = new List<FontSource>();
 
+        public AssetCache generatedGameObjects { get; } = new AssetCache();
         public AssetCache generatedAssets { get; } = new AssetCache();
         public AssetCache dependencyAssets { get; } = new AssetCache();
 
@@ -60,72 +62,83 @@ namespace Cdm.Figma.UI
 
         public Figma.FigmaDesign ImportFile(FigmaFile file, IFigmaImporter.Options options = null)
         {
-            options ??= new IFigmaImporter.Options();
-
-            generatedAssets.Clear();
-            dependencyAssets.Clear();
-
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
-
-            if (!nodeConverters.Any())
-            {
-                var converters = GetDefaultNodeConverters();
-                foreach (var converter in converters)
-                {
-                    nodeConverters.Add(converter);
-                }
-            }
-
-            if (!componentConverters.Any())
-            {
-                var converters = GetDefaultComponentConverters();
-                foreach (var converter in converters)
-                {
-                    componentConverters.Add(converter);
-                }
-            }
-
+            
+            
+            options ??= new IFigmaImporter.Options();
             file.BuildHierarchy();
+            
+            generatedAssets.Clear();
+            generatedGameObjects.Clear();
+            dependencyAssets.Clear();
 
-            var conversionArgs = new NodeConvertArgs(this, file);
+            InitNodeConverters();
+            InitComponentConverters();
 
-            // Generate all pages.
-            var pages = file.document.children;
-            var importedPages = new List<FigmaPage>();
-
-            foreach (var page in pages)
+            try
             {
-                // Do not import ignored pages.
-                if (options.selectedPages != null && options.selectedPages.All(p => p != page.id))
-                    continue;
+                var conversionArgs = new NodeConvertArgs(this, file);
+                var importedPages = new List<FigmaPage>();
+                var pageNodes = file.document.children;
 
-                var pageNode = FigmaNode.Create<FigmaPage>(page);
-                pageNode.rectTransform.anchorMin = new Vector2(0, 0);
-                pageNode.rectTransform.anchorMax = new Vector2(1, 1);
-                pageNode.rectTransform.offsetMin = new Vector2(0, 0);
-                pageNode.rectTransform.offsetMax = new Vector2(0, 0);
-
-                var nodes = page.children;
-                foreach (var node in nodes)
+                foreach (var pageNode in pageNodes)
                 {
-                    if (node is FrameNode)
+                    // Do not import ignored pages.
+                    if (options.selectedPages != null && options.selectedPages.All(p => p != pageNode.id))
+                        continue;
+
+                    var figmaPage = CreateFigmaNode<FigmaPage>(pageNode);
+                    figmaPage.rectTransform.anchorMin = new Vector2(0, 0);
+                    figmaPage.rectTransform.anchorMax = new Vector2(1, 1);
+                    figmaPage.rectTransform.offsetMin = new Vector2(0, 0);
+                    figmaPage.rectTransform.offsetMax = new Vector2(0, 0);
+
+                    var nodes = pageNode.children;
+                    foreach (var node in nodes)
                     {
-                        if (TryConvertNode(pageNode, node, conversionArgs, out var frameNode))
+                        if (node is FrameNode)
                         {
-                            frameNode.rectTransform.anchorMin = new Vector2(0, 0);
-                            frameNode.rectTransform.anchorMax = new Vector2(1, 1);
-                            frameNode.rectTransform.offsetMin = new Vector2(0, 0);
-                            frameNode.rectTransform.offsetMax = new Vector2(0, 0);
-                            frameNode.transform.SetParent(pageNode.rectTransform, false);
+                            if (TryConvertNode(figmaPage, node, conversionArgs, out var frameNode))
+                            {
+                                frameNode.rectTransform.anchorMin = new Vector2(0, 0);
+                                frameNode.rectTransform.anchorMax = new Vector2(1, 1);
+                                frameNode.rectTransform.offsetMin = new Vector2(0, 0);
+                                frameNode.rectTransform.offsetMax = new Vector2(0, 0);
+                                frameNode.transform.SetParent(figmaPage.rectTransform, false);
+                            }
                         }
+                    }
+
+                    importedPages.Add(figmaPage);
+                }
+
+                return FigmaDesign.Create<FigmaDesign>(file, importedPages);
+            }
+            catch (Exception)
+            {
+                // In case an error, cleanup generated resources.
+                foreach (var generatedObject in generatedGameObjects)
+                {
+                    if (generatedObject.Value != null)
+                    {
+                        ObjectUtils.Destroy(generatedObject.Value);
                     }
                 }
 
-                importedPages.Add(pageNode);
-            }
+                foreach (var generatedAsset in generatedAssets)
+                {
+                    if (generatedAsset.Value != null)
+                    {
+                        ObjectUtils.Destroy(generatedAsset.Value);
+                    }
+                }
 
-            return FigmaDesign.Create<FigmaDesign>(file, importedPages);
+                generatedAssets.Clear();
+                generatedGameObjects.Clear();
+                dependencyAssets.Clear();
+                throw;
+            }
         }
 
         internal bool TryConvertNode(FigmaNode parentObject, Node node, NodeConvertArgs args,
@@ -176,6 +189,37 @@ namespace Cdm.Figma.UI
 
             font = null;
             return false;
+        }
+        
+        internal T CreateFigmaNode<T>(Node node) where T : FigmaNode
+        {
+            var figmaNode = FigmaNode.Create<T>(node);
+            generatedGameObjects.Add(figmaNode.nodeID, figmaNode.gameObject);
+            return figmaNode;
+        }
+        
+        private void InitNodeConverters()
+        {
+            if (!nodeConverters.Any())
+            {
+                var converters = GetDefaultNodeConverters();
+                foreach (var converter in converters)
+                {
+                    nodeConverters.Add(converter);
+                }
+            }
+        }
+
+        private void InitComponentConverters()
+        {
+            if (!componentConverters.Any())
+            {
+                var converters = GetDefaultComponentConverters();
+                foreach (var converter in converters)
+                {
+                    componentConverters.Add(converter);
+                }
+            }
         }
 
         /*public struct ImportedDocument
