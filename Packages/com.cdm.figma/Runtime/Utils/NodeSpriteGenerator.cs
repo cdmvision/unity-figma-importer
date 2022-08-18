@@ -115,18 +115,28 @@ namespace Cdm.Figma.Utils
             var width = vectorNode.size.x;
             var height = vectorNode.size.y;
 
-            var svgString = new StringBuilder();
-            svgString.AppendLine($@"<svg width=""{width}"" height=""{height}"" xmlns=""http://www.w3.org/2000/svg"">");
+            
+            var strokeWeight = vectorNode.strokeWeight ?? 0;
+            var strokeHalfWeight = strokeWeight * 0.5f;
+            var viewBox = new Rect(-strokeHalfWeight, -strokeHalfWeight, width + strokeWeight, height + strokeWeight);
+
+            var svg = new StringBuilder();
+
+            svg.Append($@"<svg id=""{node.id}"" ");
+            svg.Append($@"width=""{width}"" height=""{height}"" ");
+            svg.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
+            svg.Append($@"fill=""none"" ");
+            svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
             foreach (var geometry in vectorNode.fillGeometry)
             {
                 var path = geometry.path;
                 var windingRule = geometry.windingRule;
-                AppendSvgPathElement(svgString, node, path, new Vector2(width, height), windingRule);
+                AppendSvgPathElement(svg, node, path, new Vector2(width, height), windingRule);
             }
 
-            svgString.AppendLine("</svg>");
-            return svgString.ToString();
+            svg.AppendLine("</svg>");
+            return svg.ToString();
         }
 
         private static Sprite GenerateSpriteFromSvg(SceneNode node, string svg, SpriteOptions options)

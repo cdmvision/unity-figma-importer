@@ -22,17 +22,18 @@ namespace Cdm.Figma.UI
             GenerateStyles(nodeObject, frameNode, args);
 
             nodeObject.ApplyStyles();
-            
+
             AddLayoutComponentIfNeeded(nodeObject, frameNode);
             AddContentSizeFitterIfNeeded(nodeObject, frameNode);
             AddGridIfNeeded(nodeObject, frameNode);
-            
+
             BuildChildren(frameNode, nodeObject, args);
             return nodeObject;
         }
 
         private static void GenerateStyles(FigmaNode nodeObject, FrameNode node, NodeConvertArgs args)
         {
+            Sprite sprite = null;
             if (node.fills.Any() || node.strokes.Any())
             {
                 var options = new NodeSpriteGenerator.SpriteOptions()
@@ -42,8 +43,8 @@ namespace Cdm.Figma.UI
                     sampleCount = 8,
                     textureSize = 1024
                 };
-                
-                if (!args.importer.generatedAssets.TryGet<Sprite>(node.id, out var sprite))
+
+                if (!args.importer.generatedAssets.TryGet<Sprite>(node.id, out sprite))
                 {
                     sprite = NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, options);
                     if (sprite != null)
@@ -52,8 +53,9 @@ namespace Cdm.Figma.UI
                         args.importer.generatedAssets.Add(node.id, sprite.texture);
                     }
                 }
+            }
 
-                // Multiple fill is not supported, only one image can be attached to the node object.
+            {
                 var style = new ImageStyle();
                 style.componentEnabled.enabled = true;
                 style.componentEnabled.value = sprite != null;
@@ -331,7 +333,7 @@ namespace Cdm.Figma.UI
 
         private static void AddGridIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
         {
-            if (frameNode.layoutGrids.Count==1 || frameNode.layoutGrids.Count==2)
+            if (frameNode.layoutGrids.Count == 1 || frameNode.layoutGrids.Count == 2)
             {
                 var gridView = nodeObject.gameObject.AddComponent<GridLayoutGroup>();
                 foreach (var grid in frameNode.layoutGrids)
@@ -339,19 +341,19 @@ namespace Cdm.Figma.UI
                     if (grid.pattern == Pattern.Columns)
                     {
                         gridView.spacing = new Vector2(grid.gutterSize, gridView.spacing.y);
-                        gridView.padding.left = (int) grid.offset;
-                        gridView.padding.right = (int) grid.offset;
+                        gridView.padding.left = (int)grid.offset;
+                        gridView.padding.right = (int)grid.offset;
                         gridView.cellSize = new Vector2(grid.sectionSize, gridView.cellSize.y);
                     }
-                    
+
                     else if (grid.pattern == Pattern.Rows)
                     {
                         gridView.spacing = new Vector2(gridView.spacing.x, grid.gutterSize);
-                        gridView.padding.top = (int) grid.offset;
-                        gridView.padding.bottom = (int) grid.offset;
+                        gridView.padding.top = (int)grid.offset;
+                        gridView.padding.bottom = (int)grid.offset;
                         gridView.cellSize = new Vector2(gridView.cellSize.x, grid.sectionSize);
                     }
-                    
+
                     else if (grid.pattern == Pattern.Grid)
                     {
                         gridView.cellSize = new Vector2(grid.sectionSize, grid.sectionSize);
