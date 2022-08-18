@@ -14,19 +14,63 @@ namespace Cdm.Figma.UI
         private SerializedProperty _fontsProperty;
         private ReorderableList _fontsList;
 
+        private int _errorCount = 0;
+        private int _warningCount = 0;
+
         public override void OnEnable()
         {
             base.OnEnable();
 
             _fallbackFontProperty = serializedObject.FindProperty("_fallbackFont");
             _fontsProperty = serializedObject.FindProperty("_fonts");
+            
             _fontsList = new ReorderableList(serializedObject, _fontsProperty, false, true, false, false);
             _fontsList.drawHeaderCallback = DrawHeader;
             _fontsList.drawElementCallback = DrawElement;
+
+            var importer = (FigmaAssetImporter) target;
+            var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
+            if (figmaDesign != null)
+            {
+                
+                foreach (var page in figmaDesign.pages)
+                {
+                    foreach (var logReference in page.allLogs)
+                    {
+                        if (logReference.log.type == FigmaImporterLogType.Error)
+                        {
+                            _errorCount++;
+                        }
+                        else if (logReference.log.type == FigmaImporterLogType.Warning)
+                        {
+                            _warningCount++;
+                        }
+                    }
+                }
+            }
         }
 
         protected override void DrawGUI()
         {
+            var message = "";
+            if (_errorCount > 0 && _warningCount > 0)
+            {
+                message = $"Asset imported with {_errorCount} errors and {_warningCount} warnings.";
+            }
+            else if (_errorCount > 0)
+            {
+                message = $"Asset imported with {_errorCount} errors.";
+            }
+            else if (_warningCount > 0)
+            {
+                message = $"Asset imported with {_warningCount} warnings.";
+            }
+
+            if (_errorCount > 0 || _warningCount > 0)
+            {
+                EditorGUILayout.HelpBox(message, MessageType.Warning, true);    
+            }
+
             base.DrawGUI();
 
             _fontsList.DoLayoutList();

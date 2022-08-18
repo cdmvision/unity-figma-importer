@@ -121,11 +121,16 @@ namespace Cdm.Figma.UI
                 {
                     var frameNodeConverter = new FrameNodeConverter();
                     var nodeVariant = frameNodeConverter.Convert(parentObject, componentVariant, args);
-                    
+
                     try
                     {
                         MergeComponentVariant(instanceObject, nodeVariant, selector);
                         ApplyStyleSelectorsRecurse(instanceObject);
+                    }
+                    catch (Exception e)
+                    {
+                        args.importer.LogError(e, instanceObject.gameObject);
+                        break;
                     }
                     finally
                     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles.Properties;
+using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -59,7 +60,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var textComponent = GetOrAddComponent<TextMeshProUGUI>(gameObject);
+            var textComponent = gameObject.GetOrAddComponent<TextMeshProUGUI>();
             if (textComponent != null)
             {
                 base.SetStyle(gameObject, args);
@@ -107,7 +108,7 @@ namespace Cdm.Figma.UI.Styles
 
                 if (localizedString.enabled)
                 {
-                    var stringEvent = GetOrAddComponent<LocalizeStringEvent>(textComponent.gameObject);
+                    var stringEvent = textComponent.gameObject.GetOrAddComponent<LocalizeStringEvent>();
                     stringEvent.StringReference = localizedString.value;
                     stringEvent.OnUpdateString.AddListener(str => { textComponent.text = str; });
                     stringEvent.RefreshString();

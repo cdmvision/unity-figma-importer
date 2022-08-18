@@ -1,5 +1,6 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles.Properties;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +27,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var graphic = GetOrAddComponent<Graphic>(gameObject);
+            var graphic = gameObject.GetOrAddComponent<Graphic>();
             if (graphic != null)
             {
                 if (color.enabled)

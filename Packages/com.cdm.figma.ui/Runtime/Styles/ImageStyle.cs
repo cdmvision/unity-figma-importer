@@ -1,5 +1,6 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles.Properties;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,7 +36,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var image = GetOrAddComponent<Image>(gameObject);
+            var image = gameObject.GetOrAddComponent<Image>();
             if (image != null)
             {
                 base.SetStyle(gameObject, args);

@@ -1,5 +1,6 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles.Properties;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles
@@ -66,7 +67,7 @@ namespace Cdm.Figma.UI.Styles
         protected void SetStyleAsSelector<T>(GameObject gameObject, StyleArgs args) 
             where T : StyleSetterWithSelectorsBase
         {
-            var styleSetter = GetOrAddComponent<T>(gameObject);
+            var styleSetter = gameObject.GetOrAddComponent<T>();
             if (styleSetter != null)
             {
                 var existingStyle = styleSetter.GetStyle(x => x.selector == selector);
@@ -94,17 +95,6 @@ namespace Cdm.Figma.UI.Styles
                 Debug.LogWarning($"Component not found: {typeof(T).Name}", gameObject);
 
             return false;
-        }
-
-        protected static T GetOrAddComponent<T>(GameObject gameObject) where T : UnityEngine.Component
-        {
-            var component = gameObject.GetComponent<T>();
-            if (component == null)
-            {
-                component = gameObject.AddComponent<T>();
-            }
-
-            return component;
         }
     }
 }

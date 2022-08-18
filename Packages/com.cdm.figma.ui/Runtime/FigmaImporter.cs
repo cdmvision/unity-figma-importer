@@ -4,6 +4,7 @@ using System.Linq;
 using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.UI
 {
@@ -17,11 +18,15 @@ namespace Cdm.Figma.UI
 
         public ISet<ComponentConverter> componentConverters => _componentConverters;
 
+        private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
+
         public List<FontSource> fonts { get; } = new List<FontSource>();
 
         public AssetCache generatedGameObjects { get; } = new AssetCache();
         public AssetCache generatedAssets { get; } = new AssetCache();
         public AssetCache dependencyAssets { get; } = new AssetCache();
+
+        public bool failOnError { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the fallback font that is used when a font mapping does not found.
@@ -64,14 +69,15 @@ namespace Cdm.Figma.UI
         {
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
-            
-            
+
             options ??= new IFigmaImporter.Options();
+
             file.BuildHierarchy();
-            
+
             generatedAssets.Clear();
             generatedGameObjects.Clear();
             dependencyAssets.Clear();
+            _logs.Clear();
 
             InitNodeConverters();
             InitComponentConverters();
@@ -110,7 +116,10 @@ namespace Cdm.Figma.UI
                         }
                     }
 
+                    SetPageLogs(figmaPage, _logs);
                     importedPages.Add(figmaPage);
+
+                    _logs.Clear();
                 }
 
                 return FigmaDesign.Create<FigmaDesign>(file, importedPages);
@@ -190,14 +199,69 @@ namespace Cdm.Figma.UI
             font = null;
             return false;
         }
-        
+
         internal T CreateFigmaNode<T>(Node node) where T : FigmaNode
         {
             var figmaNode = FigmaNode.Create<T>(node);
             generatedGameObjects.Add(figmaNode.nodeID, figmaNode.gameObject);
             return figmaNode;
         }
+
+        internal void LogWarning(FigmaImporterLogType type, string message, Object target = null)
+        {
+            Debug.LogWarning(message, target);
+
+            _logs.Add(new FigmaImporterLogReference(new FigmaImporterLog(type, message), target));
+        }
+
+        internal void LogError(Exception exception, Object target = null)
+        {
+            if (failOnError)
+            {
+                throw exception;
+            }
+            
+            Debug.LogError(exception, target);
+            _logs.Add(new FigmaImporterLogReference(
+                new FigmaImporterLog(FigmaImporterLogType.Error, exception.Message), target));
+        }
         
+        internal void LogError(string message, Object target = null)
+        {
+            LogError(new Exception(message), target);
+        }
+
+        private static void SetPageLogs(FigmaPage figmaPage, IEnumerable<FigmaImporterLogReference> logReferences)
+        {
+            foreach (var logReference in logReferences)
+            {
+                if (logReference.target != null)
+                {
+                    GameObject targetGameObject = null;
+
+                    if (logReference.target is GameObject gameObject)
+                    {
+                        targetGameObject = gameObject;
+                    }
+                    else if (logReference.target is UnityEngine.Component component)
+                    {
+                        targetGameObject = component.gameObject;
+                    }
+
+                    if (targetGameObject != null)
+                    {
+                        var figmaNode = targetGameObject.GetComponent<FigmaNode>();
+                        if (figmaNode != null)
+                        {
+                            figmaNode.logs.Add(logReference.log);
+                        }
+                    }
+                }
+
+                figmaPage.allLogs.Add(logReference);
+            }
+        }
+
         private void InitNodeConverters()
         {
             if (!nodeConverters.Any())
@@ -221,34 +285,39 @@ namespace Cdm.Figma.UI
                 }
             }
         }
+    }
 
-        /*public struct ImportedDocument
-        {
-            /// <summary>
-            /// Root figma node.
-            /// </summary>
-            public PageNode pageNode;
-        
-            /// <summary>
-            /// Root game object.
-            /// </summary>
-            public FigmaPageNode pageNodeObject;
-            
-            /// <summary>
-            /// Generated sprites.
-            /// </summary>
-            public Sprite[] sprites;
-            
-            /// <summary>
-            /// Generated materials.
-            /// </summary>
-            public Material[] materials;
-        }*/
+    [Serializable]
+    public struct FigmaImporterLogReference
+    {
+        public FigmaImporterLog log;
+        public Object target;
 
-        public struct AssetSource
+        public FigmaImporterLogReference(FigmaImporterLog log, Object target)
         {
-            public string identifier { get; set; }
-            public UnityEngine.Object asset { get; set; }
+            this.log = log;
+            this.target = target;
         }
+    }
+
+    [Serializable]
+    public struct FigmaImporterLog
+    {
+        public FigmaImporterLogType type;
+        public string message;
+
+        public FigmaImporterLog(FigmaImporterLogType type, string message)
+        {
+            this.type = type;
+            this.message = message;
+        }
+    }
+
+    [Serializable]
+    public enum FigmaImporterLogType
+    {
+        Info,
+        Warning,
+        Error
     }
 }

@@ -47,6 +47,11 @@ namespace Cdm.Figma.UI
 
         public List<Styles.Style> styles => _styles;
 
+        [SerializeField]
+        private List<FigmaImporterLog> _logs = new List<FigmaImporterLog>();
+        
+        public List<FigmaImporterLog> logs => _logs;
+        
         // TODO: Should be private or at least internal. Because it is only available while importing figma file.
         public Node node { get; private set; }
 

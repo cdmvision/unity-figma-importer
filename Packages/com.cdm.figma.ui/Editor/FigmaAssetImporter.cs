@@ -28,12 +28,12 @@ namespace Cdm.Figma.UI
             get => _fallbackFont;
             set => _fallbackFont = value;
         }
-
+        
         protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter,
             FigmaFile figmaFile)
         {
             base.OnAssetImporting(ctx, figmaImporter, figmaFile);
-
+            
             UpdateFonts((FigmaImporter)figmaImporter, figmaFile);
         }
 
@@ -67,7 +67,7 @@ namespace Cdm.Figma.UI
 
         protected override IFigmaImporter GetFigmaImporter()
         {
-            return new FigmaImporter();
+            return new FigmaImporter() { failOnError = false };
         }
 
         private void UpdateFonts(FigmaImporter figmaImporter, FigmaFile file)
