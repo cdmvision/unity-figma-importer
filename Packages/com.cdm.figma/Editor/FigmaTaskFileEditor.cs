@@ -72,7 +72,7 @@ namespace Cdm.Figma
             if (File.Exists(figmaAssetPath))
                 File.Delete(figmaAssetPath);
             
-            await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("I"));
+            await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"));
             AssetDatabase.Refresh();
             AssetDatabase.ImportAsset(figmaAssetPath);
 
