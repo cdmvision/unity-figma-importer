@@ -6,14 +6,14 @@ namespace Cdm.Figma.UI
     public class FigmaDesign : Figma.FigmaDesign
     {
         [SerializeField]
-        private List<FigmaPageNode> _pages = new List<FigmaPageNode>();
+        private List<FigmaPage> _pages = new List<FigmaPage>();
 
         /// <summary>
         /// Gets all imported Figma pages.
         /// </summary>
-        public IReadOnlyList<FigmaPageNode> pages => _pages;
+        public IReadOnlyList<FigmaPage> pages => _pages;
 
-        public static T Create<T>(FigmaFile file, IEnumerable<FigmaPageNode> pages) where T : FigmaDesign
+        public static T Create<T>(FigmaFile file, IEnumerable<FigmaPage> pages) where T : FigmaDesign
         {
             var figmaDesign = Create<T>(file);
             figmaDesign._pages.AddRange(pages);

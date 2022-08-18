@@ -4,7 +4,7 @@ using UnityEngine;
 public class InstantiatePageNode : MonoBehaviour
 {
     public Canvas canvas;
-    public FigmaPageNode page;
+    public FigmaPage page;
 
     private void Awake()
     {

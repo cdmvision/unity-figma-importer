@@ -2,7 +2,7 @@
 
 namespace Cdm.Figma.UI
 {
-    public class FigmaTextNode : FigmaNode
+    public class FigmaText : FigmaNode
     {
         [SerializeField]
         private string _localizationKey;

@@ -92,7 +92,7 @@ namespace Cdm.Figma.UI
 
             // Generate all pages.
             var pages = file.document.children;
-            var importedPages = new List<FigmaPageNode>();
+            var importedPages = new List<FigmaPage>();
 
             foreach (var page in pages)
             {
@@ -100,7 +100,7 @@ namespace Cdm.Figma.UI
                 if (options.selectedPages != null && options.selectedPages.All(p => p != page.id))
                     continue;
 
-                var pageNode = FigmaNode.Create<FigmaPageNode>(page);
+                var pageNode = FigmaNode.Create<FigmaPage>(page);
                 pageNode.rectTransform.anchorMin = new Vector2(0, 0);
                 pageNode.rectTransform.anchorMax = new Vector2(1, 1);
                 pageNode.rectTransform.offsetMin = new Vector2(0, 0);

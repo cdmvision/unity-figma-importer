@@ -20,14 +20,14 @@ namespace Cdm.Figma.UI
         };
     }
 
-    public abstract class VectorNodeConverter<TNode, TNodeObject> : NodeConverter<TNode> 
+    public abstract class VectorNodeConverter<TNode, TFigmaNode> : NodeConverter<TNode> 
         where TNode : VectorNode 
-        where TNodeObject : FigmaNode
+        where TFigmaNode : FigmaNode
     {
         protected FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
-            var nodeObject = FigmaNode.Create<TNodeObject>(vectorNode);
+            var nodeObject = FigmaNode.Create<TFigmaNode>(vectorNode);
             nodeObject.SetTransform(vectorNode);
 
             // Every vector's parent will ALWAYS be INodeTransform

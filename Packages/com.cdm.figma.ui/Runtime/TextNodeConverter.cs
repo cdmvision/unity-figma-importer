@@ -8,14 +8,14 @@ using UnityEngine.Localization;
 
 namespace Cdm.Figma.UI
 {
-    public class TextNodeConverter : VectorNodeConverter<TextNode, FigmaTextNode>
+    public class TextNodeConverter : VectorNodeConverter<TextNode, FigmaText>
     {
         protected override FigmaNode Convert(FigmaNode parentObject, TextNode textNode, NodeConvertArgs args)
         {
             var convertArgs = new VectorConvertArgs();
             convertArgs.generateSprite = false;
 
-            var nodeObject = (FigmaTextNode) base.Convert(parentObject, textNode, args, convertArgs);
+            var nodeObject = (FigmaText) base.Convert(parentObject, textNode, args, convertArgs);
             nodeObject.localizationKey = textNode.GetLocalizationKey();
             
             GenerateStyles(nodeObject, textNode, args);
