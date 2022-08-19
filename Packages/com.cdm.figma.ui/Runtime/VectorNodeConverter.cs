@@ -10,14 +10,6 @@ namespace Cdm.Figma.UI
     {
         public Sprite sourceSprite { get; set; }
         public bool generateSprite { get; set; } = true;
-
-        public NodeSpriteGenerator.SpriteOptions spriteOptions { get; set; } = new NodeSpriteGenerator.SpriteOptions()
-        {
-            filterMode = FilterMode.Bilinear,
-            wrapMode = TextureWrapMode.Clamp,
-            sampleCount = 8,
-            textureSize = 1024
-        };
     }
 
     public abstract class VectorNodeConverter<TNode, TFigmaNode> : NodeConverter<TNode> 
@@ -55,7 +47,7 @@ namespace Cdm.Figma.UI
                     if (!args.importer.generatedAssets.TryGet<Sprite>(vectorNode.id, out var sprite))
                     {
                         sprite = NodeSpriteGenerator.GenerateSprite(
-                            vectorNode, SpriteGenerateType.Path, vectorConvertArgs.spriteOptions);
+                            vectorNode, SpriteGenerateType.Path, args.importer.spriteOptions);
                         if (sprite != null)
                         {
                             args.importer.generatedAssets.Add(vectorNode.id, sprite);

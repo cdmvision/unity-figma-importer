@@ -1,5 +1,6 @@
 ﻿using System;
 using Cdm.Figma.Editor;
+using Cdm.Figma.Utils;
 using TMPro;
 using UnityEditor;
 using UnityEditor.AssetImporters;
@@ -28,6 +29,60 @@ namespace Cdm.Figma.UI.Editor
         {
             get => _fallbackFont;
             set => _fallbackFont = value;
+        }
+
+        [SerializeField]
+        private float _pixelsPerUnit = 100f;
+
+        public float pixelsPerUnit
+        {
+            get => _pixelsPerUnit;
+            set => _pixelsPerUnit = value;
+        }
+
+        [SerializeField]
+        private ushort _gradientResolution = 128;
+        
+        public ushort gradientResolution
+        {
+            get => _gradientResolution;
+            set => _gradientResolution = value;
+        }
+        
+        [SerializeField]
+        private int _textureSize = 1024;
+        
+        public int textureSize
+        {
+            get => _textureSize;
+            set => _textureSize = value;
+        }
+        
+        [SerializeField]
+        private TextureWrapMode _wrapMode = TextureWrapMode.Repeat;
+        
+        public TextureWrapMode wrapMode
+        {
+            get => _wrapMode;
+            set => _wrapMode = value;
+        }
+        
+        [SerializeField]
+        private FilterMode _filterMode = FilterMode.Bilinear;
+        
+        public FilterMode filterMode
+        {
+            get => _filterMode;
+            set => _filterMode = value;
+        }
+
+        [SerializeField]
+        private int _sampleCount = 4;
+        
+        public int sampleCount
+        {
+            get => _sampleCount;
+            set => _sampleCount = value;
         }
         
         protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter,
@@ -68,7 +123,19 @@ namespace Cdm.Figma.UI.Editor
 
         protected override IFigmaImporter GetFigmaImporter()
         {
-            return new FigmaImporter() { failOnError = false };
+            return new FigmaImporter()
+            {
+                failOnError = false,
+                spriteOptions = new NodeSpriteGenerator.SpriteOptions()
+                {
+                    pixelsPerUnit = pixelsPerUnit,
+                    gradientResolution = gradientResolution,
+                    textureSize = textureSize,
+                    wrapMode = wrapMode,
+                    filterMode = filterMode,
+                    sampleCount = sampleCount
+                }
+            };
         }
 
         private void UpdateFonts(FigmaImporter figmaImporter, FigmaFile file)

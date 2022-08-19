@@ -36,7 +36,6 @@ namespace Cdm.Figma.Utils
             public int textureSize { get; set; } = 256;
             public int sampleCount { get; set; } = 4;
             public ushort gradientResolution { get; set; } = 128;
-            public float svgPixelsPerUnit { get; set; } = 100f;
             public float pixelsPerUnit { get; set; } = 100f;
         }
 
@@ -354,7 +353,7 @@ namespace Cdm.Figma.Utils
             var geometries =
                 VectorUtils.TessellateScene(sceneInfo.Scene, options.tessellationOptions, sceneInfo.NodeOpacity);
 
-            var sprite = VectorUtils.BuildSprite(geometries, options.svgPixelsPerUnit, VectorUtils.Alignment.TopLeft,
+            var sprite = VectorUtils.BuildSprite(geometries, options.pixelsPerUnit, VectorUtils.Alignment.TopLeft,
                 Vector2.zero, options.gradientResolution, true);
 
             if (sprite == null)

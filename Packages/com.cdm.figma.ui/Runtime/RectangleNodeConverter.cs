@@ -13,7 +13,7 @@ namespace Cdm.Figma.UI
             if (!args.importer.generatedAssets.TryGet<Sprite>(node.id, out var sprite))
             {
                 sprite =
-                    NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, convertArgs.spriteOptions);
+                    NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, args.importer.spriteOptions);
                 if (sprite != null)
                 {
                     args.importer.generatedAssets.Add(node.id, sprite);

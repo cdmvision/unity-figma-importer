@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cdm.Figma.UI.Utils;
+using Cdm.Figma.Utils;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -27,6 +28,15 @@ namespace Cdm.Figma.UI
         public AssetCache dependencyAssets { get; } = new AssetCache();
 
         public bool failOnError { get; set; } = true;
+
+        public NodeSpriteGenerator.SpriteOptions spriteOptions { get; set; }
+            = new NodeSpriteGenerator.SpriteOptions()
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                sampleCount = 8,
+                textureSize = 1024
+            };
 
         /// <summary>
         /// Gets or sets the fallback font that is used when a font mapping does not found.
@@ -71,7 +81,8 @@ namespace Cdm.Figma.UI
                 throw new ArgumentNullException(nameof(file));
 
             options ??= new IFigmaImporter.Options();
-
+            spriteOptions ??= new NodeSpriteGenerator.SpriteOptions();
+            
             file.BuildHierarchy();
 
             generatedAssets.Clear();
@@ -220,12 +231,12 @@ namespace Cdm.Figma.UI
             {
                 throw exception;
             }
-            
+
             Debug.LogError(exception, target);
             _logs.Add(new FigmaImporterLogReference(
                 new FigmaImporterLog(FigmaImporterLogType.Error, exception.Message), target));
         }
-        
+
         internal void LogError(string message, Object target = null)
         {
             LogError(new Exception(message), target);
