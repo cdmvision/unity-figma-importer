@@ -36,7 +36,7 @@ namespace Cdm.Figma.UI
             Sprite sprite = null;
             if (node.fills.Any() || node.strokes.Any())
             {
-                var options = new NodeSpriteGenerator.SpriteOptions()
+                var options = new SpriteGenerateOptions()
                 {
                     filterMode = FilterMode.Bilinear,
                     wrapMode = TextureWrapMode.Clamp,

@@ -126,7 +126,7 @@ namespace Cdm.Figma.UI.Editor
             return new FigmaImporter()
             {
                 failOnError = false,
-                spriteOptions = new NodeSpriteGenerator.SpriteOptions()
+                spriteOptions = new SpriteGenerateOptions()
                 {
                     pixelsPerUnit = pixelsPerUnit,
                     gradientResolution = gradientResolution,

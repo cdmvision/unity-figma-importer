@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using Unity.Collections;
 using Unity.VectorGraphics;
 using UnityEngine;
-using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.Utils
@@ -18,32 +14,32 @@ namespace Cdm.Figma.Utils
         Rectangle
     }
 
+    public class SpriteGenerateOptions
+    {
+        public VectorUtils.TessellationOptions tessellationOptions { get; set; } =
+            new VectorUtils.TessellationOptions()
+            {
+                StepDistance = 2.0f,
+                MaxCordDeviation = 0.5f,
+                MaxTanAngleDeviation = 0.1f,
+                SamplingStepSize = 0.01f
+            };
+
+        public FilterMode filterMode { get; set; } = FilterMode.Bilinear;
+        public TextureWrapMode wrapMode { get; set; } = TextureWrapMode.Clamp;
+        public int textureSize { get; set; } = 256;
+        public int sampleCount { get; set; } = 4;
+        public ushort gradientResolution { get; set; } = 128;
+        public float pixelsPerUnit { get; set; } = 100f;
+    }
+    
     public class NodeSpriteGenerator
     {
-        public class SpriteOptions
-        {
-            public VectorUtils.TessellationOptions tessellationOptions { get; set; } =
-                new VectorUtils.TessellationOptions()
-                {
-                    StepDistance = 2.0f,
-                    MaxCordDeviation = 0.5f,
-                    MaxTanAngleDeviation = 0.1f,
-                    SamplingStepSize = 0.01f
-                };
-
-            public FilterMode filterMode { get; set; } = FilterMode.Bilinear;
-            public TextureWrapMode wrapMode { get; set; } = TextureWrapMode.Clamp;
-            public int textureSize { get; set; } = 256;
-            public int sampleCount { get; set; } = 4;
-            public ushort gradientResolution { get; set; } = 128;
-            public float pixelsPerUnit { get; set; } = 100f;
-        }
-
         /// <summary>
         /// Generates a sprite from the scene node.
         /// </summary>
         public static Sprite GenerateSprite(SceneNode node, SpriteGenerateType spriteType,
-            SpriteOptions options = null)
+            SpriteGenerateOptions options = null)
         {
             var svg = GenerateSpriteSvg(node, spriteType);
             //Debug.Log($"{node}: {svg}");
@@ -81,7 +77,7 @@ namespace Cdm.Figma.Utils
         /// Generates a sprite from the scene node and the SVG string given.
         /// </summary>
         public static Sprite GenerateSprite(SceneNode node, string svg, SpriteGenerateType spriteType,
-            SpriteOptions options = null)
+            SpriteGenerateOptions options = null)
         {
             switch (spriteType)
             {
@@ -138,7 +134,7 @@ namespace Cdm.Figma.Utils
             return svg.ToString();
         }
 
-        private static Sprite GenerateSpriteFromSvg(SceneNode node, string svg, SpriteOptions options)
+        private static Sprite GenerateSpriteFromSvg(SceneNode node, string svg, SpriteGenerateOptions options)
         {
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg), ViewportOptions.PreserveViewport);
             return CreateTexturedSprite(node, options, sceneInfo);
@@ -178,7 +174,7 @@ namespace Cdm.Figma.Utils
             return svg.ToString();
         }
 
-        private static Sprite GenerateRectSpriteFromSvg(SceneNode node, string svg, SpriteOptions options)
+        private static Sprite GenerateRectSpriteFromSvg(SceneNode node, string svg, SpriteGenerateOptions options)
         {
             if (node is not INodeRect nodeRect)
                 throw new ArgumentException("Specified node does not define a rectangle.", nameof(node));
@@ -347,7 +343,7 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static Sprite CreateTexturedSprite(SceneNode node, SpriteOptions options,
+        private static Sprite CreateTexturedSprite(SceneNode node, SpriteGenerateOptions options,
             SVGParser.SceneInfo sceneInfo, Vector4? borders = null)
         {
             var geometries =

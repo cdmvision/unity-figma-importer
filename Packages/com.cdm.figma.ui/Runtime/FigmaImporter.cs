@@ -29,8 +29,8 @@ namespace Cdm.Figma.UI
 
         public bool failOnError { get; set; } = true;
 
-        public NodeSpriteGenerator.SpriteOptions spriteOptions { get; set; }
-            = new NodeSpriteGenerator.SpriteOptions()
+        public SpriteGenerateOptions spriteOptions { get; set; }
+            = new SpriteGenerateOptions()
             {
                 filterMode = FilterMode.Bilinear,
                 wrapMode = TextureWrapMode.Clamp,
@@ -81,7 +81,7 @@ namespace Cdm.Figma.UI
                 throw new ArgumentNullException(nameof(file));
 
             options ??= new IFigmaImporter.Options();
-            spriteOptions ??= new NodeSpriteGenerator.SpriteOptions();
+            spriteOptions ??= new SpriteGenerateOptions();
             
             file.BuildHierarchy();
 
