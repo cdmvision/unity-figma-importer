@@ -4,10 +4,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Cdm.Figma
+namespace Cdm.Figma.Editor
 {
     [CustomEditor(typeof(FigmaDesign), true)]
-    public class FigmaDesignEditor : Editor
+    public class FigmaDesignEditor : UnityEditor.Editor
     {
         public override VisualElement CreateInspectorGUI()
         {

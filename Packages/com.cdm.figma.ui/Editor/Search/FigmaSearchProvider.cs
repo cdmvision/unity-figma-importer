@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Search;
 
-namespace Cdm.Figma.UI.Search
+namespace Cdm.Figma.UI.Editor.Search
 {
     public class FigmaSearchProvider : SearchProvider
     {

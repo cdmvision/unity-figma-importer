@@ -5,10 +5,10 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Cdm.Figma
+namespace Cdm.Figma.Editor
 {
-    [CustomEditor(typeof(FigmaTaskFile), editorForChildClasses: true)]
-    public class FigmaTaskFileEditor : Editor
+    [CustomEditor(typeof(FigmaDownloaderAsset), editorForChildClasses: true)]
+    public class FigmaDownloaderAssetEditor : UnityEditor.Editor
     {
         private VisualElement _fileAssetElement;
 
@@ -16,7 +16,7 @@ namespace Cdm.Figma
         {
             var root = new VisualElement();
             var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
-                $"{EditorHelper.VisualTreeFolderPath}/FigmaTaskFile.uxml");
+                $"{EditorHelper.VisualTreeFolderPath}/FigmaDownloader.uxml");
             visualTree.CloneTree(root);
 
             root.Q<Button>("accessTokenHelpButton").clicked += () =>
@@ -26,25 +26,25 @@ namespace Cdm.Figma
 
             root.Q<Button>("downloadFilesButton").clicked += async () =>
             {
-                await DownloadFilesAsync((FigmaTaskFile)target);
+                await DownloadFilesAsync((FigmaDownloaderAsset)target);
             };
             return root;
         }
 
-        private async Task DownloadFilesAsync(FigmaTaskFile taskFile)
+        private async Task DownloadFilesAsync(FigmaDownloaderAsset downloader)
         {
             try
             {
-                var fileCount = taskFile.files.Count;
+                var fileCount = downloader.files.Count;
                 for (var i = 0; i < fileCount; i++)
                 {
-                    var fileID = taskFile.files[i];
+                    var fileID = downloader.files[i];
 
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileID}",
                         (float)i / fileCount);
 
                     // Save figma file asset.
-                    await DownloadAndSaveFigmaFileAsync(taskFile, fileID);
+                    await DownloadAndSaveFigmaFileAsync(downloader, fileID);
 
                     EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileID}",
                         (float)(i + 1) / fileCount);
@@ -60,14 +60,14 @@ namespace Cdm.Figma
             }
         }
 
-        private async Task DownloadAndSaveFigmaFileAsync(FigmaTaskFile taskFile, string fileID)
+        private async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader, string fileID)
         {
-            var newFile = await taskFile.GetDownloader().DownloadFileAsync(fileID, taskFile.personalAccessToken);
+            var newFile = await downloader.GetDownloader().DownloadFileAsync(fileID, downloader.personalAccessToken);
 
-            var directory = Path.Combine("Assets", taskFile.assetsPath);
+            var directory = Path.Combine("Assets", downloader.assetsPath);
             Directory.CreateDirectory(directory);
 
-            var figmaAssetPath = GetFigmaAssetPath(taskFile, fileID);
+            var figmaAssetPath = GetFigmaAssetPath(downloader, fileID);
 
             if (File.Exists(figmaAssetPath))
                 File.Delete(figmaAssetPath);
@@ -79,7 +79,7 @@ namespace Cdm.Figma
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
         }
 
-        private static string GetFigmaAssetPath(FigmaTaskFile taskFile, string fileId)
-            => Path.Combine("Assets", taskFile.assetsPath, $"{fileId}.{taskFile.assetExtension}");
+        private static string GetFigmaAssetPath(FigmaDownloaderAsset downloader, string fileId)
+            => Path.Combine("Assets", downloader.assetsPath, $"{fileId}.{downloader.assetExtension}");
     }
 }

@@ -2,10 +2,10 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Cdm.Figma.UI
+namespace Cdm.Figma.UI.Editor
 {
     [CustomEditor(typeof(FigmaNode), editorForChildClasses: true)]
-    public class FigmaNodeEditor : Editor
+    public class FigmaNodeEditor : UnityEditor.Editor
     {
         private SerializedProperty _nodeID;
         private SerializedProperty _nodeName;

@@ -5,7 +5,7 @@ using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.Search;
 
-namespace Cdm.Figma.UI.Utils
+namespace Cdm.Figma.UI.Editor.Utils
 {
     public static class ObjectFieldUtils
     {

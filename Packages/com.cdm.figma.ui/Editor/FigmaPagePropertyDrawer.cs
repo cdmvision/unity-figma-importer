@@ -1,11 +1,11 @@
-﻿using Cdm.Figma.UI.Search;
-using Cdm.Figma.UI.Utils;
+﻿using Cdm.Figma.UI.Editor.Search;
+using Cdm.Figma.UI.Editor.Utils;
 using UnityEditor;
 using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.Search;
 
-namespace Cdm.Figma.UI
+namespace Cdm.Figma.UI.Editor
 {
     [CustomPropertyDrawer(typeof(FigmaPage))]
     public class FigmaPagePropertyDrawer : PropertyDrawer

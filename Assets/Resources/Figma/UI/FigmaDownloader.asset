@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5e294c245ca94b81bfe0651436e63d19, type: 3}
-  m_Name: FigmaTaskFile
+  m_Name: FigmaDownloader
   m_EditorClassIdentifier: 
   _personalAccessToken: 276161-7e9afdbe-d019-46b3-8eb7-7f36f24d2ee9
-  _extension: figma
+  _assetExtension: figma
   _assetsPath: Resources/Figma/UI/Files
   _scriptsPath: Resources/Figma/UI/Scripts
   _generateScripts: 1
   _files:
-  - yvOS5cjN5DAM7qnCwvCwsi
+  - 7PYuO8A0qZi87WphibJI2C

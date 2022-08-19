@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Cdm.Figma.UI
+namespace Cdm.Figma.UI.Editor
 {
     [CustomEditor(typeof(FigmaPage), editorForChildClasses: true)]
     public class FigmaPageEditor : FigmaNodeEditor

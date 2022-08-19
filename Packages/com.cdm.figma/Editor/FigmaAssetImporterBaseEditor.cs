@@ -3,7 +3,7 @@ using UnityEditor.AssetImporters;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Cdm.Figma
+namespace Cdm.Figma.Editor
 {
     [CustomEditor(typeof(FigmaAssetImporterBase), editorForChildClasses: true)]
     public class FigmaAssetImporterBaseEditor : ScriptedImporterEditor

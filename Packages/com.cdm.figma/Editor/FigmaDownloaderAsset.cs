@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Cdm.Figma
+namespace Cdm.Figma.Editor
 {
-    [CreateAssetMenu(fileName = nameof(FigmaTaskFile), menuName = AssetMenuRoot + "Figma Task File", order = 0)]
-    public class FigmaTaskFile : ScriptableObject
+    [CreateAssetMenu(fileName = "Figma Downloader", menuName = AssetMenuRoot + "Figma Downloader", order = 0)]
+    public class FigmaDownloaderAsset : ScriptableObject
     {
         protected const string AssetMenuRoot = "Cdm/Figma/";
 

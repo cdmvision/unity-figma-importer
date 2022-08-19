@@ -1,11 +1,12 @@
 ﻿using System.IO;
 using System.Linq;
+using Cdm.Figma.Editor;
 using TMPro;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Cdm.Figma.UI
+namespace Cdm.Figma.UI.Editor
 {
     [CustomEditor(typeof(FigmaAssetImporter), editorForChildClasses: true)]
     public class FigmaAssetImporterEditor : FigmaAssetImporterBaseEditor

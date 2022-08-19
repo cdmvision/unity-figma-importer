@@ -1,10 +1,11 @@
 ﻿using System;
+using Cdm.Figma.Editor;
 using TMPro;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace Cdm.Figma.UI
+namespace Cdm.Figma.UI.Editor
 {
     [ScriptedImporter(1, Extension)]
     public class FigmaAssetImporter : FigmaAssetImporterBase

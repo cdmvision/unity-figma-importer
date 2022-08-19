@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace Cdm.Figma
+namespace Cdm.Figma.Editor
 {
     public abstract class FigmaAssetImporterBase : ScriptedImporter
     {
