@@ -127,7 +127,7 @@ namespace Cdm.Figma.Utils
             {
                 var path = geometry.path;
                 var windingRule = geometry.windingRule;
-                AppendSvgPathElement(svg, node, path, new Vector2(width, height), windingRule);
+                AppendSvgPathElement(svg, node, path, path, new Vector2(width, height), windingRule);
             }
 
             svg.AppendLine("</svg>");
@@ -157,7 +157,8 @@ namespace Cdm.Figma.Utils
             var strokeHalfWeight = strokeWeight * 0.5f;
             var viewBox = new Rect(-strokeHalfWeight, -strokeHalfWeight, width + strokeWeight, height + strokeWeight);
 
-            var path = GetRectPath(nodeTransform, nodeRect, strokeWeight);
+            var fillPath = GetRectPath(nodeTransform, nodeRect, 0);
+            var strokePath = GetRectPath(nodeTransform, nodeRect, strokeWeight);
             var svg = new StringBuilder();
 
             svg.Append($@"<svg id=""{node.id}"" ");
@@ -166,7 +167,7 @@ namespace Cdm.Figma.Utils
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
-            AppendSvgPathElement(svg, node, path, new Vector2(width, height));
+            AppendSvgPathElement(svg, node, fillPath, strokePath, new Vector2(width, height));
 
             svg.AppendLine("</svg>");
 
@@ -264,8 +265,8 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static void AppendSvgPathElement(StringBuilder svg, SceneNode node, string path, Vector2 size,
-            string windingRule = null)
+        private static void AppendSvgPathElement(StringBuilder svg, SceneNode node, string fillPath, string strokePath, 
+            Vector2 size, string windingRule = null)
         {
             var nodeFill = (INodeFill)node;
             Debug.Assert(nodeFill != null);
@@ -277,7 +278,7 @@ namespace Cdm.Figma.Utils
                 if (!fill.visible)
                     continue;
 
-                svg.Append($@"<path d=""{path}"" ");
+                svg.Append($@"<path d=""{fillPath}"" ");
                 svg.Append($@"fill-opacity=""{fill.opacity}"" ");
 
                 if (!string.IsNullOrEmpty(windingRule))
@@ -313,7 +314,7 @@ namespace Cdm.Figma.Utils
                 if (!stroke.visible)
                     continue;
 
-                svg.Append($@"<path d=""{path}"" ");
+                svg.Append($@"<path d=""{strokePath}"" ");
                 svg.Append($@"fill=""none"" ");
                 svg.Append($@"stroke-width=""{strokeWidth}"" ");
                 svg.Append($@"stroke-opacity=""{stroke.opacity}"" ");

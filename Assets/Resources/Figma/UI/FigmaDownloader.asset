@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _personalAccessToken: 276161-7e9afdbe-d019-46b3-8eb7-7f36f24d2ee9
   _assetExtension: figma
-  _assetsPath: Resources/Figma/UI/Files
-  _scriptsPath: Resources/Figma/UI/Scripts
-  _generateScripts: 1
+  _assetPath: Resources/Figma/UI/Files
+  _downloadDependencies: 0
   _files:
   - 7PYuO8A0qZi87WphibJI2C

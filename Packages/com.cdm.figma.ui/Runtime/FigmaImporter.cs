@@ -209,7 +209,7 @@ namespace Cdm.Figma.UI
                 case InstanceNodeInitResult.MissingComponent:
                     LogWarning($"Instance of component node with id: '{node.componentId}' could not be found. " +
                                $"Instance node {node} may not be imported properly. " +
-                               "You may have used the component shared from another file. This is not supported.", nodeObject);
+                               "Did you download file dependencies?", nodeObject);
                     break;
                 case InstanceNodeInitResult.MissingComponentDefinition:
                     LogWarning($"Component definition could not be found for component node: '{node.componentId}'. " +
