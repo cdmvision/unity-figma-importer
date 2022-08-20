@@ -60,18 +60,14 @@ namespace Cdm.Figma.Editor
             }
         }
 
-        private async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader, string fileID)
+        private static async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader, string fileID)
         {
             var newFile = await downloader.GetDownloader().DownloadFileAsync(fileID, downloader.personalAccessToken);
 
-            var directory = Path.Combine("Assets", downloader.assetsPath);
+            var directory = Path.Combine("Assets", downloader.assetPath);
             Directory.CreateDirectory(directory);
 
             var figmaAssetPath = GetFigmaAssetPath(downloader, fileID);
-
-            if (File.Exists(figmaAssetPath))
-                File.Delete(figmaAssetPath);
-            
             await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"));
             AssetDatabase.Refresh();
             AssetDatabase.ImportAsset(figmaAssetPath);
@@ -80,6 +76,6 @@ namespace Cdm.Figma.Editor
         }
 
         private static string GetFigmaAssetPath(FigmaDownloaderAsset downloader, string fileId)
-            => Path.Combine("Assets", downloader.assetsPath, $"{fileId}.{downloader.assetExtension}");
+            => Path.Combine("Assets", downloader.assetPath, $"{fileId}.{downloader.assetExtension}");
     }
 }

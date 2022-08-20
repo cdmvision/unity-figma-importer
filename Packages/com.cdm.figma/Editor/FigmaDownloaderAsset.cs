@@ -31,27 +31,13 @@ namespace Cdm.Figma.Editor
         public string assetExtension => _assetExtension;
 
         [SerializeField]
-        private string _assetsPath = "Resources/Figma/Files";
+        private string _assetPath = "Resources/Figma/Files";
 
         /// <summary>
         /// The directory where downloaded Figma files are stored in.
         /// </summary>
-        public string assetsPath => _assetsPath;
-
-        [SerializeField]
-        private string _scriptsPath = "Resources/Figma/Scripts";
-
-        public string scriptsPath => _scriptsPath;
-
-        [SerializeField]
-        private bool _generateScripts = true;
-
-        public bool generateScripts
-        {
-            get => _generateScripts;
-            set => _generateScripts = value;
-        }
-
+        public string assetPath => _assetPath;
+        
         [SerializeField]
         private List<string> _files = new List<string>();
 

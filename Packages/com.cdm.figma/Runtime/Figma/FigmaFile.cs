@@ -137,58 +137,41 @@ namespace Cdm.Figma
             }
         }
 
-        public bool InitInstanceNode(InstanceNode instanceNode)
+        public InstanceNodeInitResult InitInstanceNode(InstanceNode instanceNode)
         {
             if (string.IsNullOrEmpty(instanceNode.componentId))
             {
-                Debug.LogWarning($"Instance node has missing component. " +
-                                 $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported.");
-                return false;
+                return InstanceNodeInitResult.MissingComponentID;
             }
 
             // Find component node in the hierarchy.
             if (_componentNodes.TryGetValue(instanceNode.componentId, out var componentNode))
             {
                 instanceNode.mainComponent = componentNode;
-
-                if (!InitComponentNode(componentNode))
-                {
-                    return false;
-                }
+                return InitComponentNode(componentNode);
             }
-            else
-            {
-                Debug.LogWarning(
-                    $"Instance of component node with id: '{instanceNode.componentId}' could not be found. " +
-                    $"Instance node with id: '{instanceNode.id}' and name: '{instanceNode.name}' won't be imported. " +
-                    "You may have used the component shared from another file. This is not supported.");
-                return false;
-            }
-
-            return true;
+            
+            return InstanceNodeInitResult.MissingComponent;
         }
 
-        private bool InitComponentNode(ComponentNode componentNode)
+        private InstanceNodeInitResult InitComponentNode(ComponentNode componentNode)
         {
             if (!components.TryGetValue(componentNode.id, out var component))
             {
-                Debug.LogWarning($"Component definition could not be found for component node: '{componentNode}'");
-                return false;
+                return InstanceNodeInitResult.MissingComponentDefinition;
             }
 
             if (!string.IsNullOrEmpty(component.componentSetId))
             {
                 if (!_componentSetNodes.TryGetValue(component.componentSetId, out var componentSetNode))
                 {
-                    Debug.LogWarning(
-                        $"Component set node '{component.componentSetId}' could not be found for the component node: {componentNode}");
-                    return false;
+                    return InstanceNodeInitResult.MissingComponentSet;
                 }
 
                 componentNode.componentSet = componentSetNode;
             }
 
-            return true;
+            return InstanceNodeInitResult.Success;
         }
 
 
@@ -260,5 +243,14 @@ namespace Cdm.Figma
                     throw new FormatException($"The {format} format string is not supported.");
             }
         }
+    }
+    
+    public enum InstanceNodeInitResult
+    {
+        Success,
+        MissingComponentID,
+        MissingComponent,
+        MissingComponentDefinition,
+        MissingComponentSet
     }
 }

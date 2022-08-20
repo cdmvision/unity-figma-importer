@@ -165,9 +165,12 @@ namespace Cdm.Figma.UI
             out FigmaNode nodeObject)
         {
             // Init instance node's main component, and main component's component set.
-            if (node is InstanceNode instanceNode)
+            var instanceNode = (InstanceNode)null;
+            var instanceNodeInitResult = InstanceNodeInitResult.Success;
+            if (node is InstanceNode ins)
             {
-                args.file.InitInstanceNode(instanceNode);
+                instanceNode = ins;
+                instanceNodeInitResult = args.file.InitInstanceNode(instanceNode);
             }
 
             // Try with component converters first.
@@ -175,6 +178,7 @@ namespace Cdm.Figma.UI
             if (componentConverter != null)
             {
                 nodeObject = componentConverter.Convert(parentObject, node, args);
+                LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
                 return true;
             }
 
@@ -183,11 +187,42 @@ namespace Cdm.Figma.UI
             if (nodeConverter != null)
             {
                 nodeObject = nodeConverter.Convert(parentObject, node, args);
+                LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
                 return true;
             }
 
             nodeObject = null;
             return false;
+        }
+
+        private void LogInstanceNodeInitResult(InstanceNode node, FigmaNode nodeObject, InstanceNodeInitResult result)
+        {
+            if (node == null)
+                return;
+            
+            switch (result)
+            {
+                case InstanceNodeInitResult.MissingComponentID:
+                    LogWarning($"Instance node has missing component ID. " +
+                               $"Instance node {node} may not be imported properly.", nodeObject);
+                    break;
+                case InstanceNodeInitResult.MissingComponent:
+                    LogWarning($"Instance of component node with id: '{node.componentId}' could not be found. " +
+                               $"Instance node {node} may not be imported properly. " +
+                               "You may have used the component shared from another file. This is not supported.", nodeObject);
+                    break;
+                case InstanceNodeInitResult.MissingComponentDefinition:
+                    LogWarning($"Component definition could not be found for component node: '{node.componentId}'. " +
+                               $"Instance node {node} may not be imported properly.", nodeObject);
+                    break;
+                case InstanceNodeInitResult.MissingComponentSet:
+                    LogWarning($"Component set node of component node: '{node.componentId}' could not be found. " + 
+                               $"Instance node {node} may not be imported properly.", nodeObject);
+                    break;
+                case InstanceNodeInitResult.Success:
+                default:
+                    break;
+            }
         }
 
         internal bool TryGetFont(string fontName, out TMP_FontAsset font)
@@ -218,11 +253,12 @@ namespace Cdm.Figma.UI
             return figmaNode;
         }
 
-        internal void LogWarning(FigmaImporterLogType type, string message, Object target = null)
+        internal void LogWarning(string message, Object target = null)
         {
             Debug.LogWarning(message, target);
 
-            _logs.Add(new FigmaImporterLogReference(new FigmaImporterLog(type, message), target));
+            _logs.Add(new FigmaImporterLogReference(
+                new FigmaImporterLog(FigmaImporterLogType.Warning, message), target));
         }
 
         internal void LogError(Exception exception, Object target = null)

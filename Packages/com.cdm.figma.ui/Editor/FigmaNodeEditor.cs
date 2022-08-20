@@ -54,8 +54,8 @@ namespace Cdm.Figma.UI.Editor
                     foreach (var log in figmaNode.logs)
                     {
                         EditorGUILayout.BeginHorizontal();
-                        EditorGUILayout.LabelField(GetLogIcon(log.type), GUILayout.Width(16));
-                        EditorGUILayout.LabelField(log.message, EditorStyles.miniLabel);
+                        EditorGUILayout.LabelField(GetLogIcon(log.type), GUILayout.Width(16), GUILayout.ExpandHeight(true));
+                        EditorGUILayout.LabelField(log.message, EditorStyles.wordWrappedMiniLabel);
                         EditorGUILayout.EndHorizontal();
                     }
                 }

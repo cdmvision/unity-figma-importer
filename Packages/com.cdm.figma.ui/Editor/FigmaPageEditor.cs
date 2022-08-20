@@ -27,10 +27,10 @@ namespace Cdm.Figma.UI.Editor
                     foreach (var logRef in figmaPage.allLogs)
                     {
                         EditorGUILayout.BeginHorizontal();
-                        EditorGUILayout.LabelField(GetLogIcon(logRef.log.type), GUILayout.Width(16));
+                        EditorGUILayout.LabelField(GetLogIcon(logRef.log.type), GUILayout.Width(16), GUILayout.ExpandHeight(true));
 
                         if (GUILayout.Button(logRef.log.message,
-                                new GUIStyle(EditorStyles.miniLabel) { alignment = TextAnchor.MiddleLeft }))
+                                new GUIStyle(EditorStyles.wordWrappedMiniLabel) { alignment = TextAnchor.MiddleLeft }))
                         {
                             if (logRef.target != null)
                             {

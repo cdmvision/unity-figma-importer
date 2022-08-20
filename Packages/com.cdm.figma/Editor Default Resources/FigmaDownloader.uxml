@@ -4,8 +4,7 @@
         <ui:TextField picking-mode="Ignore" label="Personal Access Token" binding-path="_personalAccessToken" tooltip="Enter your Figma personal access token" />
         <ui:Button text="Click here for help generating access tokens" display-tooltip-when-elided="true" name="accessTokenHelpButton" class="link" style="background-color: rgba(0, 0, 0, 0); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0;" />
         <ui:VisualElement style="height: 8px;" />
-        <uie:PropertyField binding-path="_assetsPath" />
-        <uie:PropertyField binding-path="_scriptsPath" />
+        <uie:PropertyField binding-path="_assetPath" />
         <uie:PropertyField binding-path="_assetExtension" />
     </ui:GroupBox>
     <ui:GroupBox text="File IDs">
