@@ -27,6 +27,14 @@ MonoBehaviour:
     m_Key: mySmartText
     m_Metadata:
       m_Items: []
+  - m_Id: 66279647082192896
+    m_Key: Toggle_On
+    m_Metadata:
+      m_Items: []
+  - m_Id: 66279713184423936
+    m_Key: Toggle_Off
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

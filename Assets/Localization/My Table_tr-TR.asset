@@ -32,6 +32,14 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 6982684293383323687
+  - m_Id: 66279647082192896
+    m_Localized: "A\xE7\u0131k"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 66279713184423936
+    m_Localized: "Kapal\u0131"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

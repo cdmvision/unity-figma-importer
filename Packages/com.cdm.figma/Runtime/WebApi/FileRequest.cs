@@ -1,7 +1,13 @@
 namespace Cdm.Figma
 {
-    public class FigmaFileRequest : FigmaBaseRequest
+    public class FileRequest : BaseRequest
     {
+        /// <summary>
+        /// The document referred to by :key as a JSON object. The file key can be parsed from any
+        /// Figma file url: <c>https://www.figma.com/file/:key/:title</c>
+        /// </summary>
+        public string fileId { get; }
+        
         /// <summary>
         /// A specific version ID to get. Omitting this will get the current version of the file.
         /// </summary>
@@ -25,9 +31,10 @@ namespace Cdm.Figma
         /// </summary>
         public string[] plugins { get; set; }
 
-        public FigmaFileRequest(string personalAccessToken, string fileId)
-            : base(personalAccessToken, fileId)
+        public FileRequest(string personalAccessToken, string fileId)
+            : base(personalAccessToken)
         {
+            this.fileId = fileId;
         }
     }
 }

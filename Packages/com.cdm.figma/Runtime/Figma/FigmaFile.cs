@@ -81,6 +81,9 @@ namespace Cdm.Figma
         [DataMember(Name = "schemaVersion")]
         public int schemaVersion { get; set; }
 
+        [DataMember(Name = "fileDependencies")]
+        public FigmaFileDependency[] fileDependencies { get; set; }
+
         private readonly Dictionary<string, ComponentNode> _componentNodes = new Dictionary<string, ComponentNode>();
 
         /// <summary>
@@ -107,12 +110,51 @@ namespace Cdm.Figma
             _componentNodes.Clear();
             _componentSetNodes.Clear();
 
-            var stopwatch = Stopwatch.StartNew();
+            // Handle main file.
             BuildHierarchyRecurse(document);
             FixRelativePositionGroupNodeChildren(document);
-            stopwatch.Stop();
 
-            //Debug.Log($"Building hierarchy took {stopwatch.ElapsedMilliseconds} ms.");
+            // Handle file dependencies.
+            BuildHierarchyForFileDependencies();
+            FixRelativePositionGroupNodeChildrenForFileDependencies();
+        }
+
+        private void BuildHierarchyForFileDependencies()
+        {
+            if (fileDependencies != null)
+            {
+                foreach (var fileReference in fileDependencies)
+                {
+                    foreach (var node in fileReference.componentNodes.Values)
+                    {
+                        BuildHierarchyRecurse(node);
+                    }
+
+                    foreach (var node in fileReference.componentSetNodes.Values)
+                    {
+                        BuildHierarchyRecurse(node);
+                    }
+                }
+            }
+        }
+
+        private void FixRelativePositionGroupNodeChildrenForFileDependencies()
+        {
+            if (fileDependencies != null)
+            {
+                foreach (var fileReference in fileDependencies)
+                {
+                    foreach (var node in fileReference.componentNodes.Values)
+                    {
+                        FixRelativePositionGroupNodeChildren(node);
+                    }
+
+                    foreach (var node in fileReference.componentSetNodes.Values)
+                    {
+                        FixRelativePositionGroupNodeChildren(node);
+                    }
+                }
+            }
         }
 
         private void BuildHierarchyRecurse(Node node)
@@ -144,17 +186,45 @@ namespace Cdm.Figma
                 return InstanceNodeInitResult.MissingComponentID;
             }
 
-            // Find component node in the hierarchy.
+            // Find component node in the main file hierarchy.
             if (_componentNodes.TryGetValue(instanceNode.componentId, out var componentNode))
             {
                 instanceNode.mainComponent = componentNode;
-                return InitComponentNode(componentNode);
+                return InitComponentNode(componentNode, components, _componentSetNodes);
             }
-            
+
+            // Try to find component node in file dependencies.
+            if (fileDependencies != null)
+            {
+                if (components.TryGetValue(instanceNode.componentId, out var component))
+                {
+                    foreach (var fileReference in fileDependencies)
+                    {
+                        foreach (var referenceComponent in fileReference.components)
+                        {
+                            var componentKey = referenceComponent.Value.key;
+                            if (componentKey == component.key)
+                            {
+                                var componentNodeId = referenceComponent.Key;
+
+                                if (fileReference.componentNodes.TryGetValue(componentNodeId, out var componentNode2))
+                                {
+                                    instanceNode.mainComponent = componentNode2;
+                                    return InitComponentNode(componentNode2, fileReference.components,
+                                        fileReference.componentSetNodes);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             return InstanceNodeInitResult.MissingComponent;
         }
 
-        private InstanceNodeInitResult InitComponentNode(ComponentNode componentNode)
+        private static InstanceNodeInitResult InitComponentNode(ComponentNode componentNode,
+            IReadOnlyDictionary<string, Component> components,
+            IReadOnlyDictionary<string, ComponentSetNode> componentSetNodes)
         {
             if (!components.TryGetValue(componentNode.id, out var component))
             {
@@ -163,7 +233,7 @@ namespace Cdm.Figma
 
             if (!string.IsNullOrEmpty(component.componentSetId))
             {
-                if (!_componentSetNodes.TryGetValue(component.componentSetId, out var componentSetNode))
+                if (!componentSetNodes.TryGetValue(component.componentSetId, out var componentSetNode))
                 {
                     return InstanceNodeInitResult.MissingComponentSet;
                 }
@@ -244,7 +314,7 @@ namespace Cdm.Figma
             }
         }
     }
-    
+
     public enum InstanceNodeInitResult
     {
         Success,

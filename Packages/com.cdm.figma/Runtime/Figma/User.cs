@@ -10,6 +10,9 @@ namespace Cdm.Figma
     [DataContract]
     public class User
     {
+        [DataMember(Name = "id", IsRequired = true)]
+        public string id { get; set; }
+        
         [DataMember(Name = "handle")]
         public string handle { get; set; }
 

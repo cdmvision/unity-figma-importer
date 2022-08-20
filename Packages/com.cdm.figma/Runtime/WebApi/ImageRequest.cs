@@ -4,8 +4,14 @@ using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
-    public class FigmaImageRequest : FigmaBaseRequest
+    public class ImageRequest : BaseRequest
     {
+        /// <summary>
+        /// The document referred to by :key as a JSON object. The file key can be parsed from any
+        /// Figma file url: <c>https://www.figma.com/file/:key/:title</c>
+        /// </summary>
+        public string fileId { get; }
+        
         /// <summary>
         /// List of node IDs to render.
         /// </summary>
@@ -43,8 +49,9 @@ namespace Cdm.Figma
         /// </summary>
         public bool useAbsoluteBounds { get; set; } = false;
         
-        public FigmaImageRequest(string personalAccessToken, string fileId) : base(personalAccessToken, fileId)
+        public ImageRequest(string personalAccessToken, string fileId) : base(personalAccessToken)
         {
+            this.fileId = fileId;
         }
     }
 

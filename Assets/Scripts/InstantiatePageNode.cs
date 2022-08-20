@@ -8,6 +8,13 @@ public class InstantiatePageNode : MonoBehaviour
 
     private void Awake()
     {
-        Instantiate(page, canvas.transform);
+        if (page != null)
+        {
+            Instantiate(page, canvas.transform);    
+        }
+        else
+        {
+            Debug.LogWarning("Page is not assigned.");
+        }
     }
 }

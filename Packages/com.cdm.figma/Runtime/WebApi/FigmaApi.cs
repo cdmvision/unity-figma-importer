@@ -19,7 +19,7 @@ namespace Cdm.Figma
         /// The components key contains a mapping from node IDs to component metadata. This is to help you
         /// determine which components each instance comes from.
         /// </summary>
-        public static async Task<string> GetFileAsTextAsync(FigmaFileRequest fileRequest)
+        public static async Task<string> GetFileAsTextAsync(FileRequest fileRequest)
         {
             if (string.IsNullOrEmpty(fileRequest.personalAccessToken))
                 throw new ArgumentException("Personal access token cannot be empty.");
@@ -40,10 +40,55 @@ namespace Cdm.Figma
         /// Returns the document referred to by :key as a <see cref="FigmaFile"/>.
         /// </summary>
         /// <seealso cref="GetFileAsTextAsync"/>
-        public static async Task<FigmaFile> GetFileAsync(FigmaFileRequest fileRequest)
+        public static async Task<FigmaFile> GetFileAsync(FileRequest fileRequest)
         {
             var result = await GetFileAsTextAsync(fileRequest);
             return FigmaFile.Parse(result);
+        }
+        
+        /// <summary>
+        /// Gets metadata on a component by key.
+        /// </summary>
+        public static async Task<ComponentMetadata> GetComponentMetadataAsync(ComponentMetadataRequest request)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+            
+            if (string.IsNullOrEmpty(request.personalAccessToken))
+                throw new ArgumentNullException(nameof(request.personalAccessToken), "Personal access token cannot be empty.");
+
+            if (string.IsNullOrEmpty(request.key))
+                throw new ArgumentNullException(nameof(request.key), "File ID cannot be empty.");
+
+            var url = $"{BaseUri}/components/{request.key}";
+            Debug.Log(url);
+
+            var responseString = await GetContentAsync(url, request.personalAccessToken);
+            var response = JsonConvert.DeserializeObject<ComponentMetadataResponse>(responseString);
+            if (response != null)
+            {
+                if (!response.error)
+                {
+                    return response.metadata;
+                }
+
+                if (response.status == 400)
+                    throw new Exception(response.message);
+
+                if (response.status == 403)
+                    throw new Exception("Insufficient permission on the team.");
+
+                if (response.status == 404)
+                {
+                    // Requested resource was not found.
+                    return null;
+                }
+
+                throw new Exception($"Unknown error occurred status: '{response.status}', " +
+                                    $"message: '{response.message}'.");
+            }
+
+            throw new Exception("Requested resource could not be fetched.");
         }
         
         /// <summary>
@@ -57,7 +102,7 @@ namespace Cdm.Figma
         /// renderable components. It is guaranteed that any node that was requested for rendering will be represented
         /// in this map whether or not the render succeeded.
         /// </summary>
-        public static async Task<Dictionary<string, byte[]>> GetImageAsync(FigmaImageRequest imageRequest)
+        public static async Task<Dictionary<string, byte[]>> GetImageAsync(ImageRequest imageRequest)
         {
             if (string.IsNullOrEmpty(imageRequest.personalAccessToken))
                 throw new ArgumentException("Personal access token cannot be empty.");
@@ -108,7 +153,7 @@ namespace Cdm.Figma
             return await GetBytesAsync(thumbnailUrl, "image/png");
         }
         
-        private static string GetFileRequestUrl(FigmaFileRequest request)
+        private static string GetFileRequestUrl(FileRequest request)
         {
             var url = $"{BaseUri}/files/{request.fileId}";
             var firstArg = true;
@@ -140,7 +185,7 @@ namespace Cdm.Figma
             return url;
         }
 
-        private static string GetImageRequestUrl(FigmaImageRequest request)
+        private static string GetImageRequestUrl(ImageRequest request)
         {
             var url = $"{BaseUri}/images/{request.fileId}";
             url = $"{url}?ids={string.Join(",", request.ids)}";
