@@ -157,7 +157,7 @@ namespace Cdm.Figma.Utils
             var strokeHalfWeight = strokeWeight * 0.5f;
             var viewBox = new Rect(-strokeHalfWeight, -strokeHalfWeight, width + strokeWeight, height + strokeWeight);
 
-            var path = GetRectPath(nodeTransform, nodeRect);
+            var path = GetRectPath(nodeTransform, nodeRect, strokeWeight);
             var svg = new StringBuilder();
 
             svg.Append($@"<svg id=""{node.id}"" ");
@@ -187,7 +187,7 @@ namespace Cdm.Figma.Utils
 
             // Left, bottom, right and top.
             var strokeWidth = nodeFill.strokeWeight ?? 0;
-            var strokePadding = strokeWidth * 2 + 4;
+            var strokePadding = strokeWidth + 2;
             var borders = new Vector4(
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
                 Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
@@ -403,7 +403,7 @@ namespace Cdm.Figma.Utils
             return spriteWithTexture;
         }
 
-        private static string GetRectPath(INodeTransform nodeTransform, INodeRect nodeRect)
+        private static string GetRectPath(INodeTransform nodeTransform, INodeRect nodeRect, float strokeWeight)
         {
             var rect = new Rect(0, 0, nodeTransform.size.x, nodeTransform.size.y);
             var radiusTL = Vector2.one * nodeRect.topLeftRadius;
@@ -425,6 +425,11 @@ namespace Cdm.Figma.Utils
                 var control2 = segment.P2;
                 var end = segmentNext.P0;
 
+                if (i == segments.Length - 1)
+                {
+                    end.x -= strokeWeight * 0.5f;
+                }
+                
                 svgString.Append($@"C {control1.x} {control1.y} {control2.x} {control2.y} {end.x} {end.y} ");
             }
 
