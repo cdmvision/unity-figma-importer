@@ -10,21 +10,16 @@ namespace Cdm.Figma.UI.Styles
         {
         }
 
-        public void Apply(string selector, bool forceUpdate = false)
+        public void Apply(string selector, bool instant = false)
         {
-            Apply(selector, false, forceUpdate);
-        }
-        
-        protected abstract void Apply(StyleArgs args);
-
-        private void Apply(string selector, bool instant, bool forceUpdate)
-        {
-            if (forceUpdate || currentSelector != selector)
+            if (currentSelector != selector)
             {
                 currentSelector = selector;
                 Apply(new StyleArgs(currentSelector, instant));
             }
         }
+        
+        protected abstract void Apply(StyleArgs args);
     }
     
     public readonly struct StyleArgs

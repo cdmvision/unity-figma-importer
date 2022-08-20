@@ -29,9 +29,9 @@ namespace Cdm.Figma.UI
         
         protected Selectable selectable { get; private set; }
         protected CanvasGroup canvasGroup { get; private set; }
-        protected bool isPointerInside { get; set; }
-        protected bool isPointerDown { get; set; }
-        protected bool interactable { get; set; }
+        protected bool isPointerInside { get; set; } = false;
+        protected bool isPointerDown { get; set; } = false;
+        protected bool interactable { get; set; } = true;
 
         protected bool hasSelection { get; set; }
 

@@ -16,16 +16,17 @@ namespace Cdm.Figma.UI
         {
             _stylesSetters.Clear();
             Initialize(transform);
+            UpdateVariant(true);
         }
 
         protected override void Start()
         {
             base.Start();
             
-            UpdateVariant();
+            UpdateVariant(true);
         }
 
-        protected void UpdateVariant()
+        protected void UpdateVariant(bool instant = false)
         {
             SetSelectorForStyles(GetSelector());
         }
