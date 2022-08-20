@@ -6,6 +6,7 @@
         <ui:VisualElement style="height: 8px;" />
         <uie:PropertyField binding-path="_assetPath" />
         <uie:PropertyField binding-path="_assetExtension" />
+        <uie:PropertyField binding-path="_downloadDependencies" tooltip="If checked, dependent components shared from external files are downloaded as well." />
     </ui:GroupBox>
     <ui:GroupBox text="File IDs">
         <ui:ListView focusable="true" binding-path="_files" show-add-remove-footer="true" virtualization-method="DynamicHeight" show-border="true" show-alternating-row-backgrounds="ContentOnly" name="filesList" show-bound-collection-size="false" selection-type="Single" horizontal-scrolling="false" reorderable="true" reorder-mode="Animated" />

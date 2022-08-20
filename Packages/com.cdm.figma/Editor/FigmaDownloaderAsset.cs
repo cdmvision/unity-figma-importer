@@ -28,7 +28,11 @@ namespace Cdm.Figma.Editor
         /// The extension of the downloaded Figma files. Appropriate Figma asset importer used regarding to the
         /// extension.
         /// </summary>
-        public string assetExtension => _assetExtension;
+        public string assetExtension
+        {
+            get => _assetExtension;
+            set => _assetExtension = value;
+        }
 
         [SerializeField]
         private string _assetPath = "Resources/Figma/Files";
@@ -36,8 +40,22 @@ namespace Cdm.Figma.Editor
         /// <summary>
         /// The directory where downloaded Figma files are stored in.
         /// </summary>
-        public string assetPath => _assetPath;
-        
+        public string assetPath
+        {
+            get => _assetPath;
+            set => _assetPath = value;
+        }
+
+        [SerializeField]
+        private bool _downloadDependencies = true;
+
+        /// <inheritdoc cref="FigmaDownloader.downloadDependencies"/>
+        public bool downloadDependencies
+        {
+            get => _downloadDependencies;
+            set => _downloadDependencies = value;
+        }
+
         [SerializeField]
         private List<string> _files = new List<string>();
 
@@ -46,9 +64,12 @@ namespace Cdm.Figma.Editor
         /// </summary>
         public List<string> files => _files;
 
-        public virtual IFigmaDownloader GetDownloader()
+        public virtual FigmaDownloader GetDownloader()
         {
-            return new FigmaDownloader();
+            return new FigmaDownloader()
+            {
+                downloadDependencies = downloadDependencies
+            };
         }
     }
 }

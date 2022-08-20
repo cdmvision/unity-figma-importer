@@ -9,6 +9,11 @@ namespace Cdm.Figma
     public class FigmaDownloader : IFigmaDownloader
     {
         private Dictionary<string, FigmaFile> _downloadedFiles;
+        
+        /// <summary>
+        /// If set <c>true</c>, dependent components shared from external files are downloaded as well.
+        /// </summary>
+        public bool downloadDependencies { get; set; } = true;
 
         public async Task<FigmaFile> DownloadFileAsync(string fileID, string personalAccessToken)
         {
@@ -49,7 +54,12 @@ namespace Cdm.Figma
             _downloadedFiles.Add(file.fileID, file);
 
             file.BuildHierarchy();
-            file.fileDependencies = await DownloadFileDependenciesAsync(file, personalAccessToken);
+            
+            if (downloadDependencies)
+            {
+                file.fileDependencies = await DownloadFileDependenciesAsync(file, personalAccessToken);    
+            }
+            
             return file;
         }
 

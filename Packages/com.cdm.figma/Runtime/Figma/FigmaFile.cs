@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
-using Debug = UnityEngine.Debug;
 
 namespace Cdm.Figma
 {
