@@ -7,7 +7,7 @@
         /// </summary>
         public string key { get; }
         
-        public ComponentMetadataRequest(string personalAccessToken, string key) : base(personalAccessToken)
+        public ComponentMetadataRequest(string key)
         {
             this.key = key;
         }

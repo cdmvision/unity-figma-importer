@@ -31,8 +31,7 @@ namespace Cdm.Figma
         /// </summary>
         public string[] plugins { get; set; }
 
-        public FileRequest(string personalAccessToken, string fileId)
-            : base(personalAccessToken)
+        public FileRequest(string fileId)
         {
             this.fileId = fileId;
         }

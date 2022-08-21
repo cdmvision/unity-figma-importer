@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -9,7 +10,8 @@ namespace Cdm.Figma
     public class FigmaDownloader : IFigmaDownloader
     {
         private Dictionary<string, FigmaFile> _downloadedFiles;
-        
+        private FigmaApi _figmaApi;
+
         /// <summary>
         /// If set <c>true</c>, dependent components shared from external files are downloaded as well.
         /// </summary>
@@ -19,21 +21,26 @@ namespace Cdm.Figma
         {
             try
             {
-                _downloadedFiles = new Dictionary<string, FigmaFile>();
-                return await DownloadFileAsyncInternal(fileID, personalAccessToken);
+                using (_figmaApi = new FigmaApi(personalAccessToken))
+                {
+                    _downloadedFiles = new Dictionary<string, FigmaFile>();
+                    return await DownloadFileAsyncInternal(fileID, personalAccessToken, true);
+                }
             }
             finally
             {
+                _figmaApi = null;
                 _downloadedFiles = null;
             }
         }
 
-        private async Task<FigmaFile> DownloadFileAsyncInternal(string fileID, string personalAccessToken)
+        private async Task<FigmaFile> DownloadFileAsyncInternal(string fileID, string personalAccessToken,
+            bool downloadThumbnail)
         {
             Debug.Log($"Downloading file: {fileID}");
 
-            var fileContentJson = await FigmaApi.GetFileAsTextAsync(
-                new FileRequest(personalAccessToken, fileID)
+            var fileContentJson = await _figmaApi.GetFileAsync(
+                new FileRequest(fileID)
                 {
                     geometry = "paths",
                     plugins = new[] { PluginData.Id }
@@ -42,24 +49,34 @@ namespace Cdm.Figma
             var file = FigmaFile.Parse(fileContentJson);
             file.fileID = fileID;
 
-            if (!string.IsNullOrEmpty(file.thumbnailUrl))
+            if (downloadThumbnail)
             {
-                var thumbnail = await FigmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
-                if (thumbnail != null)
+                if (!string.IsNullOrEmpty(file.thumbnailUrl))
                 {
-                    file.thumbnail = Convert.ToBase64String(thumbnail);
+                    try
+                    {
+                        var thumbnail = await _figmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
+                        if (thumbnail != null)
+                        {
+                            file.thumbnail = Convert.ToBase64String(thumbnail);
+                        }
+                    }
+                    catch (HttpRequestException e)
+                    {
+                        Debug.LogWarning($"File '{file.fileID}' thumbnail could not be downloaded.\n {e}");
+                    }
                 }
             }
 
             _downloadedFiles.Add(file.fileID, file);
 
             file.BuildHierarchy();
-            
+
             if (downloadDependencies)
             {
-                file.fileDependencies = await DownloadFileDependenciesAsync(file, personalAccessToken);    
+                file.fileDependencies = await DownloadFileDependenciesAsync(file, personalAccessToken);
             }
-            
+
             return file;
         }
 
@@ -74,66 +91,74 @@ namespace Cdm.Figma
 
             foreach (var componentKey in missingComponents)
             {
-                var componentMetadata =
-                    await FigmaApi.GetComponentMetadataAsync(
-                        new ComponentMetadataRequest(personalAccessToken, componentKey));
-
-                if (componentMetadata != null)
+                try
                 {
-                    // Download file containing the component if does not exist.
-                    if (!_downloadedFiles.ContainsKey(componentMetadata.fileKey))
-                    {
-                        await DownloadFileAsyncInternal(componentMetadata.fileKey, personalAccessToken);
-                    }
+                    var componentMetadata =
+                        await _figmaApi.GetComponentMetadataAsync(new ComponentMetadataRequest(componentKey));
 
+                    if (componentMetadata != null)
                     {
-                        var file = _downloadedFiles[componentMetadata.fileKey];
-
-                        if (file.components.TryGetValue(componentMetadata.nodeId, out var component) &&
-                            file.componentNodes.TryGetValue(componentMetadata.nodeId, out var componentNode))
+                        // Download file containing the component if does not exist.
+                        if (!_downloadedFiles.ContainsKey(componentMetadata.fileKey))
                         {
-                            FigmaFileDependency fileDependency;
-                            if (!fileDependencies.ContainsKey(file.fileID))
-                            {
-                                fileDependency = new FigmaFileDependency();
-                                fileDependency.fileID = file.fileID;
-                                fileDependencies.Add(fileDependency.fileID, fileDependency);
-                            }
-                            else
-                            {
-                                fileDependency = fileDependencies[file.fileID];    
-                            }
-                            
-                            fileDependency.components.Add(componentMetadata.nodeId, component);
-                            fileDependency.componentNodes.Add(componentMetadata.nodeId, componentNode);
+                            await DownloadFileAsyncInternal(componentMetadata.fileKey, personalAccessToken, false);
+                        }
 
-                            // Check component set.
-                            if (!string.IsNullOrEmpty(component.componentSetId))
+                        {
+                            var file = _downloadedFiles[componentMetadata.fileKey];
+
+                            if (file.components.TryGetValue(componentMetadata.nodeId, out var component) &&
+                                file.componentNodes.TryGetValue(componentMetadata.nodeId, out var componentNode))
                             {
-                                if (file.componentSets.TryGetValue(component.componentSetId, out var componentSet) &&
-                                    file.componentSetNodes.TryGetValue(component.componentSetId,
-                                        out var componentSetNode))
+                                FigmaFileDependency fileDependency;
+                                if (!fileDependencies.ContainsKey(file.fileID))
                                 {
-                                    fileDependency.componentSets.Add(component.componentSetId, componentSet);
-                                    fileDependency.componentSetNodes.Add(component.componentSetId, componentSetNode);
+                                    fileDependency = new FigmaFileDependency();
+                                    fileDependency.fileID = file.fileID;
+                                    fileDependencies.Add(fileDependency.fileID, fileDependency);
                                 }
                                 else
                                 {
-                                    Debug.LogWarning(
-                                        $"Component set node '{component.componentSetId}' could not be found in file '{file.fileID}'");
+                                    fileDependency = fileDependencies[file.fileID];
+                                }
+
+                                fileDependency.components.Add(componentMetadata.nodeId, component);
+                                fileDependency.componentNodes.Add(componentMetadata.nodeId, componentNode);
+
+                                // Check component set.
+                                if (!string.IsNullOrEmpty(component.componentSetId))
+                                {
+                                    if (file.componentSets.TryGetValue(component.componentSetId,
+                                            out var componentSet) &&
+                                        file.componentSetNodes.TryGetValue(component.componentSetId,
+                                            out var componentSetNode))
+                                    {
+                                        fileDependency.componentSets.Add(component.componentSetId, componentSet);
+                                        fileDependency.componentSetNodes.Add(component.componentSetId,
+                                            componentSetNode);
+                                    }
+                                    else
+                                    {
+                                        Debug.LogWarning(
+                                            $"Component set node '{component.componentSetId}' could not be found in file '{file.fileID}'");
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            Debug.LogWarning(
-                                $"Component node '{componentMetadata.nodeId}' could not be found in file '{file.fileID}'");
+                            else
+                            {
+                                Debug.LogWarning(
+                                    $"Component node '{componentMetadata.nodeId}' could not be found in file '{file.fileID}'");
+                            }
                         }
                     }
+                    else
+                    {
+                        Debug.LogWarning($"Component metadata '{componentKey}' does not exist.");
+                    }
                 }
-                else
+                catch (HttpRequestException e)
                 {
-                    Debug.LogError($"Component metadata with key '{componentKey}' could not be get.");
+                    Debug.LogWarning($"Component metadata '{componentKey}' could not be fetched: {e}");
                 }
             }
 

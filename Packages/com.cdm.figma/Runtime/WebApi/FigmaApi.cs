@@ -1,16 +1,34 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using UnityEngine;
 
 namespace Cdm.Figma
 {
-    public class FigmaApi
+    public class FigmaApi : IDisposable
     {
         private const string BaseUri = "https://api.figma.com/v1";
+        
+        private readonly HttpClient _httpClient;
+
+        public FigmaApi(string personalAccessToken)
+        {
+            _httpClient = new HttpClient();
+            _httpClient.DefaultRequestHeaders.Add("X-FIGMA-TOKEN", personalAccessToken);
+            
+            // Always accept json, so we can get detailed error message from backend.
+            _httpClient.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+            
+            _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue()
+            {
+                NoCache = true,
+                NoStore = true
+            };
+        }
         
         /// <summary>
         /// Returns the document referred to by :key as a JSON object string. The file key can be parsed from any
@@ -19,78 +37,44 @@ namespace Cdm.Figma
         /// The components key contains a mapping from node IDs to component metadata. This is to help you
         /// determine which components each instance comes from.
         /// </summary>
-        public static async Task<string> GetFileAsTextAsync(FileRequest fileRequest)
+        public async Task<string> GetFileAsync(FileRequest fileRequest, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrEmpty(fileRequest.personalAccessToken))
-                throw new ArgumentException("Personal access token cannot be empty.");
-
             if (string.IsNullOrEmpty(fileRequest.fileId))
                 throw new ArgumentException("File ID cannot be empty.");
 
-            var uri = GetFileRequestUrl(fileRequest);
+            var url = GetFileRequestUrl(fileRequest);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
             
-#if UNITY_EDITOR
-            Debug.Log(uri);
-#endif            
-            var result = await GetContentAsync(uri, fileRequest.personalAccessToken);
-            return result;
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            
+            return await response.Content.ReadAsStringAsync();
         }
 
-        /// <summary>
-        /// Returns the document referred to by :key as a <see cref="FigmaFile"/>.
-        /// </summary>
-        /// <seealso cref="GetFileAsTextAsync"/>
-        public static async Task<FigmaFile> GetFileAsync(FileRequest fileRequest)
-        {
-            var result = await GetFileAsTextAsync(fileRequest);
-            return FigmaFile.Parse(result);
-        }
-        
         /// <summary>
         /// Gets metadata on a component by key.
         /// </summary>
-        public static async Task<ComponentMetadata> GetComponentMetadataAsync(ComponentMetadataRequest request)
+        public async Task<ComponentMetadata> GetComponentMetadataAsync(ComponentMetadataRequest requestData, 
+            CancellationToken cancellationToken = default)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
+            if (requestData == null)
+                throw new ArgumentNullException(nameof(requestData));
             
-            if (string.IsNullOrEmpty(request.personalAccessToken))
-                throw new ArgumentNullException(nameof(request.personalAccessToken), "Personal access token cannot be empty.");
+            if (string.IsNullOrEmpty(requestData.key))
+                throw new ArgumentNullException(nameof(requestData.key), "Component key cannot be empty.");
 
-            if (string.IsNullOrEmpty(request.key))
-                throw new ArgumentNullException(nameof(request.key), "File ID cannot be empty.");
-
-            var url = $"{BaseUri}/components/{request.key}";
-            Debug.Log(url);
-
-            var responseString = await GetContentAsync(url, request.personalAccessToken);
-            var response = JsonConvert.DeserializeObject<ComponentMetadataResponse>(responseString);
-            if (response != null)
-            {
-                if (!response.error)
-                {
-                    return response.metadata;
-                }
-
-                if (response.status == 400)
-                    throw new Exception(response.message);
-
-                if (response.status == 403)
-                    throw new Exception("Insufficient permission on the team.");
-
-                if (response.status == 404)
-                {
-                    // Requested resource was not found.
-                    return null;
-                }
-
-                throw new Exception($"Unknown error occurred status: '{response.status}', " +
-                                    $"message: '{response.message}'.");
-            }
-
-            throw new Exception("Requested resource could not be fetched.");
-        }
+            var url = $"{BaseUri}/components/{requestData.key}";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
         
+            var json = await response.Content.ReadAsStringAsync();
+            var metadataResponse = 
+                JsonConvert.DeserializeObject<ComponentMetadataResponse>(json, JsonSerializerHelper.Settings);
+            return metadataResponse?.metadata;
+        }
+
         /// <summary>
         /// Renders images from a file.
         /// 
@@ -102,11 +86,12 @@ namespace Cdm.Figma
         /// renderable components. It is guaranteed that any node that was requested for rendering will be represented
         /// in this map whether or not the render succeeded.
         /// </summary>
-        public static async Task<Dictionary<string, byte[]>> GetImageAsync(ImageRequest imageRequest)
+        public async Task<Dictionary<string, byte[]>> GetImageAsync(ImageRequest imageRequest,
+            CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrEmpty(imageRequest.personalAccessToken))
-                throw new ArgumentException("Personal access token cannot be empty.");
-
+            if (imageRequest == null)
+                throw new ArgumentNullException(nameof(imageRequest));
+            
             if (string.IsNullOrEmpty(imageRequest.fileId))
                 throw new ArgumentException("File ID cannot be empty.");
             
@@ -114,26 +99,25 @@ namespace Cdm.Figma
                 throw new ArgumentException("Image ids array must has at least one item.");
             
             // Get image download URLs.
-            var uri = GetImageRequestUrl(imageRequest);
-            Debug.Log(uri);
+            var url = GetImageRequestUrl(imageRequest);
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
             
-            var result = await GetContentAsync(uri, imageRequest.personalAccessToken);
-
-            var response = JsonConvert.DeserializeObject<FigmaImageResponse>(result);
-            if (response == null)
-                throw new Exception("Cannot get images. Response is null.");
-
-            if (!string.IsNullOrEmpty(response.error))
-                throw new Exception(response.error);
-
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            
+            var json = await response.Content.ReadAsStringAsync();
+            var imageResponse = JsonConvert.DeserializeObject<ImageResponse>(json, JsonSerializerHelper.Settings);
+            if (imageResponse == null)
+                return null;
+                
             // Download images data.
             var images = new Dictionary<string, byte[]>();
-
-            foreach (var (imageId, imageUrl) in response.images)
+                
+            foreach (var (imageId, imageUrl) in imageResponse.images)
             {
                 if (!string.IsNullOrEmpty(imageUrl))
                 {
-                    var imageData = await GetBytesAsync(imageUrl);
+                    var imageData = await GetBytesAsync(imageUrl, "application/octet-stream", cancellationToken);
                     if (imageData == null)
                         throw new Exception($"Image '{imageId}' data could not be get from: {imageUrl}");
                     
@@ -144,13 +128,14 @@ namespace Cdm.Figma
                     images.Add(imageId, null);
                 }
             }
-
+                
             return images;
         }
 
-        public static async Task<byte[]> GetThumbnailImageAsync(string thumbnailUrl)
+        public async Task<byte[]> GetThumbnailImageAsync(string thumbnailUrl,
+            CancellationToken cancellationToken = default)
         {
-            return await GetBytesAsync(thumbnailUrl, "image/png");
+            return await GetBytesAsync(thumbnailUrl, "image/png", cancellationToken);
         }
         
         private static string GetFileRequestUrl(FileRequest request)
@@ -211,40 +196,21 @@ namespace Cdm.Figma
             return url;
         }
         
-        private static async Task<byte[]> GetBytesAsync(string url, string contentType = "")
+        private async Task<byte[]> GetBytesAsync(string url, string contentType, 
+            CancellationToken cancellationToken = default)
         {
-            var httpWebRequest = (HttpWebRequest) WebRequest.Create(url);
-            httpWebRequest.ContentType = contentType;
-            httpWebRequest.Method = "GET";
-
-            var httpResponse = (HttpWebResponse) await httpWebRequest.GetResponseAsync();
-            var responseStream = httpResponse.GetResponseStream();
-            if (responseStream != null)
-            {
-                using var memoryStream = new MemoryStream();
-                await responseStream.CopyToAsync(memoryStream);
-                return memoryStream.ToArray();
-            }
-
-            throw new WebException("Response stream is null");
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
+            
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsByteArrayAsync();
         }
 
-        private static async Task<string> GetContentAsync(string requestUri, string personalAccessToken)
+
+        public void Dispose()
         {
-            var httpWebRequest = (HttpWebRequest) WebRequest.Create(requestUri);
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = "GET";
-            httpWebRequest.Headers["x-figma-token"] = personalAccessToken;
-
-            var httpResponse = (HttpWebResponse) await httpWebRequest.GetResponseAsync();
-            var responseStream = httpResponse.GetResponseStream();
-            if (responseStream != null)
-            {
-                using var streamReader = new StreamReader(responseStream);
-                return await streamReader.ReadToEndAsync();
-            }
-
-            throw new WebException("Response stream is null");
+            _httpClient?.Dispose();
         }
     }
 }

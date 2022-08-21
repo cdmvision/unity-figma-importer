@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-
 namespace Cdm.Figma
 {
     public class ImageRequest : BaseRequest
@@ -49,19 +45,9 @@ namespace Cdm.Figma
         /// </summary>
         public bool useAbsoluteBounds { get; set; } = false;
         
-        public ImageRequest(string personalAccessToken, string fileId) : base(personalAccessToken)
+        public ImageRequest(string fileId)
         {
             this.fileId = fileId;
         }
-    }
-
-    [Serializable]
-    public class FigmaImageResponse
-    {
-        [JsonProperty("err")]
-        public string error { get; set; }
-
-        [JsonProperty("images")]
-        public Dictionary<string, string> images { get; set; } = new Dictionary<string, string>();
     }
 }
