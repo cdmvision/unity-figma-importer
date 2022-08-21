@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cdm.Figma.UI.Styles;
 using UnityEngine;
 
@@ -147,12 +148,17 @@ namespace Cdm.Figma.UI
         
         public static T Query<T>(this FigmaNode node, string bindingKey) where T : UnityEngine.Component
         {
-            T component = null;
+            return (T) node.Query(bindingKey, typeof(T));
+        }
+
+        public static UnityEngine.Component Query(this FigmaNode node, string bindingKey, Type type)
+        {
+            UnityEngine.Component component = null;
             node.Traverse(n =>
             {
                 if (n.bindingKey == bindingKey)
                 {
-                    component = n.GetComponent<T>();
+                    component = n.GetComponent(type);
                     if (component != null)
                     {
                         return false;
@@ -164,15 +170,20 @@ namespace Cdm.Figma.UI
 
             return component;
         }
-        
+
         public static T[] QueryAll<T>(this FigmaNode node, string bindingKey) where T : UnityEngine.Component
         {
-            var components = new List<T>();
+            return node.QueryAll(bindingKey, typeof(T)).Cast<T>().ToArray();
+        }
+        
+        public static UnityEngine.Component[] QueryAll(this FigmaNode node, string bindingKey, Type type)
+        {
+            var components = new List<UnityEngine.Component>();
             node.Traverse(n =>
             {
                 if (n.bindingKey == bindingKey)
                 {
-                    var component = n.GetComponent<T>();
+                    var component = n.GetComponent(type);
                     if (component != null)
                     {
                         components.Add(component);
