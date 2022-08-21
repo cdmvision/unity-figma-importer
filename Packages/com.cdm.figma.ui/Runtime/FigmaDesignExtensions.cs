@@ -38,23 +38,17 @@ namespace Cdm.Figma.UI
         
         public static T Query<T>(this FigmaDesign figmaDesign, string bindingKey) where T : UnityEngine.Component
         {
-            return (T)figmaDesign.Query(bindingKey, typeof(T));
+            return figmaDesign.document.Query<T>(bindingKey);
         }
 
         public static T[] QueryAll<T>(this FigmaDesign figmaDesign, string bindingKey) where T : UnityEngine.Component
         {
-            return figmaDesign.QueryAll(bindingKey, typeof(T)).Cast<T>().ToArray();
+            return figmaDesign.document.QueryAll<T>(bindingKey);
         }
 
         public static UnityEngine.Component Query(this FigmaDesign figmaDesign, string bindingKey, Type type)
         {
-            var component = figmaDesign.document.Query(bindingKey, type);
-            if (component != null)
-            {
-                return component;
-            }
-
-            return null;
+            return figmaDesign.document.Query(bindingKey, type);
         }
 
         public static UnityEngine.Component[] QueryAll(this FigmaDesign figmaDesign, string bindingKey, Type type)
