@@ -259,7 +259,7 @@ namespace Cdm.Figma
             //      - Group 7
             //          - Rect 5
 
-            node.Traverse(current =>
+            node.TraverseDfs(current =>
             {
                 if (current.type != NodeType.Group)
                 {

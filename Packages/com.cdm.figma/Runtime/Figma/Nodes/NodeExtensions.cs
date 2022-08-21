@@ -4,8 +4,11 @@ using System.Linq;
 namespace Cdm.Figma
 {
     public static class NodeExtensions
-    {
-        public static void Traverse(this Node node, Func<Node, bool> handler)
+    {    
+        /// <summary>
+        /// Traverse nodes by using depth first search from starting node given.
+        /// </summary>
+        public static void TraverseDfs(this Node node, Func<Node, bool> handler)
         {
             if (handler(node))
             {
@@ -14,15 +17,18 @@ namespace Cdm.Figma
                 {
                     foreach (var child in children)
                     {
-                        child.Traverse(handler);
+                        child.TraverseDfs(handler);
                     }
                 }
             }
         }
 
-        public static void Traverse(this Node node, Func<Node, bool> handler, params string[] nodeTypes)
+        /// <summary>
+        /// Traverse nodes specified types by using depth first search from starting node.
+        /// </summary>
+        public static void TraverseDfs(this Node node, Func<Node, bool> handler, params string[] nodeTypes)
         {
-            node.Traverse(n =>
+            node.TraverseDfs(n =>
             {
                 if (nodeTypes.Contains(n.type))
                 {
@@ -35,7 +41,7 @@ namespace Cdm.Figma
                 return true;
             });
         }
-
+        
         public static void TraverseUp(this Node node, Func<Node, bool> handler)
         {
             for (var current = node; current != null; current = current.parent)
@@ -50,7 +56,7 @@ namespace Cdm.Figma
         public static Node Find(this Node node, string nodeId)
         {
             Node target = null;
-            node.Traverse(n =>
+            node.TraverseDfs(n =>
             {
                 if (n.id == nodeId)
                 {
@@ -67,7 +73,7 @@ namespace Cdm.Figma
         public static Node Find(this Node node, string nodeId, params string[] nodeTypes)
         {
             Node target = null;
-            node.Traverse(n =>
+            node.TraverseDfs(n =>
             {
                 if (n.id == nodeId)
                 {

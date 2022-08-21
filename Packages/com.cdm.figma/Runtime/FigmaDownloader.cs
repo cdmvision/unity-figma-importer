@@ -169,7 +169,7 @@ namespace Cdm.Figma
 
         private static void FindMissingComponents(FigmaFile figmaFile, Dictionary<string, List<string>> components)
         {
-            figmaFile.document.Traverse(node =>
+            figmaFile.document.TraverseDfs(node =>
             {
                 var instanceNode = (InstanceNode)node;
 

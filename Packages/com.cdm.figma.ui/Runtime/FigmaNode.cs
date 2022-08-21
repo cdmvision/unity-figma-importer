@@ -6,6 +6,15 @@ namespace Cdm.Figma.UI
     [DisallowMultipleComponent]
     public class FigmaNode : MonoBehaviour
     {
+        [SerializeField, HideInInspector]
+        private FigmaDesign _figmaDesign;
+        
+        public FigmaDesign figmaDesign
+        {
+            get => _figmaDesign;
+            internal set => _figmaDesign = value;
+        }
+        
         [SerializeField]
         private string _nodeID;
 

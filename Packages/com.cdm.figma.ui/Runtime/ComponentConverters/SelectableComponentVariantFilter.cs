@@ -55,7 +55,8 @@ namespace Cdm.Figma.UI
         {
             var raycastGo = new GameObject("Raycast");
             raycastGo.transform.SetParent(transform);
-                    
+            raycastGo.transform.localScale = Vector3.one;
+            
             var raycastImage = raycastGo.AddComponent<Image>();
             raycastImage.color = UnityEngine.Color.clear;
 

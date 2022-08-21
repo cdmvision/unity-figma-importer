@@ -149,8 +149,19 @@ namespace Cdm.Figma.UI
                         bindings.Add(new Binding(binding.key, path, binding.node));
                     }
                 }
+
+                var figmaDesign = FigmaDesign.Create<FigmaDesign>(file, importedPages, bindings);
+
+                foreach (var figmaPage in figmaDesign.pages)
+                {
+                    figmaPage.TraverseDfs(node =>
+                    {
+                        node.figmaDesign = figmaDesign;
+                        return true;
+                    });
+                }
                 
-                return FigmaDesign.Create<FigmaDesign>(file, importedPages, bindings);
+                return figmaDesign;
             }
             catch (Exception)
             {

@@ -9,7 +9,7 @@ namespace Cdm.Figma
         public static string[] GetUsedFonts(this FigmaFile fileContent)
         {
             var fonts = new HashSet<string>();
-            fileContent.document.Traverse(node =>
+            fileContent.document.TraverseDfs(node =>
             {
                 var style = ((TextNode)node).style;
                 var fontName = FontHelpers.GetFontDescriptor(style.fontFamily, style.fontWeight, style.italic);

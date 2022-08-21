@@ -19,7 +19,7 @@ namespace Cdm.Figma.Tests
 
             file.BuildHierarchy();
 
-            file.document.Traverse(node =>
+            file.document.TraverseDfs(node =>
             {
                 switch (node.type)
                 {

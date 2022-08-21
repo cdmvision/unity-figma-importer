@@ -84,7 +84,10 @@ namespace Cdm.Figma.UI
             }
         }
 
-        public static void Traverse(this FigmaNode node, Func<FigmaNode, bool> handler)
+        /// <summary>
+        /// Traverse nodes by using depth first search from starting node given.
+        /// </summary>
+        public static void TraverseDfs(this FigmaNode node, Func<FigmaNode, bool> handler)
         {
             if (handler(node))
             {
@@ -93,9 +96,41 @@ namespace Cdm.Figma.UI
                     var childObject = child.GetComponent<FigmaNode>();
                     if (childObject != null)
                     {
-                        childObject.Traverse(handler);
+                        childObject.TraverseDfs(handler);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Traverse nodes by using breadth first search from starting node given.
+        /// </summary>
+        public static void TraverseBfs(this FigmaNode node, Func<FigmaNode, bool> handler)
+        {
+            if (handler(node))
+            {
+                node.TraverseBfsInternal(handler);
+            }
+        }
+        
+        private static void TraverseBfsInternal(this FigmaNode node, Func<FigmaNode, bool> handler)
+        {
+            var children = new List<FigmaNode>();
+            foreach (Transform child in node.transform)
+            {
+                var childObject = child.GetComponent<FigmaNode>();
+                if (childObject != null)
+                {
+                    if (handler(childObject))
+                    {
+                        children.Add(childObject);
+                    }
+                }
+            }
+            
+            foreach (var child in children)
+            {
+                child.TraverseBfsInternal(handler);
             }
         }
 
@@ -117,7 +152,7 @@ namespace Cdm.Figma.UI
         public static FigmaNode Find(this FigmaNode node, Func<FigmaNode, bool> handler)
         {
             FigmaNode target = null;
-            node.Traverse(x =>
+            node.TraverseDfs(x =>
             {
                 if (handler(x))
                 {
@@ -130,68 +165,110 @@ namespace Cdm.Figma.UI
 
             return target;
         }
-        
+
         public static FigmaNode Find(this FigmaNode node, string nodeID)
         {
             return node.Find(n => n.nodeID == nodeID);
         }
-        
+
         public static FigmaNode Query(this FigmaNode node, string bindingKey)
         {
             return node.Query<FigmaNode>(bindingKey);
         }
-        
+
         public static FigmaNode[] QueryAll(this FigmaNode node, string bindingKey)
         {
             return node.QueryAll<FigmaNode>(bindingKey);
         }
-        
+
         public static T Query<T>(this FigmaNode node, string bindingKey) where T : UnityEngine.Component
         {
-            return (T) node.Query(bindingKey, typeof(T));
-        }
-
-        public static UnityEngine.Component Query(this FigmaNode node, string bindingKey, Type type)
-        {
-            UnityEngine.Component component = null;
-            node.Traverse(n =>
-            {
-                if (n.bindingKey == bindingKey)
-                {
-                    component = n.GetComponent(type);
-                    if (component != null)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            });
-
-            return component;
+            return (T)node.Query(bindingKey, typeof(T));
         }
 
         public static T[] QueryAll<T>(this FigmaNode node, string bindingKey) where T : UnityEngine.Component
         {
             return node.QueryAll(bindingKey, typeof(T)).Cast<T>().ToArray();
         }
-        
+
+        public static UnityEngine.Component Query(this FigmaNode node, string bindingKey, Type type)
+        {
+            var bindings = node.figmaDesign.bindings.Where(binding => binding.key == bindingKey);
+
+            var minDistance = float.MaxValue;
+            UnityEngine.Component closestComponent = null;
+
+            foreach (var binding in bindings)
+            {
+                var tokens = binding.path.Split(Binding.PathSeparator);
+
+                var index = Array.IndexOf(tokens, node.nodeID);
+                if (index >= 0)
+                {
+                    var distance = tokens.Length - index - 1;
+                    if (minDistance > distance)
+                    {
+                        var targetNode = GetNodeFromPath(node, tokens, index);
+                        
+                        var component = targetNode.GetComponent(type);
+                        if (component != null)
+                        {
+                            minDistance = distance;
+                            closestComponent = component;
+                        }
+                    }
+                }
+            }
+
+            return closestComponent;
+        }
+
+        private static FigmaNode GetNodeFromPath(FigmaNode figmaNode, string[] path, int start)
+        {
+            FigmaNode target = null;
+            var i = start;
+            
+            figmaNode.TraverseBfs(node =>
+            {
+                if (node.nodeID == path[i])
+                {
+                    if (i == path.Length - 1)
+                    {
+                        target = node;
+                        return false;
+                    }
+                    
+                    i++;
+                    return true;
+                }
+
+                return false;
+            });
+
+            return target;
+        }
+
         public static UnityEngine.Component[] QueryAll(this FigmaNode node, string bindingKey, Type type)
         {
+            var bindings = node.figmaDesign.bindings.Where(binding => binding.key == bindingKey);
+
             var components = new List<UnityEngine.Component>();
-            node.Traverse(n =>
+
+            foreach (var binding in bindings)
             {
-                if (n.bindingKey == bindingKey)
+                var tokens = binding.path.Split(Binding.PathSeparator);
+
+                var index = Array.IndexOf(tokens, node.nodeID);
+                if (index >= 0)
                 {
-                    var component = n.GetComponent(type);
+                    var targetNode = GetNodeFromPath(node, tokens, index);
+                    var component = targetNode.GetComponent(type);
                     if (component != null)
                     {
                         components.Add(component);
                     }
                 }
-
-                return true;
-            });
+            }
 
             return components.ToArray();
         }

@@ -16,7 +16,7 @@ namespace Cdm.Figma.UI
         [SerializeField]
         private string _path;
 
-        public string path => path;
+        public string path => _path;
         
         [SerializeField]
         private FigmaNode _node;
