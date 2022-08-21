@@ -28,8 +28,6 @@ namespace Cdm.Figma.UI
                         .FirstOrDefault(x => x.GetType() == typeof(FigmaNodeAttribute));
                     if (figmaNodeAttribute != null)
                     {
-                        var fieldType = GetUnderlyingType(member);
-
                         var bindingKey = member.Name;
 
                         if (!string.IsNullOrEmpty(figmaNodeAttribute.bind))
@@ -37,7 +35,8 @@ namespace Cdm.Figma.UI
                             bindingKey = figmaNodeAttribute.bind;
                         }
 
-                        Debug.Log($"{member.Name}, {bindingKey}, {fieldType.Name}");
+                        var fieldType = GetUnderlyingType(member);
+                        //Debug.Log($"{member.Name}, {bindingKey}, {fieldType.Name}");
 
                         if (fieldType.IsSubclassOf(typeof(UnityEngine.Component)))
                         {

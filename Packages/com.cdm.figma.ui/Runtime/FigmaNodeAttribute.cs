@@ -2,9 +2,18 @@
 
 namespace Cdm.Figma.UI
 {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(AttributeTargets.Class |AttributeTargets.Field | AttributeTargets.Property)]
     public class FigmaNodeAttribute : Attribute
     {
-        public string bind { get; set; }
+        public string bind { get; }
+
+        public FigmaNodeAttribute()
+        {
+        }
+        
+        public FigmaNodeAttribute(string bind)
+        {
+            this.bind = bind;
+        }
     }
 }

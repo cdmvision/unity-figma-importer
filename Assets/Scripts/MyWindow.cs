@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[FigmaNode("myWindow")]
 public class MyWindow : FigmaBehaviour
 {
     // Public property, setter can be private.
@@ -14,7 +15,7 @@ public class MyWindow : FigmaBehaviour
     public TMP_Text myText;
     
     // Private field with binding key that is set explicitly.
-    [FigmaNode(bind = "myInputField")]
+    [FigmaNode("myInputField")]
     private TMP_InputField _myInputField;
 
     protected override void Start()
