@@ -84,17 +84,17 @@ namespace Cdm.Figma
             FigmaFile mainFile, string personalAccessToken)
         {
             // Find external components.
-            var missingComponents = new HashSet<string>();
+            var missingComponents = new Dictionary<string, List<string>>();
             FindMissingComponents(mainFile, missingComponents);
 
             var fileDependencies = new Dictionary<string, FigmaFileDependency>();
 
-            foreach (var componentKey in missingComponents)
+            foreach (var missingComponent in missingComponents)
             {
                 try
                 {
                     var componentMetadata =
-                        await _figmaApi.GetComponentMetadataAsync(new ComponentMetadataRequest(componentKey));
+                        await _figmaApi.GetComponentMetadataAsync(new ComponentMetadataRequest(missingComponent.Key));
 
                     if (componentMetadata != null)
                     {
@@ -153,19 +153,21 @@ namespace Cdm.Figma
                     }
                     else
                     {
-                        Debug.LogWarning($"Component metadata '{componentKey}' does not exist.");
+                        Debug.LogWarning(
+                            $"Component metadata '{missingComponent.Key}' used by [{string.Join(", ", missingComponent.Value)}] does not exist.");
                     }
                 }
                 catch (HttpRequestException e)
                 {
-                    Debug.LogWarning($"Component metadata '{componentKey}' could not be fetched: {e}");
+                    Debug.LogWarning(
+                        $"Component metadata '{missingComponent.Key}' used by [{string.Join(", ", missingComponent.Value)}] could not be fetched: {e.Message}");
                 }
             }
 
             return fileDependencies.Values.ToArray();
         }
 
-        private static void FindMissingComponents(FigmaFile figmaFile, ISet<string> components)
+        private static void FindMissingComponents(FigmaFile figmaFile, Dictionary<string, List<string>> components)
         {
             figmaFile.document.Traverse(node =>
             {
@@ -177,7 +179,14 @@ namespace Cdm.Figma
                     {
                         if (figmaFile.components.TryGetValue(instanceNode.componentId, out var component))
                         {
-                            components.Add(component.key);
+                            if (components.TryGetValue(component.key, out var nodes))
+                            {
+                                nodes.Add(instanceNode.id);
+                            }
+                            else
+                            {
+                                components.Add(component.key, new List<string>() { instanceNode.id });
+                            }
                         }
                     }
                 }
