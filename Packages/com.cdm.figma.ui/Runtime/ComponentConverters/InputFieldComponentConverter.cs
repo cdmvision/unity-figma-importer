@@ -10,9 +10,9 @@ namespace Cdm.Figma.UI
     public class InputFieldComponentConverter :
         SelectableComponentConverter<TMP_InputField, SelectableComponentVariantFilter>
     {
-        private const string TextViewportKey = "@TextViewport";
-        private const string TextComponentKey = "@Text";
-        private const string PlaceholderKey = "@Placeholder";
+        private const string TextViewportKey = BindingPrefix + "TextViewport";
+        private const string TextComponentKey = BindingPrefix + "Text";
+        private const string PlaceholderKey = BindingPrefix + "Placeholder";
         
         protected override bool CanConvertType(string typeID)
         {

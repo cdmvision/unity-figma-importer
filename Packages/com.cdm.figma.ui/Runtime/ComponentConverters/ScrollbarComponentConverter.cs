@@ -6,7 +6,7 @@ namespace Cdm.Figma.UI
 {
     public class ScrollbarComponentConverter : SelectableComponentConverter<Scrollbar, SelectableComponentVariantFilter>
     {
-        private const string HandleKey = "@Handle";
+        private const string HandleKey = BindingPrefix + "Handle";
         
         protected override bool CanConvertType(string typeID)
         {

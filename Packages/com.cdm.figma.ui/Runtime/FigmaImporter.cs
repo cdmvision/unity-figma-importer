@@ -20,9 +20,9 @@ namespace Cdm.Figma.UI
         public ISet<ComponentConverter> componentConverters => _componentConverters;
 
         private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
+        private readonly List<Binding> _bindings = new List<Binding>();
 
         public List<FontSource> fonts { get; } = new List<FontSource>();
-
         public AssetCache generatedGameObjects { get; } = new AssetCache();
         public AssetCache generatedAssets { get; } = new AssetCache();
         public AssetCache dependencyAssets { get; } = new AssetCache();
@@ -88,8 +88,10 @@ namespace Cdm.Figma.UI
             generatedAssets.Clear();
             generatedGameObjects.Clear();
             dependencyAssets.Clear();
+            
             _logs.Clear();
-
+            _bindings.Clear();
+            
             InitNodeConverters();
             InitComponentConverters();
 
@@ -110,6 +112,8 @@ namespace Cdm.Figma.UI
                     figmaPage.rectTransform.anchorMax = new Vector2(1, 1);
                     figmaPage.rectTransform.offsetMin = new Vector2(0, 0);
                     figmaPage.rectTransform.offsetMax = new Vector2(0, 0);
+
+                    AddBindingIfExist(figmaPage);
 
                     var nodes = pageNode.children;
                     foreach (var node in nodes)
@@ -133,7 +137,20 @@ namespace Cdm.Figma.UI
                     _logs.Clear();
                 }
 
-                return FigmaDesign.Create<FigmaDesign>(file, importedPages);
+                var bindings = new List<Binding>();
+                foreach (var binding in _bindings)
+                {
+                    if (binding.node != null)
+                    {
+                        // Build path.
+                        var node = binding.node.node;
+                        var path = BuildBindingPath(node);
+                        
+                        bindings.Add(new Binding(binding.key, path, binding.node));
+                    }
+                }
+                
+                return FigmaDesign.Create<FigmaDesign>(file, importedPages, bindings);
             }
             catch (Exception)
             {
@@ -161,6 +178,28 @@ namespace Cdm.Figma.UI
             }
         }
 
+        private static string BuildBindingPath(Node n)
+        {
+            var path = n.id;
+            for (var node = n.parent; node != null; node = node.parent)
+            {
+                path = $"{node.id}{Binding.PathSeparator}{path}";
+            }
+
+            return path;
+        }
+
+        private void AddBindingIfExist(FigmaNode figmaNode)
+        {
+            if (!string.IsNullOrEmpty(figmaNode.bindingKey))
+            {
+                if (!figmaNode.bindingKey.StartsWith(ComponentConverter.BindingPrefix))
+                {
+                    _bindings.Add(new Binding(figmaNode.bindingKey, "", figmaNode));    
+                }
+            }
+        }
+
         internal bool TryConvertNode(FigmaNode parentObject, Node node, NodeConvertArgs args,
             out FigmaNode nodeObject)
         {
@@ -178,6 +217,7 @@ namespace Cdm.Figma.UI
             if (componentConverter != null)
             {
                 nodeObject = componentConverter.Convert(parentObject, node, args);
+                AddBindingIfExist(nodeObject);
                 LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
                 return true;
             }
@@ -187,6 +227,7 @@ namespace Cdm.Figma.UI
             if (nodeConverter != null)
             {
                 nodeObject = nodeConverter.Convert(parentObject, node, args);
+                AddBindingIfExist(nodeObject);
                 LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
                 return true;
             }

@@ -12,11 +12,21 @@ namespace Cdm.Figma.UI
         /// Gets all imported Figma pages.
         /// </summary>
         public IReadOnlyList<FigmaPage> pages => _pages;
+        
+        [SerializeField]
+        private List<Binding> _bindings = new List<Binding>();
 
-        public static T Create<T>(FigmaFile file, IEnumerable<FigmaPage> pages) where T : FigmaDesign
+        /// <summary>
+        /// Gets all bindings in the whole Figma design document.
+        /// </summary>
+        public IReadOnlyList<Binding> bindings => _bindings;
+
+        public static T Create<T>(FigmaFile file, IEnumerable<FigmaPage> pages, IEnumerable<Binding> bindings) 
+            where T : FigmaDesign
         {
             var figmaDesign = Create<T>(file);
             figmaDesign._pages.AddRange(pages);
+            figmaDesign._bindings.AddRange(bindings);
             return figmaDesign;
         }
     }

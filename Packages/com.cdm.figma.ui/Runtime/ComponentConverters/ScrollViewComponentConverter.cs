@@ -6,10 +6,10 @@ namespace Cdm.Figma.UI
 {
     public class ScrollViewComponentConverter : ComponentConverter
     {
-        private const string ContentKey = "@Content";
-        private const string ViewportKey = "@Viewport";
-        private const string HorizontalScrollbarKey = "@ScrollbarHorizontal";
-        private const string VerticalScrollbarKey = "@ScrollbarVertical";
+        private const string ContentKey = BindingPrefix + "Content";
+        private const string ViewportKey = BindingPrefix + "Viewport";
+        private const string HorizontalScrollbarKey = BindingPrefix + "ScrollbarHorizontal";
+        private const string VerticalScrollbarKey = BindingPrefix + "ScrollbarVertical";
 
         protected override bool CanConvertType(string typeID)
         {

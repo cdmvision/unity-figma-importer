@@ -5,8 +5,8 @@ namespace Cdm.Figma.UI
 {
     public class SliderComponentConverter : SelectableComponentConverter<Slider, SelectableComponentVariantFilter>
     {
-        private const string HandleKey = "@Handle";
-        private const string FillKey = "@Fill";
+        private const string HandleKey = BindingPrefix + "Handle";
+        private const string FillKey = BindingPrefix + "Fill";
 
         protected override bool CanConvertType(string typeID)
         {

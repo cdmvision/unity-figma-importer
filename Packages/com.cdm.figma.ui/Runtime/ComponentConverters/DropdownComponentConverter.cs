@@ -6,10 +6,10 @@ namespace Cdm.Figma.UI
 {
     public class DropdownComponentConverter : SelectableComponentConverter<TMP_Dropdown, SelectableComponentVariantFilter>
     {
-        private const string TemplateKey = "@Template";
-        private const string CaptionTextKey = "@CaptionText";
-        private const string ItemTextKey = "@ItemText";
-        private const string ContentItemKey = "@ContentItem";
+        private const string TemplateKey = BindingPrefix + "Template";
+        private const string CaptionTextKey = BindingPrefix + "CaptionText";
+        private const string ItemTextKey = BindingPrefix + "ItemText";
+        private const string ContentItemKey = BindingPrefix + "ContentItem";
 
         protected override bool CanConvertType(string typeID)
         {
