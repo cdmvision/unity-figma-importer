@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI.Editor
 {
-    [CustomEditor(typeof(FigmaPage), editorForChildClasses: true)]
-    public class FigmaPageEditor : FigmaNodeEditor
+    [CustomEditor(typeof(FigmaDocument), editorForChildClasses: true)]
+    public class FigmaDocumentEditor : FigmaNodeEditor
     {
         private bool isAllLogsExpanded
         {
-            get => EditorPrefs.GetBool($"{nameof(FigmaPageEditor)}.{nameof(isAllLogsExpanded)}", false);
-            set => EditorPrefs.SetBool($"{nameof(FigmaPageEditor)}.{nameof(isAllLogsExpanded)}", value);
+            get => EditorPrefs.GetBool($"{nameof(FigmaDocumentEditor)}.{nameof(isAllLogsExpanded)}", false);
+            set => EditorPrefs.SetBool($"{nameof(FigmaDocumentEditor)}.{nameof(isAllLogsExpanded)}", value);
         }
 
         public override void OnInspectorGUI()
@@ -18,16 +18,18 @@ namespace Cdm.Figma.UI.Editor
             base.OnInspectorGUI();
 
             EditorGUILayout.Separator();
-            var figmaPage = (FigmaPage)target;
-            if (figmaPage.allLogs.Any())
+
+            var figmaDocument = (FigmaDocument)target;
+            if (figmaDocument.allLogs.Any())
             {
                 isAllLogsExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(isAllLogsExpanded, "All Logs");
                 if (isAllLogsExpanded)
                 {
-                    foreach (var logRef in figmaPage.allLogs)
+                    foreach (var logRef in figmaDocument.allLogs)
                     {
                         EditorGUILayout.BeginHorizontal();
-                        EditorGUILayout.LabelField(GetLogIcon(logRef.log.type), GUILayout.Width(16), GUILayout.ExpandHeight(true));
+                        EditorGUILayout.LabelField(GetLogIcon(logRef.log.type), 
+                            GUILayout.Width(16), GUILayout.ExpandHeight(true));
 
                         if (GUILayout.Button(logRef.log.message,
                                 new GUIStyle(EditorStyles.wordWrappedMiniLabel) { alignment = TextAnchor.MiddleLeft }))

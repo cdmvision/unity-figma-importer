@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -49,13 +48,10 @@ namespace Cdm.Figma.UI
 
         public static UnityEngine.Component Query(this FigmaDesign figmaDesign, string bindingKey, Type type)
         {
-            foreach (var figmaPage in figmaDesign.pages)
+            var component = figmaDesign.document.Query(bindingKey, type);
+            if (component != null)
             {
-                var component = figmaPage.Query(bindingKey, type);
-                if (component != null)
-                {
-                    return component;
-                }
+                return component;
             }
 
             return null;
@@ -63,13 +59,7 @@ namespace Cdm.Figma.UI
 
         public static UnityEngine.Component[] QueryAll(this FigmaDesign figmaDesign, string bindingKey, Type type)
         {
-            var components = new List<UnityEngine.Component>();
-            foreach (var figmaPage in figmaDesign.pages)
-            {
-                components.AddRange(figmaPage.QueryAll(bindingKey, type));
-            }
-
-            return components.ToArray();
+            return figmaDesign.document.QueryAll(bindingKey, type);
         }
     }
 }

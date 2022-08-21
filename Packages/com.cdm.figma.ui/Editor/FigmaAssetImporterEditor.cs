@@ -69,18 +69,15 @@ namespace Cdm.Figma.UI.Editor
             var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
             if (figmaDesign != null)
             {
-                foreach (var page in figmaDesign.pages)
+                foreach (var logReference in figmaDesign.document.allLogs)
                 {
-                    foreach (var logReference in page.allLogs)
+                    if (logReference.log.type == FigmaImporterLogType.Error)
                     {
-                        if (logReference.log.type == FigmaImporterLogType.Error)
-                        {
-                            _errorCount++;
-                        }
-                        else if (logReference.log.type == FigmaImporterLogType.Warning)
-                        {
-                            _warningCount++;
-                        }
+                        _errorCount++;
+                    }
+                    else if (logReference.log.type == FigmaImporterLogType.Warning)
+                    {
+                        _warningCount++;
                     }
                 }
             }

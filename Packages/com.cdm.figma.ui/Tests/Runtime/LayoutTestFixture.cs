@@ -25,7 +25,7 @@ namespace Cdm.Figma.UI.Tests
 
             //var documents = figmaImporter.GetImportedDocuments();
 
-            foreach (var page in figmaDesign.pages)
+            foreach (var page in figmaDesign.document)
             {
                 var canvasGo = new GameObject($"Canvas-{page.name}");
                 var canvas = canvasGo.AddComponent<Canvas>();

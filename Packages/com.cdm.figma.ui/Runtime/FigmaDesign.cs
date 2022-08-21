@@ -6,12 +6,12 @@ namespace Cdm.Figma.UI
     public class FigmaDesign : Figma.FigmaDesign
     {
         [SerializeField]
-        private List<FigmaPage> _pages = new List<FigmaPage>();
+        private FigmaDocument _document;
 
         /// <summary>
-        /// Gets all imported Figma pages.
+        /// Get document which is root node of the Figma file.
         /// </summary>
-        public IReadOnlyList<FigmaPage> pages => _pages;
+        public FigmaDocument document => _document;
         
         [SerializeField]
         private List<Binding> _bindings = new List<Binding>();
@@ -21,12 +21,19 @@ namespace Cdm.Figma.UI
         /// </summary>
         public IReadOnlyList<Binding> bindings => _bindings;
 
-        public static T Create<T>(FigmaFile file, IEnumerable<FigmaPage> pages, IEnumerable<Binding> bindings) 
+        public static T Create<T>(FigmaFile file, FigmaDocument document, IEnumerable<Binding> bindings) 
             where T : FigmaDesign
         {
             var figmaDesign = Create<T>(file);
-            figmaDesign._pages.AddRange(pages);
+            figmaDesign._document = document;
             figmaDesign._bindings.AddRange(bindings);
+            
+            document.TraverseDfs(node =>
+            {
+                node.figmaDesign = figmaDesign;
+                return true;
+            });
+            
             return figmaDesign;
         }
     }

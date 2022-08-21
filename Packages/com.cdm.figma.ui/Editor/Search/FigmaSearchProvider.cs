@@ -53,7 +53,7 @@ namespace Cdm.Figma.UI.Editor.Search
                 var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(figmaDesignPath);
                 if (figmaDesign != null)
                 {
-                    foreach (var figmaPageNode in figmaDesign.pages)
+                    foreach (var figmaPageNode in figmaDesign.document)
                     {
                         var identifier = $"{figmaDesignGuid}/{figmaPageNode.nodeID}";
                         pages.Add(

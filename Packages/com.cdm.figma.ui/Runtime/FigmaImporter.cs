@@ -98,9 +98,14 @@ namespace Cdm.Figma.UI
             try
             {
                 var conversionArgs = new NodeConvertArgs(this, file);
-                var importedPages = new List<FigmaPage>();
+                
+                var figmaDocument = CreateFigmaNode<FigmaDocument>(file.document);
+                figmaDocument.rectTransform.anchorMin = new Vector2(0, 0);
+                figmaDocument.rectTransform.anchorMax = new Vector2(1, 1);
+                figmaDocument.rectTransform.offsetMin = new Vector2(0, 0);
+                figmaDocument.rectTransform.offsetMax = new Vector2(0, 0);
+                
                 var pageNodes = file.document.children;
-
                 foreach (var pageNode in pageNodes)
                 {
                     // Do not import ignored pages.
@@ -112,6 +117,7 @@ namespace Cdm.Figma.UI
                     figmaPage.rectTransform.anchorMax = new Vector2(1, 1);
                     figmaPage.rectTransform.offsetMin = new Vector2(0, 0);
                     figmaPage.rectTransform.offsetMax = new Vector2(0, 0);
+                    figmaPage.transform.SetParent(figmaDocument.rectTransform, false);
 
                     AddBindingIfExist(figmaPage);
 
@@ -130,12 +136,10 @@ namespace Cdm.Figma.UI
                             }
                         }
                     }
-
-                    SetPageLogs(figmaPage, _logs);
-                    importedPages.Add(figmaPage);
-
-                    _logs.Clear();
                 }
+                
+                SetDocumentLogs(figmaDocument, _logs);
+                _logs.Clear();
 
                 var bindings = new List<Binding>();
                 foreach (var binding in _bindings)
@@ -150,18 +154,7 @@ namespace Cdm.Figma.UI
                     }
                 }
 
-                var figmaDesign = FigmaDesign.Create<FigmaDesign>(file, importedPages, bindings);
-
-                foreach (var figmaPage in figmaDesign.pages)
-                {
-                    figmaPage.TraverseDfs(node =>
-                    {
-                        node.figmaDesign = figmaDesign;
-                        return true;
-                    });
-                }
-                
-                return figmaDesign;
+                return FigmaDesign.Create<FigmaDesign>(file, figmaDocument, bindings);
             }
             catch (Exception)
             {
@@ -330,7 +323,8 @@ namespace Cdm.Figma.UI
             LogError(new Exception(message), target);
         }
 
-        private static void SetPageLogs(FigmaPage figmaPage, IEnumerable<FigmaImporterLogReference> logReferences)
+        private static void SetDocumentLogs(FigmaDocument figmaDocument, 
+            IEnumerable<FigmaImporterLogReference> logReferences)
         {
             foreach (var logReference in logReferences)
             {
@@ -357,7 +351,7 @@ namespace Cdm.Figma.UI
                     }
                 }
 
-                figmaPage.allLogs.Add(logReference);
+                figmaDocument.allLogs.Add(logReference);
             }
         }
 
