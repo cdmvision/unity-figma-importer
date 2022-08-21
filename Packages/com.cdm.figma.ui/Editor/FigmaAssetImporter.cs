@@ -101,8 +101,12 @@ namespace Cdm.Figma.UI.Editor
             // Add imported page game objects to the asset.
             var design = (FigmaDesign)figmaDesign;
             
-            // Add figma document game object.
-            ctx.AddObjectToAsset($"{design.document.nodeID}", design.document.gameObject);
+            // Add figma nodes.
+            design.document.TraverseDfs(node =>
+            {
+                ctx.AddObjectToAsset($"{node.nodeID}", node.gameObject);
+                return true;
+            });
 
             var importer = (FigmaImporter)figmaImporter;
 
