@@ -1,28 +1,31 @@
-﻿using System;
-using Cdm.Figma.UI;
+﻿using Cdm.Figma.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ProjectWindow : FigmaBehaviour
+public class MyWindow : FigmaBehaviour
 {
-    [FigmaNode(binding = "myButton")]
-    public Button myButton;
+    // Public property, setter can be private.
+    [FigmaNode]
+    public Button myButton { get; private set; }
     
+    // Public field.
     [FigmaNode]
     public TMP_Text myText;
     
-    [FigmaNode(binding = "myInputField")]
-    public TMP_InputField myInputField;
-    
-    private Button _myPrivateButton;
-    private Button _myPrivateButtonProperty { get; set; }
+    // Private field with binding key that is set explicitly.
+    [FigmaNode(bind = "myInputField")]
+    private TMP_InputField _myInputField;
 
-    private void Start()
+    protected override void Start()
     {
-        if (myButton != null)
+        base.Start();
+
+        myButton.onClick.AddListener(() => Debug.Log($"Text: {_myInputField.text}"));
+        
+        _myInputField.onValueChanged.AddListener(str =>
         {
-            myButton.onClick.AddListener(() => Debug.Log("Hi! I was clicked!"));
-        }
+            myText.text = str;
+        });
     }
 }
