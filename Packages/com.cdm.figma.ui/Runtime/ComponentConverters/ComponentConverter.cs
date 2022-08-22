@@ -156,7 +156,7 @@ namespace Cdm.Figma.UI
             var styles = variant.styles;
             foreach (var style in styles)
             {
-                style.selector = selector.ToString();
+                style.selector = selector;
             }
 
             node.styles.AddRange(styles);

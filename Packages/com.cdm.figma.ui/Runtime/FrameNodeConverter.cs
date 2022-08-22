@@ -65,12 +65,17 @@ namespace Cdm.Figma.UI
 
                 style.imageType.enabled = true;
                 style.imageType.value = Image.Type.Sliced;
-
-                style.color.enabled = true;
-                style.color.value = new UnityEngine.Color(1f, 1f, 1f, node.opacity);
                 nodeObject.styles.Add(style);
             }
-
+            
+            {
+                var style = new CanvasGroupStyle();
+                style.enabled = true;
+                style.alpha.enabled = true;
+                style.alpha.value = node.opacity;
+                nodeObject.styles.Add(style);
+            }
+            
             // Add mask if enabled.
             if (node.clipsContent)
             {

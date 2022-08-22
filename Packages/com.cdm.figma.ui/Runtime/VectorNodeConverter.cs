@@ -69,9 +69,13 @@ namespace Cdm.Figma.UI
 
                 style.imageType.enabled = true;
                 style.imageType.value = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
+                nodeObject.styles.Add(style);
+            }
 
-                style.color.enabled = true;
-                style.color.value = new UnityEngine.Color(1f, 1f, 1f, vectorNode.opacity);
+            {
+                var style = new CanvasGroupStyle();
+                style.alpha.enabled = true;
+                style.alpha.value = vectorNode.opacity;
                 nodeObject.styles.Add(style);
             }
 

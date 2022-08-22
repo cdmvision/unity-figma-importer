@@ -50,11 +50,6 @@ namespace Cdm.Figma.UI
             get => _bindingKey;
             private set => _bindingKey = value;
         }
-        
-        [SerializeField]
-        private List<Styles.Style> _styles = new List<Styles.Style>();
-
-        public List<Styles.Style> styles => _styles;
 
         [SerializeField]
         private List<FigmaImporterLog> _logs = new List<FigmaImporterLog>();
@@ -63,6 +58,7 @@ namespace Cdm.Figma.UI
         
         // TODO: Should be private or at least internal. Because it is only available while importing figma file.
         public Node node { get; private set; }
+        public List<Styles.Style> styles { get;  } = new List<Styles.Style>();
 
         private RectTransform _rectTransform;
 
