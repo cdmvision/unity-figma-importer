@@ -166,6 +166,9 @@ namespace Cdm.Figma.UI.Editor
                     var figmaNodeAttribute =
                         (FigmaNodeAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaNodeAttribute));
 
+                    if (figmaNodeAttribute.importerExtension != Extension)
+                        continue;
+                    
                     var bindingKey = figmaNodeAttribute.bindingKey;
                     if (!string.IsNullOrEmpty(bindingKey))
                     {
@@ -197,6 +200,9 @@ namespace Cdm.Figma.UI.Editor
                     var figmaComponentAttribute =
                         (FigmaComponentAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaComponentAttribute));
 
+                    if (figmaComponentAttribute.importerExtension != Extension)
+                        continue;
+                    
                     var typeId = figmaComponentAttribute.typeId;
                     figmaImporter.componentConverters.Add(new FigmaComponentBehaviourConverter(typeId, type));
                 }
@@ -217,6 +223,13 @@ namespace Cdm.Figma.UI.Editor
             {
                 if (typeof(ComponentConverter).IsAssignableFrom(type))
                 {
+                    var figmaComponentConverterAttribute =
+                        (FigmaComponentConverterAttribute)Attribute.GetCustomAttribute(
+                            type, typeof(FigmaComponentConverterAttribute));
+                    
+                    if (figmaComponentConverterAttribute.importerExtension != Extension)
+                        continue;
+                    
                     figmaImporter.componentConverters.Add((ComponentConverter)Activator.CreateInstance(type));
                 }
                 else
@@ -236,6 +249,13 @@ namespace Cdm.Figma.UI.Editor
             {
                 if (typeof(NodeConverter).IsAssignableFrom(type))
                 {
+                    var figmaNodeConverterAttribute =
+                        (FigmaNodeConverterAttribute)Attribute.GetCustomAttribute(
+                            type, typeof(FigmaNodeConverterAttribute));
+                    
+                    if (figmaNodeConverterAttribute.importerExtension != Extension)
+                        continue;
+                    
                     figmaImporter.nodeConverters.Add((NodeConverter)Activator.CreateInstance(type));
                 }
                 else

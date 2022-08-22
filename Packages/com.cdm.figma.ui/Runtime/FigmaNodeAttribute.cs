@@ -3,7 +3,7 @@
 namespace Cdm.Figma.UI
 {
     [AttributeUsage(AttributeTargets.Class |AttributeTargets.Field | AttributeTargets.Property)]
-    public class FigmaNodeAttribute : Attribute
+    public class FigmaNodeAttribute : FigmaImporterAttribute
     {
         public string bindingKey { get; }
 
