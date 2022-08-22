@@ -1,4 +1,6 @@
-﻿using System;
+using System;
+using System.Linq;
+using System.Reflection;
 using Cdm.Figma.Editor;
 using Cdm.Figma.Utils;
 using TMPro;
@@ -125,7 +127,7 @@ namespace Cdm.Figma.UI.Editor
 
         protected override IFigmaImporter GetFigmaImporter()
         {
-            return new FigmaImporter()
+            var figmaImporter = new FigmaImporter()
             {
                 failOnError = false,
                 spriteOptions = new SpriteGenerateOptions()
@@ -138,6 +140,43 @@ namespace Cdm.Figma.UI.Editor
                     sampleCount = sampleCount
                 }
             };
+            
+            figmaImporter.AddDefaultNodeConverters();
+            figmaImporter.AddDefaultComponentConverters();
+
+            var componentConverters = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes().Where(t => t.IsDefined(typeof(FigmaComponentConverterAttribute))));
+
+            foreach (var type in componentConverters)
+            {
+                if (typeof(ComponentConverter).IsAssignableFrom(type))
+                {
+                    figmaImporter.componentConverters.Add((ComponentConverter)Activator.CreateInstance(type));
+                }
+                else
+                {
+                    Debug.LogError($"Cannot add component converter '{type.FullName}' to {nameof(FigmaImporter)}. " + 
+                                   $"Component converter must inherit from {typeof(ComponentConverter).FullName}");
+                }
+            }
+            
+            var nodeConverters = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes().Where(t => t.IsDefined(typeof(FigmaNodeConverterAttribute))));
+
+            foreach (var type in nodeConverters)
+            {
+                if (typeof(NodeConverter).IsAssignableFrom(type))
+                {
+                    figmaImporter.nodeConverters.Add((NodeConverter)Activator.CreateInstance(type));
+                }
+                else
+                {
+                    Debug.LogError($"Cannot add node converter '{type.FullName}' to {nameof(FigmaImporter)}. " + 
+                                   $"Node converter must inherit from {typeof(NodeConverter).FullName}");
+                }
+            }
+            
+            return figmaImporter;
         }
 
         private void UpdateFonts(FigmaImporter figmaImporter, FigmaFile file)

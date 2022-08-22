@@ -10,11 +10,5 @@
         {
             return string.IsNullOrWhiteSpace(typeID);
         }
-
-        protected override bool TryGetSelector(string[] variant, out string selector)
-        {
-            selector = "";
-            return false;
-        }
     }
 }

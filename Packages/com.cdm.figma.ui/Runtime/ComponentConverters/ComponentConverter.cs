@@ -10,16 +10,8 @@ namespace Cdm.Figma.UI
     public abstract class ComponentConverter : NodeConverter<InstanceNode>
     {
         public const string BindingPrefix = "@";
-        
-        private readonly Dictionary<string, List<string>> _variants = new Dictionary<string, List<string>>();
-        protected IReadOnlyDictionary<string, List<string>> variants => _variants;
-        
-        protected ComponentConverter()
-        {
-        }
 
         protected abstract bool CanConvertType(string typeID);
-        protected abstract bool TryGetSelector(string[] variant, out string selector);
 
         public override bool CanConvert(Node node, NodeConvertArgs args)
         {
@@ -45,6 +37,24 @@ namespace Cdm.Figma.UI
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
+            var instanceNodeConverter = new InstanceNodeConverter();
+            return instanceNodeConverter.Convert(parentObject, instanceNode, args);
+        }
+    }
+
+    public abstract class ComponentConverterWithVariants : ComponentConverter
+    {
+        private readonly Dictionary<string, List<string>> _variants = new Dictionary<string, List<string>>();
+        protected IReadOnlyDictionary<string, List<string>> variants => _variants;
+
+        protected ComponentConverterWithVariants()
+        {
+        }
+
+        protected abstract bool TryGetSelector(string[] variant, out string selector);
+
+        protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
+        {
             // Debug.Log($"Instance name: {instanceNode.name}");
 
             if (instanceNode.mainComponent.componentSet != null)
@@ -54,8 +64,7 @@ namespace Cdm.Figma.UI
                 return nodeObject;
             }
 
-            var instanceNodeConverter = new InstanceNodeConverter();
-            return instanceNodeConverter.Convert(parentObject, instanceNode, args);
+            return base.Convert(parentObject, instanceNode, args);
         }
 
         private void ConvertComponentSet(FigmaNode instanceObject, FigmaNode parentObject, InstanceNode instanceNode,
@@ -68,12 +77,12 @@ namespace Cdm.Figma.UI
             // Just take ComponentPropertyType.InstanceSwap into account. Others will be handled differently.
             var componentPropertyAssignments = instanceNode.componentProperties?.assignments?
                 .Where(x => x.Value.type == ComponentPropertyType.InstanceSwap);
-            
+
             if (componentPropertyAssignments != null)
             {
                 foreach (var assignment in componentPropertyAssignments)
                 {
-                    var assignmentInstanceSwap = (ComponentPropertyAssignmentInstanceSwap) assignment.Value;
+                    var assignmentInstanceSwap = (ComponentPropertyAssignmentInstanceSwap)assignment.Value;
                     var componentId = assignmentInstanceSwap.value;
 
                     if (args.file.componentNodes.TryGetValue(componentId, out var component))
@@ -85,9 +94,9 @@ namespace Cdm.Figma.UI
                         Debug.LogWarning(
                             $"Instance swap property assignment with key '${assignment.Key}' component could not be found: ${componentId}");
                     }
-                }    
+                }
             }
-            
+
 
             // Initialize property variants dictionary.
             foreach (var componentVariant in componentSetVariants)
@@ -101,11 +110,12 @@ namespace Cdm.Figma.UI
                     var tokens = propertyVariant.Split("=");
                     var key = tokens[0];
                     var value = tokens[1];
-                    
+
                     if (!_variants.ContainsKey(key))
                     {
                         _variants.Add(key, new List<string>());
                     }
+
                     _variants[key].Add(value);
                 }
             }
@@ -144,7 +154,7 @@ namespace Cdm.Figma.UI
                     }
                 }
             }
-            
+
             args.componentPropertyAssignments.Clear();
         }
 
@@ -188,13 +198,13 @@ namespace Cdm.Figma.UI
             {
                 if (string.IsNullOrEmpty(selector))
                 {
-                    selector = property.value;    
+                    selector = property.value;
                 }
                 else
                 {
                     selector += $":{property.value}";
                 }
-                
+
                 return true;
             }
 
@@ -213,7 +223,8 @@ namespace Cdm.Figma.UI
         }
     }
 
-    public abstract class ComponentConverter<TComponent, TComponentVariantFilter> : ComponentConverter
+    public abstract class ComponentConverterWithVariants<TComponent, TComponentVariantFilter>
+        : ComponentConverterWithVariants
         where TComponent : Selectable
         where TComponentVariantFilter : ComponentVariantFilter
     {
@@ -225,7 +236,7 @@ namespace Cdm.Figma.UI
             {
                 var selectable = nodeObject.gameObject.AddComponent<TComponent>();
                 selectable.transition = Selectable.Transition.None;
-                
+
                 var variantFilter = nodeObject.gameObject.AddComponent<TComponentVariantFilter>();
                 variantFilter.Initialize();
             }

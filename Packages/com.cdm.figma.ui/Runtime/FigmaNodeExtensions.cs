@@ -193,6 +193,34 @@ namespace Cdm.Figma.UI
 
         public static UnityEngine.Component Query(this FigmaNode node, string bindingKey, Type type)
         {
+            if (node.figmaDesign != null)
+            {
+                return node.QueryCached(bindingKey, type);
+            }
+
+            // Search every child using breadth first search.
+            UnityEngine.Component target = null;
+                
+            node.TraverseBfs(n =>
+            {
+                if (n.bindingKey == bindingKey)
+                {
+                    var component = n.GetComponent(type);
+                    if (component != null)
+                    {
+                        target = component;
+                        return false;
+                    }
+                }
+                    
+                return true;
+            });
+
+            return target;
+        }
+
+        private static UnityEngine.Component QueryCached(this FigmaNode node, string bindingKey, Type type)
+        {
             var bindings = node.figmaDesign.bindings.Where(binding => binding.key == bindingKey);
 
             var minDistance = float.MaxValue;

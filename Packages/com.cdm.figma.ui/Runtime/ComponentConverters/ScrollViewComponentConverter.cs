@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class ScrollViewComponentConverter : ComponentConverter
+    public class ScrollViewComponentConverter : ComponentConverterWithVariants
     {
         private const string ContentKey = BindingPrefix + "Content";
         private const string ViewportKey = BindingPrefix + "Viewport";

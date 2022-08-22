@@ -75,6 +75,24 @@ namespace Cdm.Figma.UI
             };
         }
 
+        public void AddDefaultNodeConverters()
+        {
+            var converters = GetDefaultNodeConverters();
+            foreach (var converter in converters)
+            {
+                nodeConverters.Add(converter);
+            }
+        }
+
+        public void AddDefaultComponentConverters()
+        {
+            var converters = GetDefaultComponentConverters();
+            foreach (var converter in converters)
+            {
+                componentConverters.Add(converter);
+            }
+        }
+        
         public Figma.FigmaDesign ImportFile(FigmaFile file, IFigmaImporter.Options options = null)
         {
             if (file == null)
@@ -359,11 +377,7 @@ namespace Cdm.Figma.UI
         {
             if (!nodeConverters.Any())
             {
-                var converters = GetDefaultNodeConverters();
-                foreach (var converter in converters)
-                {
-                    nodeConverters.Add(converter);
-                }
+                AddDefaultNodeConverters();
             }
         }
 
@@ -371,11 +385,7 @@ namespace Cdm.Figma.UI
         {
             if (!componentConverters.Any())
             {
-                var converters = GetDefaultComponentConverters();
-                foreach (var converter in converters)
-                {
-                    componentConverters.Add(converter);
-                }
+                AddDefaultComponentConverters();
             }
         }
     }

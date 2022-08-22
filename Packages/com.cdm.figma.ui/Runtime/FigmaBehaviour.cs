@@ -9,13 +9,26 @@ namespace Cdm.Figma.UI
     [RequireComponent(typeof(FigmaNode))]
     public class FigmaBehaviour : UIBehaviour
     {
+        [SerializeField, HideInInspector]
         private FigmaNode _attachedNode;
+        
         public FigmaNode attachedNode => _attachedNode;
+
+        [SerializeField, HideInInspector]
+        private bool _resolved = false;
 
         protected override void Awake()
         {
             base.Awake();
 
+            if (!_resolved)
+            {
+                Resolve();    
+            }
+        }
+
+        public void Resolve()
+        {
             _attachedNode = GetComponent<FigmaNode>();
 
             var members = GetType().GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -54,6 +67,8 @@ namespace Cdm.Figma.UI
                     }
                 }
             }
+
+            _resolved = true;
         }
 
         private static Type GetUnderlyingType(MemberInfo member)

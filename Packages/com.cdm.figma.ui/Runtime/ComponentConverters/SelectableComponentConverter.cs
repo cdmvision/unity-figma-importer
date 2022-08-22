@@ -19,7 +19,7 @@ namespace Cdm.Figma.UI
     }
 
     public abstract class SelectableComponentConverter<TComponent, TComponentVariantFilter> :
-        ComponentConverter<TComponent, TComponentVariantFilter>
+        ComponentConverterWithVariants<TComponent, TComponentVariantFilter>
         where TComponent : Selectable
         where TComponentVariantFilter : SelectableComponentVariantFilter
     {
