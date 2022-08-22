@@ -22,16 +22,7 @@ namespace Cdm.Figma.UI
 
             return null;
         }
-
-        public static T CreateInstance<T>(this FigmaDesign figmaDesign, Transform parent = null)
-            where T : FigmaBehaviour
-        {
-            var figmaNodeAttribute =
-                (FigmaNodeAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(FigmaNodeAttribute));
-
-            return figmaDesign.CreateInstance<T>(figmaNodeAttribute.bindingKey, parent);
-        }
-
+        
         public static T Query<T>(this FigmaDesign figmaDesign, string bindingKey) where T : UnityEngine.Component
         {
             return figmaDesign.document.Query<T>(bindingKey);

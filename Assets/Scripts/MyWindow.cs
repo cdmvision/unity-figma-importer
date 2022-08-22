@@ -3,7 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[FigmaNode("myWindow")]
 public class MyWindow : FigmaBehaviour
 {
     // Public property, setter can be private.

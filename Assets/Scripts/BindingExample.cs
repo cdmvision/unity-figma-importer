@@ -8,6 +8,6 @@ public class BindingExample : MonoBehaviour
 
     private void Awake()
     {
-        figmaDesign.CreateInstance<MyWindow>(canvas.transform);
+        figmaDesign.CreateInstance<MyWindow>("myWindow", canvas.transform);
     }
 }
