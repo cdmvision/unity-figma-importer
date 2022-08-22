@@ -309,7 +309,7 @@ namespace Cdm.Figma.UI
         internal T CreateFigmaNode<T>(Node node) where T : FigmaNode
         {
             var figmaNode = FigmaNode.Create<T>(node);
-            generatedGameObjects.Add(figmaNode.nodeID, figmaNode.gameObject);
+            generatedGameObjects.Add(figmaNode.nodeId, figmaNode.gameObject);
             return figmaNode;
         }
 

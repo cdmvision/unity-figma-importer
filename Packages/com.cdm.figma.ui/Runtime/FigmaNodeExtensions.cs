@@ -166,9 +166,9 @@ namespace Cdm.Figma.UI
             return target;
         }
 
-        public static FigmaNode Find(this FigmaNode node, string nodeID)
+        public static FigmaNode Find(this FigmaNode node, string nodeId)
         {
-            return node.Find(n => n.nodeID == nodeID);
+            return node.Find(n => n.nodeId == nodeId);
         }
 
         public static FigmaNode Query(this FigmaNode node, string bindingKey)
@@ -230,7 +230,7 @@ namespace Cdm.Figma.UI
             {
                 var tokens = binding.path.Split(Binding.PathSeparator);
 
-                var index = Array.IndexOf(tokens, node.nodeID);
+                var index = Array.IndexOf(tokens, node.nodeId);
                 if (index >= 0)
                 {
                     var distance = tokens.Length - index - 1;
@@ -258,7 +258,7 @@ namespace Cdm.Figma.UI
             
             figmaNode.TraverseBfs(node =>
             {
-                if (node.nodeID == path[i])
+                if (node.nodeId == path[i])
                 {
                     if (i == path.Length - 1)
                     {
@@ -286,7 +286,7 @@ namespace Cdm.Figma.UI
             {
                 var tokens = binding.path.Split(Binding.PathSeparator);
 
-                var index = Array.IndexOf(tokens, node.nodeID);
+                var index = Array.IndexOf(tokens, node.nodeId);
                 if (index >= 0)
                 {
                     var targetNode = GetNodeFromPath(node, tokens, index);

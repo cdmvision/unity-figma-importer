@@ -11,9 +11,9 @@ namespace Cdm.Figma.UI
         private const string HorizontalScrollbarKey = BindingPrefix + "ScrollbarHorizontal";
         private const string VerticalScrollbarKey = BindingPrefix + "ScrollbarVertical";
 
-        protected override bool CanConvertType(string typeID)
+        protected override bool CanConvertType(string typeId)
         {
-            return typeID == "ScrollView";
+            return typeId == "ScrollView";
         }
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)

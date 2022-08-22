@@ -45,6 +45,11 @@ namespace Cdm.Figma.UI.Utils
                     }
                 }
             }
+
+            if (obj is IFigmaNodeBinder nodeBinder)
+            {
+                nodeBinder.OnBind(node);
+            }
         }
         
         private static Type GetUnderlyingType(MemberInfo member)

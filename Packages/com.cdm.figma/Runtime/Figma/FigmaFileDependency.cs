@@ -6,8 +6,8 @@ namespace Cdm.Figma
     [DataContract]
     public class FigmaFileDependency
     {
-        [DataMember(Name = "fileID", IsRequired = true)]
-        public string fileID { get; set; }
+        [DataMember(Name = "fileId", IsRequired = true)]
+        public string fileId { get; set; }
 
         [DataMember(Name = "components")]
         public Dictionary<string, Component> components { get; set; }

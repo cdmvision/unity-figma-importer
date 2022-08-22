@@ -5,9 +5,9 @@ using Cdm.Figma.UI.Utils;
 //[FigmaComponentConverter]
 public class CustomInputFieldComponentConverter : ComponentConverter
 {
-    protected override bool CanConvertType(string typeID)
+    protected override bool CanConvertType(string typeId)
     {
-        return typeID == "InputFieldWithClearButton";
+        return typeId == "InputFieldWithClearButton";
     }
 
     protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)

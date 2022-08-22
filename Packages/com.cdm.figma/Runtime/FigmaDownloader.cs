@@ -17,14 +17,14 @@ namespace Cdm.Figma
         /// </summary>
         public bool downloadDependencies { get; set; } = true;
 
-        public async Task<FigmaFile> DownloadFileAsync(string fileID, string personalAccessToken)
+        public async Task<FigmaFile> DownloadFileAsync(string fileId, string personalAccessToken)
         {
             try
             {
                 using (_figmaApi = new FigmaApi(personalAccessToken))
                 {
                     _downloadedFiles = new Dictionary<string, FigmaFile>();
-                    return await DownloadFileAsyncInternal(fileID, personalAccessToken, true);
+                    return await DownloadFileAsyncInternal(fileId, personalAccessToken, true);
                 }
             }
             finally
@@ -34,20 +34,20 @@ namespace Cdm.Figma
             }
         }
 
-        private async Task<FigmaFile> DownloadFileAsyncInternal(string fileID, string personalAccessToken,
+        private async Task<FigmaFile> DownloadFileAsyncInternal(string fileId, string personalAccessToken,
             bool downloadThumbnail)
         {
-            Debug.Log($"Downloading file: {fileID}");
+            Debug.Log($"Downloading file: {fileId}");
 
             var fileContentJson = await _figmaApi.GetFileAsync(
-                new FileRequest(fileID)
+                new FileRequest(fileId)
                 {
                     geometry = "paths",
                     plugins = new[] { PluginData.Id }
                 });
 
             var file = FigmaFile.Parse(fileContentJson);
-            file.fileID = fileID;
+            file.fileId = fileId;
 
             if (downloadThumbnail)
             {
@@ -63,12 +63,12 @@ namespace Cdm.Figma
                     }
                     catch (HttpRequestException e)
                     {
-                        Debug.LogWarning($"File '{file.fileID}' thumbnail could not be downloaded.\n {e}");
+                        Debug.LogWarning($"File '{file.fileId}' thumbnail could not be downloaded.\n {e}");
                     }
                 }
             }
 
-            _downloadedFiles.Add(file.fileID, file);
+            _downloadedFiles.Add(file.fileId, file);
 
             file.BuildHierarchy();
 
@@ -111,15 +111,15 @@ namespace Cdm.Figma
                                 file.componentNodes.TryGetValue(componentMetadata.nodeId, out var componentNode))
                             {
                                 FigmaFileDependency fileDependency;
-                                if (!fileDependencies.ContainsKey(file.fileID))
+                                if (!fileDependencies.ContainsKey(file.fileId))
                                 {
                                     fileDependency = new FigmaFileDependency();
-                                    fileDependency.fileID = file.fileID;
-                                    fileDependencies.Add(fileDependency.fileID, fileDependency);
+                                    fileDependency.fileId = file.fileId;
+                                    fileDependencies.Add(fileDependency.fileId, fileDependency);
                                 }
                                 else
                                 {
-                                    fileDependency = fileDependencies[file.fileID];
+                                    fileDependency = fileDependencies[file.fileId];
                                 }
 
                                 fileDependency.components.Add(componentMetadata.nodeId, component);
@@ -140,14 +140,14 @@ namespace Cdm.Figma
                                     else
                                     {
                                         Debug.LogWarning(
-                                            $"Component set node '{component.componentSetId}' could not be found in file '{file.fileID}'");
+                                            $"Component set node '{component.componentSetId}' could not be found in file '{file.fileId}'");
                                     }
                                 }
                             }
                             else
                             {
                                 Debug.LogWarning(
-                                    $"Component node '{componentMetadata.nodeId}' could not be found in file '{file.fileID}'");
+                                    $"Component node '{componentMetadata.nodeId}' could not be found in file '{file.fileId}'");
                             }
                         }
                     }

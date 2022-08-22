@@ -11,7 +11,7 @@ namespace Cdm.Figma.UI
     {
         public const string BindingPrefix = "@";
 
-        protected abstract bool CanConvertType(string typeID);
+        protected abstract bool CanConvertType(string typeId);
 
         public override bool CanConvert(Node node, NodeConvertArgs args)
         {

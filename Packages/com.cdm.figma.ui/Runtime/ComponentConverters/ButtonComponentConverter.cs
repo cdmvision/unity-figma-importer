@@ -4,9 +4,9 @@ namespace Cdm.Figma.UI
 {
     public class ButtonComponentConverter : SelectableComponentConverter<Button, SelectableComponentVariantFilter>
     {
-        protected override bool CanConvertType(string typeID)
+        protected override bool CanConvertType(string typeId)
         {
-            return typeID == "Button";
+            return typeId == "Button";
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Cdm.Figma
     public class FigmaFile
     {
         [DataMember]
-        public string fileID { get; set; }
+        public string fileId { get; set; }
 
         [DataMember(Name = "name")]
         public string name { get; set; }

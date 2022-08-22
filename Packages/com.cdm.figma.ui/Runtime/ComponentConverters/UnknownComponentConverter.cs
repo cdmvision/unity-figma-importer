@@ -6,9 +6,9 @@
         {
         }
 
-        protected override bool CanConvertType(string typeID)
+        protected override bool CanConvertType(string typeId)
         {
-            return string.IsNullOrWhiteSpace(typeID);
+            return string.IsNullOrWhiteSpace(typeId);
         }
     }
 }

@@ -55,7 +55,7 @@ namespace Cdm.Figma.UI.Editor.Search
                 {
                     foreach (var figmaPageNode in figmaDesign.document)
                     {
-                        var identifier = $"{figmaDesignGuid}/{figmaPageNode.nodeID}";
+                        var identifier = $"{figmaDesignGuid}/{figmaPageNode.nodeId}";
                         pages.Add(
                             new Tuple<string, FigmaDesign, FigmaPage>(identifier, figmaDesign, figmaPageNode));
                     }

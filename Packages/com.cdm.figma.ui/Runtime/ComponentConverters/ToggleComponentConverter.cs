@@ -24,9 +24,9 @@ namespace Cdm.Figma.UI
             return true;
         }
 
-        protected override bool CanConvertType(string typeID)
+        protected override bool CanConvertType(string typeId)
         {
-            return typeID == "Toggle";
+            return typeId == "Toggle";
         }
     }
 }

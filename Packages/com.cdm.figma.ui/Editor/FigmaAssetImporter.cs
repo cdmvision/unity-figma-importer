@@ -106,7 +106,7 @@ namespace Cdm.Figma.UI.Editor
             // Add figma nodes.
             design.document.TraverseDfs(node =>
             {
-                ctx.AddObjectToAsset($"{node.nodeID}", node.gameObject);
+                ctx.AddObjectToAsset($"{node.nodeId}", node.gameObject);
                 return true;
             });
 

@@ -38,15 +38,15 @@ namespace Cdm.Figma.Editor
                 var fileCount = downloader.files.Count;
                 for (var i = 0; i < fileCount; i++)
                 {
-                    var fileID = downloader.files[i];
+                    var fileId = downloader.files[i];
 
-                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileID}",
+                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}",
                         (float)i / fileCount);
 
                     // Save figma file asset.
-                    await DownloadAndSaveFigmaFileAsync(downloader, fileID);
+                    await DownloadAndSaveFigmaFileAsync(downloader, fileId);
 
-                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileID}",
+                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {fileId}",
                         (float)(i + 1) / fileCount);
                 }
             }
@@ -60,14 +60,14 @@ namespace Cdm.Figma.Editor
             }
         }
 
-        private static async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader, string fileID)
+        private static async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader, string fileId)
         {
-            var newFile = await downloader.GetDownloader().DownloadFileAsync(fileID, downloader.personalAccessToken);
+            var newFile = await downloader.GetDownloader().DownloadFileAsync(fileId, downloader.personalAccessToken);
 
             var directory = Path.Combine("Assets", downloader.assetPath);
             Directory.CreateDirectory(directory);
 
-            var figmaAssetPath = GetFigmaAssetPath(downloader, fileID);
+            var figmaAssetPath = GetFigmaAssetPath(downloader, fileId);
             await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"));
             AssetDatabase.Refresh();
             AssetDatabase.ImportAsset(figmaAssetPath);

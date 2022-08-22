@@ -11,9 +11,9 @@ namespace Cdm.Figma.UI
         private const string ItemTextKey = BindingPrefix + "ItemText";
         private const string ContentItemKey = BindingPrefix + "ContentItem";
 
-        protected override bool CanConvertType(string typeID)
+        protected override bool CanConvertType(string typeId)
         {
-            return typeID == "Dropdown";
+            return typeId == "Dropdown";
         }
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)

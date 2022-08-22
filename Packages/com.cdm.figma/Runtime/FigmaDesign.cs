@@ -53,7 +53,7 @@ namespace Cdm.Figma
         protected static T Create<T>(FigmaFile file) where T : FigmaDesign
         {
             var figmaFile = CreateInstance<T>();
-            figmaFile.id = file.fileID;
+            figmaFile.id = file.fileId;
             figmaFile.title = file.name;
             figmaFile.version = file.version;
             figmaFile.lastModified = file.lastModified.ToString("u");

@@ -7,7 +7,7 @@ namespace Cdm.Figma.UI.Editor
     [CustomEditor(typeof(FigmaNode), editorForChildClasses: true)]
     public class FigmaNodeEditor : UnityEditor.Editor
     {
-        private SerializedProperty _nodeID;
+        private SerializedProperty _nodeId;
         private SerializedProperty _nodeName;
         private SerializedProperty _nodeType;
         private SerializedProperty _bindingKey;
@@ -21,7 +21,7 @@ namespace Cdm.Figma.UI.Editor
 
         protected virtual void OnEnable()
         {
-            _nodeID = serializedObject.FindProperty("_nodeID");
+            _nodeId = serializedObject.FindProperty("_nodeId");
             _nodeName = serializedObject.FindProperty("_nodeName");
             _nodeType = serializedObject.FindProperty("_nodeType");
             _bindingKey = serializedObject.FindProperty("_bindingKey");
@@ -32,7 +32,7 @@ namespace Cdm.Figma.UI.Editor
         {
             serializedObject.Update();
 
-            LabelField(_nodeID);
+            LabelField(_nodeId);
             LabelField(_nodeName);
             LabelField(_nodeType);
 

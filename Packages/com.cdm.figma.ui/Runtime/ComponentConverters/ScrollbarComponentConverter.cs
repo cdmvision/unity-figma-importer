@@ -8,9 +8,9 @@ namespace Cdm.Figma.UI
     {
         private const string HandleKey = BindingPrefix + "Handle";
         
-        protected override bool CanConvertType(string typeID)
+        protected override bool CanConvertType(string typeId)
         {
-            return typeID == "Scrollbar";
+            return typeId == "Scrollbar";
         }
         
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)

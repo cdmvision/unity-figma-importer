@@ -16,12 +16,12 @@ namespace Cdm.Figma.UI
         }
         
         [SerializeField]
-        private string _nodeID;
+        private string _nodeId;
 
-        public string nodeID
+        public string nodeId
         {
-            get => _nodeID;
-            private set => _nodeID = value;
+            get => _nodeId;
+            private set => _nodeId = value;
         }
         
         [SerializeField]
@@ -81,7 +81,7 @@ namespace Cdm.Figma.UI
             var nodeObject = go.AddComponent<T>();
 
             nodeObject.node = node;
-            nodeObject.nodeID = node.id;
+            nodeObject.nodeId = node.id;
             nodeObject.nodeName = node.name;
             nodeObject.nodeType = node.type;
             nodeObject.bindingKey = node.GetBindingKey();
@@ -93,6 +93,11 @@ namespace Cdm.Figma.UI
             }
             
             return nodeObject;
+        }
+
+        public override string ToString()
+        {
+            return $"[{nodeId}, '{name}']";
         }
     }
 }

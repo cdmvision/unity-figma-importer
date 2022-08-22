@@ -8,9 +8,9 @@ namespace Cdm.Figma.UI
         private const string HandleKey = BindingPrefix + "Handle";
         private const string FillKey = BindingPrefix + "Fill";
 
-        protected override bool CanConvertType(string typeID)
+        protected override bool CanConvertType(string typeId)
         {
-            return typeID == "Slider";
+            return typeId == "Slider";
         }
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)

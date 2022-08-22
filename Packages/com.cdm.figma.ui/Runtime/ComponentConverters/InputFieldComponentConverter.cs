@@ -14,9 +14,9 @@ namespace Cdm.Figma.UI
         private const string TextComponentKey = BindingPrefix + "Text";
         private const string PlaceholderKey = BindingPrefix + "Placeholder";
         
-        protected override bool CanConvertType(string typeID)
+        protected override bool CanConvertType(string typeId)
         {
-            return typeID == "InputField";
+            return typeId == "InputField";
         }
         
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
