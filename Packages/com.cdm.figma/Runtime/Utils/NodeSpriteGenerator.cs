@@ -140,7 +140,7 @@ namespace Cdm.Figma.Utils
 
             svg.AppendLine("</svg>");
             
-            Debug.Log($"{node}: {svg}");
+            //Debug.Log($"{node}: {svg}");
             return svg.ToString();
         }
 
