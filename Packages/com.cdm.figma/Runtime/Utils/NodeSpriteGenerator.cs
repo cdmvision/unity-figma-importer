@@ -139,6 +139,8 @@ namespace Cdm.Figma.Utils
             }
 
             svg.AppendLine("</svg>");
+            
+            Debug.Log($"{node}: {svg}");
             return svg.ToString();
         }
 
@@ -179,7 +181,7 @@ namespace Cdm.Figma.Utils
 
             if (strokeWeight > 0)
             {
-                AppendSvgStrokePathElement(svg, node, strokePath, new Vector2(width, height));    
+                AppendSvgStrokeRectElement(svg, node, strokePath, new Vector2(width, height));    
             }
 
             svg.AppendLine("</svg>");
@@ -318,8 +320,42 @@ namespace Cdm.Figma.Utils
                 }
             }
         }
-
+        
         private static void AppendSvgStrokePathElement(StringBuilder svg, SceneNode node, string strokePath, 
+            Vector2 size, string windingRule = null)
+        {
+            var nodeFill = (INodeFill)node;
+            Debug.Assert(nodeFill != null);
+            
+            for (var i = 0; i < nodeFill.strokes.Count; i++)
+            {
+                var stroke = nodeFill.strokes[i];
+
+                if (!stroke.visible)
+                    continue;
+
+                svg.Append($@"<path d=""{strokePath}"" ");
+                
+                if (stroke is SolidPaint solid)
+                {
+                    svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
+                }
+                else if (stroke is GradientPaint gradient)
+                {
+                    var gradientID = $"s{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
+
+                    svg.AppendLine($@"fill=""url(#{gradientID})"" />");
+
+                    AppendSvgGradient(svg, gradient, gradientID, size);
+                }
+                else
+                {
+                    svg.AppendLine("/>");
+                }
+            }
+        }
+
+        private static void AppendSvgStrokeRectElement(StringBuilder svg, SceneNode node, string strokePath, 
             Vector2 size, string windingRule = null)
         {
             var nodeFill = (INodeFill)node;
