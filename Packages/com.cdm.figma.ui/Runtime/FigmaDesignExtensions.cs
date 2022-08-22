@@ -7,9 +7,12 @@ namespace Cdm.Figma.UI
 {
     public static class FigmaDesignExtensions
     {
-        public static T CreateInstance<T>(this FigmaDesign figmaDesign, string bindingKey, Transform parent = null) 
+        public static T CreateInstance<T>(this FigmaDesign figmaDesign, string bindingKey, Transform parent = null)
             where T : FigmaBehaviour
         {
+            if (string.IsNullOrEmpty(bindingKey))
+                throw new ArgumentNullException(nameof(bindingKey), "Binding key cannot be empty.");
+
             var figmaNode = figmaDesign.Query<FigmaNode>(bindingKey);
             if (figmaNode != null)
             {
@@ -20,22 +23,15 @@ namespace Cdm.Figma.UI
             return null;
         }
 
-        public static T CreateInstance<T>(this FigmaDesign figmaDesign, Transform parent = null) 
+        public static T CreateInstance<T>(this FigmaDesign figmaDesign, Transform parent = null)
             where T : FigmaBehaviour
         {
-            var figmaNodeAttribute = 
-                (FigmaNodeAttribute) Attribute.GetCustomAttribute(typeof(T), typeof(FigmaNodeAttribute));
-            
-            var bindingKey = typeof(T).Name;
-            
-            if (!string.IsNullOrEmpty(figmaNodeAttribute.bindingKey))
-            {
-                bindingKey = figmaNodeAttribute.bindingKey;
-            }
+            var figmaNodeAttribute =
+                (FigmaNodeAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(FigmaNodeAttribute));
 
-            return figmaDesign.CreateInstance<T>(bindingKey, parent);
+            return figmaDesign.CreateInstance<T>(figmaNodeAttribute.bindingKey, parent);
         }
-        
+
         public static T Query<T>(this FigmaDesign figmaDesign, string bindingKey) where T : UnityEngine.Component
         {
             return figmaDesign.document.Query<T>(bindingKey);
