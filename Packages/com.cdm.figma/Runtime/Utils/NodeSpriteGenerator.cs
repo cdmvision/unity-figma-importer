@@ -42,6 +42,7 @@ namespace Cdm.Figma.Utils
             SpriteGenerateOptions options = null)
         {
             var svg = GenerateSpriteSvg(node, spriteType);
+
             //Debug.Log($"{node}: {svg}");
             return GenerateSprite(node, svg, spriteType, options);
         }
@@ -127,7 +128,14 @@ namespace Cdm.Figma.Utils
             {
                 var path = geometry.path;
                 var windingRule = geometry.windingRule;
-                AppendSvgPathElement(svg, node, path, path, new Vector2(width, height), windingRule);
+                AppendSvgFillPathElement(svg, node, path, new Vector2(width, height), windingRule);
+            }
+            
+            foreach (var geometry in vectorNode.strokeGeometry)
+            {
+                var path = geometry.path;
+                var windingRule = geometry.windingRule;
+                AppendSvgStrokePathElement(svg, node, path, new Vector2(width, height), windingRule);
             }
 
             svg.AppendLine("</svg>");
@@ -167,7 +175,12 @@ namespace Cdm.Figma.Utils
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
-            AppendSvgPathElement(svg, node, fillPath, strokePath, new Vector2(width, height));
+            AppendSvgFillPathElement(svg, node, fillPath, new Vector2(width, height));
+
+            if (strokeWeight > 0)
+            {
+                AppendSvgStrokePathElement(svg, node, strokePath, new Vector2(width, height));    
+            }
 
             svg.AppendLine("</svg>");
 
@@ -265,7 +278,7 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static void AppendSvgPathElement(StringBuilder svg, SceneNode node, string fillPath, string strokePath, 
+        private static void AppendSvgFillPathElement(StringBuilder svg, SceneNode node, string fillPath,
             Vector2 size, string windingRule = null)
         {
             var nodeFill = (INodeFill)node;
@@ -304,6 +317,13 @@ namespace Cdm.Figma.Utils
                     svg.AppendLine("/>");
                 }
             }
+        }
+
+        private static void AppendSvgStrokePathElement(StringBuilder svg, SceneNode node, string strokePath, 
+            Vector2 size, string windingRule = null)
+        {
+            var nodeFill = (INodeFill)node;
+            Debug.Assert(nodeFill != null);
 
             var strokeAlign = SvgHelpers.GetSvgValue(nodeFill.strokeAlign);
             var strokeWidth = nodeFill.strokeWeight ?? 0;
@@ -426,14 +446,10 @@ namespace Cdm.Figma.Utils
                 var control2 = segment.P2;
                 var end = segmentNext.P0;
 
-                if (i == segments.Length - 1)
-                {
-                    end.x -= strokeWeight * 0.5f;
-                }
-                
                 svgString.Append($@"C {control1.x} {control1.y} {control2.x} {control2.y} {end.x} {end.y} ");
             }
 
+            svgString.Append("Z");
             return svgString.ToString();
         }
     }

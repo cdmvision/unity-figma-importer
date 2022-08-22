@@ -39,25 +39,28 @@ namespace Cdm.Figma.UI
         private void GenerateStyles(FigmaNode nodeObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
-            if (vectorConvertArgs.generateSprite && (vectorNode.fills.Any() || vectorNode.strokes.Any()))
+            if (vectorConvertArgs.generateSprite)
             {
-                var style = new ImageStyle();
-                if (vectorConvertArgs.sourceSprite == null)
+                if ((vectorNode.fills.Any() || vectorNode.strokes.Any()))
                 {
-                    if (!args.importer.generatedAssets.TryGet<Sprite>(vectorNode.id, out var sprite))
+                    if (vectorConvertArgs.sourceSprite == null)
                     {
-                        sprite = NodeSpriteGenerator.GenerateSprite(
-                            vectorNode, SpriteGenerateType.Path, args.importer.spriteOptions);
-                        if (sprite != null)
+                        if (!args.importer.generatedAssets.TryGet<Sprite>(vectorNode.id, out var sprite))
                         {
-                            args.importer.generatedAssets.Add(vectorNode.id, sprite);
-                            args.importer.generatedAssets.Add(vectorNode.id, sprite.texture);
+                            sprite = NodeSpriteGenerator.GenerateSprite(
+                                vectorNode, SpriteGenerateType.Path, args.importer.spriteOptions);
+                            if (sprite != null)
+                            {
+                                args.importer.generatedAssets.Add(vectorNode.id, sprite);
+                                args.importer.generatedAssets.Add(vectorNode.id, sprite.texture);
+                            }
                         }
-                    }
 
-                    vectorConvertArgs.sourceSprite = sprite;
+                        vectorConvertArgs.sourceSprite = sprite;
+                    }
                 }
 
+                var style = new ImageStyle();
                 style.componentEnabled.enabled = true;
                 style.componentEnabled.value = vectorConvertArgs.sourceSprite != null;
 
