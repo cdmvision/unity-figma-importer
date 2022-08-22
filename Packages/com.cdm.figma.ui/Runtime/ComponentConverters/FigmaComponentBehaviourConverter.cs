@@ -1,4 +1,5 @@
 ﻿using System;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -24,10 +25,10 @@ namespace Cdm.Figma.UI
             var nodeObject = base.Convert(parentObject, instanceNode, args);
             if (nodeObject != null)
             {
-                Debug.Assert(typeof(FigmaBehaviour).IsAssignableFrom(type));
+                Debug.Assert(typeof(UnityEngine.Component).IsAssignableFrom(type));
 
-                var figmaBehaviour = (FigmaBehaviour)nodeObject.gameObject.AddComponent(type);
-                figmaBehaviour.Resolve();
+                var component = nodeObject.gameObject.AddComponent(type);
+                FigmaNodeBinder.Bind(component, nodeObject);
                 return nodeObject;
             }
 
@@ -35,7 +36,8 @@ namespace Cdm.Figma.UI
         }
     }
 
-    public class FigmaComponentBehaviourConverter<T> : FigmaComponentBehaviourConverter
+    public class FigmaComponentBehaviourConverter<T> : FigmaComponentBehaviourConverter 
+        where T : UnityEngine.Component
     {
         public FigmaComponentBehaviourConverter(string typeId) : base(typeId, typeof(T))
         {

@@ -161,7 +161,7 @@ namespace Cdm.Figma.UI.Editor
 
             foreach (var type in nodeBehaviours)
             {
-                if (typeof(FigmaBehaviour).IsAssignableFrom(type))
+                if (typeof(UnityEngine.Component).IsAssignableFrom(type))
                 {
                     var figmaNodeAttribute =
                         (FigmaNodeAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaNodeAttribute));
@@ -180,7 +180,7 @@ namespace Cdm.Figma.UI.Editor
                 else
                 {
                     Debug.LogError($"Cannot add {nameof(FigmaNodeBehaviourConverter)}. " +
-                                   $"Node behaviour must inherit from {typeof(FigmaBehaviour).FullName}");
+                                   $"Node behaviour must inherit from {typeof(UnityEngine.Component).FullName}");
                 }
             }
         }
@@ -192,7 +192,7 @@ namespace Cdm.Figma.UI.Editor
 
             foreach (var type in componentBehaviours)
             {
-                if (typeof(FigmaBehaviour).IsAssignableFrom(type))
+                if (typeof(UnityEngine.Component).IsAssignableFrom(type))
                 {
                     var figmaComponentAttribute =
                         (FigmaComponentAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaComponentAttribute));
@@ -203,7 +203,7 @@ namespace Cdm.Figma.UI.Editor
                 else
                 {
                     Debug.LogError($"Cannot add {nameof(FigmaComponentBehaviourConverter)}. " +
-                                   $"Component behaviour must inherit from {typeof(FigmaBehaviour).FullName}");
+                                   $"Component behaviour must inherit from {typeof(UnityEngine.Component).FullName}");
                 }
             }
         }

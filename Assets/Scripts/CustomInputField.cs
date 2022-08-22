@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [FigmaComponent("InputFieldWithClearButton")]
-public class CustomInputField : FigmaBehaviour
+public class CustomInputField : MonoBehaviour
 {
     [FigmaNode("@ClearButton")]
     [SerializeField]
@@ -18,10 +18,8 @@ public class CustomInputField : FigmaBehaviour
 
     public TMP_InputField inputField => _inputField;
 
-    protected override void Start()
+    protected virtual void Start()
     {
-        base.Start();
-        
         clearButton.onClick.AddListener(() => inputField.text = "");
     }
 }

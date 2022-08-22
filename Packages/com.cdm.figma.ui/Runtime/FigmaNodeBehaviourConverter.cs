@@ -1,4 +1,5 @@
 ﻿using System;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -7,13 +8,22 @@ namespace Cdm.Figma.UI
     {
         public Type type { get; }
         public string bindingKey { get; }
+        public string importerExtension { get; }
 
         public FigmaNodeBehaviourConverter(string bindingKey, Type type)
         {
             this.bindingKey = bindingKey;
             this.type = type;
+            this.importerExtension = "figma";
         }
-    
+        
+        public FigmaNodeBehaviourConverter(string bindingKey, Type type, string importerExtension)
+        {
+            this.bindingKey = bindingKey;
+            this.type = type;
+            this.importerExtension = importerExtension;
+        }
+
         public override bool CanConvert(Node node, NodeConvertArgs args)
         {
             return bindingKey == node.GetBindingKey();
@@ -23,14 +33,22 @@ namespace Cdm.Figma.UI
         {
             if (args.importer.TryConvertNode(parentObject, node, args, out var nodeObject))
             {
-                Debug.Assert(typeof(FigmaBehaviour).IsAssignableFrom(type));
+                Debug.Assert(typeof(UnityEngine.Component).IsAssignableFrom(type));
 
-                var figmaBehaviour = (FigmaBehaviour)nodeObject.gameObject.AddComponent(type);
-                figmaBehaviour.Resolve();
+                var component = nodeObject.gameObject.AddComponent(type);
+                FigmaNodeBinder.Bind(component, nodeObject);
                 return nodeObject;
             }
 
             return null;
+        }
+    }
+
+    public class FigmaNodeBehaviourConverter<T> : FigmaNodeBehaviourConverter
+        where T : UnityEngine.Component
+    {
+        public FigmaNodeBehaviourConverter(string bindingKey) : base(bindingKey, typeof(T))
+        {
         }
     }
 }

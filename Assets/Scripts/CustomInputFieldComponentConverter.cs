@@ -1,5 +1,6 @@
 ﻿using Cdm.Figma;
 using Cdm.Figma.UI;
+using Cdm.Figma.UI.Utils;
 
 //[FigmaComponentConverter]
 public class CustomInputFieldComponentConverter : ComponentConverter
@@ -14,8 +15,9 @@ public class CustomInputFieldComponentConverter : ComponentConverter
         var nodeObject =  base.Convert(parentObject, instanceNode, args);
         if (nodeObject != null)
         {
-            var compoundInputField = nodeObject.gameObject.AddComponent<CustomInputField>();
-            compoundInputField.Resolve();
+            
+            var inputField = nodeObject.gameObject.AddComponent<CustomInputField>();
+            FigmaNodeBinder.Bind(inputField, nodeObject);
             return nodeObject;
         }
 

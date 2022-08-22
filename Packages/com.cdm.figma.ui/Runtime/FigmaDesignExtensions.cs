@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -8,7 +9,7 @@ namespace Cdm.Figma.UI
     public static class FigmaDesignExtensions
     {
         public static T CreateInstance<T>(this FigmaDesign figmaDesign, string bindingKey, Transform parent = null)
-            where T : FigmaBehaviour
+            where T : UnityEngine.Component
         {
             if (string.IsNullOrEmpty(bindingKey))
                 throw new ArgumentNullException(nameof(bindingKey), "Binding key cannot be empty.");
@@ -16,8 +17,15 @@ namespace Cdm.Figma.UI
             var figmaNode = figmaDesign.Query<FigmaNode>(bindingKey);
             if (figmaNode != null)
             {
-                var figmaNodeInstance = Object.Instantiate(figmaNode, parent);
-                return figmaNodeInstance.gameObject.AddComponent<T>();
+                var component = Object.Instantiate(figmaNode, parent);
+                
+                // Bind component if it is not FigmaBehaviour. If so, FigmaBehaviour will bind it automatically.
+                if (!typeof(FigmaBehaviour).IsAssignableFrom(typeof(T)))
+                {
+                    FigmaNodeBinder.Bind(component, figmaNode);    
+                }
+                
+                return component.gameObject.AddComponent<T>();
             }
 
             return null;
