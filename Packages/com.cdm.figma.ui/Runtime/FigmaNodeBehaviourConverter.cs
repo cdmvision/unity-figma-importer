@@ -8,22 +8,13 @@ namespace Cdm.Figma.UI
     {
         public Type type { get; }
         public string bindingKey { get; }
-        public string importerExtension { get; }
 
         public FigmaNodeBehaviourConverter(string bindingKey, Type type)
         {
             this.bindingKey = bindingKey;
             this.type = type;
-            this.importerExtension = "figma";
         }
         
-        public FigmaNodeBehaviourConverter(string bindingKey, Type type, string importerExtension)
-        {
-            this.bindingKey = bindingKey;
-            this.type = type;
-            this.importerExtension = importerExtension;
-        }
-
         public override bool CanConvert(Node node, NodeConvertArgs args)
         {
             return bindingKey == node.GetBindingKey();

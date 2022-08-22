@@ -15,9 +15,9 @@ namespace Cdm.Figma.UI
             this.type = type;
         }
 
-        protected override bool CanConvertType(string typeId)
+        protected override bool CanConvertType(string otherId)
         {
-            return typeId == this.typeId;
+            return otherId == typeId;
         }
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
