@@ -141,23 +141,56 @@ namespace Cdm.Figma.UI.Editor
                 }
             };
 
-            figmaImporter.AddDefaultNodeConverters();
-            figmaImporter.AddDefaultComponentConverters();
+            // Prioritize custom converters.
+            SearchAndAddFigmaComponentBehaviours(figmaImporter);
+            SearchAndAddFigmaNodeBehaviours(figmaImporter);
 
             SearchAndAddComponentConverters(figmaImporter);
             SearchAndAddNodeConverters(figmaImporter);
 
-            SearchAndAddCompoundComponents(figmaImporter);
+            figmaImporter.AddDefaultNodeConverters();
+            figmaImporter.AddDefaultComponentConverters();
 
             return figmaImporter;
         }
 
-        private void SearchAndAddCompoundComponents(FigmaImporter figmaImporter)
+        private void SearchAndAddFigmaNodeBehaviours(FigmaImporter figmaImporter)
         {
-            var compoundComponents = AppDomain.CurrentDomain.GetAssemblies()
+            var nodeBehaviours = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes().Where(t => t.IsDefined(typeof(FigmaNodeAttribute))));
+
+            foreach (var type in nodeBehaviours)
+            {
+                if (typeof(FigmaBehaviour).IsAssignableFrom(type))
+                {
+                    var figmaNodeAttribute =
+                        (FigmaNodeAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaNodeAttribute));
+
+                    var bindingKey = figmaNodeAttribute.bindingKey;
+                    if (!string.IsNullOrEmpty(bindingKey))
+                    {
+                        figmaImporter.nodeConverters.Add(new FigmaNodeBehaviourConverter(bindingKey, type));
+                    }
+                    else
+                    {
+                        Debug.LogError($"Cannot add {nameof(FigmaNodeBehaviourConverter)}. " +
+                                       $"{nameof(FigmaNodeAttribute)} binding key must not be empty.");
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Cannot add {nameof(FigmaNodeBehaviourConverter)}. " +
+                                   $"Node behaviour must inherit from {typeof(FigmaBehaviour).FullName}");
+                }
+            }
+        }
+
+        private void SearchAndAddFigmaComponentBehaviours(FigmaImporter figmaImporter)
+        {
+            var componentBehaviours = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes().Where(t => t.IsDefined(typeof(FigmaComponentAttribute))));
 
-            foreach (var type in compoundComponents)
+            foreach (var type in componentBehaviours)
             {
                 if (typeof(FigmaBehaviour).IsAssignableFrom(type))
                 {
@@ -165,12 +198,12 @@ namespace Cdm.Figma.UI.Editor
                         (FigmaComponentAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaComponentAttribute));
 
                     var typeId = figmaComponentAttribute.typeId;
-                    figmaImporter.componentConverters.Add(new CompoundComponentConverter(typeId, type));
+                    figmaImporter.componentConverters.Add(new FigmaComponentBehaviourConverter(typeId, type));
                 }
                 else
                 {
-                    Debug.LogError($"Cannot add compound component '{type.FullName}' to {nameof(FigmaImporter)}. " +
-                                   $"Compound component must inherit from {typeof(FigmaBehaviour).FullName}");
+                    Debug.LogError($"Cannot add {nameof(FigmaComponentBehaviourConverter)}. " +
+                                   $"Component behaviour must inherit from {typeof(FigmaBehaviour).FullName}");
                 }
             }
         }

@@ -5,15 +5,15 @@ namespace Cdm.Figma.UI
     [AttributeUsage(AttributeTargets.Class |AttributeTargets.Field | AttributeTargets.Property)]
     public class FigmaNodeAttribute : Attribute
     {
-        public string bind { get; }
+        public string bindingKey { get; }
 
         public FigmaNodeAttribute()
         {
         }
         
-        public FigmaNodeAttribute(string bind)
+        public FigmaNodeAttribute(string bindingKey)
         {
-            this.bind = bind;
+            this.bindingKey = bindingKey;
         }
     }
 }

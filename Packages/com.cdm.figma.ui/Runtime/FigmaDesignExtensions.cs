@@ -28,9 +28,9 @@ namespace Cdm.Figma.UI
             
             var bindingKey = typeof(T).Name;
             
-            if (!string.IsNullOrEmpty(figmaNodeAttribute.bind))
+            if (!string.IsNullOrEmpty(figmaNodeAttribute.bindingKey))
             {
-                bindingKey = figmaNodeAttribute.bind;
+                bindingKey = figmaNodeAttribute.bindingKey;
             }
 
             return figmaDesign.CreateInstance<T>(bindingKey, parent);

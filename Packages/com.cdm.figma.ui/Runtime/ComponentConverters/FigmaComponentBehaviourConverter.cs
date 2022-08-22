@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
-    public class CompoundComponentConverter : ComponentConverter
+    public class FigmaComponentBehaviourConverter : ComponentConverter
     {
         public Type type { get; }
         public string typeId { get; }
 
-        public CompoundComponentConverter(string typeId, Type type)
+        public FigmaComponentBehaviourConverter(string typeId, Type type)
         {
             this.typeId = typeId;
             this.type = type;
@@ -35,9 +35,9 @@ namespace Cdm.Figma.UI
         }
     }
 
-    public class CompoundComponentConverter<T> : CompoundComponentConverter
+    public class FigmaComponentBehaviourConverter<T> : FigmaComponentBehaviourConverter
     {
-        public CompoundComponentConverter(string typeId) : base(typeId, typeof(T))
+        public FigmaComponentBehaviourConverter(string typeId) : base(typeId, typeof(T))
         {
         }
     }

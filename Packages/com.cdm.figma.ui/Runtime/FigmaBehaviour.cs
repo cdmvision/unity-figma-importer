@@ -43,9 +43,9 @@ namespace Cdm.Figma.UI
                     {
                         var bindingKey = member.Name;
 
-                        if (!string.IsNullOrEmpty(figmaNodeAttribute.bind))
+                        if (!string.IsNullOrEmpty(figmaNodeAttribute.bindingKey))
                         {
-                            bindingKey = figmaNodeAttribute.bind;
+                            bindingKey = figmaNodeAttribute.bindingKey;
                         }
 
                         var fieldType = GetUnderlyingType(member);
