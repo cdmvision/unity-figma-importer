@@ -92,7 +92,7 @@ namespace Cdm.Figma.UI
                 componentConverters.Add(converter);
             }
         }
-        
+
         public Figma.FigmaDesign ImportFile(FigmaFile file, IFigmaImporter.Options options = null)
         {
             if (file == null)
@@ -100,29 +100,29 @@ namespace Cdm.Figma.UI
 
             options ??= new IFigmaImporter.Options();
             spriteOptions ??= new SpriteGenerateOptions();
-            
+
             file.BuildHierarchy();
 
             generatedAssets.Clear();
             generatedGameObjects.Clear();
             dependencyAssets.Clear();
-            
+
             _logs.Clear();
             _bindings.Clear();
-            
+
             InitNodeConverters();
             InitComponentConverters();
 
             try
             {
                 var conversionArgs = new NodeConvertArgs(this, file);
-                
+
                 var figmaDocument = CreateFigmaNode<FigmaDocument>(file.document);
                 figmaDocument.rectTransform.anchorMin = new Vector2(0, 0);
                 figmaDocument.rectTransform.anchorMax = new Vector2(1, 1);
                 figmaDocument.rectTransform.offsetMin = new Vector2(0, 0);
                 figmaDocument.rectTransform.offsetMax = new Vector2(0, 0);
-                
+
                 var pageNodes = file.document.children;
                 foreach (var pageNode in pageNodes)
                 {
@@ -155,7 +155,7 @@ namespace Cdm.Figma.UI
                         }
                     }
                 }
-                
+
                 SetDocumentLogs(figmaDocument, _logs);
                 _logs.Clear();
 
@@ -167,7 +167,7 @@ namespace Cdm.Figma.UI
                         // Build path.
                         var node = binding.node.node;
                         var path = BuildBindingPath(node);
-                        
+
                         bindings.Add(new Binding(binding.key, path, binding.node));
                     }
                 }
@@ -215,10 +215,7 @@ namespace Cdm.Figma.UI
         {
             if (!string.IsNullOrEmpty(figmaNode.bindingKey))
             {
-                if (!figmaNode.bindingKey.StartsWith(ComponentConverter.BindingPrefix))
-                {
-                    _bindings.Add(new Binding(figmaNode.bindingKey, "", figmaNode));    
-                }
+                _bindings.Add(new Binding(figmaNode.bindingKey, "", figmaNode));
             }
         }
 
@@ -262,7 +259,7 @@ namespace Cdm.Figma.UI
         {
             if (node == null)
                 return;
-            
+
             switch (result)
             {
                 case InstanceNodeInitResult.MissingComponentID:
@@ -279,7 +276,7 @@ namespace Cdm.Figma.UI
                                $"Instance node {node} may not be imported properly.", nodeObject);
                     break;
                 case InstanceNodeInitResult.MissingComponentSet:
-                    LogWarning($"Component set node of component node: '{node.componentId}' could not be found. " + 
+                    LogWarning($"Component set node of component node: '{node.componentId}' could not be found. " +
                                $"Instance node {node} may not be imported properly.", nodeObject);
                     break;
                 case InstanceNodeInitResult.Success:
@@ -341,7 +338,7 @@ namespace Cdm.Figma.UI
             LogError(new Exception(message), target);
         }
 
-        private static void SetDocumentLogs(FigmaDocument figmaDocument, 
+        private static void SetDocumentLogs(FigmaDocument figmaDocument,
             IEnumerable<FigmaImporterLogReference> logReferences)
         {
             foreach (var logReference in logReferences)

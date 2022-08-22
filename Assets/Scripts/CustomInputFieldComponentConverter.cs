@@ -1,8 +1,8 @@
 ﻿using Cdm.Figma;
 using Cdm.Figma.UI;
 
-[FigmaComponentConverter]
-public class CompoundInputFieldComponentConverter : ComponentConverter
+//[FigmaComponentConverter]
+public class CustomInputFieldComponentConverter : ComponentConverter
 {
     protected override bool CanConvertType(string typeID)
     {
@@ -14,7 +14,7 @@ public class CompoundInputFieldComponentConverter : ComponentConverter
         var nodeObject =  base.Convert(parentObject, instanceNode, args);
         if (nodeObject != null)
         {
-            var compoundInputField = nodeObject.gameObject.AddComponent<CompoundInputField>();
+            var compoundInputField = nodeObject.gameObject.AddComponent<CustomInputField>();
             compoundInputField.Resolve();
             return nodeObject;
         }

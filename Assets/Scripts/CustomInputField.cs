@@ -3,7 +3,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CompoundInputField : FigmaBehaviour
+[FigmaComponent("InputFieldWithClearButton")]
+public class CustomInputField : FigmaBehaviour
 {
     [FigmaNode("@ClearButton")]
     [SerializeField]

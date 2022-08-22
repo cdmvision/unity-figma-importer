@@ -17,51 +17,51 @@ namespace Cdm.Figma.UI.Editor
         protected override void OnEnable()
         {
             base.OnEnable();
-            
+
             _bindings = serializedObject.FindProperty("_bindings");
         }
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            
+
             var guidEnabled = GUI.enabled;
             GUI.enabled = true;
-            
-            if (_bindings.arraySize > 0)
+
+            EditorGUILayout.Separator();
+            isBindingsExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(isBindingsExpanded, _bindings.displayName);
+            if (isBindingsExpanded)
             {
-                EditorGUILayout.Separator();
-                isBindingsExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(isBindingsExpanded, _bindings.displayName);
-                if (isBindingsExpanded)
+                for (var i = 0; i < _bindings.arraySize; i++)
                 {
-                    for (var i = 0; i < _bindings.arraySize; i++)
+                    var binding = _bindings.GetArrayElementAtIndex(i);
+                    var key = binding.FindPropertyRelative("_key");
+                    var path = binding.FindPropertyRelative("_path");
+                    var node = binding.FindPropertyRelative("_node");
+
+                    if (key.stringValue.StartsWith(ComponentConverter.BindingPrefix))
+                        continue;
+
+                    EditorGUILayout.BeginHorizontal();
+
+                    if (GUILayout.Button(key.stringValue, EditorStyles.miniButtonLeft, GUILayout.Width(196)))
                     {
-                        var binding = _bindings.GetArrayElementAtIndex(i);
-                        var key = binding.FindPropertyRelative("_key");
-                        var path = binding.FindPropertyRelative("_path");
-                        var node = binding.FindPropertyRelative("_node");
-
-                        EditorGUILayout.BeginHorizontal();
-                        
-                        if (GUILayout.Button(key.stringValue, EditorStyles.miniButtonLeft, GUILayout.Width(196)))
-                        {
-                            GUIUtility.systemCopyBuffer = key.stringValue;
-                        }
-                        
-                        var nodeRef = (FigmaNode) node.objectReferenceValue;
-                        var nodeLabel = nodeRef != null ? nodeRef.nodeName : "N/A";
-                        if (GUILayout.Button(new GUIContent(nodeLabel, path.stringValue), EditorStyles.objectField))
-                        {
-                            GUIUtility.systemCopyBuffer = path.stringValue;
-                        }
-
-                        EditorGUILayout.EndHorizontal();
+                        GUIUtility.systemCopyBuffer = key.stringValue;
                     }
-                }
 
-                EditorGUILayout.EndFoldoutHeaderGroup();
+                    var nodeRef = (FigmaNode)node.objectReferenceValue;
+                    var nodeLabel = nodeRef != null ? nodeRef.nodeName : "N/A";
+                    if (GUILayout.Button(new GUIContent(nodeLabel, path.stringValue), EditorStyles.objectField))
+                    {
+                        GUIUtility.systemCopyBuffer = path.stringValue;
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                }
             }
-            
+
+            EditorGUILayout.EndFoldoutHeaderGroup();
+
             GUI.enabled = guidEnabled;
         }
     }
