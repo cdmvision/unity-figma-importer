@@ -41,7 +41,7 @@ namespace Cdm.Figma.Utils
         public static Sprite GenerateSprite(SceneNode node, SpriteGenerateType spriteType,
             SpriteGenerateOptions options = null)
         {
-            var svg = GenerateSpriteSvg(node, spriteType);
+            var svg = GenerateSpriteSvg(node);
 
             //Debug.Log($"{node}: {svg}");
             return GenerateSprite(node, svg, spriteType, options);
@@ -50,28 +50,9 @@ namespace Cdm.Figma.Utils
         /// <summary>
         /// Generates SVG string from the scene node.
         /// </summary>
-        public static string GenerateSpriteSvg(SceneNode node, SpriteGenerateType spriteType)
+        public static string GenerateSpriteSvg(SceneNode node)
         {
-            switch (spriteType)
-            {
-                case SpriteGenerateType.Auto:
-                    if (node is INodeRect)
-                    {
-                        return GenerateSvgFromRect(node);
-                    }
-                    else
-                    {
-                        return GenerateSvgFromPath(node);
-                    }
-
-                case SpriteGenerateType.Path:
-                    return GenerateSvgFromPath(node);
-
-                case SpriteGenerateType.Rectangle:
-                    return GenerateSvgFromRect(node);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(spriteType), spriteType, null);
-            }
+            return GenerateSvgFromPath(node);
         }
 
         /// <summary>
@@ -106,15 +87,24 @@ namespace Cdm.Figma.Utils
         private static string GenerateSvgFromPath(SceneNode node)
         {
             if (node is not VectorNode vectorNode)
-                throw new ArgumentException($"Node type must be {NodeType.Vector}.", nameof(node));
+            {
+                return GenerateSvgFromRect(node);
+            }
 
             var width = vectorNode.size.x;
             var height = vectorNode.size.y;
-
             
             var strokeWeight = vectorNode.strokeWeight ?? 0;
-            var strokeHalfWeight = strokeWeight * 0.5f;
-            var viewBox = new Rect(-strokeHalfWeight, -strokeHalfWeight, width + strokeWeight, height + strokeWeight);
+            var strokeAlign = vectorNode.strokeAlign ?? StrokeAlign.Center;
+            var strokePadding = strokeWeight;
+            
+            if (strokeAlign != StrokeAlign.Center)
+            {
+                strokePadding = strokeWeight * 2;
+            }
+            
+            var strokeHalfPadding = strokePadding * 0.5f;
+            var viewBox = new Rect(-strokeHalfPadding, -strokeHalfPadding, width + strokePadding, height + strokePadding);
 
             var svg = new StringBuilder();
 
@@ -167,8 +157,8 @@ namespace Cdm.Figma.Utils
             var strokeHalfWeight = strokeWeight * 0.5f;
             var viewBox = new Rect(-strokeHalfWeight, -strokeHalfWeight, width + strokeWeight, height + strokeWeight);
 
-            var fillPath = GetRectPath(nodeTransform, nodeRect, 0);
-            var strokePath = GetRectPath(nodeTransform, nodeRect, strokeWeight);
+            var fillPath = GetRectPath(nodeTransform, nodeRect);
+            var strokePath = GetRectPath(nodeTransform, nodeRect);
             var svg = new StringBuilder();
 
             svg.Append($@"<svg id=""{node.id}"" ");
@@ -201,9 +191,19 @@ namespace Cdm.Figma.Utils
             if (node is not INodeFill nodeFill)
                 throw new ArgumentException("Specified node does not define a fill.", nameof(node));
 
-            // Left, bottom, right and top.
+
+            var strokeAlign = nodeFill.strokeAlign ?? StrokeAlign.Center;
             var strokeWidth = nodeFill.strokeWeight ?? 0;
-            var strokePadding = strokeWidth + 2;
+            var strokePadding = strokeWidth;
+
+            if (strokeAlign != StrokeAlign.Center)
+            {
+                strokePadding = strokeWidth * 2;
+            }
+
+            strokePadding += 2;
+            
+            // Left, bottom, right and top.
             var borders = new Vector4(
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
                 Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
@@ -460,7 +460,7 @@ namespace Cdm.Figma.Utils
             return spriteWithTexture;
         }
 
-        private static string GetRectPath(INodeTransform nodeTransform, INodeRect nodeRect, float strokeWeight)
+        private static string GetRectPath(INodeTransform nodeTransform, INodeRect nodeRect)
         {
             var rect = new Rect(0, 0, nodeTransform.size.x, nodeTransform.size.y);
             var radiusTL = Vector2.one * nodeRect.topLeftRadius;
