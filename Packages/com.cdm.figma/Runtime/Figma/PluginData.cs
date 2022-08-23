@@ -21,10 +21,14 @@ namespace Cdm.Figma
         
         [DataMember]
         private string componentData { get; set; }
+        
+        [DataMember]
+        public string tags { get; set; }
 
-        public bool hasBindingKey => !string.IsNullOrEmpty(bindingKey);
-        public bool hasLocalizationKey => !string.IsNullOrEmpty(localizationKey);
-        public bool hasComponentType => !string.IsNullOrEmpty(componentType);
+        public bool hasBindingKey => !string.IsNullOrWhiteSpace(bindingKey);
+        public bool hasLocalizationKey => !string.IsNullOrWhiteSpace(localizationKey);
+        public bool hasComponentType => !string.IsNullOrWhiteSpace(componentType);
+        public bool hasTags => !string.IsNullOrWhiteSpace(tags);
 
         public static PluginData FromString(string json)
         {

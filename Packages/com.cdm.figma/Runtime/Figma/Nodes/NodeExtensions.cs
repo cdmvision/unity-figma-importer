@@ -87,6 +87,9 @@ namespace Cdm.Figma
             return target;
         }
 
+        /// <summary>
+        /// Gets binding key from node's plugin data.
+        /// </summary>
         public static string GetBindingKey(this Node node)
         {
             if (node.TryGetPluginData(out var data))
@@ -96,7 +99,10 @@ namespace Cdm.Figma
 
             return null;
         }
-
+        
+        /// <summary>
+        /// Gets localization key from node's plugin data.
+        /// </summary>
         public static string GetLocalizationKey(this TextNode node)
         {
             if (node.TryGetPluginData(out var data))
@@ -107,6 +113,9 @@ namespace Cdm.Figma
             return null;
         }
 
+        /// <summary>
+        /// Gets component type from node's plugin data.
+        /// </summary>
         public static string GetComponentType(this Node node)
         {
             if (node.TryGetPluginData(out var data))
@@ -115,6 +124,29 @@ namespace Cdm.Figma
             }
 
             return null;
+        }
+        
+        /// <summary>
+        /// Gets tags from node's plugin data.
+        /// </summary>
+        public static string[] GetTags(this Node node)
+        {
+            if (node.TryGetPluginData(out var data))
+            {
+                if (data.hasTags)
+                {
+                    var tags = data.tags.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    
+                    for (var i = 0; i < tags.Length; i++)
+                    {
+                        tags[i] = tags[i].Trim();
+                    }
+
+                    return tags;
+                }
+            }
+
+            return Array.Empty<string>();
         }
 
         public static bool TryGetPluginData(this Node node, out PluginData pluginData)
