@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -49,6 +50,15 @@ namespace Cdm.Figma.UI
         {
             get => _bindingKey;
             private set => _bindingKey = value;
+        }
+        
+        [SerializeField]
+        private string[] _tags = Array.Empty<string>();
+
+        public string[] tags
+        {
+            get => _tags;
+            private set => _tags = (value ?? Array.Empty<string>());
         }
 
         [SerializeField]

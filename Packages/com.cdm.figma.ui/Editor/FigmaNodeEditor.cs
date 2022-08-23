@@ -12,6 +12,7 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _nodeType;
         private SerializedProperty _bindingKey;
         private SerializedProperty _localizationKey;
+        private SerializedProperty _tags;
 
         private bool isLogsExpanded
         {
@@ -26,26 +27,31 @@ namespace Cdm.Figma.UI.Editor
             _nodeType = serializedObject.FindProperty("_nodeType");
             _bindingKey = serializedObject.FindProperty("_bindingKey");
             _localizationKey = serializedObject.FindProperty("_localizationKey");
+            _tags = serializedObject.FindProperty("_tags");
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            
 
-            LabelField(_nodeId);
-            LabelField(_nodeName);
-            LabelField(_nodeType);
+            LabelField(_nodeId.displayName, _nodeId.stringValue);
+            LabelField(_nodeName.displayName, _nodeName.stringValue);
+            LabelField(_nodeType.displayName, _nodeType.stringValue);
 
             EditorGUILayout.Separator();
-            LabelField(_bindingKey);
+            LabelField(_bindingKey.displayName, _bindingKey.stringValue);
 
             if (_localizationKey != null)
             {
-                LabelField(_localizationKey);
+                LabelField(_localizationKey.displayName, _localizationKey.stringValue);
             }
+            
+            var figmaNode = (FigmaNode)target;
+            
+            LabelField(_tags.displayName, string.Join(", ", figmaNode.tags));
 
             EditorGUILayout.Separator();
-            var figmaNode = (FigmaNode)target;
             if (figmaNode.logs.Any())
             {
                 isLogsExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(isLogsExpanded, "Logs");
@@ -59,7 +65,7 @@ namespace Cdm.Figma.UI.Editor
                         EditorGUILayout.EndHorizontal();
                     }
                 }
-
+                
                 EditorGUILayout.EndFoldoutHeaderGroup();
             }
 
@@ -81,19 +87,18 @@ namespace Cdm.Figma.UI.Editor
             }
         }
 
-        private static void LabelField(SerializedProperty property)
+        private static void LabelField(string label, string value)
         {
-            var value = property.stringValue;
             if (!string.IsNullOrEmpty(value))
             {
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel(property.displayName);
+                EditorGUILayout.PrefixLabel(label);
                 EditorGUILayout.SelectableLabel(value, GUILayout.Height(EditorGUIUtility.singleLineHeight));
                 EditorGUILayout.EndHorizontal();
             }
             else
             {
-                EditorGUILayout.LabelField(property.displayName, "N/A", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField(label, "N/A", EditorStyles.miniLabel);
             }
         }
     }
