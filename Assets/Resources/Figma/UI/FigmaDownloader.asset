@@ -17,4 +17,7 @@ MonoBehaviour:
   _assetPath: Resources/Figma/UI/Files
   _downloadDependencies: 0
   _files:
-  - 7PYuO8A0qZi87WphibJI2C
+  - id: 8pcv1IXAgg1kukpKtoZaMG
+    name: Rects
+  - id: gQubW85QD5Vd6oqRBkRuxU
+    name: Plugin test

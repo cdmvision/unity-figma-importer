@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,12 +58,12 @@ namespace Cdm.Figma.Editor
         }
 
         [SerializeField]
-        private List<string> _files = new List<string>();
+        private List<File> _files = new List<File>();
 
         /// <summary>
         /// Figma file IDs to be downloaded.
         /// </summary>
-        public List<string> files => _files;
+        public List<File> files => _files;
 
         public virtual FigmaDownloader GetDownloader()
         {
@@ -70,6 +71,18 @@ namespace Cdm.Figma.Editor
             {
                 downloadDependencies = downloadDependencies
             };
+        }
+        
+        [Serializable]
+        public class File
+        {
+            public string id;
+            public string name;
+
+            public override string ToString()
+            {
+                return id;
+            }
         }
     }
 }
