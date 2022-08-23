@@ -22,8 +22,9 @@ namespace Cdm.Figma.Editor
         private GUIStyle _linkStyle;
 
         private bool _isDownloading = false;
-        private float _downloadingProgress = 0f;
+        private bool _isDownloadingDependency = false;
         private string _downloadingFile = "";
+        private float _downloadingProgress = 0f;
         private CancellationTokenSource _cancellationTokenSource;
 
         protected virtual void OnEnable()
@@ -90,8 +91,12 @@ namespace Cdm.Figma.Editor
 
             if (_isDownloading)
             {
+                var description = !_isDownloadingDependency
+                    ? $"File: {_downloadingFile}"
+                    : $"File dependency: {_downloadingFile}";
+
                 if (EditorUtility.DisplayCancelableProgressBar(
-                        "Downloading Figma files", $"File: {_downloadingFile}", _downloadingProgress))
+                        "Downloading Figma files", description, _downloadingProgress))
                 {
                     _cancellationTokenSource.Cancel();
                 }
@@ -143,7 +148,7 @@ namespace Cdm.Figma.Editor
         {
             await DownloadFilesAsync((FigmaDownloaderAsset)target);
         }
-        
+
         private async Task DownloadFilesAsync(FigmaDownloaderAsset downloader)
         {
             try
@@ -175,20 +180,26 @@ namespace Cdm.Figma.Editor
             finally
             {
                 _isDownloading = false;
+                _isDownloadingDependency = false;
                 _downloadingProgress = 0f;
 
                 _cancellationTokenSource.Dispose();
                 EditorUtility.ClearProgressBar();
-                
+
                 AssetDatabase.Refresh();
             }
         }
 
-        private static async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader,
+        private async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader,
             FigmaDownloaderAsset.File file, CancellationToken cancellationToken)
         {
             var newFile = await downloader.GetDownloader()
-                .DownloadFileAsync(file.id, downloader.personalAccessToken, cancellationToken);
+                .DownloadFileAsync(file.id, downloader.personalAccessToken, new Progress<FigmaDownloaderProgress>(
+                    progress =>
+                    {
+                        _isDownloadingDependency = progress.isDependency;
+                        _downloadingFile = progress.fileId;
+                    }), cancellationToken);
 
             var directory = Path.Combine("Assets", downloader.assetPath);
             Directory.CreateDirectory(directory);
@@ -201,7 +212,7 @@ namespace Cdm.Figma.Editor
 
             var figmaAssetPath = GetFigmaAssetPath(downloader, file.name);
             await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"), cancellationToken);
-            
+
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
         }
 

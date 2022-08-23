@@ -19,14 +19,15 @@ namespace Cdm.Figma
         public bool downloadDependencies { get; set; } = true;
 
         public async Task<FigmaFile> DownloadFileAsync(string fileId, string personalAccessToken, 
-            CancellationToken cancellationToken = default)
+            IProgress<FigmaDownloaderProgress> progress = default, CancellationToken cancellationToken = default)
         {
             try
             {
                 using (_figmaApi = new FigmaApi(personalAccessToken))
                 {
                     _downloadedFiles = new Dictionary<string, FigmaFile>();
-                    return await DownloadFileAsyncInternal(fileId, personalAccessToken, true, cancellationToken);
+                    return await DownloadFileAsyncInternal(
+                        fileId, personalAccessToken, false, progress, cancellationToken);
                 }
             }
             finally
@@ -37,9 +38,9 @@ namespace Cdm.Figma
         }
 
         private async Task<FigmaFile> DownloadFileAsyncInternal(string fileId, string personalAccessToken,
-            bool downloadThumbnail, CancellationToken cancellationToken)
+            bool isDependency, IProgress<FigmaDownloaderProgress> progress, CancellationToken cancellationToken)
         {
-            Debug.Log($"Downloading file: {fileId}");
+            progress?.Report(new FigmaDownloaderProgress(fileId, 0f, isDependency));
 
             var fileContentJson = await _figmaApi.GetFileAsync(
                 new FileRequest(fileId)
@@ -50,8 +51,9 @@ namespace Cdm.Figma
 
             var file = FigmaFile.Parse(fileContentJson);
             file.fileId = fileId;
-
-            if (downloadThumbnail)
+            
+            
+            if (!isDependency)
             {
                 if (!string.IsNullOrEmpty(file.thumbnailUrl))
                 {
@@ -68,6 +70,7 @@ namespace Cdm.Figma
                         Debug.LogWarning($"File '{file.fileId}' thumbnail could not be downloaded.\n {e}");
                     }
                 }
+                
             }
 
             _downloadedFiles.Add(file.fileId, file);
@@ -76,15 +79,20 @@ namespace Cdm.Figma
 
             if (downloadDependencies)
             {
+                progress?.Report(new FigmaDownloaderProgress(fileId, 0.5f, isDependency));
+                
                 file.fileDependencies = 
-                    await DownloadFileDependenciesAsync(file, personalAccessToken, cancellationToken);
+                    await DownloadFileDependenciesAsync(file, personalAccessToken, progress, cancellationToken);
             }
+            
+            progress?.Report(new FigmaDownloaderProgress(fileId, 1f, isDependency));
 
             return file;
         }
 
         private async Task<FigmaFileDependency[]> DownloadFileDependenciesAsync(
-            FigmaFile mainFile, string personalAccessToken, CancellationToken cancellationToken)
+            FigmaFile mainFile, string personalAccessToken, IProgress<FigmaDownloaderProgress> progress, 
+            CancellationToken cancellationToken)
         {
             // Find external components.
             var missingComponents = new Dictionary<string, List<string>>();
@@ -106,7 +114,7 @@ namespace Cdm.Figma
                         if (!_downloadedFiles.ContainsKey(componentMetadata.fileKey))
                         {
                             await DownloadFileAsyncInternal(
-                                componentMetadata.fileKey, personalAccessToken, false, cancellationToken);
+                                componentMetadata.fileKey, personalAccessToken, true, progress, cancellationToken);
                         }
 
                         {
