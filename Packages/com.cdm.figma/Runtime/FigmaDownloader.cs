@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -17,14 +18,15 @@ namespace Cdm.Figma
         /// </summary>
         public bool downloadDependencies { get; set; } = true;
 
-        public async Task<FigmaFile> DownloadFileAsync(string fileId, string personalAccessToken)
+        public async Task<FigmaFile> DownloadFileAsync(string fileId, string personalAccessToken, 
+            CancellationToken cancellationToken = default)
         {
             try
             {
                 using (_figmaApi = new FigmaApi(personalAccessToken))
                 {
                     _downloadedFiles = new Dictionary<string, FigmaFile>();
-                    return await DownloadFileAsyncInternal(fileId, personalAccessToken, true);
+                    return await DownloadFileAsyncInternal(fileId, personalAccessToken, true, cancellationToken);
                 }
             }
             finally
@@ -35,7 +37,7 @@ namespace Cdm.Figma
         }
 
         private async Task<FigmaFile> DownloadFileAsyncInternal(string fileId, string personalAccessToken,
-            bool downloadThumbnail)
+            bool downloadThumbnail, CancellationToken cancellationToken)
         {
             Debug.Log($"Downloading file: {fileId}");
 
@@ -44,7 +46,7 @@ namespace Cdm.Figma
                 {
                     geometry = "paths",
                     plugins = new[] { PluginData.Id }
-                });
+                }, cancellationToken);
 
             var file = FigmaFile.Parse(fileContentJson);
             file.fileId = fileId;
@@ -55,7 +57,7 @@ namespace Cdm.Figma
                 {
                     try
                     {
-                        var thumbnail = await _figmaApi.GetThumbnailImageAsync(file.thumbnailUrl);
+                        var thumbnail = await _figmaApi.GetThumbnailImageAsync(file.thumbnailUrl, cancellationToken);
                         if (thumbnail != null)
                         {
                             file.thumbnail = Convert.ToBase64String(thumbnail);
@@ -74,14 +76,15 @@ namespace Cdm.Figma
 
             if (downloadDependencies)
             {
-                file.fileDependencies = await DownloadFileDependenciesAsync(file, personalAccessToken);
+                file.fileDependencies = 
+                    await DownloadFileDependenciesAsync(file, personalAccessToken, cancellationToken);
             }
 
             return file;
         }
 
         private async Task<FigmaFileDependency[]> DownloadFileDependenciesAsync(
-            FigmaFile mainFile, string personalAccessToken)
+            FigmaFile mainFile, string personalAccessToken, CancellationToken cancellationToken)
         {
             // Find external components.
             var missingComponents = new Dictionary<string, List<string>>();
@@ -94,14 +97,16 @@ namespace Cdm.Figma
                 try
                 {
                     var componentMetadata =
-                        await _figmaApi.GetComponentMetadataAsync(new ComponentMetadataRequest(missingComponent.Key));
+                        await _figmaApi.GetComponentMetadataAsync(
+                            new ComponentMetadataRequest(missingComponent.Key), cancellationToken);
 
                     if (componentMetadata != null)
                     {
                         // Download file containing the component if does not exist.
                         if (!_downloadedFiles.ContainsKey(componentMetadata.fileKey))
                         {
-                            await DownloadFileAsyncInternal(componentMetadata.fileKey, personalAccessToken, false);
+                            await DownloadFileAsyncInternal(
+                                componentMetadata.fileKey, personalAccessToken, false, cancellationToken);
                         }
 
                         {
