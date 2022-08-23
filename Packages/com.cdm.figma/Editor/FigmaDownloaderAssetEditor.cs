@@ -15,11 +15,11 @@ namespace Cdm.Figma.Editor
         private SerializedProperty _assetPath;
         private SerializedProperty _downloadDependencies;
         private SerializedProperty _files;
-        
+
         private ReorderableList _fileList;
 
         private GUIStyle _linkStyle;
-        
+
         protected virtual void OnEnable()
         {
             _personalAccessToken = serializedObject.FindProperty("_personalAccessToken");
@@ -27,7 +27,7 @@ namespace Cdm.Figma.Editor
             _assetExtension = serializedObject.FindProperty("_assetExtension");
             _downloadDependencies = serializedObject.FindProperty("_downloadDependencies");
             _files = serializedObject.FindProperty("_files");
-            
+
             _fileList = new ReorderableList(serializedObject, _files, true, true, true, true);
             _fileList.drawHeaderCallback = DrawHeader;
             _fileList.drawElementCallback = DrawElement;
@@ -55,7 +55,7 @@ namespace Cdm.Figma.Editor
             {
                 Application.OpenURL("https://www.figma.com/developers/api#access-tokens");
             }
-            
+
             EditorGUILayout.Separator();
             EditorGUILayout.Separator();
             EditorGUILayout.PropertyField(_assetPath);
@@ -73,8 +73,9 @@ namespace Cdm.Figma.Editor
             {
                 DownloadFilesAsync();
             }
+
             EditorGUILayout.EndHorizontal();
-            
+
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -89,19 +90,39 @@ namespace Cdm.Figma.Editor
             var fileId = file.FindPropertyRelative("id");
             var fileName = file.FindPropertyRelative("name");
 
-            var fileIdRect = new Rect(rect.x, rect.y + 2, rect.width * 0.5f, EditorGUIUtility.singleLineHeight);
-            EditorGUI.PropertyField(fileIdRect, fileId, GUIContent.none);
-            
-            var fileNameRect = new Rect(fileIdRect.x + fileIdRect.width + 2, 
-                rect.y + 2, rect.width - (fileIdRect.width - 2), EditorGUIUtility.singleLineHeight);
-            EditorGUI.PropertyField(fileNameRect, fileName, GUIContent.none);
+            var idRect = new Rect(rect.x, rect.y + 2, rect.width * 0.5f, EditorGUIUtility.singleLineHeight);
+
+            EditorGUI.PropertyField(idRect, fileId, GUIContent.none);
+
+            if (string.IsNullOrEmpty(fileId.stringValue))
+            {
+                Placeholder(new Rect(idRect.x + 2, idRect.y, idRect.width - 2, idRect.height), "File ID");
+            }
+
+            var nameRect = new Rect(idRect.x + idRect.width + 2,
+                rect.y + 2, rect.width - (idRect.width - 2), EditorGUIUtility.singleLineHeight);
+            EditorGUI.PropertyField(nameRect, fileName, GUIContent.none);
+
+            if (string.IsNullOrEmpty(fileName.stringValue))
+            {
+                Placeholder(new Rect(nameRect.x + 2, nameRect.y, nameRect.width - 2, nameRect.height),
+                    "File name (optional)");
+            }
+        }
+
+        private static void Placeholder(Rect rect, string value)
+        {
+            var guiColor = GUI.color;
+            GUI.color = UnityEngine.Color.grey;
+            EditorGUI.LabelField(rect, value);
+            GUI.color = guiColor;
         }
 
         private async void DownloadFilesAsync()
         {
             await DownloadFilesAsync((FigmaDownloaderAsset)target);
         }
-        
+
         private static async Task DownloadFilesAsync(FigmaDownloaderAsset downloader)
         {
             try
@@ -116,7 +137,7 @@ namespace Cdm.Figma.Editor
                     // Save figma file asset.
                     await DownloadAndSaveFigmaFileAsync(downloader, file);
 
-                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {file}", 
+                    EditorUtility.DisplayProgressBar("Downloading Figma files", $"File: {file}",
                         (float)(i + 1) / fileCount);
                 }
             }
@@ -130,7 +151,7 @@ namespace Cdm.Figma.Editor
             }
         }
 
-        private static async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader, 
+        private static async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader,
             FigmaDownloaderAsset.File file)
         {
             var newFile = await downloader.GetDownloader().DownloadFileAsync(file.id, downloader.personalAccessToken);
@@ -143,7 +164,7 @@ namespace Cdm.Figma.Editor
                 file.name = newFile.name;
                 EditorUtility.SetDirty(downloader);
             }
-            
+
             var figmaAssetPath = GetFigmaAssetPath(downloader, file.name);
             await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"));
             AssetDatabase.Refresh();
