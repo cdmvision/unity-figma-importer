@@ -1,4 +1,6 @@
 ﻿using System;
+using Cdm.Figma.UI.Styles;
+using Cdm.Figma.UI.Utils;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
@@ -30,6 +32,15 @@ namespace Cdm.Figma.UI
                 if (fill == null)
                     throw new ArgumentException(
                         $"Slider fill node could not be found. Did you set '{FillKey}' as binding key?");
+
+                // Disable transform style to prevent slider layout change overrides.
+                RemoveStyleSetter<TransformStyleSetter>(fill.gameObject);
+                RemoveStyleSetter<TransformStyleSetter>(fill.transform.parent.gameObject);
+                
+                RemoveStyleSetter<TransformStyleSetter>(handle.gameObject);
+                RemoveStyleSetter<TransformStyleSetter>(handle.transform.parent.gameObject);
+                
+                ReinitializeVariantFilter(nodeObject);
 
                 slider.fillRect = fill.rectTransform;
                 slider.handleRect = handle.rectTransform;

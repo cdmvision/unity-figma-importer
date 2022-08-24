@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cdm.Figma.UI.Styles;
 using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -220,6 +221,21 @@ namespace Cdm.Figma.UI
             }
 
             return true;
+        }
+
+        protected static void RemoveStyleSetter<T>(GameObject node) where T : StyleSetter
+        {
+            var styleSetter = node.GetComponent<T>();
+            if (styleSetter != null)
+            {
+                ObjectUtils.Destroy(styleSetter);    
+            }
+        }
+
+        protected static void ReinitializeVariantFilter(FigmaNode mainNode)
+        {
+            var variantFilter = mainNode.gameObject.GetComponent<ComponentVariantFilter>();
+            variantFilter.Initialize();
         }
     }
 

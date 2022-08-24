@@ -29,7 +29,7 @@ namespace Cdm.Figma.UI.Editor.Search
                 if (FuzzySearch.FuzzyMatch(context.searchQuery, figmaPage.name, ref score, matches))
                 {
                     var label = figmaPage.name;
-                    var description = $"{figmaDesign.id} - {figmaDesign.title}";
+                    var description = $"{figmaDesign.name} ({figmaDesign.id})";
                     var thumbnail = figmaDesign.thumbnail;
                     
                     yield return provider.CreateItem(

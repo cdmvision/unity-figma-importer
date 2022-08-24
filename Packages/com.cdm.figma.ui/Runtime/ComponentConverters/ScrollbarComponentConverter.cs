@@ -1,4 +1,5 @@
 ﻿using System;
+using Cdm.Figma.UI.Styles;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,6 +27,12 @@ namespace Cdm.Figma.UI
                     throw new ArgumentException($"Slider handle node could not be found. Did you set '{HandleKey}' as binding key?");
 
                 scrollbar.handleRect = handle.rectTransform;
+                
+                // Disable transform style to prevent slider layout change overrides.
+                RemoveStyleSetter<TransformStyleSetter>(handle.gameObject);
+                RemoveStyleSetter<TransformStyleSetter>(handle.transform.parent.gameObject);
+
+                ReinitializeVariantFilter(nodeObject);
 
                 if (instanceNode.mainComponent.componentSet != null &&
                     instanceNode.mainComponent.componentSet.TryGetPluginData(out var pluginData))
