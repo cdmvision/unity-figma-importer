@@ -95,6 +95,8 @@ namespace Cdm.Figma.UI
             nodeObject.nodeName = node.name;
             nodeObject.nodeType = node.type;
             nodeObject.bindingKey = node.GetBindingKey();
+            nodeObject.tags = node.GetTags();
+            
             nodeObject._rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();
             
             if (node is SceneNode sceneNode)
