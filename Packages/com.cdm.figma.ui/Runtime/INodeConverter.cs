@@ -16,6 +16,9 @@ namespace Cdm.Figma.UI
         public Dictionary<string, ComponentNode> componentPropertyAssignments { get; } =
             new Dictionary<string, ComponentNode>();
 
+        public Dictionary<string, string> textPropertyAssignments { get; } 
+            = new Dictionary<string, string>();
+
         public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
         {
             this.importer = importer;

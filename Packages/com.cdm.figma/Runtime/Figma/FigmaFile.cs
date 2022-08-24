@@ -37,7 +37,7 @@ namespace Cdm.Figma
         [DataMember(Name = "editorType")]
         public string editorType { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "thumbnail", Order = int.MaxValue)]
         public string thumbnail { get; set; }
 
         [DataMember(Name = "lastModified")]

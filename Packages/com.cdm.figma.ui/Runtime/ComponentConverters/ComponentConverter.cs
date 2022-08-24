@@ -75,30 +75,8 @@ namespace Cdm.Figma.UI
             var componentSet = mainComponent.componentSet;
             var componentSetVariants = componentSet.variants;
 
-            // Just take ComponentPropertyType.InstanceSwap into account. Others will be handled differently.
-            var componentPropertyAssignments = instanceNode.componentProperties?.assignments?
-                .Where(x => x.Value.type == ComponentPropertyType.InstanceSwap);
-
-            if (componentPropertyAssignments != null)
-            {
-                foreach (var assignment in componentPropertyAssignments)
-                {
-                    var assignmentInstanceSwap = (ComponentPropertyAssignmentInstanceSwap)assignment.Value;
-                    var componentId = assignmentInstanceSwap.value;
-
-                    if (args.file.componentNodes.TryGetValue(componentId, out var component))
-                    {
-                        args.componentPropertyAssignments.Add(assignment.Key, component);
-                    }
-                    else
-                    {
-                        Debug.LogWarning(
-                            $"Instance swap property assignment with key '${assignment.Key}' component could not be found: ${componentId}");
-                    }
-                }
-            }
-
-
+            SetComponentPropertyAssignments(instanceNode, args);
+            
             // Initialize property variants dictionary.
             foreach (var componentVariant in componentSetVariants)
             {
@@ -156,7 +134,46 @@ namespace Cdm.Figma.UI
                 }
             }
 
+            ClearComponentPropertyAssignments(args);
+        }
+        
+        private static void SetComponentPropertyAssignments(InstanceNode instanceNode, NodeConvertArgs args)
+        {
+            var componentPropertyAssignments = instanceNode.componentProperties?.assignments;
+            if (componentPropertyAssignments != null)
+            {
+                foreach (var assignment in componentPropertyAssignments)
+                {
+                    if (assignment.Value.type == ComponentPropertyType.InstanceSwap)
+                    {
+                        var assignmentInstanceSwap = (ComponentPropertyAssignmentInstanceSwap)assignment.Value;
+                        var componentId = assignmentInstanceSwap.value;
+
+                        if (args.file.componentNodes.TryGetValue(componentId, out var component))
+                        {
+                            args.componentPropertyAssignments.Add(assignment.Key, component);
+                        }
+                        else
+                        {
+                            Debug.LogWarning(
+                                $"Instance swap property assignment with key '${assignment.Key}' component could not be found: ${componentId}");
+                        }
+                    }
+                    else if (assignment.Value.type == ComponentPropertyType.Text)
+                    {
+                        var assignmentText = (ComponentPropertyAssignmentText)assignment.Value;
+                        var characters = assignmentText.value;
+
+                        args.textPropertyAssignments.Add(assignment.Key, characters);
+                    }
+                }
+            }
+        }
+
+        private static void ClearComponentPropertyAssignments(NodeConvertArgs args)
+        {
             args.componentPropertyAssignments.Clear();
+            args.textPropertyAssignments.Clear();
         }
 
         private void MergeComponentVariant(FigmaNode node, FigmaNode variant, string selector)
@@ -193,7 +210,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        protected bool TryGetSelector(string[] variant, ComponentProperty property, ref string selector)
+        protected static bool TryGetSelector(string[] variant, ComponentProperty property, ref string selector)
         {
             if (IsSameVariant(variant, property))
             {
@@ -212,15 +229,9 @@ namespace Cdm.Figma.UI
             return false;
         }
 
-        protected bool IsSameVariant(string[] variant, params ComponentProperty[] query)
+        private static bool IsSameVariant(string[] variant, params ComponentProperty[] query)
         {
-            foreach (var q in query)
-            {
-                if (!variant.Contains(q.ToString()))
-                    return false;
-            }
-
-            return true;
+            return query.All(q => variant.Contains(q.ToString()));
         }
 
         protected static void RemoveStyleSetter<T>(GameObject node) where T : StyleSetter
@@ -228,7 +239,7 @@ namespace Cdm.Figma.UI
             var styleSetter = node.GetComponent<T>();
             if (styleSetter != null)
             {
-                ObjectUtils.Destroy(styleSetter);    
+                ObjectUtils.Destroy(styleSetter);
             }
         }
 

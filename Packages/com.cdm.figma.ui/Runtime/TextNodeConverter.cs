@@ -15,13 +15,13 @@ namespace Cdm.Figma.UI
             var convertArgs = new VectorConvertArgs();
             convertArgs.generateSprite = false;
 
-            var nodeObject = (FigmaText) base.Convert(parentObject, textNode, args, convertArgs);
+            var nodeObject = (FigmaText)base.Convert(parentObject, textNode, args, convertArgs);
             nodeObject.localizationKey = textNode.GetLocalizationKey();
-            
+
             GenerateStyles(nodeObject, textNode, args);
-            
+
             nodeObject.ApplyStyles();
-            
+
             return nodeObject;
         }
 
@@ -29,22 +29,35 @@ namespace Cdm.Figma.UI
         {
             var style = new TextStyle();
             style.enabled = true;
-            
+
             SetTextFont(style, textNode, args);
             SetTextAlignment(style, textNode);
             SetTextDecoration(style, textNode);
             SetTextAutoResize(style, textNode);
             SetFills(style, textNode);
             SetLocalization(style, textNode);
-            
+
             nodeObject.styles.Add(style);
         }
 
         private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
         {
+            var textValue = textNode.characters;
+            var propertyReference = textNode.componentProperties?.references?.characters;
+            if (!string.IsNullOrEmpty(propertyReference))
+            {
+                if (args.textPropertyAssignments.TryGetValue(propertyReference, out var characters))
+                {
+                    textValue = characters;
+                }
+            }
+
+            style.text.enabled = true;
+            style.text.value = textValue;
+
             var fontName = FontHelpers.GetFontDescriptor(
                 textNode.style.fontFamily, textNode.style.fontWeight, textNode.style.italic);
-            
+
             if (args.importer.TryGetFont(fontName, out var font))
             {
                 style.font.enabled = true;
@@ -64,15 +77,12 @@ namespace Cdm.Figma.UI
                 style.fontStyle.value |= FontStyles.Italic;
             }
 
-            style.text.enabled = true;
-            style.text.value = textNode.characters;
-
             style.characterSpacing.enabled = true;
             style.characterSpacing.value = textNode.style.letterSpacing;
-            
+
             style.fontSize.enabled = true;
             style.fontSize.value = textNode.style.fontSize;
-            
+
             style.fontWeight.enabled = true;
             style.fontWeight.value = (FontWeight)textNode.style.fontWeight;
         }
@@ -81,7 +91,7 @@ namespace Cdm.Figma.UI
         {
             style.verticalAlignment.enabled = true;
             style.horizontalAlignment.enabled = true;
-            
+
             switch (textNode.style.textAlignVertical)
             {
                 case TextAlignVertical.Bottom:
@@ -119,7 +129,7 @@ namespace Cdm.Figma.UI
         private static void SetTextAutoResize(TextStyle style, TextNode textNode)
         {
             style.autoSizeTextContainer.enabled = true;
-            
+
             switch (textNode.style.textAutoResize)
             {
                 case TextAutoResize.None:
@@ -163,7 +173,7 @@ namespace Cdm.Figma.UI
         private static void SetFills(TextStyle style, TextNode textNode)
         {
             style.color.enabled = false;
-            
+
             if (textNode.fills != null && textNode.fills.Any())
             {
                 if (textNode.fills[0] is SolidPaint solidPaint)
@@ -173,11 +183,11 @@ namespace Cdm.Figma.UI
                 }
             }
         }
-        
+
         private static void SetLocalization(TextStyle style, TextNode textNode)
         {
             style.localizedString.enabled = false;
-            
+
             var localizationKey = textNode.GetLocalizationKey();
             if (!string.IsNullOrEmpty(localizationKey))
             {

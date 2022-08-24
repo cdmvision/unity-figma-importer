@@ -11,20 +11,20 @@ namespace Cdm.Figma.UI
         {
             if (!base.CanConvert(node, args))
                 return false;
-            
-            var instanceNode = (InstanceNode) node;
-            
+
+            var instanceNode = (InstanceNode)node;
+
             // We can convert even if main component is missing. We don't need to take main component into account.
             if (instanceNode.mainComponent?.componentSet != null)
                 return false;
-            
+
             return true;
         }
-        
+
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode node, NodeConvertArgs args)
         {
             var frameNodeConverter = new FrameNodeConverter();
-            
+
             var propertyReference = node.componentProperties?.references?.mainComponent;
             if (!string.IsNullOrEmpty(propertyReference))
             {
@@ -32,12 +32,11 @@ namespace Cdm.Figma.UI
                 {
                     return frameNodeConverter.Convert(parentObject, componentNode, args);
                 }
-                else
-                {
-                    Debug.LogWarning($"Instance node {node} instance swap property reference could not found: {propertyReference}");
-                }
+
+                Debug.LogWarning(
+                    $"Instance node {node} instance swap property reference could not found: {propertyReference}");
             }
-            
+
             return frameNodeConverter.Convert(parentObject, node, args);
         }
     }
