@@ -88,6 +88,8 @@ namespace Cdm.Figma.UI
 
         private static void BuildChildren(FrameNode currentNode, FigmaNode nodeObject, NodeConvertArgs args)
         {
+            var isAutoLayout = nodeObject.GetComponent<LayoutGroup>() != null;
+            
             var children = currentNode.children;
             if (children != null)
             {
@@ -103,9 +105,13 @@ namespace Cdm.Figma.UI
 
                         childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
                         childObject.AdjustPosition(currentNode.size);
-
-                        // Add transform style after all changes made on rect transform.
-                        childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));
+                        
+                        // Do not add transform style if frame has any auto layout component.
+                        if (!isAutoLayout)
+                        {
+                            // Add transform style after all changes made on rect transform.
+                            childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));    
+                        }
                     }
                 }
             }
