@@ -19,8 +19,6 @@ namespace Cdm.Figma.Editor
 
         private ReorderableList _fileList;
 
-        private GUIStyle _linkStyle;
-
         private bool _isDownloading = false;
         private bool _isDownloadingDependency = false;
         private string _downloadingFile = "";
@@ -38,15 +36,6 @@ namespace Cdm.Figma.Editor
             _fileList = new ReorderableList(serializedObject, _files, true, true, true, true);
             _fileList.drawHeaderCallback = DrawHeader;
             _fileList.drawElementCallback = DrawElement;
-
-            _linkStyle = new GUIStyle(EditorStyles.miniLabel)
-            {
-                alignment = TextAnchor.MiddleRight,
-                hover = new GUIStyleState()
-                {
-                    textColor = UnityEngine.Color.yellow
-                }
-            };
         }
 
         public override bool RequiresConstantRepaint()
@@ -63,7 +52,14 @@ namespace Cdm.Figma.Editor
             EditorGUILayout.Separator();
 
             EditorGUILayout.PropertyField(_personalAccessToken);
-            if (GUILayout.Button("Click here for help generating access tokens", _linkStyle))
+            if (GUILayout.Button("Click here for help generating access tokens", new GUIStyle(EditorStyles.miniLabel)
+                {
+                    alignment = TextAnchor.MiddleRight,
+                    hover = new GUIStyleState()
+                    {
+                        textColor = UnityEngine.Color.yellow
+                    }
+                }))
             {
                 Application.OpenURL("https://www.figma.com/developers/api#access-tokens");
             }
