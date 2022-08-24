@@ -28,6 +28,7 @@ namespace Cdm.Figma.UI
             AddGridIfNeeded(nodeObject, frameNode);
 
             BuildChildren(frameNode, nodeObject, args);
+
             return nodeObject;
         }
 
@@ -102,6 +103,9 @@ namespace Cdm.Figma.UI
 
                         childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
                         childObject.AdjustPosition(currentNode.size);
+
+                        // Add transform style after all changes made on rect transform.
+                        childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));
                     }
                 }
             }

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Numerics;
+using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles.Properties
 {

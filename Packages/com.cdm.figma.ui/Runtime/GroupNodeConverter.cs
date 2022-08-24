@@ -1,3 +1,4 @@
+using Cdm.Figma.UI.Styles;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
@@ -48,6 +49,9 @@ namespace Cdm.Figma.UI
                         {
                             childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
                             childObject.AdjustPosition(currentNode.size);
+                            
+                            // Add transform style after all changes made on rect transform.
+                            childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));
                         }
                     }
                 }
