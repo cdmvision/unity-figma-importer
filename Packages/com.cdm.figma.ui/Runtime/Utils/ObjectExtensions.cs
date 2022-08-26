@@ -2,7 +2,7 @@
 
 namespace Cdm.Figma.UI.Utils
 {
-    public static class ObjectUtils
+    internal static class ObjectUtils
     {
         public static void Destroy(Object obj)
         {

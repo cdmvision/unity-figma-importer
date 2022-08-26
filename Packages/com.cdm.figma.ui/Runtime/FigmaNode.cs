@@ -66,9 +66,10 @@ namespace Cdm.Figma.UI
         
         public List<FigmaImporterLog> logs => _logs;
         
-        // TODO: Should be private or at least internal. Because it is only available while importing figma file.
-        public Node node { get; private set; }
-        public List<Styles.Style> styles { get;  } = new List<Styles.Style>();
+        // These are only available while importing figma file.
+        internal Node node { get; private set; }
+        internal Node referenceNode { get; set; }
+        internal List<Styles.Style> styles { get;  } = new List<Styles.Style>();
 
         private RectTransform _rectTransform;
 

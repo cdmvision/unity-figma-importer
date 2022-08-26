@@ -6,13 +6,15 @@ namespace Cdm.Figma.UI
     {
         public static void SetLayoutConstraints(this FigmaNode nodeObject, INodeTransform parentTransform)
         {
-            //anchors:
-            //min x = left
-            //min y = bottom
-            //max x = 100-right
-            //max y = 100-top
-            INodeLayout nodeLayout = (INodeLayout)nodeObject.node;
-            INodeTransform nodeTransform = (INodeTransform)nodeObject.node;
+            // Anchors:
+            // min x = left
+            // min y = bottom
+            // max x = 100-right
+            // max y = 100-top
+            var targetNode = nodeObject.referenceNode ?? nodeObject.node;
+            var nodeLayout = (INodeLayout)targetNode;
+            var nodeTransform = (INodeTransform)targetNode;
+            
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
             var anchorMin = nodeObject.rectTransform.anchorMin;
@@ -234,8 +236,9 @@ namespace Cdm.Figma.UI
 
         public static void AdjustPosition(this FigmaNode nodeObject, Vector2 parentSize)
         {
-            var nodeLayout = (INodeLayout)nodeObject.node;
-            var nodeTransform = (INodeTransform)nodeObject.node;
+            var targetNode = nodeObject.referenceNode ?? nodeObject.node;
+            var nodeLayout = (INodeLayout)targetNode;
+            var nodeTransform = (INodeTransform)targetNode;
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
 

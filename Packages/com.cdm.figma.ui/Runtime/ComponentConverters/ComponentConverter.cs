@@ -67,7 +67,7 @@ namespace Cdm.Figma.UI
 
             return base.Convert(parentObject, instanceNode, args);
         }
-
+        
         private void ConvertComponentSet(FigmaNode instanceObject, FigmaNode parentObject, InstanceNode instanceNode,
             NodeConvertArgs args)
         {
@@ -76,29 +76,8 @@ namespace Cdm.Figma.UI
             var componentSetVariants = componentSet.variants;
 
             SetComponentPropertyAssignments(instanceNode, args);
+            InitVariantsDictionary(instanceNode);
             
-            // Initialize property variants dictionary.
-            foreach (var componentVariant in componentSetVariants)
-            {
-                var propertyVariants =
-                    componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
-                        .ToArray();
-
-                foreach (var propertyVariant in propertyVariants)
-                {
-                    var tokens = propertyVariant.Split("=");
-                    var key = tokens[0];
-                    var value = tokens[1];
-
-                    if (!_variants.ContainsKey(key))
-                    {
-                        _variants.Add(key, new List<string>());
-                    }
-
-                    _variants[key].Add(value);
-                }
-            }
-
             foreach (var componentVariant in componentSetVariants)
             {
                 // Array of State=Hover, Checked=On etc.
@@ -135,6 +114,32 @@ namespace Cdm.Figma.UI
             }
 
             ClearComponentPropertyAssignments(args);
+        }
+        
+        private void InitVariantsDictionary(InstanceNode instanceNode)
+        {
+            _variants.Clear();
+            
+            foreach (var componentVariant in instanceNode.mainComponent.componentSet.variants)
+            {
+                var propertyVariants =
+                    componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
+                        .ToArray();
+
+                foreach (var propertyVariant in propertyVariants)
+                {
+                    var tokens = propertyVariant.Split("=");
+                    var key = tokens[0];
+                    var value = tokens[1];
+
+                    if (!_variants.ContainsKey(key))
+                    {
+                        _variants.Add(key, new List<string>());
+                    }
+
+                    _variants[key].Add(value);
+                }
+            }
         }
         
         private static void SetComponentPropertyAssignments(InstanceNode instanceNode, NodeConvertArgs args)

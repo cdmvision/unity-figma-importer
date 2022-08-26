@@ -313,6 +313,15 @@ namespace Cdm.Figma.UI
             return figmaNode;
         }
 
+        internal void DestroyFigmaNode(FigmaNode figmaNode)
+        {
+            if (figmaNode != null)
+            {
+                generatedGameObjects.Remove<GameObject>(figmaNode.nodeId);
+                ObjectUtils.Destroy(figmaNode.gameObject);   
+            }
+        }
+
         internal void LogWarning(string message, Object target = null)
         {
             Debug.LogWarning(message, target);

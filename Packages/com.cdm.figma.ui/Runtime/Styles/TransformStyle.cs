@@ -9,6 +9,7 @@ namespace Cdm.Figma.UI.Styles
     public class TransformStyle : Style
     {
         public StylePropertyVector2 pivot = new StylePropertyVector2(Vector2.one * 0.5f);
+        public StylePropertyVector2 sizeDelta = new StylePropertyVector2(Vector2.zero);
         public StylePropertyVector2 anchoredPosition = new StylePropertyVector2(Vector2.zero);
         public StylePropertyVector2 anchorMin = new StylePropertyVector2(Vector2.zero);
         public StylePropertyVector2 anchorMax = new StylePropertyVector2(Vector2.one);
@@ -26,14 +27,17 @@ namespace Cdm.Figma.UI.Styles
                 if (pivot.enabled)
                     rectTransform.pivot = pivot.value;
 
-                if (anchoredPosition.enabled)
-                    rectTransform.anchoredPosition = anchoredPosition.value;
-
                 if (anchorMin.enabled)
                     rectTransform.anchorMin = anchorMin.value;
 
                 if (anchorMax.enabled)
                     rectTransform.anchorMax = anchorMax.value;
+
+                if (anchoredPosition.enabled)
+                    rectTransform.anchoredPosition = anchoredPosition.value;
+
+                if (sizeDelta.enabled)
+                    rectTransform.sizeDelta = sizeDelta.value;
 
                 if (offsetMin.enabled)
                     rectTransform.offsetMin = offsetMin.value;
@@ -62,9 +66,10 @@ namespace Cdm.Figma.UI.Styles
             if (other is TransformStyle otherStyle)
             {
                 OverwriteProperty(pivot, otherStyle.pivot, force);
-                OverwriteProperty(anchoredPosition, otherStyle.anchoredPosition, force);
                 OverwriteProperty(anchorMin, otherStyle.anchorMin, force);
                 OverwriteProperty(anchorMax, otherStyle.anchorMax, force);
+                OverwriteProperty(anchoredPosition, otherStyle.anchoredPosition, force);
+                OverwriteProperty(sizeDelta, otherStyle.sizeDelta, force);
                 OverwriteProperty(offsetMin, otherStyle.offsetMin, force);
                 OverwriteProperty(offsetMax, otherStyle.offsetMax, force);
                 OverwriteProperty(position, otherStyle.position, force);
@@ -78,6 +83,9 @@ namespace Cdm.Figma.UI.Styles
             var transformStyle = new TransformStyle();
             transformStyle.pivot.enabled = true;
             transformStyle.pivot.value = rectTransform.pivot;
+
+            transformStyle.sizeDelta.enabled = true;
+            transformStyle.sizeDelta.value = rectTransform.sizeDelta;
 
             transformStyle.anchoredPosition.enabled = true;
             transformStyle.anchoredPosition.value = rectTransform.anchoredPosition;

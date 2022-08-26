@@ -45,7 +45,7 @@ namespace Cdm.Figma.UI
                     textureSize = 1024
                 };
 
-                if (!args.importer.generatedAssets.TryGet<Sprite>(node.id, out sprite))
+                if (!args.importer.generatedAssets.TryGet(node.id, out sprite))
                 {
                     sprite = NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, options);
                     if (sprite != null)
