@@ -19,6 +19,7 @@ namespace Cdm.Figma.UI
         [SerializeField]
         private string _nodeId;
 
+        /// <inheritdoc cref="Node.id"/>
         public string nodeId
         {
             get => _nodeId;
@@ -28,6 +29,7 @@ namespace Cdm.Figma.UI
         [SerializeField]
         private string _nodeName;
 
+        /// <inheritdoc cref="Node.name"/>
         public string nodeName
         {
             get => _nodeName;
@@ -37,6 +39,7 @@ namespace Cdm.Figma.UI
         [SerializeField]
         private string _nodeType;
 
+        /// <inheritdoc cref="Node.type"/>
         public string nodeType
         {
             get => _nodeType;
@@ -46,6 +49,10 @@ namespace Cdm.Figma.UI
         [SerializeField]
         private string _bindingKey;
 
+        /// <summary>
+        /// The binding key set by the user in Figma editor using Unity Figma Plugin. It can be used to access
+        /// to the node, especially at runtime.
+        /// </summary>
         public string bindingKey
         {
             get => _bindingKey;
@@ -55,6 +62,10 @@ namespace Cdm.Figma.UI
         [SerializeField]
         private string[] _tags = Array.Empty<string>();
 
+        /// <summary>
+        /// The node tags added by the user in Figma editor using Unity Figma Plugin. It can be used for filtering
+        /// nodes.
+        /// </summary>
         public string[] tags
         {
             get => _tags;
@@ -66,9 +77,29 @@ namespace Cdm.Figma.UI
         
         public List<FigmaImporterLog> logs => _logs;
         
-        // These are only available while importing figma file.
+        /// <summary>
+        /// The actual figma node that is created from.
+        /// </summary>
+        /// <remarks>
+        /// It is available only while importing figma file.
+        /// </remarks>
         internal Node node { get; private set; }
+        
+        /// <summary>
+        /// It points to an instance node that will be used when converting a component node for
+        /// <see cref="ComponentPropertyType.InstanceSwap"/> feature.
+        /// </summary>
+        /// <remarks>
+        /// It can be available only while importing figma file.
+        /// </remarks>
         internal Node referenceNode { get; set; }
+        
+        /// <summary>
+        /// All node styles that will be applied while conversion process.
+        /// </summary>
+        /// <remarks>
+        /// It is available only while importing figma file.
+        /// </remarks>
         internal List<Styles.Style> styles { get;  } = new List<Styles.Style>();
 
         private RectTransform _rectTransform;
