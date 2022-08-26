@@ -76,12 +76,34 @@ namespace Cdm.Figma.UI
             }
         }
 
-        public static void ApplyStylesSelectors(this FigmaNode nodeObject)
+        /// <summary>
+        /// Gets the children of the node given as specific node type.
+        /// </summary>
+        public static IList<T> GetChildren<T>(this FigmaNode figmaNode) where T : FigmaNode
         {
-            foreach (var style in nodeObject.styles)
+            var children = new List<T>();
+
+            foreach (Transform child in figmaNode.transform)
             {
-                style.SetStyleAsSelector(nodeObject.gameObject, new StyleArgs("", true));
+                if (child != null)
+                {
+                    var component = child.GetComponent<T>();
+                    if (component != null)
+                    {
+                        children.Add(component);
+                    }
+                }
             }
+
+            return children;
+        }
+        
+        /// <summary>
+        /// Gets the children of the node given.
+        /// </summary>
+        public static IList<FigmaNode> GetChildren(this FigmaNode figmaNode)
+        {
+            return figmaNode.GetChildren<FigmaNode>();
         }
 
         /// <summary>

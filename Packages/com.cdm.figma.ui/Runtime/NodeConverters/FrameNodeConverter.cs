@@ -84,6 +84,8 @@ namespace Cdm.Figma.UI
                 style.enabled = true;
                 nodeObject.styles.Add(style);
             }
+            
+            StyleGeneratorHelper.GenerateEffectsStyles(nodeObject, node.effects);
         }
 
         private static void BuildChildren(FrameNode currentNode, FigmaNode nodeObject, NodeConvertArgs args)

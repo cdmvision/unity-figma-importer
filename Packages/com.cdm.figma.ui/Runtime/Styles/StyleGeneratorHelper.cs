@@ -3,7 +3,7 @@ using Cdm.Figma.UI.Styles;
 
 namespace Cdm.Figma.UI
 {
-    public static class NodeConverterHelper
+    public static class StyleGeneratorHelper
     {
         public static void GenerateEffectsStyles(FigmaNode nodeObject, IEnumerable<Effect> effects)
         {
@@ -12,7 +12,7 @@ namespace Cdm.Figma.UI
                 GenerateEffectStyle(nodeObject, effect);
             }
         }
-        
+
         public static void GenerateEffectStyle(FigmaNode nodeObject, Effect effect)
         {
             switch (effect)
@@ -26,28 +26,37 @@ namespace Cdm.Figma.UI
             }
         }
 
-        public static void GenerateBlurEffectStyle(FigmaNode nodeObject, BlurEffect effect)
+        public static void GenerateBlurEffectStyle(FigmaNode figmaNode, BlurEffect effect)
         {
-            // TODO: Implement with LeTai Translucent Image plugin
+            var style = new BlurStyle();
+            style.enabled = effect.visible;
+            style.radius.SetValue(effect.radius);
+            style.type.SetValue(effect is BackgroundBlurEffect ? BlurType.Background : BlurType.Layer);
+
+            figmaNode.styles.Add(style);
         }
 
-        public static void GenerateShadowEffectStyle(FigmaNode nodeObject, ShadowEffect effect)
+        public static void GenerateShadowEffectStyle(FigmaNode figmaNode, ShadowEffect effect)
         {
             var style = new ShadowStyle();
             style.enabled = effect.visible;
-            
+
             style.color.SetValue(effect.color);
             style.radius.SetValue(effect.radius);
             style.inner.SetValue(effect is InnerShadowEffect);
             style.offset.SetValue(effect.offset);
-            style.spread.SetValue(effect.spread);
+
+            if (effect.spread > 0)
+            {
+                style.spread.SetValue(effect.spread);
+            }
 
             if (effect.blendMode.HasValue)
             {
                 style.blendMode.SetValue(effect.blendMode.Value);
             }
-            
-            nodeObject.styles.Add(style);
+
+            figmaNode.styles.Add(style);
         }
     }
 }

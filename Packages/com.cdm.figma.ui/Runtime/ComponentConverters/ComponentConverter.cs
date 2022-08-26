@@ -180,10 +180,13 @@ namespace Cdm.Figma.UI
             args.componentPropertyAssignments.Clear();
             args.textPropertyAssignments.Clear();
         }
-
-        private void MergeComponentVariant(FigmaNode node, FigmaNode variant, string selector)
+        
+        private static void MergeComponentVariant(FigmaNode node, FigmaNode variant, string selector)
         {
-            if (node.transform.childCount != variant.transform.childCount)
+            var nodeChildren = node.GetChildren();
+            var variantChildren = variant.GetChildren();
+            
+            if (nodeChildren.Count != variantChildren.Count)
                 throw new ArgumentException("Component variant has invalid number of children!");
 
             var styles = variant.styles;
@@ -194,24 +197,31 @@ namespace Cdm.Figma.UI
 
             node.styles.AddRange(styles);
 
-            for (var i = 0; i < node.transform.childCount; i++)
+            for (var i = 0; i < nodeChildren.Count; i++)
             {
-                var nextNode = node.transform.GetChild(i).GetComponent<FigmaNode>();
-                var nextVariant = variant.transform.GetChild(i).GetComponent<FigmaNode>();
+                var nextNode = nodeChildren[i];
+                var nextVariant = variantChildren[i];
 
                 MergeComponentVariant(nextNode, nextVariant, selector);
             }
         }
 
-        private void ApplyStyleSelectorsRecurse(FigmaNode nodeObject)
+        private static void ApplyStyleSelectorsRecurse(FigmaNode figmaNode)
         {
             // Remove default styles.
-            nodeObject.styles.RemoveAll(s => string.IsNullOrEmpty(s.selector));
-            nodeObject.ApplyStylesSelectors();
+            figmaNode.styles.RemoveAll(s => string.IsNullOrEmpty(s.selector));
 
-            foreach (Transform child in nodeObject.transform)
+            // Apply default styles.
+            foreach (var style in figmaNode.styles)
             {
-                ApplyStyleSelectorsRecurse(child.GetComponent<FigmaNode>());
+                style.SetStyleAsSelector(figmaNode.gameObject, new StyleArgs("", true));
+            }
+            
+            // Do the same for the node's children.
+            var children = figmaNode.GetChildren();
+            foreach (var child in children)
+            {
+                ApplyStyleSelectorsRecurse(child);
             }
         }
 
