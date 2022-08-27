@@ -120,6 +120,7 @@ namespace Cdm.Figma.Editor
             var file = _fileList.serializedProperty.GetArrayElementAtIndex(index);
             var fileId = file.FindPropertyRelative("id");
             var fileName = file.FindPropertyRelative("name");
+            var defaultName = file.FindPropertyRelative("defaultName");
 
             var idRect = new Rect(rect.x, rect.y + 2, rect.width * 0.5f, EditorGUIUtility.singleLineHeight);
 
@@ -132,12 +133,15 @@ namespace Cdm.Figma.Editor
 
             var nameRect = new Rect(idRect.x + idRect.width + 2,
                 rect.y + 2, rect.width - (idRect.width - 2), EditorGUIUtility.singleLineHeight);
-            EditorGUI.PropertyField(nameRect, fileName, GUIContent.none);
 
+            EditorGUI.PropertyField(nameRect, fileName, GUIContent.none);
+            
             if (string.IsNullOrEmpty(fileName.stringValue))
             {
-                Placeholder(new Rect(nameRect.x + 2, nameRect.y, nameRect.width - 2, nameRect.height),
-                    "File name (optional)");
+                var text = !string.IsNullOrEmpty(defaultName.stringValue)
+                    ? defaultName.stringValue
+                    : "File name (optional)";
+                Placeholder(new Rect(nameRect.x + 2, nameRect.y, nameRect.width - 2, nameRect.height), text);
             }
         }
 
@@ -207,12 +211,9 @@ namespace Cdm.Figma.Editor
             var directory = Path.Combine("Assets", downloader.assetPath);
             Directory.CreateDirectory(directory);
 
-            if (string.IsNullOrEmpty(file.name))
-            {
-                file.name = newFile.name;
-                EditorUtility.SetDirty(downloader);
-            }
-
+            file.defaultName = newFile.name;
+            EditorUtility.SetDirty(downloader);
+            
             var figmaAssetPath = GetFigmaAssetPath(downloader, file.name);
             await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"), cancellationToken);
 

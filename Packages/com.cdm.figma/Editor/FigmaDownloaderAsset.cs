@@ -78,6 +78,7 @@ namespace Cdm.Figma.Editor
         {
             public string id;
             public string name;
+            public string defaultName;
 
             public override string ToString()
             {
