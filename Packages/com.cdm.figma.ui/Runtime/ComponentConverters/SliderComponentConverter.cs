@@ -1,5 +1,6 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,38 +18,36 @@ namespace Cdm.Figma.UI
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
-            var nodeObject = base.Convert(parentObject, instanceNode, args);
+            var figmaNode = base.Convert(parentObject, instanceNode, args);
 
-            if (nodeObject != null)
+            if (figmaNode != null)
             {
-                var slider = nodeObject.GetComponent<Slider>();
+                if (!figmaNode.TryFindNode<RectTransform>(args, FillKey, out var fill))
+                {
+                    return figmaNode;
+                }
 
-                var fill = nodeObject.Find(x => x.bindingKey == FillKey);
-                if (fill == null)
-                    throw new ArgumentException(
-                        $"Slider fill node could not be found. Did you set '{FillKey}' as binding key?");
-                
-                slider.fillRect = fill.rectTransform;
-                
                 // Disable transform style to prevent slider layout change overrides.
                 RemoveStyleSetter<TransformStyleSetter>(fill.gameObject);
                 RemoveStyleSetter<TransformStyleSetter>(fill.transform.parent.gameObject);
-                
+
+                var slider = figmaNode.GetComponent<Slider>();
+                slider.fillRect = fill;
+
                 // Handle is not mandatory.
-                var handle = nodeObject.Find(x => x.bindingKey == HandleKey);
-                if (handle != null)
+                if (figmaNode.TryFindOptionalNode<RectTransform>(HandleKey, out var handle))
                 {
-                    slider.handleRect = handle.rectTransform;
-                    
+                    slider.handleRect = handle;
+
                     // Handle pivot should be the center of the handle rect.
                     slider.handleRect.pivot = Vector2.one * 0.5f;
                     slider.handleRect.anchoredPosition = Vector2.zero;
-                    
+
                     RemoveStyleSetter<TransformStyleSetter>(handle.gameObject);
-                    RemoveStyleSetter<TransformStyleSetter>(handle.transform.parent.gameObject);    
+                    RemoveStyleSetter<TransformStyleSetter>(handle.transform.parent.gameObject);
                 }
 
-                ReinitializeVariantFilter(nodeObject);
+                ReinitializeVariantFilter(figmaNode);
 
                 if (instanceNode.mainComponent.componentSet != null &&
                     instanceNode.mainComponent.componentSet.TryGetPluginData(out var pluginData))
@@ -61,7 +60,7 @@ namespace Cdm.Figma.UI
                 }
             }
 
-            return nodeObject;
+            return figmaNode;
         }
     }
 }

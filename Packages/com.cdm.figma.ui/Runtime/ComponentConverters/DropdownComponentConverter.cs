@@ -1,15 +1,17 @@
-using System;
+using Cdm.Figma.UI.Styles;
+using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class DropdownComponentConverter : SelectableComponentConverter<TMP_Dropdown, SelectableComponentVariantFilter>
+    public class DropdownComponentConverter : ComponentConverter
     {
         private const string TemplateKey = BindingPrefix + "Template";
         private const string CaptionTextKey = BindingPrefix + "CaptionText";
-        private const string ItemTextKey = BindingPrefix + "ItemText";
         private const string ContentItemKey = BindingPrefix + "ContentItem";
+        private const string ContentItemTextKey = BindingPrefix + "ContentItemText";
+        private const string ContentItemImageKey = BindingPrefix + "ContentItemImage";
 
         protected override bool CanConvertType(string typeId)
         {
@@ -18,35 +20,46 @@ namespace Cdm.Figma.UI
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
-            var nodeObject = base.Convert(parentObject, instanceNode, args);
-
-            if (nodeObject != null)
+            var figmaNode = base.Convert(parentObject, instanceNode, args);
+            if (figmaNode != null)
             {
-                var dropdown = nodeObject.GetComponent<TMP_Dropdown>();
+                if (!figmaNode.TryFindNode(args, TemplateKey, out var template) ||
+                    !figmaNode.TryFindNode(args, ContentItemKey, out var contentItem))
+                {
+                    return figmaNode;
+                }
+
+                var dropdown = figmaNode.gameObject.AddComponent<TMP_Dropdown>();
                 dropdown.transition = Selectable.Transition.None;
 
-                var template = nodeObject.Find(x => x.bindingKey == TemplateKey);
-                if(template == null)
-                    throw new ArgumentException($"Dropdown template node could not be found. Did you set '{TemplateKey}' as binding key?");
+                template.gameObject.SetActive(true);
+                contentItem.gameObject.SetActive(true);
 
                 dropdown.template = template.rectTransform;
                 dropdown.template.gameObject.SetActive(false);
-                
-                var captionText = nodeObject.Find(x => x.bindingKey == CaptionTextKey);
-                if (captionText != null)
+
+                if (contentItem.TryFindOptionalNode<TMP_Text>(ContentItemTextKey, out var itemText))
                 {
-                    dropdown.captionText = captionText.GetComponent<TextMeshProUGUI>();
+                    dropdown.itemText = itemText;
+                    dropdown.itemText.DisableTextStyleTextOverride();
                 }
 
-                var contentItem = nodeObject.Find(x => x.bindingKey == ContentItemKey);
-                if (contentItem == null)
-                    throw new ArgumentException($"Dropdown content item node could not be found. Did you set '{ContentItemKey}' as binding key?");
+                if (contentItem.TryFindOptionalNode<Image>(ContentItemImageKey, out var itemImage))
+                {
+                    dropdown.itemImage = itemImage;
+                }
+
+                if (figmaNode.TryFindOptionalNode<TMP_Text>(CaptionTextKey, out var captionText))
+                {
+                    dropdown.captionText = captionText;
+                    dropdown.captionText.DisableTextStyleTextOverride();
+                }
 
                 var scrollView = template.GetComponent<ScrollRect>();
                 contentItem.transform.SetParent(scrollView.content);
             }
-            
-            return nodeObject;
+
+            return figmaNode;
         }
     }
 }

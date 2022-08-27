@@ -1,4 +1,4 @@
-using System;
+using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,37 +18,34 @@ namespace Cdm.Figma.UI
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
-            var nodeObject = base.Convert(parentObject, instanceNode, args);
-            if (nodeObject != null)
+            var figmaNode = base.Convert(parentObject, instanceNode, args);
+            if (figmaNode != null)
             {
-                var scrollRect = nodeObject.gameObject.AddComponent<ScrollRect>();
-                var content = nodeObject.Find(x => x.bindingKey == ContentKey);
-                if (content == null)
-                    throw new ArgumentException(
-                        $"ScrollView content node could not be found. Did you set '{ContentKey}' as binding key?");
-
-                var viewport = nodeObject.Find(x => x.bindingKey == ViewportKey);
-                if (viewport == null)
-                    throw new ArgumentException(
-                        $"ScrollView viewport node could not be found. Did you set '{ViewportKey}' as binding key?");
-
-                var horizontalScrollbar = nodeObject.Find(x => x.bindingKey == HorizontalScrollbarKey);
-                var verticalScrollbar = nodeObject.Find(x => x.bindingKey == VerticalScrollbarKey);
-
-                if (horizontalScrollbar != null)
+                if (!figmaNode.TryFindNode<RectTransform>(args, ContentKey, out var content) ||
+                    !figmaNode.TryFindNode<RectTransform>(args, ViewportKey, out var viewport))
                 {
-                    scrollRect.horizontalScrollbar = horizontalScrollbar.rectTransform.GetComponent<Scrollbar>();
+                    return figmaNode;
+                }
+
+                var scrollRect = figmaNode.gameObject.AddComponent<ScrollRect>();
+                scrollRect.inertia = false;
+                scrollRect.movementType = ScrollRect.MovementType.Clamped;
+                scrollRect.scrollSensitivity = 10f;
+
+                if (figmaNode.TryFindOptionalNode<Scrollbar>(HorizontalScrollbarKey, out var horizontalScrollbar))
+                {
+                    scrollRect.horizontalScrollbar = horizontalScrollbar;
                     scrollRect.horizontalScrollbarSpacing = -3; // TODO: auto calculate
                 }
 
-                if (verticalScrollbar != null)
+                if (figmaNode.TryFindOptionalNode<Scrollbar>(VerticalScrollbarKey, out var verticalScrollbar))
                 {
-                    scrollRect.verticalScrollbar = verticalScrollbar.rectTransform.GetComponent<Scrollbar>();
-                    scrollRect.verticalScrollbarSpacing = -3;   // TODO: auto calculate 
+                    scrollRect.verticalScrollbar = verticalScrollbar;
+                    scrollRect.verticalScrollbarSpacing = -3; // TODO: auto calculate 
                 }
-                
-                if (instanceNode.mainComponent.componentSet != null &&
-                    instanceNode.mainComponent.componentSet.TryGetPluginData(out var pluginData))
+
+                if (instanceNode.mainComponent != null &&
+                    instanceNode.mainComponent.TryGetPluginData(out var pluginData))
                 {
                     var componentData = pluginData.GetComponentDataAs<ScrollViewComponentData>();
                     if (componentData != null)
@@ -58,15 +55,15 @@ namespace Cdm.Figma.UI
                     }
                 }
 
-                scrollRect.content = content.rectTransform;
-                scrollRect.viewport = viewport.rectTransform;
-                
+                scrollRect.content = content;
+                scrollRect.viewport = viewport;
+
                 var contentSizeFitter = scrollRect.content.gameObject.AddComponent<ContentSizeFitter>();
                 contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
                 contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             }
 
-            return nodeObject;
+            return figmaNode;
         }
 
         protected override bool TryGetSelector(string[] variant, out string selector)

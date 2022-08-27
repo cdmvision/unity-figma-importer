@@ -65,6 +65,7 @@ namespace Cdm.Figma.UI
             return new ComponentConverter[]
             {
                 new UnknownComponentConverter(),
+                new SelectableComponentConverter(),
                 new ButtonComponentConverter(),
                 new ToggleComponentConverter(),
                 new SliderComponentConverter(),

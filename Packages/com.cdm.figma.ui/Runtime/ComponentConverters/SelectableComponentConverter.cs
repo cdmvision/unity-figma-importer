@@ -2,20 +2,13 @@
 
 namespace Cdm.Figma.UI
 {
-    public static class ComponentPropertyState
+    public class SelectableComponentConverter :
+        SelectableComponentConverter<Selectable, SelectableComponentVariantFilter>
     {
-        public const string Key = "State";
-        public static readonly ComponentProperty Default = new ComponentProperty(Key, "Default");
-        public static readonly ComponentProperty Hover = new ComponentProperty(Key, "Hover");
-        public static readonly ComponentProperty Press = new ComponentProperty(Key, "Press");
-        public static readonly ComponentProperty Disabled = new ComponentProperty(Key, "Disabled");
-    }
-
-    public static class ComponentPropertySelected
-    {
-        public const string Key = "Selected";
-        public static readonly ComponentProperty Off = new ComponentProperty(Key, "Off");
-        public static readonly ComponentProperty On = new ComponentProperty(Key, "On");
+        protected override bool CanConvertType(string typeId)
+        {
+            return typeId == "Selectable";
+        }
     }
 
     public abstract class SelectableComponentConverter<TComponent, TComponentVariantFilter> :
@@ -24,7 +17,7 @@ namespace Cdm.Figma.UI
         where TComponentVariantFilter : SelectableComponentVariantFilter
     {
         private bool isSelectable => variants.ContainsKey(ComponentPropertySelected.Key);
-        
+
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             var nodeObject = base.Convert(parentObject, instanceNode, args);
@@ -56,5 +49,21 @@ namespace Cdm.Figma.UI
 
             return true;
         }
+    }
+
+    public static class ComponentPropertyState
+    {
+        public const string Key = "State";
+        public static readonly ComponentProperty Default = new ComponentProperty(Key, "Default");
+        public static readonly ComponentProperty Hover = new ComponentProperty(Key, "Hover");
+        public static readonly ComponentProperty Press = new ComponentProperty(Key, "Press");
+        public static readonly ComponentProperty Disabled = new ComponentProperty(Key, "Disabled");
+    }
+
+    public static class ComponentPropertySelected
+    {
+        public const string Key = "Selected";
+        public static readonly ComponentProperty Off = new ComponentProperty(Key, "Off");
+        public static readonly ComponentProperty On = new ComponentProperty(Key, "On");
     }
 }
