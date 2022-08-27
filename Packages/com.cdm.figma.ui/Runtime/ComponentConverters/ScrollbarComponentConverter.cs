@@ -1,6 +1,5 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
@@ -25,7 +24,7 @@ namespace Cdm.Figma.UI
                 var handle = nodeObject.Find(x => x.bindingKey == HandleKey);
                 if (handle == null)
                     throw new ArgumentException($"Slider handle node could not be found. Did you set '{HandleKey}' as binding key?");
-
+                
                 scrollbar.handleRect = handle.rectTransform;
                 
                 // Disable transform style to prevent slider layout change overrides.
@@ -33,7 +32,7 @@ namespace Cdm.Figma.UI
                 RemoveStyleSetter<TransformStyleSetter>(handle.transform.parent.gameObject);
 
                 ReinitializeVariantFilter(nodeObject);
-
+                
                 if (instanceNode.mainComponent.componentSet != null &&
                     instanceNode.mainComponent.componentSet.TryGetPluginData(out var pluginData))
                 {
@@ -43,10 +42,6 @@ namespace Cdm.Figma.UI
                         scrollbar.direction = componentData.direction;
                     }
                 }
-                
-                // TODO: Bug ?
-                var handleParent = (RectTransform) handle.rectTransform.parent;
-                handleParent.offsetMin = new Vector2(handleParent.offsetMin.x, handleParent.offsetMin.y + 1);
             }
 
             return nodeObject;
