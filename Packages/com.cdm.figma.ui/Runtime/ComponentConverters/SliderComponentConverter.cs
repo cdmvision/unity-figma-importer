@@ -1,6 +1,6 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles;
-using Cdm.Figma.UI.Utils;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
@@ -23,28 +23,33 @@ namespace Cdm.Figma.UI
             {
                 var slider = nodeObject.GetComponent<Slider>();
 
-                var handle = nodeObject.Find(x => x.bindingKey == HandleKey);
-                if (handle == null)
-                    throw new ArgumentException(
-                        $"Slider handle node could not be found. Did you set '{HandleKey}' as binding key?");
-
                 var fill = nodeObject.Find(x => x.bindingKey == FillKey);
                 if (fill == null)
                     throw new ArgumentException(
                         $"Slider fill node could not be found. Did you set '{FillKey}' as binding key?");
-
+                
+                slider.fillRect = fill.rectTransform;
+                
                 // Disable transform style to prevent slider layout change overrides.
                 RemoveStyleSetter<TransformStyleSetter>(fill.gameObject);
                 RemoveStyleSetter<TransformStyleSetter>(fill.transform.parent.gameObject);
                 
-                RemoveStyleSetter<TransformStyleSetter>(handle.gameObject);
-                RemoveStyleSetter<TransformStyleSetter>(handle.transform.parent.gameObject);
-                
+                // Handle is not mandatory.
+                var handle = nodeObject.Find(x => x.bindingKey == HandleKey);
+                if (handle != null)
+                {
+                    slider.handleRect = handle.rectTransform;
+                    
+                    // Handle pivot should be the center of the handle rect.
+                    slider.handleRect.pivot = Vector2.one * 0.5f;
+                    slider.handleRect.anchoredPosition = Vector2.zero;
+                    
+                    RemoveStyleSetter<TransformStyleSetter>(handle.gameObject);
+                    RemoveStyleSetter<TransformStyleSetter>(handle.transform.parent.gameObject);    
+                }
+
                 ReinitializeVariantFilter(nodeObject);
 
-                slider.fillRect = fill.rectTransform;
-                slider.handleRect = handle.rectTransform;
-                
                 if (instanceNode.mainComponent.componentSet != null &&
                     instanceNode.mainComponent.componentSet.TryGetPluginData(out var pluginData))
                 {
