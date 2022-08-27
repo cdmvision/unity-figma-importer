@@ -61,7 +61,7 @@ namespace Cdm.Figma.UI.Editor
         }
 
         [SerializeField]
-        private TextureWrapMode _wrapMode = TextureWrapMode.Repeat;
+        private TextureWrapMode _wrapMode = TextureWrapMode.Clamp;
 
         public TextureWrapMode wrapMode
         {

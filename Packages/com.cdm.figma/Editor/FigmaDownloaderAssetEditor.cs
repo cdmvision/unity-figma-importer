@@ -20,6 +20,7 @@ namespace Cdm.Figma.Editor
         private ReorderableList _fileList;
 
         private bool _isDownloading = false;
+        private bool _isDownloadingCompleted = false;
         private bool _isDownloadingDependency = false;
         private string _downloadingFile = "";
         private float _downloadingProgress = 0f;
@@ -40,7 +41,7 @@ namespace Cdm.Figma.Editor
 
         public override bool RequiresConstantRepaint()
         {
-            return _isDownloading || base.RequiresConstantRepaint();
+            return _isDownloading || _isDownloadingCompleted || base.RequiresConstantRepaint();
         }
 
         public override void OnInspectorGUI()
@@ -79,6 +80,7 @@ namespace Cdm.Figma.Editor
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Download Files", EditorStyles.miniButton))
             {
+                _isDownloadingCompleted = false;
                 _cancellationTokenSource = new CancellationTokenSource();
                 DownloadFilesAsync();
             }
@@ -96,6 +98,13 @@ namespace Cdm.Figma.Editor
                 {
                     _cancellationTokenSource.Cancel();
                 }
+            }
+            else if (_isDownloadingCompleted)
+            {
+                _isDownloadingCompleted = false;
+                
+                EditorUtility.ClearProgressBar();
+                AssetDatabase.Refresh();
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -176,13 +185,11 @@ namespace Cdm.Figma.Editor
             finally
             {
                 _isDownloading = false;
+                _isDownloadingCompleted = true;
                 _isDownloadingDependency = false;
                 _downloadingProgress = 0f;
-
+                
                 _cancellationTokenSource.Dispose();
-                EditorUtility.ClearProgressBar();
-
-                AssetDatabase.Refresh();
             }
         }
 

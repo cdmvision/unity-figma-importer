@@ -201,8 +201,6 @@ namespace Cdm.Figma.Utils
                 strokePadding = strokeWidth * 2;
             }
 
-            strokePadding += 2;
-            
             // Left, bottom, right and top.
             var borders = new Vector4(
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
@@ -210,7 +208,7 @@ namespace Cdm.Figma.Utils
                 Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
             );
-
+            
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg), ViewportOptions.PreserveViewport);
             return CreateTexturedSprite(node, options, sceneInfo, borders);
         }
