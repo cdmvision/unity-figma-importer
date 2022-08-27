@@ -5,38 +5,45 @@ namespace Cdm.Figma.UI
 {
     public static class StyleGeneratorHelper
     {
-        public static void GenerateEffectsStyles(FigmaNode nodeObject, IEnumerable<Effect> effects)
+        public static void GenerateEffectsStyles(FigmaNode figmaNode, IEnumerable<Effect> effects)
         {
             foreach (var effect in effects)
             {
-                GenerateEffectStyle(nodeObject, effect);
+                var style = GenerateEffectStyle(effect);
+                if (style != null)
+                {
+                    figmaNode.styles.Add(style);
+                }
             }
         }
 
-        public static void GenerateEffectStyle(FigmaNode nodeObject, Effect effect)
+        public static Styles.Style GenerateEffectStyle(Effect effect)
         {
+            Styles.Style style = null;
+
             switch (effect)
             {
                 case BlurEffect blurEffect:
-                    GenerateBlurEffectStyle(nodeObject, blurEffect);
+                    style = GenerateBlurEffectStyle(blurEffect);
                     break;
                 case ShadowEffect shadowEffect:
-                    GenerateShadowEffectStyle(nodeObject, shadowEffect);
+                    style = GenerateShadowEffectStyle(shadowEffect);
                     break;
             }
+
+            return style;
         }
 
-        public static void GenerateBlurEffectStyle(FigmaNode figmaNode, BlurEffect effect)
+        public static Styles.Style GenerateBlurEffectStyle(BlurEffect effect)
         {
             var style = new BlurStyle();
             style.enabled = effect.visible;
             style.radius.SetValue(effect.radius);
             style.type.SetValue(effect is BackgroundBlurEffect ? BlurType.Background : BlurType.Layer);
-
-            figmaNode.styles.Add(style);
+            return style;
         }
 
-        public static void GenerateShadowEffectStyle(FigmaNode figmaNode, ShadowEffect effect)
+        public static Styles.Style GenerateShadowEffectStyle(ShadowEffect effect)
         {
             var style = new ShadowStyle();
             style.enabled = effect.visible;
@@ -56,7 +63,7 @@ namespace Cdm.Figma.UI
                 style.blendMode.SetValue(effect.blendMode.Value);
             }
 
-            figmaNode.styles.Add(style);
+            return style;
         }
     }
 }

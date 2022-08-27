@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class TransformStyle : Style
+    public class TransformStyle : StyleWithSetter<TransformStyleSetter>
     {
         public StylePropertyVector2 pivot = new StylePropertyVector2(Vector2.one * 0.5f);
         public StylePropertyVector2 sizeDelta = new StylePropertyVector2(Vector2.zero);
@@ -54,11 +54,6 @@ namespace Cdm.Figma.UI.Styles
                 if (rotation.enabled)
                     rectTransform.localRotation = rotation.value;
             }
-        }
-
-        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
-        {
-            SetStyleAsSelector<TransformStyleSetter>(gameObject, args);
         }
 
         protected override void MergeTo(Style other, bool force)

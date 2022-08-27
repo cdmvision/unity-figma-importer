@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class ImageStyle : GraphicStyle
+    public class ImageStyle : GraphicStyle<ImageStyleSetter>
     {
         public StylePropertyBool componentEnabled = new StylePropertyBool(true);
         public StylePropertySprite sprite = new StylePropertySprite();
@@ -26,14 +26,7 @@ namespace Cdm.Figma.UI.Styles
                 OverwriteProperty(pixelsPerUnitMultiplier, otherStyle.pixelsPerUnitMultiplier, force);
             }
         }
-
-        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
-        {
-            base.SetStyleAsSelector(gameObject, args);
-            
-            SetStyleAsSelector<ImageStyleSetter>(gameObject, args);
-        }
-
+        
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
             var image = gameObject.GetOrAddComponent<Image>();

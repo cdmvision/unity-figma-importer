@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class CanvasGroupStyle : Style
+    public class CanvasGroupStyle : StyleWithSetter<CanvasGroupStyleSetter>
     {
         public StylePropertyFloat alpha = new StylePropertyFloat(1f);
 
@@ -19,12 +19,7 @@ namespace Cdm.Figma.UI.Styles
                     canvasGroup.alpha = alpha.value;
             }
         }
-
-        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
-        {
-            SetStyleAsSelector<CanvasGroupStyleSetter>(gameObject, args);
-        }
-
+        
         protected override void MergeTo(Style other, bool force)
         {
             if (other is CanvasGroupStyle otherStyle)

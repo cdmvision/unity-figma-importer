@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class ShadowStyle : Style
+    public class ShadowStyle : StyleWithSetter<ShadowStyleSetter>
     {
         public StylePropertyBool visible = new StylePropertyBool(true);
         public StylePropertyBool inner = new StylePropertyBool(false);
@@ -28,11 +28,6 @@ namespace Cdm.Figma.UI.Styles
                 OverwriteProperty(offset, otherStyle.offset, force);
                 OverwriteProperty(blendMode, otherStyle.blendMode, force);
             }
-        }
-
-        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
-        {
-            SetStyleAsSelector<ShadowStyleSetter>(gameObject, args);
         }
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)

@@ -8,7 +8,7 @@ using UnityEngine.Localization.Components;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class TextStyle : GraphicStyle
+    public class TextStyle : GraphicStyle<TextStyleSetter>
     {
         public StylePropertyString text = new StylePropertyString();
         public StylePropertyFont font = new StylePropertyFont();
@@ -50,14 +50,7 @@ namespace Cdm.Figma.UI.Styles
                 OverwriteProperty(localizedString, otherStyle.localizedString, force);
             }
         }
-
-        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
-        {
-            base.SetStyleAsSelector(gameObject, args);
-            
-            SetStyleAsSelector<TextStyleSetter>(gameObject, args);
-        }
-
+        
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
             var textComponent = gameObject.GetOrAddComponent<TextMeshProUGUI>();

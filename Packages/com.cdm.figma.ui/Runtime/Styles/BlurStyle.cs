@@ -1,10 +1,12 @@
-﻿using Cdm.Figma.UI.Styles.Properties;
+﻿using System;
+using Cdm.Figma.UI.Styles.Properties;
 using Cdm.Figma.UI.Utils;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles
 {
-    public class BlurStyle : Style
+    [Serializable]
+    public class BlurStyle : StyleWithSetter<BlurStyleSetter>
     {
         public StylePropertyBool visible = new StylePropertyBool(true);
         public StylePropertyFloat radius = new StylePropertyFloat(4f);
@@ -25,12 +27,7 @@ namespace Cdm.Figma.UI.Styles
                     blur.type = type.value;
             }
         }
-
-        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
-        {
-            SetStyleAsSelector<BlurStyleSetter>(gameObject, args);
-        }
-
+        
         protected override void MergeTo(Style other, bool force)
         {
             if (other is BlurStyle otherStyle)

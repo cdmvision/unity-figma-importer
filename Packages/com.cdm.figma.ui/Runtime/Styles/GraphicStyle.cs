@@ -7,18 +7,14 @@ using UnityEngine.UI;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class GraphicStyle : Style
+    public class GraphicStyle<T> : StyleWithSetter<T> where T : StyleSetterWithSelectorsBase
     {
         public StylePropertyColor color = new StylePropertyColor(UnityEngine.Color.white);
         public StylePropertyFloat fadeDuration = new StylePropertyFloat(0.1f);
-
-        public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
-        {
-        }
-
+        
         protected override void MergeTo(Style other, bool force)
         {
-            if (other is GraphicStyle otherStyle)
+            if (other is GraphicStyle<T> otherStyle)
             {
                 OverwriteProperty(color, otherStyle.color, force);
                 OverwriteProperty(fadeDuration, otherStyle.fadeDuration, force);
@@ -36,5 +32,10 @@ namespace Cdm.Figma.UI.Styles
                 }
             }
         }
+    }
+    
+    [Serializable]
+    public class GraphicStyle : GraphicStyle<GraphicStyleSetter>
+    {
     }
 }
