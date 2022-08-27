@@ -213,14 +213,20 @@ namespace Cdm.Figma.Editor
 
             file.defaultName = newFile.name;
             EditorUtility.SetDirty(downloader);
+
+            var fileName = file.defaultName;
+            if (!string.IsNullOrEmpty(file.name))
+            {
+                fileName = file.name;
+            }
             
-            var figmaAssetPath = GetFigmaAssetPath(downloader, file.name);
+            var figmaAssetPath = GetFigmaAssetPath(downloader, fileName);
             await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"), cancellationToken);
 
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
         }
 
-        private static string GetFigmaAssetPath(FigmaDownloaderAsset downloader, string fileId)
-            => Path.Combine("Assets", downloader.assetPath, $"{fileId}.{downloader.assetExtension}");
+        private static string GetFigmaAssetPath(FigmaDownloaderAsset downloader, string fileName)
+            => Path.Combine("Assets", downloader.assetPath, $"{fileName}.{downloader.assetExtension}");
     }
 }
