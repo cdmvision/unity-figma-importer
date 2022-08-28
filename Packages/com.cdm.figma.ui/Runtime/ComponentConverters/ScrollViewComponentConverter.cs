@@ -28,20 +28,28 @@ namespace Cdm.Figma.UI
                 }
 
                 var scrollRect = figmaNode.gameObject.AddComponent<ScrollRect>();
+                scrollRect.content = content;
+                scrollRect.viewport = viewport;
                 scrollRect.inertia = false;
                 scrollRect.movementType = ScrollRect.MovementType.Clamped;
                 scrollRect.scrollSensitivity = 10f;
-
+                
+                var contentSizeFitter = scrollRect.content.gameObject.AddComponent<ContentSizeFitter>();
+                
                 if (figmaNode.TryFindOptionalNode<Scrollbar>(HorizontalScrollbarKey, out var horizontalScrollbar))
                 {
                     scrollRect.horizontalScrollbar = horizontalScrollbar;
                     scrollRect.horizontalScrollbarSpacing = -3; // TODO: auto calculate
+                    
+                    contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
                 }
 
                 if (figmaNode.TryFindOptionalNode<Scrollbar>(VerticalScrollbarKey, out var verticalScrollbar))
                 {
                     scrollRect.verticalScrollbar = verticalScrollbar;
-                    scrollRect.verticalScrollbarSpacing = -3; // TODO: auto calculate 
+                    scrollRect.verticalScrollbarSpacing = -3; // TODO: auto calculate
+                    
+                    contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                 }
 
                 if (instanceNode.mainComponent != null &&
@@ -54,13 +62,6 @@ namespace Cdm.Figma.UI
                         scrollRect.verticalScrollbarVisibility = componentData.verticalVisibility;
                     }
                 }
-
-                scrollRect.content = content;
-                scrollRect.viewport = viewport;
-
-                var contentSizeFitter = scrollRect.content.gameObject.AddComponent<ContentSizeFitter>();
-                contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-                contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             }
 
             return figmaNode;
