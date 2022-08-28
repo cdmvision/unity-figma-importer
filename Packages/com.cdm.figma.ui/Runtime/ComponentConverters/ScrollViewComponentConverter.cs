@@ -33,13 +33,28 @@ namespace Cdm.Figma.UI
                 scrollRect.inertia = false;
                 scrollRect.movementType = ScrollRect.MovementType.Clamped;
                 scrollRect.scrollSensitivity = 10f;
+
+                // Make items to fill container.
+                var verticalLayoutGroup = content.GetComponent<VerticalLayoutGroup>();
+                if (verticalLayoutGroup != null)
+                {
+                    verticalLayoutGroup.childControlWidth = true;
+                    verticalLayoutGroup.childForceExpandWidth = true;
+                }
+                
+                var horizontalLayoutGroup = content.GetComponent<HorizontalLayoutGroup>();
+                if (horizontalLayoutGroup != null)
+                {
+                    horizontalLayoutGroup.childControlHeight = true;
+                    horizontalLayoutGroup.childForceExpandHeight = true;
+                }
                 
                 var contentSizeFitter = scrollRect.content.gameObject.AddComponent<ContentSizeFitter>();
                 
                 if (figmaNode.TryFindOptionalNode<Scrollbar>(HorizontalScrollbarKey, out var horizontalScrollbar))
                 {
                     scrollRect.horizontalScrollbar = horizontalScrollbar;
-                    scrollRect.horizontalScrollbarSpacing = -3; // TODO: auto calculate
+                    scrollRect.verticalScrollbarSpacing = horizontalScrollbar.GetComponent<RectTransform>().sizeDelta.y;
                     
                     contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
                 }
@@ -47,11 +62,11 @@ namespace Cdm.Figma.UI
                 if (figmaNode.TryFindOptionalNode<Scrollbar>(VerticalScrollbarKey, out var verticalScrollbar))
                 {
                     scrollRect.verticalScrollbar = verticalScrollbar;
-                    scrollRect.verticalScrollbarSpacing = -3; // TODO: auto calculate
+                    scrollRect.horizontalScrollbarSpacing = verticalScrollbar.GetComponent<RectTransform>().sizeDelta.x;
                     
                     contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                 }
-
+                
                 if (instanceNode.mainComponent != null &&
                     instanceNode.mainComponent.TryGetPluginData(out var pluginData))
                 {
