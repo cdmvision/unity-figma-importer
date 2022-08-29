@@ -33,6 +33,8 @@ namespace Cdm.Figma.UI
 
                 var slider = figmaNode.GetComponent<Slider>();
                 slider.fillRect = fill;
+                slider.fillRect.offsetMin = Vector2.zero;
+                slider.fillRect.offsetMax = Vector2.zero;
 
                 // Handle is not mandatory.
                 if (figmaNode.TryFindOptionalNode<RectTransform>(HandleKey, out var handle))
