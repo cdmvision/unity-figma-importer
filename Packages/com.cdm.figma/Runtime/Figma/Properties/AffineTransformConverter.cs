@@ -14,8 +14,8 @@ namespace Cdm.Figma
             }
         }
 
-        public override AffineTransform ReadJson(JsonReader reader, Type objectType, AffineTransform existingValue, bool hasExistingValue,
-            JsonSerializer serializer)
+        public override AffineTransform ReadJson(JsonReader reader, Type objectType, AffineTransform existingValue, 
+            bool hasExistingValue, JsonSerializer serializer)
         {
             JToken token = JToken.Load(reader);
             if (token.Type == JTokenType.Array)

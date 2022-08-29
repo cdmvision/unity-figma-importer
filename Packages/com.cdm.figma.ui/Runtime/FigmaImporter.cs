@@ -56,7 +56,8 @@ namespace Cdm.Figma.UI
                 new PolygonNodeConverter(),
                 new StarNodeConverter(),
                 new TextNodeConverter(),
-                new InstanceNodeConverter()
+                new InstanceNodeConverter(),
+                new BooleanNodeConverter()
             };
         }
 
