@@ -7,7 +7,7 @@ namespace Cdm.Figma.UI
             var figmaNode = base.Convert(parentObject, vectorNode, args);
             if (figmaNode != null)
             {
-                args.importer.LogError(
+                args.importer.LogWarning(
                     "Use 'Outline stroke' on the line node in the Figma editor before importing the document.",
                     figmaNode);
             }

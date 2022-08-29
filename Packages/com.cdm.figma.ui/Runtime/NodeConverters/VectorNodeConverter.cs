@@ -16,6 +16,16 @@ namespace Cdm.Figma.UI
         where TNode : VectorNode 
         where TFigmaNode : FigmaNode
     {
+        protected override FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args)
+        {
+            var figmaNode = Convert(parentObject, vectorNode, args, new VectorConvertArgs());
+            if (figmaNode != null && vectorNode.isMask)
+            {
+                args.importer.LogWarning("Vector node with mask is not supported.", figmaNode);
+            }
+            return figmaNode;
+        }
+        
         protected FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
@@ -29,11 +39,6 @@ namespace Cdm.Figma.UI
 
             figmaNode.ApplyStyles();
             return figmaNode;
-        }
-
-        protected override FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args)
-        {
-            return Convert(parentObject, vectorNode, args, new VectorConvertArgs());
         }
 
         private void GenerateStyles(FigmaNode nodeObject, TNode vectorNode, NodeConvertArgs args,

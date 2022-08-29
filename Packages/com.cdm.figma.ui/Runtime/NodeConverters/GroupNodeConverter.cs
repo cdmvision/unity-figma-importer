@@ -7,11 +7,11 @@ namespace Cdm.Figma.UI
     {
         protected override FigmaNode Convert(FigmaNode parentObject, GroupNode groupNode, NodeConvertArgs args)
         {
-            var nodeObject = args.importer.CreateFigmaNode<FigmaNode>(groupNode);
-            nodeObject.rectTransform.anchorMin = new Vector2(0, 0);
-            nodeObject.rectTransform.anchorMax = new Vector2(1, 1);
-            nodeObject.rectTransform.offsetMin = new Vector2(0, 0);
-            nodeObject.rectTransform.offsetMax = new Vector2(0, 0);
+            var figmaNode = args.importer.CreateFigmaNode<FigmaNode>(groupNode);
+            figmaNode.rectTransform.anchorMin = new Vector2(0, 0);
+            figmaNode.rectTransform.anchorMax = new Vector2(1, 1);
+            figmaNode.rectTransform.offsetMin = new Vector2(0, 0);
+            figmaNode.rectTransform.offsetMax = new Vector2(0, 0);
 
             Node parentNode = null;
             groupNode.TraverseUp(n =>
@@ -31,9 +31,14 @@ namespace Cdm.Figma.UI
                 groupNode.size = parentTransform.size;
             }
 
-            BuildChildren(groupNode, nodeObject, args);
-
-            return nodeObject;
+            BuildChildren(groupNode, figmaNode, args);
+            
+            if (figmaNode != null && groupNode.isMask)
+            {
+                args.importer.LogWarning("Group node with mask is not supported.", figmaNode);
+            }
+            
+            return figmaNode;
         }
 
         private static void BuildChildren(GroupNode currentNode, FigmaNode nodeObject, NodeConvertArgs args)

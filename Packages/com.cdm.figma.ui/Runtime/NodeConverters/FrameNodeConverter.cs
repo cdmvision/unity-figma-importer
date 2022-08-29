@@ -10,26 +10,30 @@ namespace Cdm.Figma.UI
     {
         protected override FigmaNode Convert(FigmaNode parentObject, FrameNode frameNode, NodeConvertArgs args)
         {
-            var nodeObject = args.importer.CreateFigmaNode<FigmaNode>(frameNode);
-            nodeObject.SetTransform(frameNode);
+            var figmaNode = args.importer.CreateFigmaNode<FigmaNode>(frameNode);
+            figmaNode.SetTransform(frameNode);
 
             // Frame node's parent may be a page so check if it is INodeTransform.
             if (frameNode.parent is INodeTransform parent)
             {
-                nodeObject.SetLayoutConstraints(parent);
+                figmaNode.SetLayoutConstraints(parent);
             }
 
-            GenerateStyles(nodeObject, frameNode, args);
+            GenerateStyles(figmaNode, frameNode, args);
 
-            nodeObject.ApplyStyles();
+            figmaNode.ApplyStyles();
 
-            AddLayoutComponentIfNeeded(nodeObject, frameNode);
-            AddContentSizeFitterIfNeeded(nodeObject, frameNode);
-            AddGridIfNeeded(nodeObject, frameNode);
+            AddLayoutComponentIfNeeded(figmaNode, frameNode);
+            AddContentSizeFitterIfNeeded(figmaNode, frameNode);
+            AddGridIfNeeded(figmaNode, frameNode);
 
-            BuildChildren(frameNode, nodeObject, args);
-
-            return nodeObject;
+            BuildChildren(frameNode, figmaNode, args);
+            
+            if (figmaNode != null && frameNode.isMask)
+            {
+                args.importer.LogWarning("Frame node with mask is not supported.", figmaNode);
+            }
+            return figmaNode;
         }
 
         private static void GenerateStyles(FigmaNode nodeObject, FrameNode node, NodeConvertArgs args)
