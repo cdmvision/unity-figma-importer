@@ -1,5 +1,4 @@
 ﻿using System;
-using TMPro;
 
 namespace Cdm.Figma.UI.Styles.Properties
 {
