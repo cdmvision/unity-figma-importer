@@ -55,8 +55,9 @@ namespace Cdm.Figma.UI
                             childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
                             childObject.AdjustPosition(currentNode.size);
                             
+                            // Transform importing is disabled due to a bug right now.
                             // Add transform style after all changes made on rect transform.
-                            childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));
+                            //childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));
                         }
                     }
                 }

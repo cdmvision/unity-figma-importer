@@ -115,8 +115,9 @@ namespace Cdm.Figma.UI
                         // Do not add transform style if frame has any auto layout component.
                         if (!isAutoLayout)
                         {
+                            // Transform importing is disabled due to a bug right now.
                             // Add transform style after all changes made on rect transform.
-                            childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));    
+                            //childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));    
                         }
                     }
                 }
