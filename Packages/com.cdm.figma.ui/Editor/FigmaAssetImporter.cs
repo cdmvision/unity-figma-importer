@@ -172,6 +172,7 @@ namespace Cdm.Figma.UI.Editor
                     var bindingKey = figmaNodeAttribute.bindingKey;
                     if (!string.IsNullOrEmpty(bindingKey))
                     {
+                        Debug.Log($"{nameof(FigmaNodeBehaviourConverter)} added for bindingKey '{bindingKey}'.");
                         figmaImporter.nodeConverters.Add(new FigmaNodeBehaviourConverter(bindingKey, type));
                     }
                     else

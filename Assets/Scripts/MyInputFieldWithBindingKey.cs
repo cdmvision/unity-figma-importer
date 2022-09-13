@@ -3,8 +3,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[FigmaComponent("InputFieldWithClearButton")]
-public class CustomInputField : MonoBehaviour, IFigmaNodeBinder
+[FigmaNode("MyInputField")]
+public class MyInputFieldWithBindingKey : MonoBehaviour
 {
     [FigmaNode("@ClearButton")]
     [SerializeField]
@@ -21,10 +21,5 @@ public class CustomInputField : MonoBehaviour, IFigmaNodeBinder
     protected virtual void Start()
     {
         clearButton.onClick.AddListener(() => inputField.text = "");
-    }
-
-    public void OnBind(FigmaNode figmaNode)
-    {
-        Debug.Log($"{figmaNode} I'm binding some data!");
     }
 }

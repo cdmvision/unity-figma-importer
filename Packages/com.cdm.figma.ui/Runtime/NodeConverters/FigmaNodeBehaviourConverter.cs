@@ -22,7 +22,7 @@ namespace Cdm.Figma.UI
 
         public override FigmaNode Convert(FigmaNode parentObject, Node node, NodeConvertArgs args)
         {
-            if (args.importer.TryConvertNode(parentObject, node, args, out var nodeObject))
+            if (args.importer.TryConvertNode(parentObject, node, args, out var nodeObject, this))
             {
                 Debug.Assert(typeof(UnityEngine.Component).IsAssignableFrom(type));
 

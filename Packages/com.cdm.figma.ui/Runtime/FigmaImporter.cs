@@ -11,13 +11,13 @@ namespace Cdm.Figma.UI
 {
     public class FigmaImporter : IFigmaImporter
     {
-        private readonly HashSet<NodeConverter> _nodeConverters = new HashSet<NodeConverter>();
+        private readonly List<NodeConverter> _nodeConverters = new List<NodeConverter>();
 
-        public ISet<NodeConverter> nodeConverters => _nodeConverters;
+        public IList<NodeConverter> nodeConverters => _nodeConverters;
 
-        private readonly HashSet<ComponentConverter> _componentConverters = new HashSet<ComponentConverter>();
+        private readonly List<ComponentConverter> _componentConverters = new List<ComponentConverter>();
 
-        public ISet<ComponentConverter> componentConverters => _componentConverters;
+        public IList<ComponentConverter> componentConverters => _componentConverters;
 
         private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
         private readonly List<Binding> _bindings = new List<Binding>();
@@ -222,7 +222,7 @@ namespace Cdm.Figma.UI
         }
 
         internal bool TryConvertNode(FigmaNode parentObject, Node node, NodeConvertArgs args,
-            out FigmaNode nodeObject)
+            out FigmaNode nodeObject, params INodeConverter[] ignoredConverters)
         {
             // Init instance node's main component, and main component's component set.
             var instanceNode = (InstanceNode)null;
@@ -234,7 +234,9 @@ namespace Cdm.Figma.UI
             }
 
             // Try with component converters first.
-            var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
+            var componentConverter = componentConverters.FirstOrDefault(
+                c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
+            
             if (componentConverter != null)
             {
                 nodeObject = componentConverter.Convert(parentObject, node, args);
@@ -244,7 +246,9 @@ namespace Cdm.Figma.UI
             }
 
             // Try with node converters.
-            var nodeConverter = nodeConverters.FirstOrDefault(c => c.CanConvert(node, args));
+            var nodeConverter = nodeConverters.FirstOrDefault(
+                c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
+            
             if (nodeConverter != null)
             {
                 nodeObject = nodeConverter.Convert(parentObject, node, args);

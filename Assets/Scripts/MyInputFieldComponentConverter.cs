@@ -3,7 +3,7 @@ using Cdm.Figma.UI;
 using Cdm.Figma.UI.Utils;
 
 //[FigmaComponentConverter]
-public class CustomInputFieldComponentConverter : ComponentConverter
+public class MyInputFieldComponentConverter : ComponentConverter
 {
     protected override bool CanConvertType(string typeId)
     {
@@ -16,7 +16,7 @@ public class CustomInputFieldComponentConverter : ComponentConverter
         if (nodeObject != null)
         {
             
-            var inputField = nodeObject.gameObject.AddComponent<CustomInputField>();
+            var inputField = nodeObject.gameObject.AddComponent<MyInputFieldWithComponentType>();
             FigmaNodeBinder.Bind(inputField, nodeObject);
             return nodeObject;
         }
