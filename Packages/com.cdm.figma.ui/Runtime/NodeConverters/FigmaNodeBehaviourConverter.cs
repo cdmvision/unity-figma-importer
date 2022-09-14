@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cdm.Figma.UI.Utils;
 using UnityEngine;
 

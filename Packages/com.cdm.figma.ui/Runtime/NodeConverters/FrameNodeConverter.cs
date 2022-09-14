@@ -365,7 +365,8 @@ namespace Cdm.Figma.UI
 
         private static void AddGridIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
         {
-            if (frameNode.layoutGrids.Count == 1 || frameNode.layoutGrids.Count == 2)
+            var visibleGridLayoutCount = frameNode.layoutGrids.Count(x => x.visible);
+            if (visibleGridLayoutCount == 1 || visibleGridLayoutCount == 2)
             {
                 var gridView = nodeObject.gameObject.AddComponent<GridLayoutGroup>();
                 foreach (var grid in frameNode.layoutGrids)
@@ -377,7 +378,6 @@ namespace Cdm.Figma.UI
                         gridView.padding.right = (int)grid.offset;
                         gridView.cellSize = new Vector2(grid.sectionSize, gridView.cellSize.y);
                     }
-
                     else if (grid.pattern == Pattern.Rows)
                     {
                         gridView.spacing = new Vector2(gridView.spacing.x, grid.gutterSize);
@@ -385,7 +385,6 @@ namespace Cdm.Figma.UI
                         gridView.padding.bottom = (int)grid.offset;
                         gridView.cellSize = new Vector2(gridView.cellSize.x, grid.sectionSize);
                     }
-
                     else if (grid.pattern == Pattern.Grid)
                     {
                         gridView.cellSize = new Vector2(grid.sectionSize, grid.sectionSize);

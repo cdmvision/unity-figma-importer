@@ -9,26 +9,64 @@ using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.UI
 {
+    /// <summary>
+    /// Imports given Figma file into the Unity using built-in UI system.
+    /// </summary>
     public class FigmaImporter : IFigmaImporter
     {
         private readonly List<NodeConverter> _nodeConverters = new List<NodeConverter>();
 
+        /// <summary>
+        /// Figma node converters.
+        /// </summary>
+        /// <remarks>If left empty, default node converters are used.</remarks>
+        /// <seealso cref="GetDefaultNodeConverters"/>
+        /// <seealso cref="AddDefaultNodeConverters"/>
         public IList<NodeConverter> nodeConverters => _nodeConverters;
 
         private readonly List<ComponentConverter> _componentConverters = new List<ComponentConverter>();
 
+        /// <summary>
+        /// Figma component converters.
+        /// </summary>
+        /// <remarks>If left empty, default component converters are used.</remarks>
+        /// <seealso cref="GetDefaultComponentConverters"/>
+        /// <seealso cref="AddDefaultComponentConverters"/>
         public IList<ComponentConverter> componentConverters => _componentConverters;
 
         private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
         private readonly List<Binding> _bindings = new List<Binding>();
 
+        /// <summary>
+        /// The font mappings that are used while importing Figma text nodes.
+        /// </summary>
+        /// <seealso cref="TextNode"/>
         public List<FontSource> fonts { get; } = new List<FontSource>();
+        
+        /// <summary>
+        /// Generated UI elements as <see cref="GameObject"/>.
+        /// </summary>
         public AssetCache generatedGameObjects { get; } = new AssetCache();
+        
+        /// <summary>
+        /// Generated assets during import such as <see cref="Sprite"/>, <see cref="Material"/> etc.
+        /// </summary>
         public AssetCache generatedAssets { get; } = new AssetCache();
+        
+        /// <summary>
+        /// Dependency assets that are used to import Figma nodes such as font asset etc.
+        /// </summary>
+        /// <seealso cref="FontSource"/>
         public AssetCache dependencyAssets { get; } = new AssetCache();
 
+        /// <summary>
+        /// Gets or sets whether import process fails or keeps a log when an error occurs.
+        /// </summary>
         public bool failOnError { get; set; } = true;
 
+        /// <summary>
+        /// Sprite generation options.
+        /// </summary>
         public SpriteGenerateOptions spriteOptions { get; set; }
             = new SpriteGenerateOptions()
             {
@@ -43,6 +81,9 @@ namespace Cdm.Figma.UI
         /// </summary>
         public TMP_FontAsset fallbackFont { get; set; }
 
+        /// <summary>
+        /// Gets the default node converters that are used for importing Figma nodes.
+        /// </summary>
         public static NodeConverter[] GetDefaultNodeConverters()
         {
             return new NodeConverter[]
@@ -60,12 +101,13 @@ namespace Cdm.Figma.UI
                 new BooleanNodeConverter()
             };
         }
-
+        /// <summary>
+        /// Gets the default component converters that are used for importing Figma nodes.
+        /// </summary>
         public static ComponentConverter[] GetDefaultComponentConverters()
         {
             return new ComponentConverter[]
             {
-                new UnknownComponentConverter(),
                 new SelectableComponentConverter(),
                 new ButtonComponentConverter(),
                 new ToggleComponentConverter(),
@@ -77,6 +119,10 @@ namespace Cdm.Figma.UI
             };
         }
 
+        /// <summary>
+        /// Adds the default node converters that are used for importing Figma nodes.
+        /// </summary>
+        /// <seealso cref="GetDefaultNodeConverters"/>
         public void AddDefaultNodeConverters()
         {
             var converters = GetDefaultNodeConverters();
@@ -85,7 +131,11 @@ namespace Cdm.Figma.UI
                 nodeConverters.Add(converter);
             }
         }
-
+        
+        /// <summary>
+        /// Adds the default component converters that are used for importing Figma nodes.
+        /// </summary>
+        /// <seealso cref="GetDefaultComponentConverters"/>
         public void AddDefaultComponentConverters()
         {
             var converters = GetDefaultComponentConverters();
