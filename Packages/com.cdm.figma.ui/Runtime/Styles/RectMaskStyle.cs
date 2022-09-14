@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class MaskStyle : Style
+    public class RectMaskStyle : Style
     {
         public override void SetStyleAsSelector(GameObject gameObject, StyleArgs args)
         {
@@ -18,8 +18,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var mask = gameObject.GetOrAddComponent<Mask>();
-            mask.showMaskGraphic = true;
+            gameObject.GetOrAddComponent<RectMask2D>();
         }
     }
 }

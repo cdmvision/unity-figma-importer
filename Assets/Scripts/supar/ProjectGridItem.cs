@@ -24,10 +24,22 @@ namespace Cdm.SurfaceProjector.UI
         [SerializeField]
         private TextMeshProUGUI _subtitle;
 
+        public string title
+        {
+            get => _title.text;
+            set => _title.text = value;
+        }
+        
+        public string subtitle
+        {
+            get => _subtitle.text;
+            set => _subtitle.text = value;
+        }
+
         private void Start()
         {
-            _title.text = "Bewer 201d ad65s3";
-            _subtitle.text = "C:/Users/hip/adsadasdsads/sdasd/sadsa/dasd.spproject";
+            title = "Bewer 201d ad65s3";
+            subtitle = "C:/Users/hip/adsadasdsads/sdasd/sadsa/dasd.spproject";
             
             _mainToggle.onClick.AddListener(() => Debug.Log("Loading a project..."));
             _contextMenuButton.onClick.AddListener(() => Debug.Log("Context menu openging"));

@@ -84,9 +84,19 @@ namespace Cdm.Figma.UI
             // Add mask if enabled.
             if (node.clipsContent)
             {
-                var style = new MaskStyle();
-                style.enabled = true;
-                nodeObject.styles.Add(style);
+                if (node.cornerRadius.HasValue || node.rectangleCornerRadii != null)
+                {
+                    var style = new MaskStyle();
+                    style.enabled = true;
+                    nodeObject.styles.Add(style);
+                }
+                else
+                {
+                    var style = new RectMaskStyle();
+                    style.enabled = true;
+                    nodeObject.styles.Add(style);
+                }
+                
             }
             
             StyleGeneratorHelper.GenerateEffectsStyles(nodeObject, node.effects);
