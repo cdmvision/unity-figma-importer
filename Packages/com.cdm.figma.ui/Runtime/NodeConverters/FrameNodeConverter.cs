@@ -368,11 +368,48 @@ namespace Cdm.Figma.UI
             var visibleGridLayoutCount = frameNode.layoutGrids.Count(x => x.visible);
             if (visibleGridLayoutCount == 1 || visibleGridLayoutCount == 2)
             {
-                var gridView = nodeObject.gameObject.AddComponent<GridLayoutGroup>();
+                int colGrids = 0;
+                int rowGrids = 0;
+                int grids = 0;
                 foreach (var grid in frameNode.layoutGrids)
                 {
                     if (grid.pattern == Pattern.Columns)
                     {
+                        colGrids++;
+                        if (colGrids > 2)
+                        {
+                            Debug.Log("Frame cannot have more than 2 Figma column grid, skipping.");
+                            return;
+                        }
+                    }
+                    else if(grid.pattern == Pattern.Rows)
+                    {
+                        rowGrids++;
+                        if (rowGrids > 2)
+                        {
+                            Debug.Log("Frame cannot have more than 2 Figma row grid, skipping.");
+                            return;
+                        }
+                    }
+                    else if (grid.pattern == Pattern.Grid)
+                    {
+                        grids++;
+                        if (grids > 1)
+                        {
+                            Debug.Log("Frame cannot have more than 1 Figma grid, skipping.");
+                            return;
+                        }
+                    }
+                }
+                
+                var gridView = nodeObject.gameObject.AddComponent<GridLayoutGroup>();
+                var alignmentCol = Alignment.Min;
+                var alignmentRow = Alignment.Min;
+                foreach (var grid in frameNode.layoutGrids)
+                {
+                    if (grid.pattern == Pattern.Columns)
+                    {
+                        alignmentCol = grid.alignment;
                         gridView.spacing = new Vector2(grid.gutterSize, gridView.spacing.y);
                         gridView.padding.left = (int)grid.offset;
                         gridView.padding.right = (int)grid.offset;
@@ -380,6 +417,7 @@ namespace Cdm.Figma.UI
                     }
                     else if (grid.pattern == Pattern.Rows)
                     {
+                        alignmentRow = grid.alignment;
                         gridView.spacing = new Vector2(gridView.spacing.x, grid.gutterSize);
                         gridView.padding.top = (int)grid.offset;
                         gridView.padding.bottom = (int)grid.offset;
@@ -388,6 +426,52 @@ namespace Cdm.Figma.UI
                     else if (grid.pattern == Pattern.Grid)
                     {
                         gridView.cellSize = new Vector2(grid.sectionSize, grid.sectionSize);
+                    }
+                }
+
+                if (alignmentCol == Alignment.Min)
+                {
+                    if (alignmentRow == Alignment.Min)
+                    {
+                        gridView.childAlignment = TextAnchor.UpperLeft;
+                    }
+                    else if (alignmentRow == Alignment.Center)
+                    {
+                        gridView.childAlignment = TextAnchor.MiddleLeft;
+                    }
+                    else if (alignmentRow == Alignment.Max)
+                    {
+                        gridView.childAlignment = TextAnchor.LowerLeft;
+                    }
+                }
+                else if (alignmentCol == Alignment.Center)
+                {
+                    if (alignmentRow == Alignment.Min)
+                    {
+                        gridView.childAlignment = TextAnchor.UpperCenter;
+                    }
+                    else if (alignmentRow == Alignment.Center)
+                    {
+                        gridView.childAlignment = TextAnchor.MiddleCenter;
+                    }
+                    else if (alignmentRow == Alignment.Max)
+                    {
+                        gridView.childAlignment = TextAnchor.LowerCenter;
+                    }
+                }
+                else if (alignmentCol == Alignment.Max)
+                {
+                    if (alignmentRow == Alignment.Min)
+                    {
+                        gridView.childAlignment = TextAnchor.UpperRight;
+                    }
+                    else if (alignmentRow == Alignment.Center)
+                    {
+                        gridView.childAlignment = TextAnchor.MiddleRight;
+                    }
+                    else if (alignmentRow == Alignment.Max)
+                    {
+                        gridView.childAlignment = TextAnchor.LowerRight;
                     }
                 }
             }
