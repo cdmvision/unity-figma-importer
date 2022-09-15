@@ -365,7 +365,8 @@ namespace Cdm.Figma.UI
 
         private static void AddGridIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
         {
-            if (frameNode.layoutGrids.Count == 1 || frameNode.layoutGrids.Count == 2)
+            var visibleGridLayoutCount = frameNode.layoutGrids.Count(x => x.visible);
+            if (visibleGridLayoutCount == 1 || visibleGridLayoutCount == 2)
             {
                 int colGrids = 0;
                 int rowGrids = 0;
