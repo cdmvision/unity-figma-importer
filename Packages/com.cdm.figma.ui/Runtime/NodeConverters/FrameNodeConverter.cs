@@ -293,6 +293,21 @@ namespace Cdm.Figma.UI
                         layoutGroup.childAlignment = TextAnchor.MiddleCenter;
                     }
                 }
+                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+                {
+                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.UpperLeft;
+                    }
+                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.LowerLeft;
+                    }
+                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.MiddleLeft;
+                    }
+                }
             }
             else
             {
@@ -341,6 +356,21 @@ namespace Cdm.Figma.UI
                     else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.MiddleCenter;
+                    }
+                }
+                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+                {
+                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.UpperLeft;
+                    }
+                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.UpperRight;
+                    }
+                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.UpperCenter;
                     }
                 }
             }
