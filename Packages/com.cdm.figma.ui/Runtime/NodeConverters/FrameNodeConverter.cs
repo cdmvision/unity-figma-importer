@@ -156,12 +156,12 @@ namespace Cdm.Figma.UI
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
+                    //nodeObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().minHeight = childTransform.size.y;
                 }
                 else
                 {
-                    nodeObject.GetComponent<VerticalLayoutGroup>().childControlWidth = true;
+                    //nodeObject.GetComponent<VerticalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().minWidth = childTransform.size.x;
                 }
             }
@@ -185,12 +185,12 @@ namespace Cdm.Figma.UI
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
+                    //nodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().minWidth = childTransform.size.x;
                 }
                 else
                 {
-                    nodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
+                    //nodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().minHeight = childTransform.size.y;
                 }
             }
@@ -293,6 +293,21 @@ namespace Cdm.Figma.UI
                         layoutGroup.childAlignment = TextAnchor.MiddleCenter;
                     }
                 }
+                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+                {
+                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.UpperLeft;
+                    }
+                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.LowerLeft;
+                    }
+                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.MiddleLeft;
+                    }
+                }
             }
             else
             {
@@ -343,6 +358,21 @@ namespace Cdm.Figma.UI
                         layoutGroup.childAlignment = TextAnchor.MiddleCenter;
                     }
                 }
+                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+                {
+                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.UpperLeft;
+                    }
+                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.UpperRight;
+                    }
+                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    {
+                        layoutGroup.childAlignment = TextAnchor.UpperCenter;
+                    }
+                }
             }
 
             layoutGroup.childControlWidth = false;
@@ -351,6 +381,18 @@ namespace Cdm.Figma.UI
             layoutGroup.childScaleHeight = false;
             layoutGroup.childForceExpandWidth = false;
             layoutGroup.childForceExpandHeight = false;
+
+            if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+            {
+                if (layoutMode == LayoutMode.Vertical)
+                {
+                    layoutGroup.childForceExpandHeight = true;
+                }
+                else if (layoutMode == LayoutMode.Horizontal)
+                {
+                    layoutGroup.childForceExpandWidth = true;
+                }
+            }
 
             // Set padding.
             nodeObject.GetComponent<LayoutGroup>().padding = new RectOffset(
