@@ -24,7 +24,16 @@ namespace Cdm.Figma
         
         [DataMember]
         public string tags { get; set; }
+        
+        public bool isIgnored { get; private set; }
 
+        [DataMember(Name = "ignored")]
+        private string ignored
+        {
+            get => isIgnored ? "true" : "false";
+            set => isIgnored = value.ToLowerInvariant() == "true";
+        }
+        
         public bool hasBindingKey => !string.IsNullOrWhiteSpace(bindingKey);
         public bool hasLocalizationKey => !string.IsNullOrWhiteSpace(localizationKey);
         public bool hasComponentType => !string.IsNullOrWhiteSpace(componentType);

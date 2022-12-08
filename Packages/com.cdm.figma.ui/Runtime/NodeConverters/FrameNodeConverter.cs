@@ -111,6 +111,9 @@ namespace Cdm.Figma.UI
             {
                 for (var child = 0; child < children.Length; child++)
                 {
+                    if (children[child].IsIgnored())
+                        continue;
+                    
                     if (args.importer.TryConvertNode(nodeObject, children[child], args, out var childObject))
                     {
                         if (currentNode.layoutMode != LayoutMode.None)

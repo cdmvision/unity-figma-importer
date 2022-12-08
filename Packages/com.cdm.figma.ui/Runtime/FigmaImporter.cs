@@ -194,6 +194,9 @@ namespace Cdm.Figma.UI
                     var nodes = pageNode.children;
                     foreach (var node in nodes)
                     {
+                        if (node.IsIgnored())
+                            continue;
+                        
                         if (node is FrameNode)
                         {
                             if (TryConvertNode(figmaPage, node, conversionArgs, out var frameNode))

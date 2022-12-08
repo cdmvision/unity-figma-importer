@@ -33,7 +33,7 @@ namespace Cdm.Figma.UI
 
             BuildChildren(groupNode, figmaNode, args);
             
-            if (figmaNode != null && groupNode.isMask)
+            if (groupNode.isMask)
             {
                 args.importer.LogWarning("Group node with mask is not supported.", figmaNode);
             }
@@ -48,6 +48,9 @@ namespace Cdm.Figma.UI
             {
                 foreach (var child in children)
                 {
+                    if (child.IsIgnored())
+                        continue;
+
                     if (args.importer.TryConvertNode(nodeObject, child, args, out var childObject))
                     {
                         if (childObject != nodeObject)

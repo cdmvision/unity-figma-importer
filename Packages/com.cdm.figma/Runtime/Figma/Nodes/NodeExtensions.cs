@@ -88,6 +88,19 @@ namespace Cdm.Figma
         }
 
         /// <summary>
+        /// Gets the flag indicating the node is whether ignored while importing.
+        /// </summary>
+        public static bool IsIgnored(this Node node)
+        {
+            if (node.TryGetPluginData(out var data))
+            {
+                return data.isIgnored;
+            }
+
+            return false;
+        }
+        
+        /// <summary>
         /// Gets binding key from node's plugin data.
         /// </summary>
         public static string GetBindingKey(this Node node)
