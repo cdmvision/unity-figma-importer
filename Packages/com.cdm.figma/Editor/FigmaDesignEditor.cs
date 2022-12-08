@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,8 +20,10 @@ namespace Cdm.Figma.Editor
         {
             var figmaDesign = (FigmaDesign)command.context;
             var assetPath = AssetDatabase.GetAssetPath(figmaDesign);
-            GUIUtility.systemCopyBuffer = File.ReadAllText(assetPath);
-
+            var json = File.ReadAllText(assetPath);
+            json = JObject.Parse(json).ToString(Formatting.Indented);
+            GUIUtility.systemCopyBuffer = json;
+            
             Debug.Log($"File '{figmaDesign.title}' contents copied to clipboard.");
         }
 

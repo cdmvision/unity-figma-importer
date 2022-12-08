@@ -81,13 +81,6 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.nuget.mono-cecil": {
-      "version": "1.10.1",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
     "com.unity.nuget.newtonsoft-json": {
       "version": "2.0.2",
       "depth": 0,
@@ -95,17 +88,8 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.package-validation-suite": {
-      "version": "0.27.0-preview",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.nuget.mono-cecil": "0.1.6-preview.2"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.scriptablebuildpipeline": {
-      "version": "1.19.6",
+      "version": "1.20.1",
       "depth": 2,
       "source": "registry",
       "dependencies": {},
@@ -151,16 +135,6 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
-    },
-    "com.unity.upm.develop": {
-      "version": "0.4.0",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.test-framework": "1.1.20",
-        "com.unity.package-validation-suite": "0.19.0-preview"
-      },
-      "url": "https://packages.unity.com"
     },
     "com.unity.vectorgraphics": {
       "version": "2.0.0-preview.20",
