@@ -1,14 +1,39 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Utils
 {
+    public class BindingResult
+    {
+        public bool hasErrors => errors.Any();
+        public List<BindingError> errors { get; } = new List<BindingError>();
+    }
+
+    public readonly struct BindingError
+    {
+        public MemberInfo memberInfo { get; }
+        public string message { get; }
+
+        public BindingError(MemberInfo memberInfo, string message)
+        {
+            this.memberInfo = memberInfo;
+            this.message = message;
+        }
+
+        public override string ToString()
+        {
+            return $"Binding of '{memberInfo.Name}' failed. {message}";
+        }
+    }
+    
     public class FigmaNodeBinder
     {
-        public static void Bind(object obj, FigmaNode node)
+        public static BindingResult Bind(object obj, FigmaNode node)
         {
+            var bindingResult = new BindingResult();
             var members = obj.GetType().GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             foreach (var member in members)
             {
@@ -36,11 +61,18 @@ namespace Cdm.Figma.UI.Utils
                             {
                                 SetMemberValue(member, obj, target);
                             }
+                            else if (figmaNodeAttribute.isRequired)
+                            {
+                                bindingResult.errors.Add(
+                                    new BindingError(member, 
+                                    $"Specified node '{bindingKey}' with the field type '{fieldType}' could not be found."));
+                            }
                         }
                         else
                         {
-                            Debug.LogError(
-                                $"{nameof(FigmaNodeAttribute)} only valid for types that sub class of {typeof(UnityEngine.Component)}. Got '{fieldType}'.");
+                            bindingResult.errors.Add(
+                                new BindingError(member, 
+                                    $"{nameof(FigmaNodeAttribute)} only valid for types that sub class of {typeof(UnityEngine.Component)}. Got '{fieldType}'."));
                         }
                     }
                 }
@@ -50,6 +82,8 @@ namespace Cdm.Figma.UI.Utils
             {
                 nodeBinder.OnBind(node);
             }
+
+            return bindingResult;
         }
         
         private static Type GetUnderlyingType(MemberInfo member)

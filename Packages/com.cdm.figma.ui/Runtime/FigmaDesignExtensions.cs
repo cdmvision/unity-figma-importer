@@ -22,7 +22,9 @@ namespace Cdm.Figma.UI
                 // Bind component if it is not FigmaBehaviour. If so, FigmaBehaviour will bind it automatically.
                 if (!typeof(FigmaBehaviour).IsAssignableFrom(typeof(T)))
                 {
-                    FigmaNodeBinder.Bind(component, figmaNode);    
+                    var bindingResult = FigmaNodeBinder.Bind(component, figmaNode);
+                    if (bindingResult.hasErrors)
+                        throw new FigmaBindingFailedException(bindingResult.errors);
                 }
                 
                 return component.gameObject.AddComponent<T>();

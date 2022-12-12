@@ -1,6 +1,5 @@
 using System;
 using Cdm.Figma.UI.Utils;
-using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
@@ -24,10 +23,7 @@ namespace Cdm.Figma.UI
         {
             if (args.importer.TryConvertNode(parentObject, node, args, out var nodeObject, this))
             {
-                Debug.Assert(typeof(UnityEngine.Component).IsAssignableFrom(type));
-
-                var component = nodeObject.gameObject.AddComponent(type);
-                FigmaNodeBinder.Bind(component, nodeObject);
+                nodeObject.Bind(type, args);
                 return nodeObject;
             }
 

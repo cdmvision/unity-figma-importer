@@ -16,11 +16,11 @@ namespace Cdm.SurfaceProjector.UI
         [SerializeField]
         private Button _mainToggle;
         
-        [FigmaNode("@Title")]
+        [FigmaNode("@Title", isRequired = true)]
         [SerializeField]
         private TextMeshProUGUI _title;
         
-        [FigmaNode("@Subtitle")]
+        [FigmaNode("@Subtitle", isRequired = true)]
         [SerializeField]
         private TextMeshProUGUI _subtitle;
 

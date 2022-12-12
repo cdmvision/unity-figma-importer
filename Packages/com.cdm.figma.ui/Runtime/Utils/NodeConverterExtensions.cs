@@ -1,10 +1,31 @@
-﻿using Cdm.Figma.UI.Styles;
+﻿using System;
+using Cdm.Figma.UI.Styles;
 using TMPro;
+using UnityEngine;
 
 namespace Cdm.Figma.UI.Utils
 {
     public static class NodeConverterExtensions
     {
+        public static void Bind(this FigmaNode nodeObject, Type type, NodeConvertArgs args)
+        {
+            Debug.Assert(typeof(UnityEngine.Component).IsAssignableFrom(type));
+
+            var component = nodeObject.gameObject.AddComponent(type);
+
+            var bindingResult = FigmaNodeBinder.Bind(component, nodeObject);
+            if (bindingResult.hasErrors)
+            {
+                if (args.importer.failOnError)
+                    throw new FigmaBindingFailedException(bindingResult.errors);
+                    
+                foreach (var error in bindingResult.errors)
+                {
+                    args.importer.LogError(error.ToString(), nodeObject);    
+                }
+            }
+        }
+        
         public static void DisableTextStyleTextOverride(this TMP_Text node)
         {
             DisableTextStyleTextOverride(node.GetComponent<FigmaNode>());

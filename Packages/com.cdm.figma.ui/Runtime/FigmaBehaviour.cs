@@ -28,8 +28,15 @@ namespace Cdm.Figma.UI
         public void Bind()
         {
             _attachedNode = GetComponent<FigmaNode>();
-            FigmaNodeBinder.Bind(this, _attachedNode);
-            _isBound = true;
+            var bindingResult = FigmaNodeBinder.Bind(this, _attachedNode);
+            if (bindingResult.hasErrors)
+            {
+                Debug.LogException(new FigmaBindingFailedException(bindingResult.errors), this);
+            }
+            else
+            {
+                _isBound = true;    
+            }
         }
     }
 }

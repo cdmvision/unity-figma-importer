@@ -25,10 +25,7 @@ namespace Cdm.Figma.UI
             var nodeObject = base.Convert(parentObject, instanceNode, args);
             if (nodeObject != null)
             {
-                Debug.Assert(typeof(UnityEngine.Component).IsAssignableFrom(type));
-
-                var component = nodeObject.gameObject.AddComponent(type);
-                FigmaNodeBinder.Bind(component, nodeObject);
+                nodeObject.Bind(type, args);
                 return nodeObject;
             }
 
