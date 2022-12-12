@@ -35,7 +35,6 @@ namespace Cdm.Figma.UI.Styles
             {
                 OverwriteProperty(text, otherStyle.text, force);
                 OverwriteProperty(font, otherStyle.font, force);
-                OverwriteProperty(color, otherStyle.color, force);
                 OverwriteProperty(fontStyle, otherStyle.fontStyle, force);
                 OverwriteProperty(fontWeight, otherStyle.fontWeight, force);
                 OverwriteProperty(fontMaterial, otherStyle.fontMaterial, force);

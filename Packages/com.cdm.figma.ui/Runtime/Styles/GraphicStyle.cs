@@ -28,7 +28,10 @@ namespace Cdm.Figma.UI.Styles
             {
                 if (color.enabled)
                 {
-                    graphic.CrossFadeColor(args, color, fadeDuration);
+                    graphic.color = color.value;
+                    
+                    // TODO: If we enable cross fade, non-variant node colors dont get applied immediately.
+                    //graphic.CrossFadeColor(args, color, fadeDuration);
                 }
             }
         }
