@@ -12,7 +12,7 @@ namespace Cdm.Figma.UI
             // Use instance node's transform.
             var instanceNode = frameNodeConverter.Convert(parentObject, node, args);
 
-            var propertyReference = node.componentProperties?.references?.mainComponent;
+            var propertyReference = node.componentPropertyReferences?.mainComponent;
             if (!string.IsNullOrEmpty(propertyReference))
             {
                 if (args.componentPropertyAssignments.TryGetValue(propertyReference, out var componentNode))

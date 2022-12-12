@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Cdm.Figma
@@ -17,12 +18,13 @@ namespace Cdm.Figma
         /// <seealso cref="mainComponent"/>
         [DataMember(Name = "componentId", IsRequired = true)]
         public string componentId { get; set; }
-
+        
         /// <summary>
-        /// 
+        /// A mapping of name to <see cref="ComponentProperty"/> for all component properties on this instance.
         /// </summary>
         [DataMember(Name = "componentProperties")]
-        public ComponentProperties componentProperties { get; private set; }
+        public Dictionary<string, ComponentProperty> componentProperties { get; private set; } =
+            new Dictionary<string, ComponentProperty>();
 
         /// <summary>
         /// The component that this instance reflects.

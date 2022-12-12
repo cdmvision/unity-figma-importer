@@ -67,7 +67,7 @@ namespace Cdm.Figma.UI
 
             return base.Convert(parentObject, instanceNode, args);
         }
-        
+
         private void ConvertComponentSet(FigmaNode instanceObject, FigmaNode parentObject, InstanceNode instanceNode,
             NodeConvertArgs args)
         {
@@ -77,7 +77,7 @@ namespace Cdm.Figma.UI
 
             SetComponentPropertyAssignments(instanceNode, args);
             InitVariantsDictionary(instanceNode);
-            
+
             foreach (var componentVariant in componentSetVariants)
             {
                 // Array of State=Hover, Checked=On etc.
@@ -115,11 +115,11 @@ namespace Cdm.Figma.UI
 
             ClearComponentPropertyAssignments(args);
         }
-        
+
         private void InitVariantsDictionary(InstanceNode instanceNode)
         {
             _variants.Clear();
-            
+
             foreach (var componentVariant in instanceNode.mainComponent.componentSet.variants)
             {
                 var propertyVariants =
@@ -141,35 +141,34 @@ namespace Cdm.Figma.UI
                 }
             }
         }
-        
+
         private static void SetComponentPropertyAssignments(InstanceNode instanceNode, NodeConvertArgs args)
         {
-            var componentPropertyAssignments = instanceNode.componentProperties?.assignments;
-            if (componentPropertyAssignments != null)
+            if (instanceNode.componentProperties != null)
             {
-                foreach (var assignment in componentPropertyAssignments)
+                foreach (var componentProperty in instanceNode.componentProperties)
                 {
-                    if (assignment.Value.type == ComponentPropertyType.InstanceSwap)
+                    if (componentProperty.Value.type == ComponentPropertyType.InstanceSwap)
                     {
-                        var assignmentInstanceSwap = (ComponentPropertyAssignmentInstanceSwap)assignment.Value;
-                        var componentId = assignmentInstanceSwap.value;
+                        var instanceSwapProperty = (ComponentPropertyInstanceSwap)componentProperty.Value;
+                        var componentId = instanceSwapProperty.value;
 
                         if (args.file.componentNodes.TryGetValue(componentId, out var component))
                         {
-                            args.componentPropertyAssignments.Add(assignment.Key, component);
+                            args.componentPropertyAssignments.Add(componentProperty.Key, component);
                         }
                         else
                         {
                             Debug.LogWarning(
-                                $"Instance swap property assignment with key '${assignment.Key}' component could not be found: ${componentId}");
+                                $"Instance swap property assignment with key '${componentProperty.Key}' component could not be found: ${componentId}");
                         }
                     }
-                    else if (assignment.Value.type == ComponentPropertyType.Text)
+                    else if (componentProperty.Value.type == ComponentPropertyType.Text)
                     {
-                        var assignmentText = (ComponentPropertyAssignmentText)assignment.Value;
-                        var characters = assignmentText.value;
+                        var textProperty = (ComponentPropertyText)componentProperty.Value;
+                        var characters = textProperty.value;
 
-                        args.textPropertyAssignments.Add(assignment.Key, characters);
+                        args.textPropertyAssignments.Add(componentProperty.Key, characters);
                     }
                 }
             }
@@ -180,12 +179,12 @@ namespace Cdm.Figma.UI
             args.componentPropertyAssignments.Clear();
             args.textPropertyAssignments.Clear();
         }
-        
+
         private static void MergeComponentVariant(FigmaNode node, FigmaNode variant, string selector)
         {
             var nodeChildren = node.GetChildren();
             var variantChildren = variant.GetChildren();
-            
+
             if (nodeChildren.Count != variantChildren.Count)
                 throw new ArgumentException("Component variant has invalid number of children!");
 
@@ -216,7 +215,7 @@ namespace Cdm.Figma.UI
             {
                 style.SetStyleAsSelector(figmaNode.gameObject, new StyleArgs("", true));
             }
-            
+
             // Do the same for the node's children.
             var children = figmaNode.GetChildren();
             foreach (var child in children)

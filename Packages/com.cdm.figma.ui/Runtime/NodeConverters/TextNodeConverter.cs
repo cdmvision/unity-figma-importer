@@ -43,7 +43,8 @@ namespace Cdm.Figma.UI
         private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
         {
             var textValue = textNode.characters;
-            var propertyReference = textNode.componentProperties?.references?.characters;
+            
+            var propertyReference = textNode.componentPropertyReferences?.characters;
             if (!string.IsNullOrEmpty(propertyReference))
             {
                 if (args.textPropertyAssignments.TryGetValue(propertyReference, out var characters))

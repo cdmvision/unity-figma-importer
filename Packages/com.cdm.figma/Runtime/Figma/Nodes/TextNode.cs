@@ -37,12 +37,5 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "styleOverrideTable")]
         public Dictionary<int, TypeStyle> styleOverrideTable { get; private set; } = new Dictionary<int, TypeStyle>();
-        
-        /// <summary>
-        /// <see cref="ComponentProperties.references"/> will be available if text node located inside
-        /// <see cref="ComponentSetNode"/>'s variant component.
-        /// </summary>
-        [DataMember(Name = "componentProperties")]
-        public ComponentProperties componentProperties { get; private set; }
     }
 }

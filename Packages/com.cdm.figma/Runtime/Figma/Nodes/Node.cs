@@ -44,6 +44,15 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "sharedPluginData")]
         public Dictionary<string, JObject> sharedPluginData { get; set; }
+        
+        /// <summary>
+        /// A mapping of a layer's property to component property name of component properties attached to this node.
+        /// The component property name can be used to look up more information on the node's containing
+        /// component node's <see cref="ComponentNode.componentPropertyDefinitions"/> or
+        /// component set node's <see cref="ComponentSetNode.componentPropertyDefinitions"/>.
+        /// </summary>
+        [DataMember(Name = "componentPropertyReferences")]
+        public ComponentPropertyReferences componentPropertyReferences { get; set; }
 
         /// <summary>
         /// Parent of the node.

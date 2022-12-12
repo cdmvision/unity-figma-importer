@@ -87,6 +87,7 @@ namespace Cdm.Figma
                 .RegisterSubtype<ComponentPropertyDefinitionInstanceSwap>(ComponentPropertyType.InstanceSwap)
                 .RegisterSubtype<ComponentPropertyDefinitionText>(ComponentPropertyType.Text)
                 .RegisterSubtype<ComponentPropertyDefinitionBoolean>(ComponentPropertyType.Boolean)
+                .RegisterSubtype<ComponentPropertyDefinitionVariant>(ComponentPropertyType.Variant)
                 .SetFallbackSubtype(typeof(ComponentPropertyDefinition))
                 .Build();
         }
@@ -94,11 +95,11 @@ namespace Cdm.Figma
         private static JsonConverter GetComponentPropertyAssignmentConverter()
         {
             return JsonSubtypesConverterBuilder
-                .Of<ComponentPropertyAssignment>("type")
-                .RegisterSubtype<ComponentPropertyAssignmentInstanceSwap>(ComponentPropertyType.InstanceSwap)
-                .RegisterSubtype<ComponentPropertyAssignmentText>(ComponentPropertyType.Text)
-                .RegisterSubtype<ComponentPropertyAssignmentBoolean>(ComponentPropertyType.Boolean)
-                .SetFallbackSubtype(typeof(ComponentPropertyAssignment))
+                .Of<ComponentProperty>("type")
+                .RegisterSubtype<ComponentPropertyInstanceSwap>(ComponentPropertyType.InstanceSwap)
+                .RegisterSubtype<ComponentPropertyText>(ComponentPropertyType.Text)
+                .RegisterSubtype<ComponentPropertyBoolean>(ComponentPropertyType.Boolean)
+                .SetFallbackSubtype(typeof(ComponentProperty))
                 .Build();
         }
     }

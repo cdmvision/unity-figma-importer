@@ -7,21 +7,21 @@ namespace Cdm.Figma
     {
         /// <summary>
         /// Available only for <see cref="ComponentPropertyType.InstanceSwap"/>.
-        /// Its value is a key in <see cref="ComponentProperties.definitions"/> dictionary.
+        /// Its value is a key in <see cref="ComponentPropertyDefinition"/> dictionary.
         /// </summary>
         [DataMember]
         public string mainComponent { get; set; }
 
         /// <summary>
         /// Available only for <see cref="ComponentPropertyType.Text"/>.
-        /// Its value is a key in <see cref="ComponentProperties.definitions"/> dictionary.
+        /// Its value is a key in <see cref="ComponentPropertyDefinition"/> dictionary.
         /// </summary>
         [DataMember]
         public string characters { get; set; }
 
         /// <summary>
         /// Available only for <see cref="ComponentPropertyType.Boolean"/>.
-        /// Its value is a key in <see cref="ComponentProperties.definitions"/> dictionary.
+        /// Its value is a key in <see cref="ComponentPropertyDefinition"/> dictionary.
         /// </summary>
         [DataMember]
         public string visible { get; set; }
