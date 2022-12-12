@@ -187,8 +187,8 @@ namespace Cdm.Figma
 
         /// <summary>
         /// Map from ID to <see cref="PaintOverride"/> for looking up fill overrides. To see which regions are
-        /// overriden, you must use the geometry=paths option. Each path returned may have an <c>overrideId</c>
-        /// which maps to this table.
+        /// overriden, you must use the <see cref="FileRequest.geometry"/> = paths option. Each path returned may
+        /// have an <see cref="Path.overrideId"/> which maps to this table.
         /// </summary>
         [DataMember(Name = "fillOverrideTable")]
         public Dictionary<int, PaintOverride> fillOverrideTable { get; private set; } =
