@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Unity.VectorGraphics;
 using UnityEngine;
@@ -114,11 +115,19 @@ namespace Cdm.Figma.Utils
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
+            //vectorNode.fillOverrideTable
             foreach (var geometry in vectorNode.fillGeometry)
             {
                 var path = geometry.path;
                 var windingRule = geometry.windingRule;
-                AppendSvgFillPathElement(svg, node, path, new Vector2(width, height), windingRule);
+                PaintOverride paintOverride = null;
+                
+                if (vectorNode.fillOverrideTable != null && geometry.overrideId.HasValue)
+                {
+                    vectorNode.fillOverrideTable.TryGetValue(geometry.overrideId.Value, out paintOverride);
+                }
+                
+                AppendSvgFillPathElement(svg, node, path, new Vector2(width, height), paintOverride, windingRule);
             }
             
             foreach (var geometry in vectorNode.strokeGeometry)
@@ -279,14 +288,15 @@ namespace Cdm.Figma.Utils
         }
 
         private static void AppendSvgFillPathElement(StringBuilder svg, SceneNode node, string fillPath,
-            Vector2 size, string windingRule = null)
+            Vector2 size, PaintOverride paintOverride = null, string windingRule = null)
         {
-            var nodeFill = (INodeFill)node;
-            Debug.Assert(nodeFill != null);
-
-            for (var i = 0; i < nodeFill.fills.Count; i++)
+            var fills = paintOverride != null ? paintOverride.fills : ((INodeFill)node)?.fills;
+            if (fills == null)
+                return;
+            
+            for (var i = 0; i < fills.Count; i++)
             {
-                var fill = nodeFill.fills[i];
+                var fill = fills[i];
 
                 if (!fill.visible)
                     continue;
