@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Cdm.Figma
@@ -10,6 +11,14 @@ namespace Cdm.Figma
     public class ComponentNode : FrameNode
     {
         public override string type => NodeType.Component;
+        
+        /// <summary>
+        /// A mapping of name to <see cref="ComponentPropertyDefinition"/> for every component property on this
+        /// component.
+        /// </summary>
+        [DataMember(Name = "componentPropertyDefinitions")]
+        public Dictionary<string, ComponentPropertyDefinition> componentPropertyDefinitions { get; private set; } =
+            new Dictionary<string, ComponentPropertyDefinition>();
         
         /// <summary>
         /// The component set that this component attached to.

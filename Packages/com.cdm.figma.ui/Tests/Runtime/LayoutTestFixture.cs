@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using Cdm.Figma.Tests;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -12,21 +12,22 @@ namespace Cdm.Figma.UI.Tests
     public class LayoutTestFixture
     {
         private const float FloatDelta = 0.001f;
-        private static NodeObject ReferenceView;
+        private FigmaNode _referenceView;
 
         [UnityTest]
         public IEnumerator PlayModeSampleTestWithEnumeratorPasses()
         {
-            var figmaFile = Resources.Load<FigmaFile>("2282TYGl73YRNXVIB0kYYD");
-
+            var figmaFile = Resources.Load<TextAsset>("File");
+            var file = FigmaFile.Parse(figmaFile.text);
+            
             var figmaImporter = new FigmaImporter();
-            yield return figmaImporter.ImportFileAsync(figmaFile).AsEnumerator();
+            var figmaDesign = (FigmaDesign) figmaImporter.ImportFile(file);
 
-            var documents = figmaImporter.GetImportedDocuments();
+            //var documents = figmaImporter.GetImportedDocuments();
 
-            foreach (var document in documents)
+            foreach (var page in figmaDesign.document)
             {
-                var canvasGo = new GameObject($"Canvas-{document.node.name}");
+                var canvasGo = new GameObject($"Canvas-{page.name}");
                 var canvas = canvasGo.AddComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 var canvasRectTransform = canvas.GetComponent<RectTransform>();
@@ -35,12 +36,12 @@ namespace Cdm.Figma.UI.Tests
                 canvasRectTransform.localScale = Vector3.one;
 
                 var isImported = false;
-                foreach (RectTransform child in document.nodeObject.rectTransform)
+                foreach (RectTransform child in page.rectTransform)
                 {
                     if (child.name is "0")
                     {
-                        ReferenceView = child.GetComponent<NodeObject>();
-                        Assert.True(ReferenceView.node is INodeTransform);
+                        _referenceView = child.GetComponent<FigmaNode>();
+                        Assert.True(_referenceView.node is INodeTransform);
                         child.SetParent(canvas.transform, false);
                         isImported = true;
                         break;
@@ -49,16 +50,16 @@ namespace Cdm.Figma.UI.Tests
 
                 Assert.True(isImported);
 
-                foreach (var child in document.node.GetChildren())
+                foreach (var child in page.node.GetChildren())
                 {
                     if (child is INodeTransform nodeTransform)
                     {
                         //change 1 and 2's right and bottom to stretch the view
-                        ReferenceView.gameObject.GetComponent<RectTransform>().offsetMax = new Vector2(
+                        _referenceView.gameObject.GetComponent<RectTransform>().offsetMax = new Vector2(
                             -1 * (1920 - nodeTransform.size.x),
-                            ReferenceView.gameObject.GetComponent<RectTransform>().offsetMax.y);
-                        ReferenceView.gameObject.GetComponent<RectTransform>().offsetMin = new Vector2(
-                            ReferenceView.gameObject.GetComponent<RectTransform>().offsetMin.x,
+                            _referenceView.gameObject.GetComponent<RectTransform>().offsetMax.y);
+                        _referenceView.gameObject.GetComponent<RectTransform>().offsetMin = new Vector2(
+                            _referenceView.gameObject.GetComponent<RectTransform>().offsetMin.x,
                             1080 - nodeTransform.size.y);
 
                         yield return new WaitForSeconds(2f);
@@ -70,20 +71,20 @@ namespace Cdm.Figma.UI.Tests
             }
         }
 
-        private static void Foo(Node node, Transform canvas)
+        private void Foo(Node node, Transform canvas)
         {
             var rootFrameTransform = (INodeTransform) node;
-            var rootFrameObject = canvas.GetChild(0).GetComponent<NodeObject>();
+            var rootFrameObject = canvas.GetChild(0).GetComponent<FigmaNode>();
 
             // Do not compare root frame node names.
-            Assert.AreEqual(ReferenceView.gameObject.GetComponent<RectTransform>().rect.width,
+            Assert.AreEqual(_referenceView.gameObject.GetComponent<RectTransform>().rect.width,
                 ((INodeTransform) node).size.x);
-            Assert.AreEqual(ReferenceView.gameObject.GetComponent<RectTransform>().rect.height,
+            Assert.AreEqual(_referenceView.gameObject.GetComponent<RectTransform>().rect.height,
                 ((INodeTransform) node).size.y);
             CompareSize(node, node, rootFrameObject);
         }
 
-        private static void CompareSize(Node rootNode, Node node, NodeObject nodeObject)
+        private static void CompareSize(Node rootNode, Node node, FigmaNode nodeObject)
         {
             var offset = ((INodeTransform) rootNode).relativeTransform.GetPosition();
             foreach (var child in node.GetChildren())
@@ -154,7 +155,7 @@ namespace Cdm.Figma.UI.Tests
             }
         }
 
-        private static void ComparePosition(Node rootNode, Node child, NodeObject childNodeObject, Vector2 offset)
+        private static void ComparePosition(Node rootNode, Node child, FigmaNode childNodeObject, Vector2 offset)
         {
             var importedPosition = childNodeObject.rectTransform.position;
             importedPosition.x += offset.x;
@@ -168,11 +169,11 @@ namespace Cdm.Figma.UI.Tests
             
         }
 
-        private static NodeObject FindChild(NodeObject nodeObject, Predicate<NodeObject> predicate)
+        private static FigmaNode FindChild(FigmaNode nodeObject, Predicate<FigmaNode> predicate)
         {
             foreach (Transform child in nodeObject.transform)
             {
-                var childNode = child.GetComponent<NodeObject>();
+                var childNode = child.GetComponent<FigmaNode>();
 
                 if (predicate(childNode))
                 {
@@ -181,6 +182,11 @@ namespace Cdm.Figma.UI.Tests
             }
 
             return null;
+        }
+        
+        private static string GetFilePath(string fileName)
+        {
+            return Path.Combine("Packages/com.cdm.figma/Tests/Editor/TestResources/", fileName);
         }
     }
 }

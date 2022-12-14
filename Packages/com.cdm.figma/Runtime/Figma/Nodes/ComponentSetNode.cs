@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -14,6 +15,14 @@ namespace Cdm.Figma
     {
         public override string type => NodeType.ComponentSet;
 
+        /// <summary>
+        /// A mapping of name to <see cref="ComponentPropertyDefinition"/> for every component property on this
+        /// component.
+        /// </summary>
+        [DataMember(Name = "componentPropertyDefinitions")]
+        public Dictionary<string, ComponentPropertyDefinition> componentPropertyDefinitions { get; private set; } =
+            new Dictionary<string, ComponentPropertyDefinition>();
+        
         /// <summary>
         /// A list of component nodes that are children of this node.
         /// </summary>

@@ -1,4 +1,4 @@
-namespace Cdm.Figma
+namespace Cdm.Figma.Editor
 {
     internal class EditorHelper
     {

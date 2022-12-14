@@ -184,25 +184,46 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "styles")]
         public Dictionary<StyleType, string> styles { get; private set; } = new Dictionary<StyleType, string>();
-        
+
+        /// <summary>
+        /// Map from ID to <see cref="PaintOverride"/> for looking up fill overrides. To see which regions are
+        /// overriden, you must use the <see cref="FileRequest.geometry"/> = paths option. Each path returned may
+        /// have an <see cref="Path.overrideId"/> which maps to this table.
+        /// </summary>
+        [DataMember(Name = "fillOverrideTable")]
+        public Dictionary<int, PaintOverride> fillOverrideTable { get; private set; } =
+            new Dictionary<int, PaintOverride>();
+
         [DataContract]
         public class Path
         {
-            [DataMember]
-            public string path;
+            [DataMember(Name = "path")]
+            public string path { get; set; }
+
+            [DataMember(Name = "overrideID")]
+            public int? overrideId { get; set; }
             
-            [DataMember]
-            public string windingRule;
+            [DataMember(Name = "windingRule")]
+            public string windingRule { get; set; }
         }
         
         [DataContract]
         public enum StyleType
         {
-            [EnumMember(Value = "fill")]
+            [EnumMember(Value = "FILL")]
             Fill,
-        
-            [EnumMember(Value = "stroke")]
+            
+            [EnumMember(Value = "STROKE")]
             Stroke,
+            
+            [EnumMember(Value = "GRID")]
+            Grid,
+            
+            [EnumMember(Value = "TEXT")]
+            Text,
+            
+            [EnumMember(Value = "EFFECT")]
+            Effect,
         }
     }
 

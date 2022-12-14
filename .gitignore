@@ -15,16 +15,12 @@
 ProjectSettings/boot.config
 
 # Downloaded figma files
-[Aa]ssets/Resources/Figma/Files/
-[Aa]ssets/Resources/Figma/UIToolkit/Documents/
-[Aa]ssets/Resources/Figma/UIToolkit/Files/
-[Aa]ssets/Resources/Figma/UIToolkit/Graphics/
-[Aa]ssets/Resources/Figma/UIToolkit/Scripts/
-[Aa]ssets/Resources/Figma/UI/Documents/
-[Aa]ssets/Resources/Figma/UI/Files/
-[Aa]ssets/Resources/Figma/UI/Graphics/
+Assets/Resources/Figma/
+Assets/Resources/Figma.meta
 
-[Aa]ssets/Thirdparty Assets/
+# Thirdparty assets (especially paid ones)
+Assets/Thirdparty Assets/
+Assets/Thirdparty Assets.meta
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta

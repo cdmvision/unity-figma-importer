@@ -15,11 +15,11 @@ namespace Cdm.Figma.Tests
         public void BuildNodeHierarchy()
         {
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("File.json"));
-            var file = FigmaFileContent.FromString(json.text);
+            var file = FigmaFile.Parse(json.text);
 
             file.BuildHierarchy();
 
-            file.document.Traverse(node =>
+            file.document.TraverseDfs(node =>
             {
                 switch (node.type)
                 {
@@ -54,7 +54,7 @@ namespace Cdm.Figma.Tests
         public void NodeDeserializationByType()
         {
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("File.json"));
-            var file = FigmaFileContent.FromString(json.text);
+            var file = FigmaFile.Parse(json.text);
 
             Assert.NotNull(file);
             Assert.NotNull(file.document);

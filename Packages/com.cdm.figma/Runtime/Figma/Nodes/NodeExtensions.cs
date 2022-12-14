@@ -4,8 +4,11 @@ using System.Linq;
 namespace Cdm.Figma
 {
     public static class NodeExtensions
-    {
-        public static void Traverse(this Node node, Func<Node, bool> handler)
+    {    
+        /// <summary>
+        /// Traverse nodes by using depth first search from starting node given.
+        /// </summary>
+        public static void TraverseDfs(this Node node, Func<Node, bool> handler)
         {
             if (handler(node))
             {
@@ -14,15 +17,18 @@ namespace Cdm.Figma
                 {
                     foreach (var child in children)
                     {
-                        child.Traverse(handler);
-                    }    
+                        child.TraverseDfs(handler);
+                    }
                 }
             }
         }
 
-        public static void Traverse(this Node node, Func<Node, bool> handler, params string[] nodeTypes)
+        /// <summary>
+        /// Traverse nodes specified types by using depth first search from starting node.
+        /// </summary>
+        public static void TraverseDfs(this Node node, Func<Node, bool> handler, params string[] nodeTypes)
         {
-            node.Traverse(n =>
+            node.TraverseDfs(n =>
             {
                 if (nodeTypes.Contains(n.type))
                 {
@@ -31,11 +37,11 @@ namespace Cdm.Figma
                         return false;
                     }
                 }
-                
+
                 return true;
             });
         }
-
+        
         public static void TraverseUp(this Node node, Func<Node, bool> handler)
         {
             for (var current = node; current != null; current = current.parent)
@@ -46,11 +52,11 @@ namespace Cdm.Figma
                 }
             }
         }
-        
+
         public static Node Find(this Node node, string nodeId)
         {
             Node target = null;
-            node.Traverse(n =>
+            node.TraverseDfs(n =>
             {
                 if (n.id == nodeId)
                 {
@@ -63,11 +69,11 @@ namespace Cdm.Figma
 
             return target;
         }
-        
+
         public static Node Find(this Node node, string nodeId, params string[] nodeTypes)
         {
             Node target = null;
-            node.Traverse(n =>
+            node.TraverseDfs(n =>
             {
                 if (n.id == nodeId)
                 {
@@ -81,7 +87,23 @@ namespace Cdm.Figma
             return target;
         }
 
-        public static string GetBindingName(this Node node)
+        /// <summary>
+        /// Gets the flag indicating the node is whether ignored while importing.
+        /// </summary>
+        public static bool IsIgnored(this Node node)
+        {
+            if (node.TryGetPluginData(out var data))
+            {
+                return data.isIgnored;
+            }
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Gets binding key from node's plugin data.
+        /// </summary>
+        public static string GetBindingKey(this Node node)
         {
             if (node.TryGetPluginData(out var data))
             {
@@ -91,7 +113,10 @@ namespace Cdm.Figma
             return null;
         }
         
-        public static string GetLocalizationKey(this Node node)
+        /// <summary>
+        /// Gets localization key from node's plugin data.
+        /// </summary>
+        public static string GetLocalizationKey(this TextNode node)
         {
             if (node.TryGetPluginData(out var data))
             {
@@ -100,7 +125,10 @@ namespace Cdm.Figma
 
             return null;
         }
-        
+
+        /// <summary>
+        /// Gets component type from node's plugin data.
+        /// </summary>
         public static string GetComponentType(this Node node)
         {
             if (node.TryGetPluginData(out var data))
@@ -110,8 +138,31 @@ namespace Cdm.Figma
 
             return null;
         }
+        
+        /// <summary>
+        /// Gets tags from node's plugin data.
+        /// </summary>
+        public static string[] GetTags(this Node node)
+        {
+            if (node.TryGetPluginData(out var data))
+            {
+                if (data.hasTags)
+                {
+                    var tags = data.tags.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    
+                    for (var i = 0; i < tags.Length; i++)
+                    {
+                        tags[i] = tags[i].Trim();
+                    }
 
-        private static bool TryGetPluginData(this Node node, out PluginData pluginData)
+                    return tags;
+                }
+            }
+
+            return Array.Empty<string>();
+        }
+
+        public static bool TryGetPluginData(this Node node, out PluginData pluginData)
         {
             if (node.pluginData != null && node.pluginData.TryGetValue(PluginData.Id, out var data))
             {

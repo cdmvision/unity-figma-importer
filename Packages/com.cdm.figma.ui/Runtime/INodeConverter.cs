@@ -1,27 +1,28 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
     public interface INodeConverter
     {
         bool CanConvert(Node node, NodeConvertArgs args);
-        NodeObject Convert(NodeObject parentObject, Node node, NodeConvertArgs args);
+        FigmaNode Convert(FigmaNode parentObject, Node node, NodeConvertArgs args);
     }
-    
+
     public class NodeConvertArgs
     {
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
-        public FigmaFileContent fileContent { get; }
-        
-        public List<ComponentSetNode> componentSets { get; } = new List<ComponentSetNode>();
-        
-        public NodeConvertArgs(FigmaImporter importer, FigmaFile file, FigmaFileContent fileContent)
+
+        public Dictionary<string, ComponentNode> componentPropertyAssignments { get; } =
+            new Dictionary<string, ComponentNode>();
+
+        public Dictionary<string, string> textPropertyAssignments { get; } 
+            = new Dictionary<string, string>();
+
+        public NodeConvertArgs(FigmaImporter importer, FigmaFile file)
         {
             this.importer = importer;
             this.file = file;
-            this.fileContent = fileContent;
         }
     }
 }

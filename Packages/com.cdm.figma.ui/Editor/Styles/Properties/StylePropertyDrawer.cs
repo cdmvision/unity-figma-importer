@@ -1,7 +1,8 @@
-﻿using UnityEditor;
+﻿using Cdm.Figma.UI.Styles.Properties;
+using UnityEditor;
 using UnityEngine;
 
-namespace Cdm.Figma.UI.Styles.Properties
+namespace Cdm.Figma.UI.Editor.Styles.Properties
 {
     [CustomPropertyDrawer(typeof(StylePropertyBase), true)]
     public class StylePropertyDrawer : PropertyDrawer

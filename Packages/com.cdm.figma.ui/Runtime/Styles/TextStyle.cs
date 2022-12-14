@@ -1,79 +1,109 @@
 ﻿using System;
 using Cdm.Figma.UI.Styles.Properties;
+using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Components;
 
 namespace Cdm.Figma.UI.Styles
 {
-    public class TextStyle : StyleWithSelectors<TextStylePropertyBlock>
-    {
-    }
-
     [Serializable]
-    public class TextStylePropertyBlock : StylePropertyBlock
+    public class TextStyle : GraphicStyle<TextStyleSetter>
     {
+        public StylePropertyString text = new StylePropertyString();
         public StylePropertyFont font = new StylePropertyFont();
-        public StylePropertyColor color = new StylePropertyColor(UnityEngine.Color.white);
         public StylePropertyFontStyle fontStyle = new StylePropertyFontStyle();
         public StylePropertyFontWeight fontWeight = new StylePropertyFontWeight(FontWeight.Regular);
         public StylePropertyMaterial fontMaterial = new StylePropertyMaterial();
         public StylePropertyFloat fontSize = new StylePropertyFloat();
-        public StylePropertyBool autoSize = new StylePropertyBool();
-        public StylePropertyTextAlignment alignment = new StylePropertyTextAlignment();
+        public StylePropertyFloat fontSizeMin = new StylePropertyFloat();
+        public StylePropertyFloat fontSizeMax = new StylePropertyFloat();
+        public StylePropertyBool enableAutoSizing = new StylePropertyBool();
+        public StylePropertyBool autoSizeTextContainer = new StylePropertyBool();
+        public StylePropertyHorizontalAlignmentOptions horizontalAlignment =
+            new StylePropertyHorizontalAlignmentOptions();
+        public StylePropertyVerticalAlignmentOptions verticalAlignment = 
+            new StylePropertyVerticalAlignmentOptions();
         public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
-        public StylePropertyFloat fadeDuration = new StylePropertyFloat(0.1f);
+        public StylePropertyLocalizedString localizedString = new StylePropertyLocalizedString();
 
-        public override void CopyTo(StylePropertyBlock other)
+        protected override void MergeTo(Style other, bool force)
         {
-            base.CopyTo(other);
-
-            if (other is TextStylePropertyBlock otherStyle)
+            base.MergeTo(other, force);
+            
+            if (other is TextStyle otherStyle)
             {
-                font.CopyTo(otherStyle.font);
-                color.CopyTo(otherStyle.color);
-                fontStyle.CopyTo(otherStyle.fontStyle);
-                fontWeight.CopyTo(otherStyle.fontWeight);
-                fontMaterial.CopyTo(otherStyle.fontMaterial);
-                fontSize.CopyTo(otherStyle.fontSize);
-                autoSize.CopyTo(otherStyle.autoSize);
-                alignment.CopyTo(otherStyle.alignment);
-                characterSpacing.CopyTo(otherStyle.characterSpacing);
+                OverwriteProperty(text, otherStyle.text, force);
+                OverwriteProperty(font, otherStyle.font, force);
+                OverwriteProperty(fontStyle, otherStyle.fontStyle, force);
+                OverwriteProperty(fontWeight, otherStyle.fontWeight, force);
+                OverwriteProperty(fontMaterial, otherStyle.fontMaterial, force);
+                OverwriteProperty(fontSize, otherStyle.fontSize, force);
+                OverwriteProperty(fontSizeMin, otherStyle.fontSizeMin, force);
+                OverwriteProperty(fontSizeMax, otherStyle.fontSizeMax, force);
+                OverwriteProperty(enableAutoSizing, otherStyle.enableAutoSizing, force);
+                OverwriteProperty(autoSizeTextContainer, otherStyle.autoSizeTextContainer, force);
+                OverwriteProperty(horizontalAlignment, otherStyle.horizontalAlignment, force);
+                OverwriteProperty(verticalAlignment, otherStyle.verticalAlignment, force);
+                OverwriteProperty(characterSpacing, otherStyle.characterSpacing, force);
+                OverwriteProperty(localizedString, otherStyle.localizedString, force);
             }
         }
-
+        
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            base.SetStyle(gameObject, args);
-
-            if (TryGetComponent<TMP_Text>(gameObject, out var text))
+            var textComponent = gameObject.GetOrAddComponent<TextMeshProUGUI>();
+            if (textComponent != null)
             {
+                base.SetStyle(gameObject, args);
+
+                textComponent.raycastTarget = false;
+                
+                if (text.enabled)
+                    textComponent.text = text.value;
+                
                 if (font.enabled)
-                    text.font = font.value;
+                    textComponent.font = font.value;
 
                 if (fontStyle.enabled)
-                    text.fontStyle = fontStyle.value;
+                    textComponent.fontStyle = fontStyle.value;
 
                 if (fontWeight.enabled)
-                    text.fontWeight = fontWeight.value;
+                    textComponent.fontWeight = (TMPro.FontWeight) fontWeight.value;
 
                 if (fontSize.enabled)
-                    text.fontSize = fontSize.value;
+                    textComponent.fontSize = fontSize.value;
 
-                if (autoSize.enabled)
-                    text.enableAutoSizing = autoSize.value;
+                if (fontSizeMin.enabled)
+                    textComponent.fontSizeMin = fontSizeMin.value;
 
-                if (alignment.enabled)
-                    text.alignment = alignment.value;
+                if (fontSizeMax.enabled)
+                    textComponent.fontSizeMax = fontSizeMax.value;
+
+                if (enableAutoSizing.enabled)
+                    textComponent.enableAutoSizing = enableAutoSizing.value;
+
+                if (autoSizeTextContainer.enabled)
+                    textComponent.autoSizeTextContainer = autoSizeTextContainer.value;
+
+                if (horizontalAlignment.enabled)
+                    textComponent.horizontalAlignment = horizontalAlignment.value;
+
+                if (verticalAlignment.enabled)
+                    textComponent.verticalAlignment = verticalAlignment.value;
 
                 if (characterSpacing.enabled)
-                    text.characterSpacing = characterSpacing.value;
+                    textComponent.characterSpacing = characterSpacing.value;
 
                 if (fontMaterial.enabled)
-                    text.fontMaterial = fontMaterial.value;
+                    textComponent.fontMaterial = fontMaterial.value;
 
-                if (color.enabled)
+                if (localizedString.enabled)
                 {
-                    text.CrossFadeColor(args, color, fadeDuration);
+                    var stringEvent = textComponent.gameObject.GetOrAddComponent<LocalizeStringEvent>();
+                    stringEvent.StringReference = localizedString.value;
+                    stringEvent.OnUpdateString.AddListener(str => { textComponent.text = str; });
+                    stringEvent.RefreshString();
                 }
             }
         }

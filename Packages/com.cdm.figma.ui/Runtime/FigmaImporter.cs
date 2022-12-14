@@ -1,229 +1,491 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Cdm.Figma.UI.Utils;
+using Cdm.Figma.Utils;
+using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.UI
 {
+    /// <summary>
+    /// Imports given Figma file into the Unity using built-in UI system.
+    /// </summary>
     public class FigmaImporter : IFigmaImporter
     {
-        private readonly HashSet<NodeConverter> _nodeConverters = new HashSet<NodeConverter>();
+        private readonly List<NodeConverter> _nodeConverters = new List<NodeConverter>();
 
-        public ISet<NodeConverter> nodeConverters => _nodeConverters;
+        /// <summary>
+        /// Figma node converters.
+        /// </summary>
+        /// <remarks>If left empty, default node converters are used.</remarks>
+        /// <seealso cref="GetDefaultNodeConverters"/>
+        /// <seealso cref="AddDefaultNodeConverters"/>
+        public IList<NodeConverter> nodeConverters => _nodeConverters;
 
-        private readonly HashSet<ComponentConverter> _componentConverters = new HashSet<ComponentConverter>();
+        private readonly List<ComponentConverter> _componentConverters = new List<ComponentConverter>();
 
-        public ISet<ComponentConverter> componentConverters => _componentConverters;
+        /// <summary>
+        /// Figma component converters.
+        /// </summary>
+        /// <remarks>If left empty, default component converters are used.</remarks>
+        /// <seealso cref="GetDefaultComponentConverters"/>
+        /// <seealso cref="AddDefaultComponentConverters"/>
+        public IList<ComponentConverter> componentConverters => _componentConverters;
+
+        private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
+        private readonly List<Binding> _bindings = new List<Binding>();
+
+        /// <summary>
+        /// The font mappings that are used while importing Figma text nodes.
+        /// </summary>
+        /// <seealso cref="TextNode"/>
+        public List<FontSource> fonts { get; } = new List<FontSource>();
         
-        private readonly List<ImportedDocument> _documents = new List<ImportedDocument>();
-
-        public ImportedDocument[] GetImportedDocuments()
-        {
-            return _documents.ToArray();
-        }
+        /// <summary>
+        /// Generated UI elements as <see cref="GameObject"/>.
+        /// </summary>
+        public AssetCache generatedGameObjects { get; } = new AssetCache();
         
+        /// <summary>
+        /// Generated assets during import such as <see cref="Sprite"/>, <see cref="Material"/> etc.
+        /// </summary>
+        public AssetCache generatedAssets { get; } = new AssetCache();
+        
+        /// <summary>
+        /// Dependency assets that are used to import Figma nodes such as font asset etc.
+        /// </summary>
+        /// <seealso cref="FontSource"/>
+        public AssetCache dependencyAssets { get; } = new AssetCache();
+
+        /// <summary>
+        /// Gets or sets whether import process fails or keeps a log when an error occurs.
+        /// </summary>
+        public bool failOnError { get; set; } = true;
+
+        /// <summary>
+        /// Sprite generation options.
+        /// </summary>
+        public SpriteGenerateOptions spriteOptions { get; set; }
+            = new SpriteGenerateOptions()
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                sampleCount = 8,
+                textureSize = 1024
+            };
+
+        /// <summary>
+        /// Gets or sets the fallback font that is used when a font mapping does not found.
+        /// </summary>
+        public TMP_FontAsset fallbackFont { get; set; }
+
+        /// <summary>
+        /// Gets the default node converters that are used for importing Figma nodes.
+        /// </summary>
         public static NodeConverter[] GetDefaultNodeConverters()
         {
             return new NodeConverter[]
             {
                 new GroupNodeConverter(),
                 new FrameNodeConverter(),
-                new InstanceNodeConverter(),
                 new VectorNodeConverter(),
                 new RectangleNodeConverter(),
                 new EllipseNodeConverter(),
                 new LineNodeConverter(),
                 new PolygonNodeConverter(),
                 new StarNodeConverter(),
-                new TextNodeConverter()
+                new TextNodeConverter(),
+                new InstanceNodeConverter(),
+                new BooleanNodeConverter()
             };
         }
-
+        /// <summary>
+        /// Gets the default component converters that are used for importing Figma nodes.
+        /// </summary>
         public static ComponentConverter[] GetDefaultComponentConverters()
         {
             return new ComponentConverter[]
             {
-                //new ButtonComponentConverter(),
-                //new ToggleComponentConverter()
+                new SelectableComponentConverter(),
+                new ButtonComponentConverter(),
+                new ToggleComponentConverter(),
+                new SliderComponentConverter(),
+                new InputFieldComponentConverter(),
+                new ScrollbarComponentConverter(),
+                new ScrollViewComponentConverter(),
+                new DropdownComponentConverter()
             };
         }
-        
-        public Task ImportFileAsync(Figma.FigmaFile file)
+
+        /// <summary>
+        /// Adds the default node converters that are used for importing Figma nodes.
+        /// </summary>
+        /// <seealso cref="GetDefaultNodeConverters"/>
+        public void AddDefaultNodeConverters()
         {
-            _documents.Clear();
-            
+            var converters = GetDefaultNodeConverters();
+            foreach (var converter in converters)
+            {
+                nodeConverters.Add(converter);
+            }
+        }
+        
+        /// <summary>
+        /// Adds the default component converters that are used for importing Figma nodes.
+        /// </summary>
+        /// <seealso cref="GetDefaultComponentConverters"/>
+        public void AddDefaultComponentConverters()
+        {
+            var converters = GetDefaultComponentConverters();
+            foreach (var converter in converters)
+            {
+                componentConverters.Add(converter);
+            }
+        }
+
+        public Figma.FigmaDesign ImportFile(FigmaFile file, IFigmaImporter.Options options = null)
+        {
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
-            
-            var figmaFile = file as FigmaFile;
-            if (figmaFile == null)
-                throw new ArgumentException("Wrong type of Figma file", nameof(file));
-            
-            if (!nodeConverters.Any())
-            {
-                var converters = GetDefaultNodeConverters();
-                foreach (var converter in converters)
-                {
-                    nodeConverters.Add(converter);
-                }
-            }
-            
-            if (!componentConverters.Any())
-            {
-                var converters = GetDefaultComponentConverters();
-                foreach (var converter in converters)
-                {
-                    componentConverters.Add(converter);
-                }
-            }
-            
-            var fileContent = figmaFile.GetFileContent();
-            fileContent.BuildHierarchy();
-            
-            var conversionArgs = new NodeConvertArgs(this, figmaFile, fileContent);
-            
-            // Collect all component sets from all pages.
-            var pages = fileContent.document.children;
-            foreach (var page in pages)
-            {
-                page.Traverse(node =>
-                {
-                    conversionArgs.componentSets.Add((ComponentSetNode) node);
-                    return true;
-                }, NodeType.ComponentSet);
-            }
-            
-            // Generate all pages.
-            foreach (var page in pages)
-            {
-                // Do not import ignored pages.
-                var filePage = figmaFile.pages.FirstOrDefault(p => p.id == page.id);
-                if (filePage == null || !filePage.enabled)
-                    continue;
 
-                var pageNode = NodeObject.NewNodeObject(page, conversionArgs);
-                pageNode.rectTransform.anchorMin = new Vector2(0, 0);
-                pageNode.rectTransform.anchorMax = new Vector2(1, 1);
-                pageNode.rectTransform.offsetMin = new Vector2(0, 0);
-                pageNode.rectTransform.offsetMax = new Vector2(0, 0);
+            options ??= new IFigmaImporter.Options();
+            spriteOptions ??= new SpriteGenerateOptions();
 
-                var nodes = page.children;
-                foreach (var node in nodes)
+            file.BuildHierarchy();
+
+            generatedAssets.Clear();
+            generatedGameObjects.Clear();
+            dependencyAssets.Clear();
+
+            _logs.Clear();
+            _bindings.Clear();
+
+            InitNodeConverters();
+            InitComponentConverters();
+
+            try
+            {
+                var conversionArgs = new NodeConvertArgs(this, file);
+
+                var figmaDocument = CreateFigmaNode<FigmaDocument>(file.document);
+                figmaDocument.rectTransform.anchorMin = new Vector2(0, 0);
+                figmaDocument.rectTransform.anchorMax = new Vector2(1, 1);
+                figmaDocument.rectTransform.offsetMin = new Vector2(0, 0);
+                figmaDocument.rectTransform.offsetMax = new Vector2(0, 0);
+
+                var pageNodes = file.document.children;
+                foreach (var pageNode in pageNodes)
                 {
-                    if (node is FrameNode)
+                    // Do not import ignored pages.
+                    if (options.selectedPages != null && options.selectedPages.All(p => p != pageNode.id))
+                        continue;
+
+                    var figmaPage = CreateFigmaNode<FigmaPage>(pageNode);
+                    figmaPage.rectTransform.anchorMin = new Vector2(0, 0);
+                    figmaPage.rectTransform.anchorMax = new Vector2(1, 1);
+                    figmaPage.rectTransform.offsetMin = new Vector2(0, 0);
+                    figmaPage.rectTransform.offsetMax = new Vector2(0, 0);
+                    figmaPage.transform.SetParent(figmaDocument.rectTransform, false);
+
+                    AddBindingIfExist(figmaPage);
+
+                    var nodes = pageNode.children;
+                    foreach (var node in nodes)
                     {
-                        if (TryConvertNode(pageNode, node, conversionArgs, out var frameNode))
+                        if (node.IsIgnored())
+                            continue;
+                        
+                        if (node is FrameNode)
                         {
-                            frameNode.rectTransform.anchorMin = new Vector2(0, 0);
-                            frameNode.rectTransform.anchorMax = new Vector2(1, 1);
-                            frameNode.rectTransform.offsetMin = new Vector2(0, 0);
-                            frameNode.rectTransform.offsetMax = new Vector2(0, 0);
-                            frameNode.transform.SetParent(pageNode.rectTransform, false);
+                            if (TryConvertNode(figmaPage, node, conversionArgs, out var frameNode))
+                            {
+                                frameNode.rectTransform.anchorMin = new Vector2(0, 0);
+                                frameNode.rectTransform.anchorMax = new Vector2(1, 1);
+                                frameNode.rectTransform.offsetMin = new Vector2(0, 0);
+                                frameNode.rectTransform.offsetMax = new Vector2(0, 0);
+                                frameNode.transform.SetParent(figmaPage.rectTransform, false);
+                            }
                         }
                     }
                 }
-                
-                _documents.Add(new ImportedDocument()
+
+                SetDocumentLogs(figmaDocument, _logs);
+                _logs.Clear();
+
+                var bindings = new List<Binding>();
+                foreach (var binding in _bindings)
                 {
-                    page = filePage,
-                    node = page,
-                    nodeObject = pageNode
-                });
+                    if (binding.node != null)
+                    {
+                        // Build path.
+                        var node = binding.node.node;
+                        var path = BuildBindingPath(node);
+
+                        bindings.Add(new Binding(binding.key, path, binding.node));
+                    }
+                }
+
+                return FigmaDesign.Create<FigmaDesign>(file, figmaDocument, bindings);
+            }
+            catch (Exception)
+            {
+                // In case an error, cleanup generated resources.
+                foreach (var generatedObject in generatedGameObjects)
+                {
+                    if (generatedObject.Value != null)
+                    {
+                        ObjectUtils.Destroy(generatedObject.Value);
+                    }
+                }
+
+                foreach (var generatedAsset in generatedAssets)
+                {
+                    if (generatedAsset.Value != null)
+                    {
+                        ObjectUtils.Destroy(generatedAsset.Value);
+                    }
+                }
+
+                generatedAssets.Clear();
+                generatedGameObjects.Clear();
+                dependencyAssets.Clear();
+                throw;
+            }
+        }
+
+        private static string BuildBindingPath(Node n)
+        {
+            var path = n.id;
+            for (var node = n.parent; node != null; node = node.parent)
+            {
+                path = $"{node.id}{Binding.PathSeparator}{path}";
             }
 
-            return Task.CompletedTask;
+            return path;
         }
-        
-        internal bool TryConvertNode(NodeObject parentObject, Node node, NodeConvertArgs args, out NodeObject nodeObject)
+
+        private void AddBindingIfExist(FigmaNode figmaNode)
         {
+            if (!string.IsNullOrEmpty(figmaNode.bindingKey))
+            {
+                _bindings.Add(new Binding(figmaNode.bindingKey, "", figmaNode));
+            }
+        }
+
+        internal bool TryConvertNode(FigmaNode parentObject, Node node, NodeConvertArgs args,
+            out FigmaNode nodeObject, params INodeConverter[] ignoredConverters)
+        {
+            // Init instance node's main component, and main component's component set.
+            var instanceNode = (InstanceNode)null;
+            var instanceNodeInitResult = InstanceNodeInitResult.Success;
+            if (node is InstanceNode ins)
+            {
+                instanceNode = ins;
+                instanceNodeInitResult = args.file.InitInstanceNode(instanceNode);
+            }
+
             // Try with component converters first.
-            var componentConverter = componentConverters.FirstOrDefault(c => c.CanConvert(node, args));
+            var componentConverter = componentConverters.FirstOrDefault(
+                c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
+            
             if (componentConverter != null)
             {
                 nodeObject = componentConverter.Convert(parentObject, node, args);
+                AddBindingIfExist(nodeObject);
+                LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
                 return true;
             }
 
             // Try with node converters.
-            var nodeConverter = nodeConverters.FirstOrDefault(c => c.CanConvert(node, args));
+            var nodeConverter = nodeConverters.FirstOrDefault(
+                c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
+            
             if (nodeConverter != null)
             {
                 nodeObject = nodeConverter.Convert(parentObject, node, args);
+                AddBindingIfExist(nodeObject);
+                LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
                 return true;
             }
 
             nodeObject = null;
             return false;
         }
-        
-        public struct ImportedDocument
+
+        private void LogInstanceNodeInitResult(InstanceNode node, FigmaNode nodeObject, InstanceNodeInitResult result)
         {
-            /// <summary>
-            /// Associated Figma page.
-            /// </summary>
-            public FigmaFilePage page;
+            if (node == null)
+                return;
 
-            /// <summary>
-            /// Root figma node.
-            /// </summary>
-            public Node node;
-        
-            /// <summary>
-            /// Root game object..
-            /// </summary>
-            public NodeObject nodeObject;
-        }
-        
-        /*public override Task ImportFileAsync(FigmaFile file, FigmaImportOptions options = null)
-        {
-            if (file == null)
-                throw new ArgumentNullException(nameof(file));
-
-            options ??= new FigmaImportOptions();
-            
-            var assetsDirectory = Path.Combine("Assets", assetsPath);
-            Directory.CreateDirectory(assetsDirectory);
-
-            var conversionArgs = new NodeConvertArgs(this, file);
-            conversionArgs.assets = options.assets;
-            
-            // Collect all component sets from all pages.
-            var pages = file.document.children;
-            foreach (var page in pages)
+            switch (result)
             {
-                page.Traverse(node =>
-                {
-                    conversionArgs.componentSets.Add((ComponentSetNode) node);
-                    return true;
-                }, NodeType.ComponentSet);
+                case InstanceNodeInitResult.MissingComponentID:
+                    LogWarning($"Instance node has missing component ID. " +
+                               $"Instance node {node} may not be imported properly.", nodeObject);
+                    break;
+                case InstanceNodeInitResult.MissingComponent:
+                    LogWarning($"Instance of component node with id: '{node.componentId}' could not be found. " +
+                               $"Instance node {node} may not be imported properly. " +
+                               "Did you download file dependencies?", nodeObject);
+                    break;
+                case InstanceNodeInitResult.MissingComponentDefinition:
+                    LogWarning($"Component definition could not be found for component node: '{node.componentId}'. " +
+                               $"Instance node {node} may not be imported properly.", nodeObject);
+                    break;
+                case InstanceNodeInitResult.MissingComponentSet:
+                    LogWarning($"Component set node of component node: '{node.componentId}' could not be found. " +
+                               $"Instance node {node} may not be imported properly.", nodeObject);
+                    break;
+                case InstanceNodeInitResult.Success:
+                default:
+                    break;
             }
-            
-            // Generate all pages.
-            foreach (var page in pages)
-            {
-                if (options.pages != null && options.pages.All(p => p != page.id))
-                    continue;
+        }
 
-                var nodeObject = NodeObject.NewNodeObject(page, conversionArgs);
-                var canvas = nodeObject.gameObject.AddComponent<Canvas>();
-                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                
-                var nodes = page.children;
-                foreach (var node in nodes)
+        internal bool TryGetFont(string fontName, out TMP_FontAsset font)
+        {
+            var fontIndex = fonts.FindIndex(
+                x => string.Equals(x.fontName, fontName, StringComparison.OrdinalIgnoreCase));
+
+            if (fontIndex >= 0 && fonts[fontIndex].font != null)
+            {
+                font = fonts[fontIndex].font;
+                return true;
+            }
+
+            if (fallbackFont != null)
+            {
+                font = fallbackFont;
+                return true;
+            }
+
+            font = null;
+            return false;
+        }
+
+        internal T CreateFigmaNode<T>(Node node) where T : FigmaNode
+        {
+            var figmaNode = FigmaNode.Create<T>(node);
+            generatedGameObjects.Add(figmaNode.nodeId, figmaNode.gameObject);
+            return figmaNode;
+        }
+
+        internal void DestroyFigmaNode(FigmaNode figmaNode)
+        {
+            if (figmaNode != null)
+            {
+                generatedGameObjects.Remove<GameObject>(figmaNode.nodeId);
+                ObjectUtils.Destroy(figmaNode.gameObject);   
+            }
+        }
+
+        internal void LogWarning(string message, Object target = null)
+        {
+            Debug.LogWarning(message, target);
+
+            _logs.Add(new FigmaImporterLogReference(
+                new FigmaImporterLog(FigmaImporterLogType.Warning, message), target));
+        }
+
+        internal void LogError(Exception exception, Object target = null)
+        {
+            if (failOnError)
+            {
+                throw exception;
+            }
+
+            Debug.LogError(exception, target);
+            _logs.Add(new FigmaImporterLogReference(
+                new FigmaImporterLog(FigmaImporterLogType.Error, exception.Message), target));
+        }
+
+        internal void LogError(string message, Object target = null)
+        {
+            LogError(new Exception(message), target);
+        }
+
+        private static void SetDocumentLogs(FigmaDocument figmaDocument,
+            IEnumerable<FigmaImporterLogReference> logReferences)
+        {
+            foreach (var logReference in logReferences)
+            {
+                if (logReference.target != null)
                 {
-                    if (TryConvertNode(node, conversionArgs, out var childNode))
+                    GameObject targetGameObject = null;
+
+                    if (logReference.target is GameObject gameObject)
                     {
-                        childNode.transform.SetParent(canvas.transform);
+                        targetGameObject = gameObject;
+                    }
+                    else if (logReference.target is UnityEngine.Component component)
+                    {
+                        targetGameObject = component.gameObject;
+                    }
+
+                    if (targetGameObject != null)
+                    {
+                        var figmaNode = targetGameObject.GetComponent<FigmaNode>();
+                        if (figmaNode != null)
+                        {
+                            figmaNode.logs.Add(logReference.log);
+                        }
                     }
                 }
+
+                figmaDocument.allLogs.Add(logReference);
             }
-            
-            
-#if UNITY_EDITOR
-            UnityEditor.AssetDatabase.Refresh();
-#endif
-            return Task.CompletedTask;
-        }*/
+        }
+
+        private void InitNodeConverters()
+        {
+            if (!nodeConverters.Any())
+            {
+                AddDefaultNodeConverters();
+            }
+        }
+
+        private void InitComponentConverters()
+        {
+            if (!componentConverters.Any())
+            {
+                AddDefaultComponentConverters();
+            }
+        }
+    }
+
+    [Serializable]
+    public struct FigmaImporterLogReference
+    {
+        public FigmaImporterLog log;
+        public Object target;
+
+        public FigmaImporterLogReference(FigmaImporterLog log, Object target)
+        {
+            this.log = log;
+            this.target = target;
+        }
+    }
+
+    [Serializable]
+    public struct FigmaImporterLog
+    {
+        public FigmaImporterLogType type;
+        public string message;
+
+        public FigmaImporterLog(FigmaImporterLogType type, string message)
+        {
+            this.type = type;
+            this.message = message;
+        }
+    }
+
+    [Serializable]
+    public enum FigmaImporterLogType
+    {
+        Info,
+        Warning,
+        Error
     }
 }
