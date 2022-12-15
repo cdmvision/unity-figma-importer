@@ -178,7 +178,7 @@ namespace Cdm.Figma.Editor
                     _downloadingProgress = (float)(i + 1) / fileCount;
                 }
             }
-            catch (TaskCanceledException e)
+            catch (TaskCanceledException)
             {
                 Debug.Log("Downloading cancelled.");
             }

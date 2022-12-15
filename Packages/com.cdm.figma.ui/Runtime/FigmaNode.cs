@@ -1,21 +1,22 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
     [DisallowMultipleComponent]
-    public class FigmaNode : MonoBehaviour
+    public class FigmaNode : MonoBehaviour, IEnumerable<FigmaNode>
     {
         [SerializeField, HideInInspector]
         private FigmaDesign _figmaDesign;
-        
+
         public FigmaDesign figmaDesign
         {
             get => _figmaDesign;
             internal set => _figmaDesign = value;
         }
-        
+
         [SerializeField]
         private string _nodeId;
 
@@ -25,7 +26,7 @@ namespace Cdm.Figma.UI
             get => _nodeId;
             private set => _nodeId = value;
         }
-        
+
         [SerializeField]
         private string _nodeName;
 
@@ -35,7 +36,7 @@ namespace Cdm.Figma.UI
             get => _nodeName;
             private set => _nodeName = value;
         }
-        
+
         [SerializeField]
         private string _nodeType;
 
@@ -45,7 +46,7 @@ namespace Cdm.Figma.UI
             get => _nodeType;
             private set => _nodeType = value;
         }
-        
+
         [SerializeField]
         private string _bindingKey;
 
@@ -58,7 +59,7 @@ namespace Cdm.Figma.UI
             get => _bindingKey;
             private set => _bindingKey = value;
         }
-        
+
         [SerializeField]
         private string[] _tags = Array.Empty<string>();
 
@@ -74,9 +75,9 @@ namespace Cdm.Figma.UI
 
         [SerializeField]
         private List<FigmaImporterLog> _logs = new List<FigmaImporterLog>();
-        
+
         public List<FigmaImporterLog> logs => _logs;
-        
+
         /// <summary>
         /// The actual figma node that is created from.
         /// </summary>
@@ -84,7 +85,7 @@ namespace Cdm.Figma.UI
         /// It is available only while importing figma file.
         /// </remarks>
         internal Node node { get; private set; }
-        
+
         /// <summary>
         /// It points to an instance node that will be used when converting a component node for
         /// <see cref="ComponentPropertyType.InstanceSwap"/> feature.
@@ -93,14 +94,14 @@ namespace Cdm.Figma.UI
         /// It can be available only while importing figma file.
         /// </remarks>
         internal Node referenceNode { get; set; }
-        
+
         /// <summary>
         /// All node styles that will be applied while conversion process.
         /// </summary>
         /// <remarks>
         /// It is available only while importing figma file.
         /// </remarks>
-        internal List<Styles.Style> styles { get;  } = new List<Styles.Style>();
+        internal List<Styles.Style> styles { get; } = new List<Styles.Style>();
 
         private RectTransform _rectTransform;
 
@@ -116,11 +117,15 @@ namespace Cdm.Figma.UI
                 return _rectTransform;
             }
         }
-        
-        public static T Create<T>(Node node) where T : FigmaNode
+
+        public static T Create<T>(Node node, GameObject existingGameObject = null) where T : FigmaNode
         {
-            var go = new GameObject(node.name);
-            var nodeObject = go.AddComponent<T>();
+            if (existingGameObject == null)
+            {
+                existingGameObject = new GameObject(node.name);
+            }
+
+            var nodeObject = existingGameObject.AddComponent<T>();
 
             nodeObject.node = node;
             nodeObject.nodeId = node.id;
@@ -128,15 +133,32 @@ namespace Cdm.Figma.UI
             nodeObject.nodeType = node.type;
             nodeObject.bindingKey = node.GetBindingKey();
             nodeObject.tags = node.GetTags();
-            
+
             nodeObject._rectTransform = nodeObject.gameObject.AddComponent<RectTransform>();
-            
+
             if (node is SceneNode sceneNode)
             {
-                nodeObject.gameObject.SetActive(sceneNode.visible);    
+                nodeObject.gameObject.SetActive(sceneNode.visible);
             }
-            
+
             return nodeObject;
+        }
+
+        public virtual IEnumerator<FigmaNode> GetEnumerator()
+        {
+            foreach (Transform child in transform)
+            {
+                var page = child.GetComponent<FigmaNode>();
+                if (page != null)
+                {
+                    yield return page;
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         public override string ToString()
