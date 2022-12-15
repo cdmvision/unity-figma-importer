@@ -5,6 +5,7 @@ using Cdm.Figma.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
+using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
@@ -17,12 +18,30 @@ namespace Cdm.Figma.UI
 
             var nodeObject = (FigmaText)base.Convert(parentObject, textNode, args, convertArgs);
             nodeObject.localizationKey = textNode.GetLocalizationKey();
-
+            
             GenerateStyles(nodeObject, textNode, args);
-
             nodeObject.ApplyStyles();
+            
+            AddContentSizeFitterIfNeeded(nodeObject, textNode);
 
             return nodeObject;
+        }
+
+        private static void AddContentSizeFitterIfNeeded(FigmaNode nodeObject, TextNode textNode)
+        {
+            if (textNode.style.textAutoResize != TextAutoResize.None)
+            {
+                var fitter = nodeObject.gameObject.AddComponent<ContentSizeFitter>();
+                if (textNode.style.textAutoResize == TextAutoResize.Height)
+                {
+                    fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                }
+                else if (textNode.style.textAutoResize == TextAutoResize.WidthAndHeight)
+                {
+                    fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                    fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+                }
+            }
         }
 
         private static void GenerateStyles(FigmaNode nodeObject, TextNode textNode, NodeConvertArgs args)
@@ -36,8 +55,18 @@ namespace Cdm.Figma.UI
             SetTextAutoResize(style, textNode);
             SetFills(style, textNode);
             SetLocalization(style, textNode);
+            SetWordWrapping(style, textNode);
 
             nodeObject.styles.Add(style);
+        }
+
+        private static void SetWordWrapping(TextStyle style, TextNode textNode)
+        {
+            if (textNode.style.textAutoResize == TextAutoResize.None)
+            {
+                style.wordWrapping.enabled = true;
+                style.wordWrapping.value = false;
+            }
         }
 
         private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
