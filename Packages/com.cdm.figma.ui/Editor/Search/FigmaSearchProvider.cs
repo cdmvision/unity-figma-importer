@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Search;
+using UnityEngine;
 
 namespace Cdm.Figma.UI.Editor.Search
 {
@@ -45,19 +46,23 @@ namespace Cdm.Figma.UI.Editor.Search
         private static IEnumerable<Tuple<string, FigmaDesign, FigmaPage>> GetFigmaPages()
         {
             var pages = new List<Tuple<string, FigmaDesign, FigmaPage>>();
-            var assets = AssetDatabase.FindAssets($"t:{nameof(FigmaDesign)}");
+            var assets = AssetDatabase.FindAssets($"t:{nameof(GameObject)}");
 
             foreach (var figmaDesignGuid in assets)
             {
                 var figmaDesignPath = AssetDatabase.GUIDToAssetPath(figmaDesignGuid);
-                var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(figmaDesignPath);
-                if (figmaDesign != null)
+                var figmaDesignGo = AssetDatabase.LoadAssetAtPath<GameObject>(figmaDesignPath);
+                if (figmaDesignGo != null)
                 {
-                    foreach (var page in figmaDesign.document.pages)
+                    var figmaDesign = figmaDesignGo.GetComponent<FigmaDesign>();
+                    if (figmaDesign != null)
                     {
-                        var identifier = $"{figmaDesignGuid}/{page.nodeId}";
-                        pages.Add(
-                            new Tuple<string, FigmaDesign, FigmaPage>(identifier, figmaDesign, page));
+                        foreach (var page in figmaDesign.document.pages)
+                        {
+                            var identifier = $"{figmaDesignGuid}/{page.nodeId}";
+                            pages.Add(
+                                new Tuple<string, FigmaDesign, FigmaPage>(identifier, figmaDesign, page));
+                        }
                     }
                 }
             }
