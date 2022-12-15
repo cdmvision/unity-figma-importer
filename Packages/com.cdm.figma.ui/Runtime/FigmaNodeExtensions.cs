@@ -83,7 +83,7 @@ namespace Cdm.Figma.UI
         {
             var children = new List<T>();
 
-            foreach (Transform child in figmaNode.transform)
+            foreach (var child in figmaNode)
             {
                 if (child != null)
                 {
@@ -113,12 +113,11 @@ namespace Cdm.Figma.UI
         {
             if (handler(node))
             {
-                foreach (Transform child in node.transform)
+                foreach (var child in node)
                 {
-                    var childObject = child.GetComponent<FigmaNode>();
-                    if (childObject != null)
+                    if (child != null)
                     {
-                        childObject.TraverseDfs(handler);
+                        child.TraverseDfs(handler);
                     }
                 }
             }
@@ -138,14 +137,13 @@ namespace Cdm.Figma.UI
         private static void TraverseBfsInternal(this FigmaNode node, Func<FigmaNode, bool> handler)
         {
             var children = new List<FigmaNode>();
-            foreach (Transform child in node.transform)
+            foreach (var child in node)
             {
-                var childObject = child.GetComponent<FigmaNode>();
-                if (childObject != null)
+                if (child != null)
                 {
-                    if (handler(childObject))
+                    if (handler(child))
                     {
-                        children.Add(childObject);
+                        children.Add(child);
                     }
                 }
             }

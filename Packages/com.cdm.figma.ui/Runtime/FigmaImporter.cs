@@ -169,7 +169,8 @@ namespace Cdm.Figma.UI
             {
                 var conversionArgs = new NodeConvertArgs(this, file);
 
-                var figmaDocument = CreateFigmaNode<FigmaDocument>(file.document);
+                var figmaDesign = FigmaDesign.Create<FigmaDesign>(file);
+                var figmaDocument = CreateFigmaNode<FigmaDocument>(file.document, figmaDesign.gameObject);
                 figmaDocument.rectTransform.anchorMin = new Vector2(0, 0);
                 figmaDocument.rectTransform.anchorMax = new Vector2(1, 1);
                 figmaDocument.rectTransform.offsetMin = new Vector2(0, 0);
@@ -211,6 +212,7 @@ namespace Cdm.Figma.UI
                     }
                 }
 
+                figmaDocument.InitPages();
                 SetDocumentLogs(figmaDocument, _logs);
                 _logs.Clear();
 
@@ -227,7 +229,14 @@ namespace Cdm.Figma.UI
                     }
                 }
 
-                return FigmaDesign.Create<FigmaDesign>(file, figmaDocument, bindings);
+                figmaDocument.TraverseDfs(node =>
+                {
+                    node.figmaDesign = figmaDesign;
+                    return true;
+                });
+                
+                figmaDesign.SetBindings(bindings);
+                return figmaDesign;
             }
             catch (Exception)
             {
@@ -365,9 +374,9 @@ namespace Cdm.Figma.UI
             return false;
         }
 
-        internal T CreateFigmaNode<T>(Node node) where T : FigmaNode
+        internal T CreateFigmaNode<T>(Node node, GameObject existingGameObject = null) where T : FigmaNode
         {
-            var figmaNode = FigmaNode.Create<T>(node);
+            var figmaNode = FigmaNode.Create<T>(node, existingGameObject);
             generatedGameObjects.Add(figmaNode.nodeId, figmaNode.gameObject);
             return figmaNode;
         }

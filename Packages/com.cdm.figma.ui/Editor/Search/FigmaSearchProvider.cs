@@ -53,11 +53,11 @@ namespace Cdm.Figma.UI.Editor.Search
                 var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(figmaDesignPath);
                 if (figmaDesign != null)
                 {
-                    foreach (var figmaPageNode in figmaDesign.document)
+                    foreach (var page in figmaDesign.document.pages)
                     {
-                        var identifier = $"{figmaDesignGuid}/{figmaPageNode.nodeId}";
+                        var identifier = $"{figmaDesignGuid}/{page.nodeId}";
                         pages.Add(
-                            new Tuple<string, FigmaDesign, FigmaPage>(identifier, figmaDesign, figmaPageNode));
+                            new Tuple<string, FigmaDesign, FigmaPage>(identifier, figmaDesign, page));
                     }
                 }
             }

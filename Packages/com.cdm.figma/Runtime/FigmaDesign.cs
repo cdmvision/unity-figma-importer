@@ -3,7 +3,9 @@ using UnityEngine;
 
 namespace Cdm.Figma
 {
-    public class FigmaDesign : ScriptableObject
+    [SelectionBase]
+    [DisallowMultipleComponent]
+    public class FigmaDesign : MonoBehaviour
     {
         [SerializeField]
         private string _id;
@@ -50,9 +52,11 @@ namespace Cdm.Figma
             private set => _thumbnail = value;
         }
         
-        protected static T Create<T>(FigmaFile file) where T : FigmaDesign
+        public static T Create<T>(FigmaFile file) where T : FigmaDesign
         {
-            var figmaFile = CreateInstance<T>();
+            var go = new GameObject(file.name);
+            
+            var figmaFile = go.AddComponent<T>();
             figmaFile.id = file.fileId;
             figmaFile.title = file.name;
             figmaFile.version = file.version;

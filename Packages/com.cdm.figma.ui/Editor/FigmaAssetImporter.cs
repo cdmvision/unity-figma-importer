@@ -94,7 +94,7 @@ namespace Cdm.Figma.UI.Editor
             get => _sampleCount;
             set => _sampleCount = value;
         }
-
+        
         protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter,
             FigmaFile figmaFile)
         {
@@ -110,14 +110,19 @@ namespace Cdm.Figma.UI.Editor
 
             // Add imported page game objects to the asset.
             var design = (FigmaDesign)figmaDesign;
-
+            
             // Add figma nodes.
-            design.document.TraverseDfs(node =>
-            {
-                ctx.AddObjectToAsset($"{node.nodeId}", node.gameObject);
-                return true;
-            });
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(FigmaIconFlatPath);
+            
+            // Detach pages from the document to be able to use as single page instead of full document.
+            design.document.transform.DetachChildren();
 
+            // Add pages.
+            foreach (var page in design.document.pages)
+            {
+                ctx.AddObjectToAsset($"{page.nodeId}", page.gameObject, icon);
+            }
+            
             var importer = (FigmaImporter)figmaImporter;
 
             // Add generated objects to the asset.
@@ -131,8 +136,8 @@ namespace Cdm.Figma.UI.Editor
             {
                 ctx.DependsOnSourceAsset(AssetDatabase.GetAssetPath(dependencyAsset.Value));
             }
-            
-            UpdatePageReferences((FigmaImporter)figmaImporter, figmaFile, design);
+
+            UpdatePageReferences(design);
         }
 
         protected override IFigmaImporter GetFigmaImporter()
@@ -160,7 +165,7 @@ namespace Cdm.Figma.UI.Editor
 
             figmaImporter.AddDefaultNodeConverters();
             figmaImporter.AddDefaultComponentConverters();
-            
+
             return figmaImporter;
         }
 
@@ -178,7 +183,7 @@ namespace Cdm.Figma.UI.Editor
 
                     if (figmaNodeAttribute.importerExtension != GetAssetExtension())
                         continue;
-                    
+
                     var bindingKey = figmaNodeAttribute.bindingKey;
                     if (!string.IsNullOrEmpty(bindingKey))
                     {
@@ -213,7 +218,7 @@ namespace Cdm.Figma.UI.Editor
 
                     if (figmaComponentAttribute.importerExtension != GetAssetExtension())
                         continue;
-                    
+
                     var typeId = figmaComponentAttribute.typeId;
                     figmaImporter.componentConverters.Add(new FigmaComponentBehaviourConverter(typeId, type));
                 }
@@ -237,10 +242,10 @@ namespace Cdm.Figma.UI.Editor
                     var figmaComponentConverterAttribute =
                         (FigmaComponentConverterAttribute)Attribute.GetCustomAttribute(
                             type, typeof(FigmaComponentConverterAttribute));
-                    
+
                     if (figmaComponentConverterAttribute.importerExtension != GetAssetExtension())
                         continue;
-                    
+
                     figmaImporter.componentConverters.Add((ComponentConverter)Activator.CreateInstance(type));
                 }
                 else
@@ -263,10 +268,10 @@ namespace Cdm.Figma.UI.Editor
                     var figmaNodeConverterAttribute =
                         (FigmaNodeConverterAttribute)Attribute.GetCustomAttribute(
                             type, typeof(FigmaNodeConverterAttribute));
-                    
+
                     if (figmaNodeConverterAttribute.importerExtension != GetAssetExtension())
                         continue;
-                    
+
                     figmaImporter.nodeConverters.Add((NodeConverter)Activator.CreateInstance(type));
                 }
                 else
@@ -307,11 +312,11 @@ namespace Cdm.Figma.UI.Editor
             figmaImporter.fallbackFont = fallbackFont;
         }
 
-        private void UpdatePageReferences(FigmaImporter figmaImporter, FigmaFile file, FigmaDesign figmaDesign)
+        private void UpdatePageReferences(FigmaDesign figmaDesign)
         {
             _pageReferences = new FigmaPage[pages.Length];
 
-            var figmaPages = figmaDesign.document.GetPages().ToArray();
+            var figmaPages = figmaDesign.document.pages;
             for (var i = 0; i < _pageReferences.Length; i++)
             {
                 var figmaPage = figmaPages.FirstOrDefault(x => x.nodeId == pages[i].id);

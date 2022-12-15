@@ -10,10 +10,10 @@ namespace Cdm.Figma.UI.Editor
     [CustomEditor(typeof(FigmaAssetImporter), editorForChildClasses: true)]
     public class FigmaAssetImporterEditor : ScriptedImporterEditor
     {
-        private SerializedProperty _pagesProperty;
-        private SerializedProperty _pageReferencesProperty;
-        private SerializedProperty _fallbackFontProperty;
-        private SerializedProperty _fontsProperty;
+        private SerializedProperty _pages;
+        private SerializedProperty _pageReferences;
+        private SerializedProperty _fallbackFont;
+        private SerializedProperty _fonts;
 
         private SerializedProperty _pixelsPerUnit;
         private SerializedProperty _gradientResolution;
@@ -46,10 +46,10 @@ namespace Cdm.Figma.UI.Editor
         {
             base.OnEnable();
 
-            _pagesProperty = serializedObject.FindProperty("_pages");
-            _pageReferencesProperty = serializedObject.FindProperty("_pageReferences");
-            _fontsProperty = serializedObject.FindProperty("_fonts");
-            _fallbackFontProperty = serializedObject.FindProperty("_fallbackFont");
+            _pages = serializedObject.FindProperty("_pages");
+            _pageReferences = serializedObject.FindProperty("_pageReferences");
+            _fonts = serializedObject.FindProperty("_fonts");
+            _fallbackFont = serializedObject.FindProperty("_fallbackFont");
 
             _pixelsPerUnit = serializedObject.FindProperty("_pixelsPerUnit");
             _gradientResolution = serializedObject.FindProperty("_gradientResolution");
@@ -133,12 +133,12 @@ namespace Cdm.Figma.UI.Editor
             DrawWarningsGui();
             
             EditorGUILayout.Separator();
-            for (var i = 0; i < _pagesProperty.arraySize; i++)
+            for (var i = 0; i < _pages.arraySize; i++)
             {
-                var page = _pagesProperty.GetArrayElementAtIndex(i);
+                var page = _pages.GetArrayElementAtIndex(i);
                 var enabledProperty = page.FindPropertyRelative("enabled");
                 var nameProperty = page.FindPropertyRelative("name");
-                var pageRef = _pageReferencesProperty.GetArrayElementAtIndex(i);
+                var pageRef = _pageReferences.GetArrayElementAtIndex(i);
                 
                 EditorGUILayout.BeginHorizontal();
                 enabledProperty.boolValue = 
@@ -149,41 +149,31 @@ namespace Cdm.Figma.UI.Editor
                 
                 EditorGUILayout.EndHorizontal();
             }
-            
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.Space();
-
-            if (GUILayout.Button("Extract Pages...", EditorStyles.miniButton, GUILayout.Width(196)))
-            {
-                ExtractPages();
-            }
-
-            EditorGUILayout.EndHorizontal();
         }
 
         private void DrawFontsGui()
         {
-            EditorGUILayout.PropertyField(_fallbackFontProperty);
+            EditorGUILayout.PropertyField(_fallbackFont);
             EditorGUILayout.Space();
             
-            for (var i = 0; i < _fontsProperty.arraySize; i++)
+            for (var i = 0; i < _fonts.arraySize; i++)
             {
-                var element = _fontsProperty.GetArrayElementAtIndex(i);
+                var element = _fonts.GetArrayElementAtIndex(i);
                 var nameProperty = element.FindPropertyRelative("fontName");
                 var fontProperty = element.FindPropertyRelative("font");
                 
                 EditorGUILayout.PropertyField(fontProperty, new GUIContent(nameProperty.stringValue));
             }
-
-            EditorGUILayout.BeginHorizontal();
+            
             EditorGUILayout.Space();
-
-            if (GUILayout.Button("Search & Add Fonts", EditorStyles.miniButton, GUILayout.Width(196)))
+            using (new EditorGUILayout.HorizontalScope())
             {
-                SearchAndAddFonts();
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Search and Remap"))
+                {
+                    SearchForFonts();
+                }
             }
-
-            EditorGUILayout.EndHorizontal();
         }
         
         private void DrawSettingsGui()
@@ -197,90 +187,6 @@ namespace Cdm.Figma.UI.Editor
             IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);
         }
 
-        private void ExtractPages()
-        {
-            // use the first target for selecting the destination folder, but apply that path for all targets
-            var importer = (AssetImporter)target;
-            var destinationPath = importer.assetPath;
-            destinationPath = EditorUtility.SaveFolderPanel(
-                "Select Materials Folder", Path.GetDirectoryName(destinationPath), "");
-            
-            if (string.IsNullOrEmpty(destinationPath))
-                return;
-            
-            destinationPath = FileUtil.GetProjectRelativePath(destinationPath);
-            if (string.IsNullOrEmpty(destinationPath))
-                return;
-            
-            try
-            {
-                // batch the extraction of the textures
-                AssetDatabase.StartAssetEditing();
-                
-                var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
-                //foreach (var page in figmaDesign.document)
-                //{
-                    var newAssetPath = Path.Combine(destinationPath, $"{figmaDesign.document.name}.prefab");
-                    newAssetPath = AssetDatabase.GenerateUniqueAssetPath(newAssetPath);
-
-                    var pageIns = Instantiate(figmaDesign.document.gameObject);
-                    var pageInstance = PrefabUtility.SaveAsPrefabAsset(pageIns, newAssetPath);
-                    DestroyImmediate(pageIns);
-                
-                    //var assetImporter = AssetImporter.GetAtPath(subAssetPath);
-                    importer.AddRemap(new AssetImporter.SourceAssetIdentifier(figmaDesign.document.gameObject), pageInstance);
-                    
-                    //var error = AssetDatabase.ExtractAsset(page.gameObject, newAssetPath);
-                    //Debug.LogError(error);
-                //}
-                
-                AssetDatabase.WriteImportSettingsIfDirty(importer.assetPath);
-                AssetDatabase.ImportAsset(importer.assetPath, ImportAssetOptions.ForceUpdate);
-            }
-            finally
-            {
-                AssetDatabase.StopAssetEditing();
-            }
-            
-           /* var importer = (FigmaAssetImporter)target;
-            var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
-            if (figmaDesign == null)
-                return;
-            
-            var assetPath = importer.assetPath;
-            var path = EditorUtility.OpenFolderPanel("Select folder", Path.GetDirectoryName(assetPath), "");
-            if (string.IsNullOrWhiteSpace(path))
-                return;
-            path = Path.Combine("Assets/", Path.GetRelativePath(Application.dataPath, path));
-            
-            var subAssetPath = AssetDatabase.GetAssetPath(figmaDesign.document.gameObject);
-
-            var pageIns = Instantiate(figmaDesign.document.gameObject);
-            var pageInstance = PrefabUtility.SaveAsPrefabAsset(pageIns, Path.Combine(path, $"{figmaDesign.document.name}.prefab"));
-            DestroyImmediate(pageIns);
-                
-            var assetImporter = AssetImporter.GetAtPath(subAssetPath);
-            assetImporter.AddRemap(new AssetImporter.SourceAssetIdentifier(figmaDesign.document.gameObject), pageInstance);
-                
-            AssetDatabase.WriteImportSettingsIfDirty(subAssetPath);
-            AssetDatabase.ImportAsset(subAssetPath, ImportAssetOptions.ForceUpdate);*/
-            
-            /*foreach (var page in figmaDesign.document)
-            {
-                var subAssetPath = AssetDatabase.GetAssetPath(page.gameObject);
-
-                var pageIns = Instantiate(page.gameObject);
-                var pageInstance = PrefabUtility.SaveAsPrefabAsset(pageIns, Path.Combine(path, $"{page.name}.prefab"));
-                DestroyImmediate(pageIns);
-                
-                var assetImporter = AssetImporter.GetAtPath(subAssetPath);
-                assetImporter.AddRemap(new AssetImporter.SourceAssetIdentifier(page.gameObject), pageInstance);
-                
-                AssetDatabase.WriteImportSettingsIfDirty(subAssetPath);
-                AssetDatabase.ImportAsset(subAssetPath, ImportAssetOptions.ForceUpdate);
-            }*/
-        }
-        
         private static void IntPopup(SerializedProperty prop, GUIContent[] displayedOptions, 
             int[] options)
         {
@@ -296,7 +202,7 @@ namespace Cdm.Figma.UI.Editor
             }
         }
 
-        private void SearchAndAddFonts()
+        private void SearchForFonts()
         {
             var path = EditorUtility.OpenFolderPanel("Select folder to be searched", "", "Assets");
             if (!string.IsNullOrWhiteSpace(path))
@@ -312,9 +218,9 @@ namespace Cdm.Figma.UI.Editor
                 var guids = AssetDatabase.FindAssets($"t:{typeof(TMP_FontAsset)}", new[] { path });
                 var assets = guids.Select(AssetDatabase.GUIDToAssetPath).ToArray();
 
-                for (var i = 0; i < _fontsProperty.arraySize; i++)
+                for (var i = 0; i < _fonts.arraySize; i++)
                 {
-                    var fontProperty = _fontsProperty.GetArrayElementAtIndex(i);
+                    var fontProperty = _fonts.GetArrayElementAtIndex(i);
 
                     var fontNameProperty = fontProperty.FindPropertyRelative("fontName");
                     var fontAssetProperty = fontProperty.FindPropertyRelative("font");
