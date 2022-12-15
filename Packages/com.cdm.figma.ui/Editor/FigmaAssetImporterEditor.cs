@@ -11,6 +11,7 @@ namespace Cdm.Figma.UI.Editor
     public class FigmaAssetImporterEditor : ScriptedImporterEditor
     {
         private SerializedProperty _pagesProperty;
+        private SerializedProperty _pageReferencesProperty;
         private SerializedProperty _fallbackFontProperty;
         private SerializedProperty _fontsProperty;
 
@@ -46,6 +47,7 @@ namespace Cdm.Figma.UI.Editor
             base.OnEnable();
 
             _pagesProperty = serializedObject.FindProperty("_pages");
+            _pageReferencesProperty = serializedObject.FindProperty("_pageReferences");
             _fontsProperty = serializedObject.FindProperty("_fonts");
             _fallbackFontProperty = serializedObject.FindProperty("_fallbackFont");
 
@@ -133,14 +135,20 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.Separator();
             for (var i = 0; i < _pagesProperty.arraySize; i++)
             {
-                var element = _pagesProperty.GetArrayElementAtIndex(i);
+                var page = _pagesProperty.GetArrayElementAtIndex(i);
+                var enabledProperty = page.FindPropertyRelative("enabled");
+                var nameProperty = page.FindPropertyRelative("name");
+                var pageRef = _pageReferencesProperty.GetArrayElementAtIndex(i);
                 
-                var enabledProperty = element.FindPropertyRelative("enabled");
-                var nameProperty = element.FindPropertyRelative("name");
+                EditorGUILayout.BeginHorizontal();
                 enabledProperty.boolValue = 
-                    EditorGUILayout.ToggleLeft(new GUIContent(nameProperty.stringValue), enabledProperty.boolValue);
+                    EditorGUILayout.ToggleLeft(GUIContent.none, enabledProperty.boolValue, GUILayout.Width(16));
+
+                var newPageRef = EditorGUILayout.ObjectField(
+                    new GUIContent(nameProperty.stringValue), pageRef.objectReferenceValue, typeof(FigmaPage), false);
+                
+                EditorGUILayout.EndHorizontal();
             }
-            
             
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.Space();

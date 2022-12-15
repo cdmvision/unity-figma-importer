@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI.Editor
 {
-    [ScriptedImporter(1, Extension)]
+    [ScriptedImporter(1, DefaultExtension)]
     public class FigmaAssetImporter : FigmaAssetImporterBase
     {
         [SerializeField]
@@ -31,6 +31,14 @@ namespace Cdm.Figma.UI.Editor
         {
             get => _fallbackFont;
             set => _fallbackFont = value;
+        }
+
+        [SerializeField]
+        private FigmaPage[] _pageReferences;
+
+        public FigmaPage[] pageReferences
+        {
+            get => _pageReferences;
         }
 
         [SerializeField]
@@ -123,6 +131,8 @@ namespace Cdm.Figma.UI.Editor
             {
                 ctx.DependsOnSourceAsset(AssetDatabase.GetAssetPath(dependencyAsset.Value));
             }
+            
+            UpdatePageReferences((FigmaImporter)figmaImporter, figmaFile, design);
         }
 
         protected override IFigmaImporter GetFigmaImporter()
@@ -166,7 +176,7 @@ namespace Cdm.Figma.UI.Editor
                     var figmaNodeAttribute =
                         (FigmaNodeAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaNodeAttribute));
 
-                    if (figmaNodeAttribute.importerExtension != Extension)
+                    if (figmaNodeAttribute.importerExtension != GetAssetExtension())
                         continue;
                     
                     var bindingKey = figmaNodeAttribute.bindingKey;
@@ -201,7 +211,7 @@ namespace Cdm.Figma.UI.Editor
                     var figmaComponentAttribute =
                         (FigmaComponentAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaComponentAttribute));
 
-                    if (figmaComponentAttribute.importerExtension != Extension)
+                    if (figmaComponentAttribute.importerExtension != GetAssetExtension())
                         continue;
                     
                     var typeId = figmaComponentAttribute.typeId;
@@ -228,7 +238,7 @@ namespace Cdm.Figma.UI.Editor
                         (FigmaComponentConverterAttribute)Attribute.GetCustomAttribute(
                             type, typeof(FigmaComponentConverterAttribute));
                     
-                    if (figmaComponentConverterAttribute.importerExtension != Extension)
+                    if (figmaComponentConverterAttribute.importerExtension != GetAssetExtension())
                         continue;
                     
                     figmaImporter.componentConverters.Add((ComponentConverter)Activator.CreateInstance(type));
@@ -254,7 +264,7 @@ namespace Cdm.Figma.UI.Editor
                         (FigmaNodeConverterAttribute)Attribute.GetCustomAttribute(
                             type, typeof(FigmaNodeConverterAttribute));
                     
-                    if (figmaNodeConverterAttribute.importerExtension != Extension)
+                    if (figmaNodeConverterAttribute.importerExtension != GetAssetExtension())
                         continue;
                     
                     figmaImporter.nodeConverters.Add((NodeConverter)Activator.CreateInstance(type));
@@ -295,6 +305,21 @@ namespace Cdm.Figma.UI.Editor
 
             figmaImporter.fonts.AddRange(_fonts);
             figmaImporter.fallbackFont = fallbackFont;
+        }
+
+        private void UpdatePageReferences(FigmaImporter figmaImporter, FigmaFile file, FigmaDesign figmaDesign)
+        {
+            _pageReferences = new FigmaPage[pages.Length];
+
+            var figmaPages = figmaDesign.document.GetPages().ToArray();
+            for (var i = 0; i < _pageReferences.Length; i++)
+            {
+                var figmaPage = figmaPages.FirstOrDefault(x => x.nodeId == pages[i].id);
+                if (figmaPage != null)
+                {
+                    _pageReferences[i] = figmaPage;
+                }
+            }
         }
     }
 }
