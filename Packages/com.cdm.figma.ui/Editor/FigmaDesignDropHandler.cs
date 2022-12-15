@@ -1,4 +1,6 @@
 ﻿using UnityEditor;
+using UnityEditor.Callbacks;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Editor
@@ -10,6 +12,25 @@ namespace Cdm.Figma.UI.Editor
         {
             DragAndDrop.AddDropHandler(OnHierarchyDropHandler);
             DragAndDrop.AddDropHandler(OnSceneDropHandler);
+        }
+
+        [OnOpenAsset(0)]
+        public static bool OnOpenFigmaDesign(int instanceID, int line)
+        {
+            var figmaDesignGo = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+            if (figmaDesignGo != null)
+            {
+                var figmaDesign = figmaDesignGo.GetComponent<FigmaDesign>();
+                if (figmaDesign != null)
+                {
+                    var stage = FigmaDesignPreviewSceneStage.CreateInstance<FigmaDesignPreviewSceneStage>();
+                    stage.figmaDesign = figmaDesign;
+                    StageUtility.GoToStage(stage, true);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static DragAndDropVisualMode OnHierarchyDropHandler(
@@ -29,11 +50,11 @@ namespace Cdm.Figma.UI.Editor
                         var parentObject = EditorUtility.InstanceIDToObject(instanceId) as GameObject;
                         InstantiateFigmaDesign(figmaDesign, parentObject);
                     }
-                    
+
                     return DragAndDropVisualMode.Copy;
                 }
             }
-            
+
             return DragAndDropVisualMode.None;
         }
 
@@ -62,21 +83,20 @@ namespace Cdm.Figma.UI.Editor
                     return DragAndDropVisualMode.Copy;
                 }
             }
-            
+
             return DragAndDropVisualMode.None;
         }
 
         private static GameObject InstantiateFigmaDesign(FigmaDesign figmaDesign, GameObject parentObject)
         {
             var parent = parentObject != null ? parentObject.transform : null;
-            var figmaDesignGo = 
-                (GameObject) PrefabUtility.InstantiatePrefab(figmaDesign.gameObject, parent);
+            var figmaDesignGo = (GameObject)PrefabUtility.InstantiatePrefab(figmaDesign.gameObject, parent);
 
             foreach (var page in figmaDesign.document.pages)
             {
                 PrefabUtility.InstantiatePrefab(page, figmaDesignGo.transform);
             }
-                        
+
             figmaDesignGo.GetComponent<FigmaDocument>().InitPages();
             return figmaDesignGo;
         }
