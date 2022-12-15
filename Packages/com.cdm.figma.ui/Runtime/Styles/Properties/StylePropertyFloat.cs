@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles.Properties
 {
@@ -11,6 +12,11 @@ namespace Cdm.Figma.UI.Styles.Properties
 
         public StylePropertyFloat(float defaultValue) : base(defaultValue)
         {
+        }
+
+        public override bool IsSameValue(StyleProperty<float> other)
+        {
+            return Mathf.Approximately(value, other.value);
         }
     }
 }

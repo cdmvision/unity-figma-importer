@@ -1,5 +1,4 @@
-﻿using Cdm.Figma.UI.Styles;
-using Cdm.Figma.UI.Utils;
+﻿using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
