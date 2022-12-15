@@ -8,7 +8,7 @@ namespace Cdm.Figma.Editor
 {
     public abstract class FigmaAssetImporterBase : ScriptedImporter
     {
-        protected const string Extension = "figma";
+        protected const string DefaultExtension = "figma";
 
         [SerializeField]
         private FigmaFilePage[] _pages;
@@ -56,6 +56,8 @@ namespace Cdm.Figma.Editor
             }
 
             var newPages = file.document.children ?? Array.Empty<PageNode>();
+            newPages = newPages.Where(x => !x.IsIgnored()).ToArray();
+            
             var oldPages = _pages;
             _pages = new FigmaFilePage[newPages.Length];
 
@@ -83,6 +85,11 @@ namespace Cdm.Figma.Editor
         protected virtual void OnAssetImported(AssetImportContext ctx, IFigmaImporter figmaImporter, 
             FigmaFile figmaFile, FigmaDesign figmaDesign)
         {
+        }
+
+        protected virtual string GetAssetExtension()
+        {
+            return DefaultExtension;
         }
 
         protected abstract IFigmaImporter GetFigmaImporter();
