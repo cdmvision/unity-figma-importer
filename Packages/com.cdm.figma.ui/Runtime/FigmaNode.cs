@@ -148,10 +148,10 @@ namespace Cdm.Figma.UI
         {
             foreach (Transform child in transform)
             {
-                var page = child.GetComponent<FigmaNode>();
-                if (page != null)
+                var childNode = child.GetComponent<FigmaNode>();
+                if (childNode != null)
                 {
-                    yield return page;
+                    yield return childNode;
                 }
             }
         }

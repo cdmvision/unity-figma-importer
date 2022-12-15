@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles.Properties
@@ -11,6 +12,11 @@ namespace Cdm.Figma.UI.Styles.Properties
         public virtual void CopyTo(StylePropertyBase other)
         {
             other.enabled = enabled;
+        }
+
+        public virtual bool IsSameValue(StylePropertyBase other)
+        {
+            return false;
         }
     }
     
@@ -52,6 +58,16 @@ namespace Cdm.Figma.UI.Styles.Properties
         {
             enabled = true;
             value = v;
+        }
+
+        public override bool IsSameValue(StylePropertyBase other)
+        {
+            return IsSameValue((StyleProperty<TValue>) other);
+        }
+
+        public virtual bool IsSameValue(StyleProperty<TValue> other)
+        {
+            return EqualityComparer<TValue>.Default.Equals(_value, other._value);
         }
     }
 }

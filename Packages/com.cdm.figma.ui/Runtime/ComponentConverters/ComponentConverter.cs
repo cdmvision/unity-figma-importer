@@ -95,7 +95,6 @@ namespace Cdm.Figma.UI
                     try
                     {
                         MergeComponentVariant(instanceObject, nodeVariant, selector);
-                        ApplyStyleSelectorsRecurse(instanceObject);
                     }
                     catch (Exception e)
                     {
@@ -112,7 +111,9 @@ namespace Cdm.Figma.UI
                     }
                 }
             }
-
+            
+            ApplyStyleSelectorsRecurse(instanceObject);
+            DisableTextOverrideIfSameForAll(instanceObject);
             ClearComponentPropertyAssignments(args);
         }
 
@@ -215,12 +216,43 @@ namespace Cdm.Figma.UI
             {
                 style.SetStyleAsSelector(figmaNode.gameObject, new StyleArgs("", true));
             }
-
+            
             // Do the same for the node's children.
             var children = figmaNode.GetChildren();
             foreach (var child in children)
             {
                 ApplyStyleSelectorsRecurse(child);
+            }
+        }
+
+        private static void DisableTextOverrideIfSameForAll(FigmaNode figmaNode)
+        {
+            var textStyles = figmaNode.styles.OfType<TextStyle>().ToArray();
+            if (textStyles.Length > 0)
+            {
+                var isTextSame = true;
+                for (var i = 0; i < textStyles.Length; i++)
+                {
+                    for (var j = i + 1; j < textStyles.Length; j++)
+                    {
+                        if (textStyles[i].text.value != textStyles[j].text.value)
+                        {
+                            //Debug.Log($"'{textStyles[i].text.value}' != '{textStyles[j].text.value}'", figmaNode);
+                            isTextSame = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (isTextSame)
+                {
+                    figmaNode.DisableTextStyleTextOverride();
+                }
+            }
+            
+            foreach (var child in figmaNode)
+            {
+                DisableTextOverrideIfSameForAll(child);
             }
         }
 
