@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.AssetImporters;
-using UnityEditor.Experimental;
 using UnityEngine;
 
 namespace Cdm.Figma.Editor
