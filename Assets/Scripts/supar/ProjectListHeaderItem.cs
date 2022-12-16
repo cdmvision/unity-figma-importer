@@ -8,13 +8,6 @@ namespace Cdm.SurfaceProjector.UI
     [FigmaComponent("ProjectListHeaderItem")]
     public class ProjectListHeaderItem : MonoBehaviour
     {
-        public enum SortingMode
-        {
-            None,
-            Ascending,
-            Descending
-        }
-
         [SerializeField]
         [FigmaNode("@MainToggle", isRequired = true)]
         private Toggle _mainToggle;
@@ -26,9 +19,18 @@ namespace Cdm.SurfaceProjector.UI
         private Toggle _sortToggle;
 
         [SerializeField]
-        private SortingMode _sortingMode = SortingMode.None;
+        private ProjectListHeader.SortingTarget _sortingTarget = ProjectListHeader.SortingTarget.ByProjectName;
 
-        public SortingMode sortingMode
+        public ProjectListHeader.SortingTarget sortingTarget
+        {
+            get => _sortingTarget;
+            set => _sortingTarget = value;
+        }
+        
+        [SerializeField]
+        private ProjectListHeader.SortingMode _sortingMode = ProjectListHeader.SortingMode.None;
+
+        public ProjectListHeader.SortingMode sortingMode
         {
             get => _sortingMode;
             set
@@ -62,14 +64,14 @@ namespace Cdm.SurfaceProjector.UI
         {
             switch (sortingMode)
             {
-                case SortingMode.None:
-                    sortingMode = SortingMode.Ascending;
+                case ProjectListHeader.SortingMode.None:
+                    sortingMode = ProjectListHeader.SortingMode.Ascending;
                     break;
-                case SortingMode.Ascending:
-                    sortingMode = SortingMode.Descending;
+                case ProjectListHeader.SortingMode.Ascending:
+                    sortingMode = ProjectListHeader.SortingMode.Descending;
                     break;
-                case SortingMode.Descending:
-                    sortingMode = SortingMode.Ascending;
+                case ProjectListHeader.SortingMode.Descending:
+                    sortingMode = ProjectListHeader.SortingMode.Ascending;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -79,14 +81,16 @@ namespace Cdm.SurfaceProjector.UI
         private void UpdateSortingMode()
         {
             _mainToggle.onValueChanged.RemoveListener(OnToggleValueChanged);
-            _mainToggle.isOn = sortingMode != SortingMode.None;
+            _mainToggle.isOn = sortingMode != ProjectListHeader.SortingMode.None;
             _mainToggle.onValueChanged.AddListener(OnToggleValueChanged);
 
             _sortToggle.gameObject.SetActive(_mainToggle.isOn);
 
             _sortToggle.onValueChanged.RemoveListener(OnToggleValueChanged);
-            _sortToggle.isOn = sortingMode == SortingMode.Descending;
+            _sortToggle.isOn = sortingMode == ProjectListHeader.SortingMode.Descending;
             _sortToggle.onValueChanged.AddListener(OnToggleValueChanged);
+
+            OnSortingModeChanged(new SortingModeChangedEventArgs(this, sortingMode));
         }
 
         private void OnValidate()
@@ -94,6 +98,25 @@ namespace Cdm.SurfaceProjector.UI
             if (Application.isPlaying)
             {
                 sortingMode = _sortingMode;
+            }
+        }
+        
+        protected virtual void OnSortingModeChanged(SortingModeChangedEventArgs e)
+        {
+            sortingModeChanged?.Invoke(e);
+        }
+
+        public event Action<SortingModeChangedEventArgs> sortingModeChanged;
+        
+        public readonly struct SortingModeChangedEventArgs
+        {
+            public ProjectListHeaderItem item { get; }
+            public ProjectListHeader.SortingMode sortingMode { get; }
+
+            public SortingModeChangedEventArgs(ProjectListHeaderItem item, ProjectListHeader.SortingMode sortingMode)
+            {
+                this.item = item;
+                this.sortingMode = sortingMode;
             }
         }
     }
