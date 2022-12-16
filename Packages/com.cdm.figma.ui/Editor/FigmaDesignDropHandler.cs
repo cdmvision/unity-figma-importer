@@ -1,6 +1,5 @@
 ﻿using UnityEditor;
 using UnityEditor.Callbacks;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Editor
@@ -23,18 +22,14 @@ namespace Cdm.Figma.UI.Editor
                 var figmaDesign = go.GetComponent<FigmaDesign>();
                 if (figmaDesign != null)
                 {
-                    var stage = FigmaDesignPreviewSceneStage.CreateInstance<FigmaDesignPreviewSceneStage>();
-                    stage.design = figmaDesign;
-                    StageUtility.GoToStage(stage, true);
+                    FigmaDesignPreviewStage.Show(figmaDesign);
                     return true;
                 }
 
                 var figmaPage = go.GetComponent<FigmaPage>();
                 if (figmaPage != null)
                 {
-                    var stage = FigmaDesignPreviewSceneStage.CreateInstance<FigmaDesignPreviewSceneStage>();
-                    stage.page = figmaPage;
-                    StageUtility.GoToStage(stage, true);
+                    FigmaDesignPreviewStage.Show(figmaPage);
                     return true;
                 }
             }
