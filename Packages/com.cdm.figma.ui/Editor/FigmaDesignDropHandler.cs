@@ -17,14 +17,23 @@ namespace Cdm.Figma.UI.Editor
         [OnOpenAsset(0)]
         public static bool OnOpenFigmaDesign(int instanceID, int line)
         {
-            var figmaDesignGo = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
-            if (figmaDesignGo != null)
+            var go = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+            if (go != null)
             {
-                var figmaDesign = figmaDesignGo.GetComponent<FigmaDesign>();
+                var figmaDesign = go.GetComponent<FigmaDesign>();
                 if (figmaDesign != null)
                 {
                     var stage = FigmaDesignPreviewSceneStage.CreateInstance<FigmaDesignPreviewSceneStage>();
-                    stage.figmaDesign = figmaDesign;
+                    stage.design = figmaDesign;
+                    StageUtility.GoToStage(stage, true);
+                    return true;
+                }
+
+                var figmaPage = go.GetComponent<FigmaPage>();
+                if (figmaPage != null)
+                {
+                    var stage = FigmaDesignPreviewSceneStage.CreateInstance<FigmaDesignPreviewSceneStage>();
+                    stage.page = figmaPage;
                     StageUtility.GoToStage(stage, true);
                     return true;
                 }
