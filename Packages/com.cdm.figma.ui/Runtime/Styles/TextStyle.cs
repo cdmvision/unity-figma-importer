@@ -19,6 +19,7 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyFloat fontSizeMin = new StylePropertyFloat();
         public StylePropertyFloat fontSizeMax = new StylePropertyFloat();
         public StylePropertyBool enableAutoSizing = new StylePropertyBool();
+        public StylePropertyBool wordWrapping = new StylePropertyBool();
         public StylePropertyBool autoSizeTextContainer = new StylePropertyBool();
         public StylePropertyHorizontalAlignmentOptions horizontalAlignment =
             new StylePropertyHorizontalAlignmentOptions();
@@ -42,6 +43,7 @@ namespace Cdm.Figma.UI.Styles
                 OverwriteProperty(fontSizeMin, otherStyle.fontSizeMin, force);
                 OverwriteProperty(fontSizeMax, otherStyle.fontSizeMax, force);
                 OverwriteProperty(enableAutoSizing, otherStyle.enableAutoSizing, force);
+                OverwriteProperty(wordWrapping, otherStyle.wordWrapping, force);
                 OverwriteProperty(autoSizeTextContainer, otherStyle.autoSizeTextContainer, force);
                 OverwriteProperty(horizontalAlignment, otherStyle.horizontalAlignment, force);
                 OverwriteProperty(verticalAlignment, otherStyle.verticalAlignment, force);
@@ -82,6 +84,9 @@ namespace Cdm.Figma.UI.Styles
 
                 if (enableAutoSizing.enabled)
                     textComponent.enableAutoSizing = enableAutoSizing.value;
+                
+                if (wordWrapping.enabled)
+                    textComponent.enableWordWrapping = wordWrapping.value;
 
                 if (autoSizeTextContainer.enabled)
                     textComponent.autoSizeTextContainer = autoSizeTextContainer.value;
