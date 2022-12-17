@@ -3,9 +3,8 @@
     "rootNamespace": "Cdm.Figma.UI.Tests",
     "references": [
         "GUID:27619889b8ba8c24980f49ee34dbb44a",
-        "GUID:5259626dace255142ae05725b6db849f",
-        "GUID:240bd85d64fe2a949aa7415786ef7fde",
-        "GUID:891d9ad46a403a345935e14ab1c95fd2"
+        "GUID:c056ef373796b584d9465e6529ebe4ac",
+        "GUID:1a523f89bafde864fbc2bcbabf4df19d"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
