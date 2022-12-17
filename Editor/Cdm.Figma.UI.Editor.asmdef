@@ -1,0 +1,22 @@
+{
+    "name": "Cdm.Figma.UI.Editor",
+    "rootNamespace": "Cdm.Figma.UI.Editor",
+    "references": [
+        "GUID:5259626dace255142ae05725b6db849f",
+        "GUID:129df0286b8a76f4b852918f8302a5d1",
+        "GUID:240bd85d64fe2a949aa7415786ef7fde",
+        "GUID:720d33f97ce5b450cbb9c9941462dee9",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
