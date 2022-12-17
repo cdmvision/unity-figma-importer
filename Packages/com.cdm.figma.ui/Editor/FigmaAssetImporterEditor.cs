@@ -135,19 +135,36 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.Separator();
             for (var i = 0; i < _pages.arraySize; i++)
             {
-                var page = _pages.GetArrayElementAtIndex(i);
-                var enabledProperty = page.FindPropertyRelative("enabled");
-                var nameProperty = page.FindPropertyRelative("name");
+                var pageProperty = _pages.GetArrayElementAtIndex(i);
+                var enabledProperty = pageProperty.FindPropertyRelative("enabled");
+                var nameProperty = pageProperty.FindPropertyRelative("name");
                 var pageRef = _pageReferences.GetArrayElementAtIndex(i);
                 
-                EditorGUILayout.BeginHorizontal();
-                enabledProperty.boolValue = 
-                    EditorGUILayout.ToggleLeft(GUIContent.none, enabledProperty.boolValue, GUILayout.Width(16));
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    enabledProperty.boolValue = 
+                        EditorGUILayout.ToggleLeft(GUIContent.none, enabledProperty.boolValue, GUILayout.Width(16));
 
-                var newPageRef = EditorGUILayout.ObjectField(
-                    new GUIContent(nameProperty.stringValue), pageRef.objectReferenceValue, typeof(FigmaPage), false);
-                
-                EditorGUILayout.EndHorizontal();
+                    if (enabledProperty.boolValue)
+                    {
+                        var page = pageRef.objectReferenceValue as FigmaPage;
+                        var label = EditorGUIUtility.ObjectContent(pageRef.objectReferenceValue, typeof(FigmaPage));
+
+                        var style = new GUIStyle(EditorStyles.objectField);
+                        style.fixedHeight   = EditorGUIUtility.singleLineHeight;
+                        style.imagePosition = page != null ? ImagePosition.ImageLeft : ImagePosition.TextOnly;
+                        
+                        EditorGUILayout.PrefixLabel(nameProperty.stringValue);
+                        if (GUILayout.Button(label, style))
+                        {
+                            EditorGUIUtility.PingObject(page != null ? page.gameObject : null);
+                        }
+                    }
+                    else
+                    {
+                        EditorGUILayout.LabelField(new GUIContent(nameProperty.stringValue));
+                    }
+                }
             }
         }
 
