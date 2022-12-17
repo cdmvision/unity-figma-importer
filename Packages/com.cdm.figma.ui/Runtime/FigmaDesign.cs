@@ -5,13 +5,10 @@ namespace Cdm.Figma.UI
 {
     public class FigmaDesign : Figma.FigmaDesign
     {
-        [SerializeField]
-        private FigmaDocument _document;
-
         /// <summary>
         /// Get document which is root node of the Figma file.
         /// </summary>
-        public FigmaDocument document => _document;
+        public FigmaDocument document => GetComponent<FigmaDocument>();
         
         [SerializeField]
         private List<Binding> _bindings = new List<Binding>();
@@ -21,20 +18,9 @@ namespace Cdm.Figma.UI
         /// </summary>
         public IReadOnlyList<Binding> bindings => _bindings;
 
-        public static T Create<T>(FigmaFile file, FigmaDocument document, IEnumerable<Binding> bindings) 
-            where T : FigmaDesign
+        internal void SetBindings(List<Binding> bindingList)
         {
-            var figmaDesign = Create<T>(file);
-            figmaDesign._document = document;
-            figmaDesign._bindings.AddRange(bindings);
-            
-            document.TraverseDfs(node =>
-            {
-                node.figmaDesign = figmaDesign;
-                return true;
-            });
-            
-            return figmaDesign;
+            _bindings = bindingList;
         }
     }
 }

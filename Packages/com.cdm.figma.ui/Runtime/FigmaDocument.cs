@@ -1,37 +1,32 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Cdm.Figma.UI
 {    
     [SelectionBase]
-    public class FigmaDocument : FigmaNode, IEnumerable<FigmaPage>
+    public class FigmaDocument : FigmaNode
     {
         [SerializeField]
         private List<FigmaImporterLogReference> _allLogs = new List<FigmaImporterLogReference>();
         
         public List<FigmaImporterLogReference> allLogs => _allLogs;
 
-        public IEnumerator<FigmaPage> GetPages()
-        {
-            return GetEnumerator();
-        }
+        [SerializeField]
+        private List<FigmaPage> _pages = new List<FigmaPage>();
+
+        public IReadOnlyList<FigmaPage> pages => _pages;
         
-        public IEnumerator<FigmaPage> GetEnumerator()
+        internal void InitPages()
         {
+            _pages.Clear();
             foreach (Transform child in transform)
             {
-                var figmaPage = child.GetComponent<FigmaPage>();
-                if (figmaPage != null)
+                var page = child.GetComponent<FigmaPage>();
+                if (page != null)
                 {
-                    yield return figmaPage;
+                    _pages.Add(page);
                 }
             }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }

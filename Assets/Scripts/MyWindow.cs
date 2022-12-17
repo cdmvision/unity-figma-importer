@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[FigmaNode("myWindow")]
 public class MyWindow : FigmaBehaviour
 {
     // Public property, setter can be private.
@@ -17,6 +18,8 @@ public class MyWindow : FigmaBehaviour
     [FigmaNode("myInputField")]
     private TMP_InputField _myInputField;
 
+    public GameObject go;
+    
     protected override void Start()
     {
         base.Start();

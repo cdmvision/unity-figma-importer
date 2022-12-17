@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Cdm.Figma.UI.Editor
 {
-    [ScriptedImporter(1, Extension)]
+    [ScriptedImporter(1, DefaultExtension)]
     public class FigmaAssetImporter : FigmaAssetImporterBase
     {
         [SerializeField]
@@ -31,6 +31,14 @@ namespace Cdm.Figma.UI.Editor
         {
             get => _fallbackFont;
             set => _fallbackFont = value;
+        }
+
+        [SerializeField]
+        private FigmaPage[] _pageReferences;
+
+        public FigmaPage[] pageReferences
+        {
+            get => _pageReferences;
         }
 
         [SerializeField]
@@ -86,7 +94,7 @@ namespace Cdm.Figma.UI.Editor
             get => _sampleCount;
             set => _sampleCount = value;
         }
-
+        
         protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter,
             FigmaFile figmaFile)
         {
@@ -102,14 +110,19 @@ namespace Cdm.Figma.UI.Editor
 
             // Add imported page game objects to the asset.
             var design = (FigmaDesign)figmaDesign;
-
+            
             // Add figma nodes.
-            design.document.TraverseDfs(node =>
-            {
-                ctx.AddObjectToAsset($"{node.nodeId}", node.gameObject);
-                return true;
-            });
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(FigmaIconFlatPath);
+            
+            // Detach pages from the document to be able to use as single page instead of full document.
+            design.document.transform.DetachChildren();
 
+            // Add pages.
+            foreach (var page in design.document.pages)
+            {
+                ctx.AddObjectToAsset($"{page.nodeId}", page.gameObject, icon);
+            }
+            
             var importer = (FigmaImporter)figmaImporter;
 
             // Add generated objects to the asset.
@@ -123,6 +136,8 @@ namespace Cdm.Figma.UI.Editor
             {
                 ctx.DependsOnSourceAsset(AssetDatabase.GetAssetPath(dependencyAsset.Value));
             }
+
+            UpdatePageReferences(design);
         }
 
         protected override IFigmaImporter GetFigmaImporter()
@@ -150,7 +165,7 @@ namespace Cdm.Figma.UI.Editor
 
             figmaImporter.AddDefaultNodeConverters();
             figmaImporter.AddDefaultComponentConverters();
-            
+
             return figmaImporter;
         }
 
@@ -166,9 +181,9 @@ namespace Cdm.Figma.UI.Editor
                     var figmaNodeAttribute =
                         (FigmaNodeAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaNodeAttribute));
 
-                    if (figmaNodeAttribute.importerExtension != Extension)
+                    if (figmaNodeAttribute.importerExtension != GetAssetExtension())
                         continue;
-                    
+
                     var bindingKey = figmaNodeAttribute.bindingKey;
                     if (!string.IsNullOrEmpty(bindingKey))
                     {
@@ -201,9 +216,9 @@ namespace Cdm.Figma.UI.Editor
                     var figmaComponentAttribute =
                         (FigmaComponentAttribute)Attribute.GetCustomAttribute(type, typeof(FigmaComponentAttribute));
 
-                    if (figmaComponentAttribute.importerExtension != Extension)
+                    if (figmaComponentAttribute.importerExtension != GetAssetExtension())
                         continue;
-                    
+
                     var typeId = figmaComponentAttribute.typeId;
                     figmaImporter.componentConverters.Add(new FigmaComponentBehaviourConverter(typeId, type));
                 }
@@ -227,10 +242,10 @@ namespace Cdm.Figma.UI.Editor
                     var figmaComponentConverterAttribute =
                         (FigmaComponentConverterAttribute)Attribute.GetCustomAttribute(
                             type, typeof(FigmaComponentConverterAttribute));
-                    
-                    if (figmaComponentConverterAttribute.importerExtension != Extension)
+
+                    if (figmaComponentConverterAttribute.importerExtension != GetAssetExtension())
                         continue;
-                    
+
                     figmaImporter.componentConverters.Add((ComponentConverter)Activator.CreateInstance(type));
                 }
                 else
@@ -253,10 +268,10 @@ namespace Cdm.Figma.UI.Editor
                     var figmaNodeConverterAttribute =
                         (FigmaNodeConverterAttribute)Attribute.GetCustomAttribute(
                             type, typeof(FigmaNodeConverterAttribute));
-                    
-                    if (figmaNodeConverterAttribute.importerExtension != Extension)
+
+                    if (figmaNodeConverterAttribute.importerExtension != GetAssetExtension())
                         continue;
-                    
+
                     figmaImporter.nodeConverters.Add((NodeConverter)Activator.CreateInstance(type));
                 }
                 else
@@ -295,6 +310,21 @@ namespace Cdm.Figma.UI.Editor
 
             figmaImporter.fonts.AddRange(_fonts);
             figmaImporter.fallbackFont = fallbackFont;
+        }
+
+        private void UpdatePageReferences(FigmaDesign figmaDesign)
+        {
+            _pageReferences = new FigmaPage[pages.Length];
+
+            var figmaPages = figmaDesign.document.pages;
+            for (var i = 0; i < _pageReferences.Length; i++)
+            {
+                var figmaPage = figmaPages.FirstOrDefault(x => x.nodeId == pages[i].id);
+                if (figmaPage != null)
+                {
+                    _pageReferences[i] = figmaPage;
+                }
+            }
         }
     }
 }

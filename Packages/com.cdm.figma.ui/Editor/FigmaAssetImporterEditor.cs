@@ -1,19 +1,19 @@
 ﻿using System.IO;
 using System.Linq;
-using Cdm.Figma.Editor;
 using TMPro;
 using UnityEditor;
-using UnityEditorInternal;
+using UnityEditor.AssetImporters;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Editor
 {
     [CustomEditor(typeof(FigmaAssetImporter), editorForChildClasses: true)]
-    public class FigmaAssetImporterEditor : FigmaAssetImporterBaseEditor
+    public class FigmaAssetImporterEditor : ScriptedImporterEditor
     {
+        private SerializedProperty _pages;
+        private SerializedProperty _pageReferences;
         private SerializedProperty _fallbackFont;
         private SerializedProperty _fonts;
-        private ReorderableList _fontsList;
 
         private SerializedProperty _pixelsPerUnit;
         private SerializedProperty _gradientResolution;
@@ -21,15 +21,10 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _wrapMode;
         private SerializedProperty _filterMode;
         private SerializedProperty _sampleCount;
-        
+
+        private int _selectedTabIndex = 0;
         private int _errorCount = 0;
         private int _warningCount = 0;
-
-        private bool isSpriteSettingsExpanded
-        {
-            get => EditorPrefs.GetBool($"{nameof(FigmaAssetImporterEditor)}.{nameof(isSpriteSettingsExpanded)}", false);
-            set => EditorPrefs.SetBool($"{nameof(FigmaAssetImporterEditor)}.{nameof(isSpriteSettingsExpanded)}", value);
-        }
         
         private readonly GUIContent[] _sampleCountContents =
         {
@@ -51,8 +46,10 @@ namespace Cdm.Figma.UI.Editor
         {
             base.OnEnable();
 
-            _fallbackFont = serializedObject.FindProperty("_fallbackFont");
+            _pages = serializedObject.FindProperty("_pages");
+            _pageReferences = serializedObject.FindProperty("_pageReferences");
             _fonts = serializedObject.FindProperty("_fonts");
+            _fallbackFont = serializedObject.FindProperty("_fallbackFont");
 
             _pixelsPerUnit = serializedObject.FindProperty("_pixelsPerUnit");
             _gradientResolution = serializedObject.FindProperty("_gradientResolution");
@@ -60,11 +57,7 @@ namespace Cdm.Figma.UI.Editor
             _wrapMode = serializedObject.FindProperty("_wrapMode");
             _filterMode = serializedObject.FindProperty("_filterMode");
             _sampleCount = serializedObject.FindProperty("_sampleCount");
-
-            _fontsList = new ReorderableList(serializedObject, _fonts, false, true, false, false);
-            _fontsList.drawHeaderCallback = DrawHeader;
-            _fontsList.drawElementCallback = DrawElement;
-
+            
             var importer = (FigmaAssetImporter)target;
             var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
             if (figmaDesign != null)
@@ -83,7 +76,37 @@ namespace Cdm.Figma.UI.Editor
             }
         }
 
-        protected override void DrawGUI()
+        public override void OnInspectorGUI()
+        {
+            serializedObject.Update();
+
+            _selectedTabIndex = GUILayout.Toolbar(_selectedTabIndex, new GUIContent[]
+            {
+                new GUIContent("Pages"), new GUIContent("Fonts"), new GUIContent("Settings")
+            });
+
+            EditorGUILayout.Space();
+            
+            if (_selectedTabIndex == 0)
+            {
+                DrawPagesGui();
+            }
+            else if (_selectedTabIndex == 1)
+            {
+                DrawFontsGui();
+            }
+            else if (_selectedTabIndex == 2)
+            {
+                DrawSettingsGui();
+            }
+            
+            serializedObject.ApplyModifiedProperties();
+
+            EditorGUILayout.Separator();
+            ApplyRevertGUI();
+        }
+
+        private void DrawWarningsGui()
         {
             var message = "";
             if (_errorCount > 0 && _warningCount > 0)
@@ -103,36 +126,67 @@ namespace Cdm.Figma.UI.Editor
             {
                 EditorGUILayout.HelpBox(message, MessageType.Warning, true);
             }
+        }
 
-            base.DrawGUI();
-
-            _fontsList.DoLayoutList();
-            EditorGUILayout.PropertyField(_fallbackFont);
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.Space();
-
-            if (GUILayout.Button("Search & Add Fonts", EditorStyles.miniButton, GUILayout.Width(196)))
+        private void DrawPagesGui()
+        {
+            DrawWarningsGui();
+            
+            EditorGUILayout.Separator();
+            for (var i = 0; i < _pages.arraySize; i++)
             {
-                SearchAndAddFonts();
-            }
-
-            EditorGUILayout.EndHorizontal();
-
-            isSpriteSettingsExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(isSpriteSettingsExpanded, "Sprite Settings");
-            if (isSpriteSettingsExpanded)
-            {
-                EditorGUILayout.PropertyField(_pixelsPerUnit);
-                EditorGUILayout.PropertyField(_gradientResolution);
-                EditorGUILayout.PropertyField(_textureSize);
-                EditorGUILayout.PropertyField(_wrapMode);
-                EditorGUILayout.PropertyField(_filterMode);    
+                var page = _pages.GetArrayElementAtIndex(i);
+                var enabledProperty = page.FindPropertyRelative("enabled");
+                var nameProperty = page.FindPropertyRelative("name");
+                var pageRef = _pageReferences.GetArrayElementAtIndex(i);
                 
-                IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);
+                EditorGUILayout.BeginHorizontal();
+                enabledProperty.boolValue = 
+                    EditorGUILayout.ToggleLeft(GUIContent.none, enabledProperty.boolValue, GUILayout.Width(16));
+
+                var newPageRef = EditorGUILayout.ObjectField(
+                    new GUIContent(nameProperty.stringValue), pageRef.objectReferenceValue, typeof(FigmaPage), false);
+                
+                EditorGUILayout.EndHorizontal();
             }
-            EditorGUILayout.EndFoldoutHeaderGroup();
+        }
+
+        private void DrawFontsGui()
+        {
+            EditorGUILayout.PropertyField(_fallbackFont);
+            EditorGUILayout.Space();
+            
+            for (var i = 0; i < _fonts.arraySize; i++)
+            {
+                var element = _fonts.GetArrayElementAtIndex(i);
+                var nameProperty = element.FindPropertyRelative("fontName");
+                var fontProperty = element.FindPropertyRelative("font");
+                
+                EditorGUILayout.PropertyField(fontProperty, new GUIContent(nameProperty.stringValue));
+            }
+            
+            EditorGUILayout.Space();
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Search and Remap"))
+                {
+                    SearchForFonts();
+                }
+            }
         }
         
+        private void DrawSettingsGui()
+        {
+            EditorGUILayout.LabelField("Sprite Settings", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_pixelsPerUnit);
+            EditorGUILayout.PropertyField(_gradientResolution);
+            EditorGUILayout.PropertyField(_textureSize);
+            EditorGUILayout.PropertyField(_wrapMode);
+            EditorGUILayout.PropertyField(_filterMode);
+            IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);
+        }
+
         private static void IntPopup(SerializedProperty prop, GUIContent[] displayedOptions, 
             int[] options)
         {
@@ -148,7 +202,7 @@ namespace Cdm.Figma.UI.Editor
             }
         }
 
-        private void SearchAndAddFonts()
+        private void SearchForFonts()
         {
             var path = EditorUtility.OpenFolderPanel("Select folder to be searched", "", "Assets");
             if (!string.IsNullOrWhiteSpace(path))
@@ -204,21 +258,6 @@ namespace Cdm.Figma.UI.Editor
 
             fontAsset = null;
             return false;
-        }
-
-        private void DrawHeader(Rect rect)
-        {
-            EditorGUI.LabelField(rect, _fonts.displayName);
-        }
-
-        private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
-        {
-            var element = _fontsList.serializedProperty.GetArrayElementAtIndex(index);
-            var nameProperty = element.FindPropertyRelative("fontName");
-            var fontProperty = element.FindPropertyRelative("font");
-
-            rect = new Rect(rect.x, rect.y + 2, rect.width, rect.height - 4);
-            EditorGUI.PropertyField(rect, fontProperty, new GUIContent(nameProperty.stringValue));
         }
     }
 }

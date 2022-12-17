@@ -13,5 +13,11 @@ namespace Cdm.Figma.UI.Styles.Properties
         public StylePropertyLocalizedString(LocalizedString defaultValue) : base(defaultValue)
         {
         }
+
+        public override bool IsSameValue(StyleProperty<LocalizedString> other)
+        {
+            return value.TableReference.Equals(other.value.TableReference) &&
+                   value.TableEntryReference.Equals(other.value.TableEntryReference);
+        }
     }
 }

@@ -12,5 +12,10 @@ namespace Cdm.Figma.UI.Styles.Properties
         public StylePropertyString(string defaultValue) : base(defaultValue)
         {
         }
+
+        public override bool IsSameValue(StyleProperty<string> other)
+        {
+            return value.Equals(other.value, StringComparison.Ordinal);
+        }
     }
 }
