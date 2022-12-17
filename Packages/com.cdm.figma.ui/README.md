@@ -1,9 +1,8 @@
-# Unity Utils
+# Unity Figma Importer - UGUI
 
-Provides basic building-blocks like Singleton, SingletonBehaviour etc.
+Unity Figma Importer turns your Figma design into Unity UI elements and can generate code and layout files to create Unity apps.
 
-### How to use in my project?
-* Make sure that SSH configuration is working
+## How to use in my project?
 * Open Package Manager in Unity
 * Press "+" and "Add package from git URL..."
-* Enter this repository and version as <code>git@gitlab.com/cdmvision/packages/unity-utils.git#1.0.0</code> (see latest version [here](https://gitlab.com/cdmvision/packages/unity-utils/-/tags))
+* Enter this repository and version as <code>https://git@github.com/cdmvision/unity-figma-importer.git#1.0.0</code> (see latest version [here](https://github.com/cdmvision/unity-figma/-/tags))

@@ -42,7 +42,6 @@ namespace Cdm.Figma.UI.Editor
 
             var canvas = _canvas.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 999;
 
             _canvas.AddComponent<CanvasScaler>();
 

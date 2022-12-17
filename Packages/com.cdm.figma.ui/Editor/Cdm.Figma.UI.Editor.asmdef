@@ -1,6 +1,6 @@
 {
     "name": "Cdm.Figma.UI.Editor",
-    "rootNamespace": "Cdm.Figma.UI",
+    "rootNamespace": "Cdm.Figma.UI.Editor",
     "references": [
         "GUID:5259626dace255142ae05725b6db849f",
         "GUID:129df0286b8a76f4b852918f8302a5d1",
