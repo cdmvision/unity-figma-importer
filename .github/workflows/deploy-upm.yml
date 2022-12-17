@@ -26,6 +26,6 @@ jobs:
       - name: Publish upm-ugui package
         uses: cdmvision/action-upm-publish@v1.1
         with:
-          name: "com.cdm.xr.tracking.extensions"
+          name: "com.cdm.figma.ui"
           upmBranch: "upm-ugui"
           versionPostfix: "ugui"
