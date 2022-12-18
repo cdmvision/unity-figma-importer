@@ -99,7 +99,7 @@ namespace Cdm.Figma.UI
                 
             }
             
-            StyleGeneratorHelper.GenerateEffectsStyles(nodeObject, node.effects);
+            StyleGeneratorHelper.GenerateEffectsStyles(args.importer, nodeObject, node.effects);
         }
 
         private static void BuildChildren(FrameNode currentNode, FigmaNode nodeObject, NodeConvertArgs args)

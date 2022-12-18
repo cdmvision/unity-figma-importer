@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cdm.Figma.UI.Effects;
 using Cdm.Figma.UI.Utils;
 using Cdm.Figma.Utils;
 using TMPro;
@@ -42,17 +43,22 @@ namespace Cdm.Figma.UI
         /// </summary>
         /// <seealso cref="TextNode"/>
         public List<FontSource> fonts { get; } = new List<FontSource>();
-        
+
+        /// <summary>
+        /// TODO:
+        /// </summary>
+        public IEffectFactory effectFactory { get; set; }
+
         /// <summary>
         /// Generated UI elements as <see cref="GameObject"/>.
         /// </summary>
         public AssetCache generatedGameObjects { get; } = new AssetCache();
-        
+
         /// <summary>
         /// Generated assets during import such as <see cref="Sprite"/>, <see cref="Material"/> etc.
         /// </summary>
         public AssetCache generatedAssets { get; } = new AssetCache();
-        
+
         /// <summary>
         /// Dependency assets that are used to import Figma nodes such as font asset etc.
         /// </summary>
@@ -67,14 +73,13 @@ namespace Cdm.Figma.UI
         /// <summary>
         /// Sprite generation options.
         /// </summary>
-        public SpriteGenerateOptions spriteOptions { get; set; }
-            = new SpriteGenerateOptions()
-            {
-                filterMode = FilterMode.Bilinear,
-                wrapMode = TextureWrapMode.Clamp,
-                sampleCount = 8,
-                textureSize = 1024
-            };
+        public SpriteGenerateOptions spriteOptions { get; set; } = new SpriteGenerateOptions()
+        {
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            sampleCount = 8,
+            textureSize = 1024
+        };
 
         /// <summary>
         /// Gets or sets the fallback font that is used when a font mapping does not found.
@@ -101,6 +106,7 @@ namespace Cdm.Figma.UI
                 new BooleanNodeConverter()
             };
         }
+
         /// <summary>
         /// Gets the default component converters that are used for importing Figma nodes.
         /// </summary>
@@ -131,7 +137,7 @@ namespace Cdm.Figma.UI
                 nodeConverters.Add(converter);
             }
         }
-        
+
         /// <summary>
         /// Adds the default component converters that are used for importing Figma nodes.
         /// </summary>
@@ -197,7 +203,7 @@ namespace Cdm.Figma.UI
                     {
                         if (node.IsIgnored())
                             continue;
-                        
+
                         if (node is FrameNode)
                         {
                             if (TryConvertNode(figmaPage, node, conversionArgs, out var frameNode))
@@ -234,7 +240,7 @@ namespace Cdm.Figma.UI
                     node.figmaDesign = figmaDesign;
                     return true;
                 });
-                
+
                 figmaDesign.SetBindings(bindings);
                 return figmaDesign;
             }
@@ -298,7 +304,7 @@ namespace Cdm.Figma.UI
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(
                 c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
-            
+
             if (componentConverter != null)
             {
                 nodeObject = componentConverter.Convert(parentObject, node, args);
@@ -310,7 +316,7 @@ namespace Cdm.Figma.UI
             // Try with node converters.
             var nodeConverter = nodeConverters.FirstOrDefault(
                 c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
-            
+
             if (nodeConverter != null)
             {
                 nodeObject = nodeConverter.Convert(parentObject, node, args);
@@ -386,7 +392,7 @@ namespace Cdm.Figma.UI
             if (figmaNode != null)
             {
                 generatedGameObjects.Remove<GameObject>(figmaNode.nodeId);
-                ObjectUtils.Destroy(figmaNode.gameObject);   
+                ObjectUtils.Destroy(figmaNode.gameObject);
             }
         }
 

@@ -1,16 +1,9 @@
-﻿using System;
+﻿using Cdm.Figma.UI.Styles;
 using UnityEngine;
 
-namespace Cdm.Figma.UI.Styles
+namespace Cdm.Figma.UI.Effects
 {
-    [Serializable]
-    public enum BlurType
-    {
-        Layer,
-        Background
-    }
-    
-    public class BlurBehaviour : MonoBehaviour
+    public abstract class Blur : EffectBehaviour
     {
         [SerializeField]
         private BlurType _type;
@@ -36,11 +29,6 @@ namespace Cdm.Figma.UI.Styles
                 _radius = value;
                 UpdateEffect();
             }
-        }
-
-        private void UpdateEffect()
-        {
-            // TODO: implement
         }
     }
 }

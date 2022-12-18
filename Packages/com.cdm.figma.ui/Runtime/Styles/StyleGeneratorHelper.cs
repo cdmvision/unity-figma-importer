@@ -5,11 +5,12 @@ namespace Cdm.Figma.UI
 {
     public static class StyleGeneratorHelper
     {
-        public static void GenerateEffectsStyles(FigmaNode figmaNode, IEnumerable<Effect> effects)
+        public static void GenerateEffectsStyles(FigmaImporter figmaImporter, FigmaNode figmaNode, 
+            IEnumerable<Effect> effects)
         {
             foreach (var effect in effects)
             {
-                var style = GenerateEffectStyle(effect);
+                var style = GenerateEffectStyle(figmaImporter, figmaNode, effect);
                 if (style != null)
                 {
                     figmaNode.styles.Add(style);
@@ -17,7 +18,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        public static Styles.Style GenerateEffectStyle(Effect effect)
+        public static Styles.Style GenerateEffectStyle(FigmaImporter figmaImporter, FigmaNode figmaNode, Effect effect)
         {
             Styles.Style style = null;
 
@@ -25,13 +26,22 @@ namespace Cdm.Figma.UI
             {
                 case BlurEffect blurEffect:
                     style = GenerateBlurEffectStyle(blurEffect);
+                    
                     break;
                 case ShadowEffect shadowEffect:
                     style = GenerateShadowEffectStyle(shadowEffect);
                     break;
             }
 
-            return style;
+            if (style != null && figmaImporter.effectFactory != null)
+            {
+                if (figmaImporter.effectFactory.Add(figmaNode.gameObject, style))
+                {
+                    return style;        
+                }
+            }
+
+            return null;
         }
 
         public static Styles.Style GenerateBlurEffectStyle(BlurEffect effect)

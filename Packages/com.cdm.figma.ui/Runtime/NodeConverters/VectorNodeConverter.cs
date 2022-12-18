@@ -84,7 +84,7 @@ namespace Cdm.Figma.UI
                 nodeObject.styles.Add(style);
             }
 
-            StyleGeneratorHelper.GenerateEffectsStyles(nodeObject, vectorNode.effects);
+            StyleGeneratorHelper.GenerateEffectsStyles(args.importer, nodeObject, vectorNode.effects);
         }
     }
 

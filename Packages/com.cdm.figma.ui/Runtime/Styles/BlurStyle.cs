@@ -1,10 +1,17 @@
 ﻿using System;
+using Cdm.Figma.UI.Effects;
 using Cdm.Figma.UI.Styles.Properties;
-using Cdm.Figma.UI.Utils;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Styles
 {
+    [Serializable]
+    public enum BlurType
+    {
+        Layer,
+        Background
+    }
+    
     [Serializable]
     public class BlurStyle : StyleWithSetter<BlurStyleSetter>
     {
@@ -14,7 +21,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var blur = gameObject.GetOrAddComponent<BlurBehaviour>();
+            var blur = gameObject.GetComponent<Blur>();
             if (blur != null)
             {
                 if (visible.enabled)
