@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Cdm.Figma.Editor;
+using Cdm.Figma.UI.Effects;
 using Cdm.Figma.Utils;
 using TMPro;
 using UnityEditor;
@@ -101,6 +102,7 @@ namespace Cdm.Figma.UI.Editor
             base.OnAssetImporting(ctx, figmaImporter, figmaFile);
 
             UpdateFonts((FigmaImporter)figmaImporter, figmaFile);
+            ((FigmaImporter)figmaImporter).effectFactory = new LeTaiEffectFactory();
         }
 
         protected override void OnAssetImported(AssetImportContext ctx, IFigmaImporter figmaImporter,

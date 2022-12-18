@@ -10,7 +10,7 @@ namespace Cdm.Figma.UI.Effects
             switch (style)
             {
                 case BlurStyle:
-                    gameObject.AddComponent<LeTaiBlur>();
+                    
                     return false;
                 case ShadowStyle:
                     gameObject.AddComponent<LeTaiShadow>();
