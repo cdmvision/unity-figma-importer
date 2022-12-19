@@ -4,6 +4,15 @@ namespace Cdm.Figma.UI
 {
     public abstract class EffectBehaviour : MonoBehaviour
     {
+        [SerializeField]
+        private int _effectId;
+
+        public int effectId
+        {
+            get => _effectId;
+            set => _effectId = value;
+        }
+        
         protected virtual void Awake()
         {
         }

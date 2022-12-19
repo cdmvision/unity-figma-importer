@@ -2,7 +2,8 @@
 
 namespace Cdm.Figma.UI
 {
-    public abstract class BlurEffectConverter : EffectConverter<BlurEffect, BlurStyle, BlurEffectBehaviour>
+    public abstract class BlurEffectConverter : 
+        EffectConverter<BlurEffect, BlurStyle, BlurStyleSetter, BlurEffectBehaviour>
     {
         protected override BlurStyle CreateStyle(FigmaNode node, BlurEffect effect)
         {

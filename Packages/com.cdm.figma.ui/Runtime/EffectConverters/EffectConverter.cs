@@ -1,4 +1,6 @@
-﻿namespace Cdm.Figma.UI
+﻿using Cdm.Figma.UI.Styles;
+
+namespace Cdm.Figma.UI
 {
     public abstract class EffectConverter : IEffectConverter
     {
@@ -6,9 +8,10 @@
         public abstract void Convert(FigmaNode node, Effect effect);
     }
     
-    public abstract class EffectConverter<TEffectType, TStyle, TBehaviour> : EffectConverter 
+    public abstract class EffectConverter<TEffectType, TStyle, TStyleSetter, TBehaviour> : EffectConverter 
         where TEffectType : Effect
-        where TStyle : Styles.Style
+        where TStyleSetter : StyleSetterWithSelectorsBase
+        where TStyle : EffectStyle<TStyleSetter>
         where TBehaviour: EffectBehaviour
     {
         public override bool CanConvert(FigmaNode node, Effect effect)
@@ -21,8 +24,13 @@
             var style = CreateStyle(node, (TEffectType)effect);
             if (style != null)
             {
+                var effectId = node.GetComponents<TBehaviour>().Length;
+                
+                style.effectId = effectId;
                 node.styles.Add(style);
-                Convert(node, style);
+                
+                var effectBehaviour = Convert(node, style);
+                effectBehaviour.effectId = effectId;
             }
         }
 

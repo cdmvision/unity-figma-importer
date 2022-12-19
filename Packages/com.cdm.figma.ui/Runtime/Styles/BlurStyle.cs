@@ -10,9 +10,9 @@ namespace Cdm.Figma.UI.Styles
         Layer,
         Background
     }
-    
+
     [Serializable]
-    public class BlurStyle : StyleWithSetter<BlurStyleSetter>
+    public class BlurStyle : EffectStyle<BlurStyleSetter>
     {
         public StylePropertyBool visible = new StylePropertyBool(true);
         public StylePropertyFloat radius = new StylePropertyFloat(4f);
@@ -20,7 +20,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var blur = gameObject.GetComponent<BlurEffectBehaviour>();
+            var blur = GetEffectBehaviour<BlurEffectBehaviour>(gameObject);
             if (blur != null)
             {
                 if (visible.enabled)
@@ -33,7 +33,7 @@ namespace Cdm.Figma.UI.Styles
                     blur.type = type.value;
             }
         }
-        
+
         protected override void MergeTo(Style other, bool force)
         {
             if (other is BlurStyle otherStyle)

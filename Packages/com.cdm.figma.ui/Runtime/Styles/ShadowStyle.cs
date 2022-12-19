@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Cdm.Figma.UI.Styles
 {
     [Serializable]
-    public class ShadowStyle : StyleWithSetter<ShadowStyleSetter>
+    public class ShadowStyle : EffectStyle<ShadowStyleSetter>
     {
         public StylePropertyBool visible = new StylePropertyBool(true);
         public StylePropertyBool inner = new StylePropertyBool(false);
@@ -31,7 +31,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var shadow = gameObject.GetComponent<ShadowEffectBehaviour>();
+            var shadow = GetEffectBehaviour<ShadowEffectBehaviour>(gameObject);
             if (shadow != null)
             {
                 if (visible.enabled)

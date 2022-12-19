@@ -8,15 +8,19 @@ namespace Cdm.Figma.UI
 #if LETAI_TRUESHADOW
         private LeTai.TrueShadow.TrueShadow _shadow;
 
-        protected override void Start()
+        protected override void Awake()
         {
-            _shadow = gameObject.GetOrAddComponent<LeTai.TrueShadow.TrueShadow>();
-            _shadow.UseCasterAlpha = true;
-            _shadow.IgnoreCasterColor = true;
+            base.Awake();
 
-            UpdateEffect();
+            if (Application.isPlaying)
+            {
+                _shadow = gameObject.AddComponent<LeTai.TrueShadow.TrueShadow>();
+                _shadow.UseCasterAlpha = true;
+                _shadow.IgnoreCasterColor = true;
+                UpdateEffect();
+            }
         }
-
+        
         protected override void OnEnable()
         {
             if (_shadow != null)

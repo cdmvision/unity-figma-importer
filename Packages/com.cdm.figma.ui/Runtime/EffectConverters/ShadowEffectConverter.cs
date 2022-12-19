@@ -2,7 +2,8 @@
 
 namespace Cdm.Figma.UI
 {
-    public abstract class ShadowEffectConverter : EffectConverter<ShadowEffect, ShadowStyle, ShadowEffectBehaviour>
+    public abstract class ShadowEffectConverter : 
+        EffectConverter<ShadowEffect, ShadowStyle, ShadowStyleSetter, ShadowEffectBehaviour>
     {
         protected override ShadowStyle CreateStyle(FigmaNode node, ShadowEffect effect)
         {
