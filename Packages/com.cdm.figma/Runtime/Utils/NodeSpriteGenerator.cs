@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Unity.VectorGraphics;
 using UnityEngine;
@@ -43,9 +42,11 @@ namespace Cdm.Figma.Utils
             SpriteGenerateOptions options = null)
         {
             var svg = GenerateSpriteSvg(node);
-
-            //Debug.Log($"{node}: {svg}");
-            return GenerateSprite(node, svg, spriteType, options);
+            var sprite = GenerateSprite(node, svg, spriteType, options);
+            
+            //Debug.Log($"{node}, [Sprite Generated:{(sprite != null ? "YES": "NO")}]: {svg}");
+            
+            return sprite;
         }
 
         /// <summary>
@@ -114,8 +115,7 @@ namespace Cdm.Figma.Utils
             svg.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
-
-            //vectorNode.fillOverrideTable
+            
             foreach (var geometry in vectorNode.fillGeometry)
             {
                 var path = geometry.path;
@@ -424,15 +424,24 @@ namespace Cdm.Figma.Utils
             var heightRatio = options.textureSize / sprite.rect.height;
 
             var ratio = Mathf.Min(widthRatio, heightRatio);
+            var widthScaled = sprite.rect.width * ratio;
+            var heightScaled = sprite.rect.height * ratio;
 
-            var width = (int)(sprite.rect.width * ratio);
-            var height = (int)(sprite.rect.height * ratio);
+            // Use sprite's original dimensions to preserve its aspect ratio.
+            if (widthScaled < 1 || heightScaled < 1)
+            {
+                widthScaled = sprite.rect.width;
+                heightScaled = sprite.rect.height;
+            }
 
+            var textureWidth = Mathf.RoundToInt(Mathf.Max(widthScaled, 1f));
+            var textureHeight = Mathf.RoundToInt(Mathf.Max(heightScaled, 1f));
 
             var expandEdges = options.filterMode != FilterMode.Point || options.sampleCount > 1;
             var material = new Material(Shader.Find("Unlit/VectorGradient"));
             var texture =
-                VectorUtils.RenderSpriteToTexture2D(sprite, width, height, material, options.sampleCount, expandEdges);
+                VectorUtils.RenderSpriteToTexture2D(
+                    sprite, textureWidth, textureHeight, material, options.sampleCount, expandEdges);
 
             if (texture != null)
             {

@@ -38,7 +38,6 @@ namespace Cdm.Figma.UI.Styles
         {
             MergeTo(other, false);
         }
-
         
         public abstract void SetStyle(GameObject gameObject, StyleArgs args);
         public abstract void SetStyleAsSelector(GameObject gameObject, StyleArgs args);
@@ -80,21 +79,6 @@ namespace Cdm.Figma.UI.Styles
                     styleSetter.AddStyle(this);
                 }
             }
-        }
-
-        protected static bool TryGetComponent<T>(GameObject gameObject, out T component, bool giveWarning = true)
-            where T : UnityEngine.Component
-        {
-            component = gameObject.GetComponent<T>();
-            if (component != null)
-            {
-                return true;
-            }
-
-            if (giveWarning)
-                Debug.LogWarning($"Component not found: {typeof(T).Name}", gameObject);
-
-            return false;
         }
     }
 }
