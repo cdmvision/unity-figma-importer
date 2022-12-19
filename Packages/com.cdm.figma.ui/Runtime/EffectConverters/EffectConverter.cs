@@ -13,7 +13,7 @@
     {
         public override bool CanConvert(FigmaNode node, Effect effect)
         {
-            return effect.GetType() == typeof(TEffectType);
+            return effect is TEffectType;
         }
 
         public override void Convert(FigmaNode node, Effect effect)
