@@ -21,11 +21,12 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _wrapMode;
         private SerializedProperty _filterMode;
         private SerializedProperty _sampleCount;
+        private SerializedProperty _effectConverters;
 
         private int _selectedTabIndex = 0;
         private int _errorCount = 0;
         private int _warningCount = 0;
-        
+
         private readonly GUIContent[] _sampleCountContents =
         {
             new GUIContent("None"),
@@ -33,7 +34,7 @@ namespace Cdm.Figma.UI.Editor
             new GUIContent("4 samples"),
             new GUIContent("8 samples")
         };
-        
+
         private readonly int[] _sampleCountValues =
         {
             1,
@@ -41,7 +42,7 @@ namespace Cdm.Figma.UI.Editor
             4,
             8
         };
-        
+
         public override void OnEnable()
         {
             base.OnEnable();
@@ -57,7 +58,8 @@ namespace Cdm.Figma.UI.Editor
             _wrapMode = serializedObject.FindProperty("_wrapMode");
             _filterMode = serializedObject.FindProperty("_filterMode");
             _sampleCount = serializedObject.FindProperty("_sampleCount");
-            
+            _effectConverters = serializedObject.FindProperty("_effectConverters");
+
             var importer = (FigmaAssetImporter)target;
             var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
             if (figmaDesign != null)
@@ -86,7 +88,7 @@ namespace Cdm.Figma.UI.Editor
             });
 
             EditorGUILayout.Space();
-            
+
             if (_selectedTabIndex == 0)
             {
                 DrawPagesGui();
@@ -99,7 +101,7 @@ namespace Cdm.Figma.UI.Editor
             {
                 DrawSettingsGui();
             }
-            
+
             serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.Separator();
@@ -131,7 +133,7 @@ namespace Cdm.Figma.UI.Editor
         private void DrawPagesGui()
         {
             DrawWarningsGui();
-            
+
             EditorGUILayout.Separator();
             for (var i = 0; i < _pages.arraySize; i++)
             {
@@ -139,10 +141,10 @@ namespace Cdm.Figma.UI.Editor
                 var enabledProperty = pageProperty.FindPropertyRelative("enabled");
                 var nameProperty = pageProperty.FindPropertyRelative("name");
                 var pageRef = _pageReferences.GetArrayElementAtIndex(i);
-                
+
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    enabledProperty.boolValue = 
+                    enabledProperty.boolValue =
                         EditorGUILayout.ToggleLeft(GUIContent.none, enabledProperty.boolValue, GUILayout.Width(16));
 
                     if (enabledProperty.boolValue)
@@ -151,9 +153,9 @@ namespace Cdm.Figma.UI.Editor
                         var label = EditorGUIUtility.ObjectContent(pageRef.objectReferenceValue, typeof(FigmaPage));
 
                         var style = new GUIStyle(EditorStyles.objectField);
-                        style.fixedHeight   = EditorGUIUtility.singleLineHeight;
+                        style.fixedHeight = EditorGUIUtility.singleLineHeight;
                         style.imagePosition = page != null ? ImagePosition.ImageLeft : ImagePosition.TextOnly;
-                        
+
                         EditorGUILayout.PrefixLabel(nameProperty.stringValue);
                         if (GUILayout.Button(label, style))
                         {
@@ -172,16 +174,16 @@ namespace Cdm.Figma.UI.Editor
         {
             EditorGUILayout.PropertyField(_fallbackFont);
             EditorGUILayout.Space();
-            
+
             for (var i = 0; i < _fonts.arraySize; i++)
             {
                 var element = _fonts.GetArrayElementAtIndex(i);
                 var nameProperty = element.FindPropertyRelative("fontName");
                 var fontProperty = element.FindPropertyRelative("font");
-                
+
                 EditorGUILayout.PropertyField(fontProperty, new GUIContent(nameProperty.stringValue));
             }
-            
+
             EditorGUILayout.Space();
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -192,8 +194,15 @@ namespace Cdm.Figma.UI.Editor
                 }
             }
         }
-        
+
         private void DrawSettingsGui()
+        {
+            DrawSpriteSettingsGui();
+            EditorGUILayout.Space();
+            DrawEffectConvertersGui();
+        }
+
+        private void DrawSpriteSettingsGui()
         {
             EditorGUILayout.LabelField("Sprite Settings", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_pixelsPerUnit);
@@ -202,13 +211,14 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.PropertyField(_wrapMode);
             EditorGUILayout.PropertyField(_filterMode);
             IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);
-            
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Effects", EditorStyles.boldLabel);
-            
         }
 
-        private static void IntPopup(SerializedProperty prop, GUIContent[] displayedOptions, 
+        private void DrawEffectConvertersGui()
+        {
+            EditorGUILayout.PropertyField(_effectConverters);
+        }
+
+        private static void IntPopup(SerializedProperty prop, GUIContent[] displayedOptions,
             int[] options)
         {
             EditorGUI.BeginChangeCheck();
@@ -216,7 +226,7 @@ namespace Cdm.Figma.UI.Editor
             var value = EditorGUILayout.IntPopup(
                 new GUIContent(prop.displayName), prop.intValue, displayedOptions, options);
             EditorGUI.showMixedValue = false;
-            
+
             if (EditorGUI.EndChangeCheck())
             {
                 prop.intValue = value;
