@@ -1,5 +1,4 @@
 ﻿using System;
-using Cdm.Figma.UI.Effects;
 using Cdm.Figma.UI.Styles.Properties;
 using UnityEngine;
 
@@ -21,7 +20,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var blur = gameObject.GetComponent<Blur>();
+            var blur = gameObject.GetComponent<BlurEffectBehaviour>();
             if (blur != null)
             {
                 if (visible.enabled)

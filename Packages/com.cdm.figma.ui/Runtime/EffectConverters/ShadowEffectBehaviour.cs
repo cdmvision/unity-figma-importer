@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Cdm.Figma.UI.Effects
+namespace Cdm.Figma.UI
 {
-    public abstract class Shadow : EffectBehaviour
+    public abstract class ShadowEffectBehaviour : EffectBehaviour
     {
         [SerializeField]
         private bool _inner;

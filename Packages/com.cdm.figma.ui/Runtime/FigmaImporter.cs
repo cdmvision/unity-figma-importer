@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cdm.Figma.UI.Effects;
 using Cdm.Figma.UI.Utils;
 using Cdm.Figma.Utils;
 using TMPro;
@@ -15,7 +14,7 @@ namespace Cdm.Figma.UI
     /// </summary>
     public class FigmaImporter : IFigmaImporter
     {
-        private readonly List<NodeConverter> _nodeConverters = new List<NodeConverter>();
+        private readonly List<INodeConverter> _nodeConverters = new List<INodeConverter>();
 
         /// <summary>
         /// Figma node converters.
@@ -23,7 +22,7 @@ namespace Cdm.Figma.UI
         /// <remarks>If left empty, default node converters are used.</remarks>
         /// <seealso cref="GetDefaultNodeConverters"/>
         /// <seealso cref="AddDefaultNodeConverters"/>
-        public IList<NodeConverter> nodeConverters => _nodeConverters;
+        public IList<INodeConverter> nodeConverters => _nodeConverters;
 
         private readonly List<ComponentConverter> _componentConverters = new List<ComponentConverter>();
 
@@ -34,7 +33,16 @@ namespace Cdm.Figma.UI
         /// <seealso cref="GetDefaultComponentConverters"/>
         /// <seealso cref="AddDefaultComponentConverters"/>
         public IList<ComponentConverter> componentConverters => _componentConverters;
-
+        
+        private readonly List<IEffectConverter> _effectConverters = new List<IEffectConverter>();
+        
+        /// <summary>
+        /// Figma effect converters.
+        /// </summary>
+        /// <seealso cref="BlurEffect"/>
+        /// <seealso cref="ShadowEffect"/>
+        public IList<IEffectConverter> effectConverters => _effectConverters;
+        
         private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
         private readonly List<Binding> _bindings = new List<Binding>();
 
@@ -43,12 +51,7 @@ namespace Cdm.Figma.UI
         /// </summary>
         /// <seealso cref="TextNode"/>
         public List<FontSource> fonts { get; } = new List<FontSource>();
-
-        /// <summary>
-        /// TODO:
-        /// </summary>
-        public IEffectFactory effectFactory { get; set; }
-
+        
         /// <summary>
         /// Generated UI elements as <see cref="GameObject"/>.
         /// </summary>
@@ -326,6 +329,28 @@ namespace Cdm.Figma.UI
             }
 
             nodeObject = null;
+            return false;
+        }
+
+        internal void ConvertEffects(FigmaNode node, IEnumerable<Effect> effects)
+        {
+            foreach (var effect in effects)
+            {
+                TryConvertEffect(node, effect);
+            }
+        }
+
+        internal bool TryConvertEffect(FigmaNode node, Effect effect)
+        {
+            foreach (var effectConverter in effectConverters)
+            {
+                if (effectConverter.CanConvert(node, effect))
+                {
+                    effectConverter.Convert(node, effect);
+                    return true;
+                }
+            }
+
             return false;
         }
 

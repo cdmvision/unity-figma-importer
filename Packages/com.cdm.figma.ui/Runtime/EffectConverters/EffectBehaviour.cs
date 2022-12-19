@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Cdm.Figma.UI.Effects
+namespace Cdm.Figma.UI
 {
     public abstract class EffectBehaviour : MonoBehaviour
     {

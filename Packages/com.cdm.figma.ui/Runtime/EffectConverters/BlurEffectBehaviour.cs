@@ -1,9 +1,9 @@
 ﻿using Cdm.Figma.UI.Styles;
 using UnityEngine;
 
-namespace Cdm.Figma.UI.Effects
+namespace Cdm.Figma.UI
 {
-    public abstract class Blur : EffectBehaviour
+    public abstract class BlurEffectBehaviour : EffectBehaviour
     {
         [SerializeField]
         private BlurType _type;

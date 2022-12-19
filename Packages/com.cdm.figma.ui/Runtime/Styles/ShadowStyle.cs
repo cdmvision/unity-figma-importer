@@ -1,5 +1,4 @@
 ﻿using System;
-using Cdm.Figma.UI.Effects;
 using Cdm.Figma.UI.Styles.Properties;
 using UnityEngine;
 
@@ -32,7 +31,7 @@ namespace Cdm.Figma.UI.Styles
 
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
-            var shadow = gameObject.GetComponent<Shadow>();
+            var shadow = gameObject.GetComponent<ShadowEffectBehaviour>();
             if (shadow != null)
             {
                 if (visible.enabled)

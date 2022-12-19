@@ -202,6 +202,10 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.PropertyField(_wrapMode);
             EditorGUILayout.PropertyField(_filterMode);
             IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Effects", EditorStyles.boldLabel);
+            
         }
 
         private static void IntPopup(SerializedProperty prop, GUIContent[] displayedOptions, 

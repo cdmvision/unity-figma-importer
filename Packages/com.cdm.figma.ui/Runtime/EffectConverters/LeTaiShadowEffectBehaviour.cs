@@ -1,9 +1,9 @@
 ﻿using Cdm.Figma.UI.Utils;
 using UnityEngine;
 
-namespace Cdm.Figma.UI.Effects
+namespace Cdm.Figma.UI
 {
-    public class LeTaiShadow : Shadow
+    public class LeTaiShadowEffectBehaviour : ShadowEffectBehaviour
     {
 #if LETAI_TRUESHADOW
         private LeTai.TrueShadow.TrueShadow _shadow;

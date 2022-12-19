@@ -32,15 +32,7 @@ namespace Cdm.Figma.UI
                     style = GenerateShadowEffectStyle(shadowEffect);
                     break;
             }
-
-            if (style != null && figmaImporter.effectFactory != null)
-            {
-                if (figmaImporter.effectFactory.Add(figmaNode.gameObject, style))
-                {
-                    return style;        
-                }
-            }
-
+            
             return null;
         }
 
