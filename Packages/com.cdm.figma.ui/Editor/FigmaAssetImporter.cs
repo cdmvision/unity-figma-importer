@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Cdm.Figma.Editor;
+using Cdm.Figma.UI.Editor.Utils;
 using Cdm.Figma.Utils;
 using TMPro;
 using UnityEditor;
@@ -94,7 +96,11 @@ namespace Cdm.Figma.UI.Editor
             get => _sampleCount;
             set => _sampleCount = value;
         }
-        
+
+        [SerializeField]
+        [SerializedType(typeof(IEffectConverter))]
+        private List<string> _effectConverters = new List<string>();
+
         protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter,
             FigmaFile figmaFile)
         {
@@ -110,10 +116,10 @@ namespace Cdm.Figma.UI.Editor
 
             // Add imported page game objects to the asset.
             var design = (FigmaDesign)figmaDesign;
-            
+
             // Add figma nodes.
             var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(FigmaIconFlatPath);
-            
+
             // Detach pages from the document to be able to use as single page instead of full document.
             design.document.transform.DetachChildren();
 
@@ -122,7 +128,7 @@ namespace Cdm.Figma.UI.Editor
             {
                 ctx.AddObjectToAsset($"{page.nodeId}", page.gameObject, icon);
             }
-            
+
             var importer = (FigmaImporter)figmaImporter;
 
             // Add generated objects to the asset.
@@ -156,6 +162,9 @@ namespace Cdm.Figma.UI.Editor
                 }
             };
 
+            // Add effect converters from the list in settings.
+            AddEffectConverters(figmaImporter);
+
             // Prioritize custom converters.
             SearchAndAddFigmaComponentBehaviours(figmaImporter);
             SearchAndAddFigmaNodeBehaviours(figmaImporter);
@@ -167,6 +176,34 @@ namespace Cdm.Figma.UI.Editor
             figmaImporter.AddDefaultComponentConverters();
 
             return figmaImporter;
+        }
+
+        private void AddEffectConverters(FigmaImporter figmaImporter)
+        {
+            foreach (var typeName in _effectConverters)
+            {
+                if (string.IsNullOrWhiteSpace(typeName))
+                    continue;
+
+                var effectConverterType = Type.GetType(typeName);
+                if (effectConverterType != null)
+                {
+                    var effectConverter = (IEffectConverter)Activator.CreateInstance(effectConverterType);
+                    if (effectConverter != null)
+                    {
+                        figmaImporter.effectConverters.Add(effectConverter);
+                        //Debug.Log($"Effect converter added: {effectConverter.GetType().FullName}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Effect converter could not be added: {typeName}");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"Effect converter could not be added: {typeName}");
+                }
+            }
         }
 
         private void SearchAndAddFigmaNodeBehaviours(FigmaImporter figmaImporter)

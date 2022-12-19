@@ -14,7 +14,7 @@ namespace Cdm.Figma.UI
     /// </summary>
     public class FigmaImporter : IFigmaImporter
     {
-        private readonly List<NodeConverter> _nodeConverters = new List<NodeConverter>();
+        private readonly List<INodeConverter> _nodeConverters = new List<INodeConverter>();
 
         /// <summary>
         /// Figma node converters.
@@ -22,7 +22,7 @@ namespace Cdm.Figma.UI
         /// <remarks>If left empty, default node converters are used.</remarks>
         /// <seealso cref="GetDefaultNodeConverters"/>
         /// <seealso cref="AddDefaultNodeConverters"/>
-        public IList<NodeConverter> nodeConverters => _nodeConverters;
+        public IList<INodeConverter> nodeConverters => _nodeConverters;
 
         private readonly List<ComponentConverter> _componentConverters = new List<ComponentConverter>();
 
@@ -33,7 +33,16 @@ namespace Cdm.Figma.UI
         /// <seealso cref="GetDefaultComponentConverters"/>
         /// <seealso cref="AddDefaultComponentConverters"/>
         public IList<ComponentConverter> componentConverters => _componentConverters;
-
+        
+        private readonly List<IEffectConverter> _effectConverters = new List<IEffectConverter>();
+        
+        /// <summary>
+        /// Figma effect converters.
+        /// </summary>
+        /// <seealso cref="BlurEffect"/>
+        /// <seealso cref="ShadowEffect"/>
+        public IList<IEffectConverter> effectConverters => _effectConverters;
+        
         private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
         private readonly List<Binding> _bindings = new List<Binding>();
 
@@ -47,12 +56,12 @@ namespace Cdm.Figma.UI
         /// Generated UI elements as <see cref="GameObject"/>.
         /// </summary>
         public AssetCache generatedGameObjects { get; } = new AssetCache();
-        
+
         /// <summary>
         /// Generated assets during import such as <see cref="Sprite"/>, <see cref="Material"/> etc.
         /// </summary>
         public AssetCache generatedAssets { get; } = new AssetCache();
-        
+
         /// <summary>
         /// Dependency assets that are used to import Figma nodes such as font asset etc.
         /// </summary>
@@ -67,14 +76,13 @@ namespace Cdm.Figma.UI
         /// <summary>
         /// Sprite generation options.
         /// </summary>
-        public SpriteGenerateOptions spriteOptions { get; set; }
-            = new SpriteGenerateOptions()
-            {
-                filterMode = FilterMode.Bilinear,
-                wrapMode = TextureWrapMode.Clamp,
-                sampleCount = 8,
-                textureSize = 1024
-            };
+        public SpriteGenerateOptions spriteOptions { get; set; } = new SpriteGenerateOptions()
+        {
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp,
+            sampleCount = 8,
+            textureSize = 1024
+        };
 
         /// <summary>
         /// Gets or sets the fallback font that is used when a font mapping does not found.
@@ -101,6 +109,7 @@ namespace Cdm.Figma.UI
                 new BooleanNodeConverter()
             };
         }
+
         /// <summary>
         /// Gets the default component converters that are used for importing Figma nodes.
         /// </summary>
@@ -131,7 +140,7 @@ namespace Cdm.Figma.UI
                 nodeConverters.Add(converter);
             }
         }
-        
+
         /// <summary>
         /// Adds the default component converters that are used for importing Figma nodes.
         /// </summary>
@@ -197,7 +206,7 @@ namespace Cdm.Figma.UI
                     {
                         if (node.IsIgnored())
                             continue;
-                        
+
                         if (node is FrameNode)
                         {
                             if (TryConvertNode(figmaPage, node, conversionArgs, out var frameNode))
@@ -234,7 +243,7 @@ namespace Cdm.Figma.UI
                     node.figmaDesign = figmaDesign;
                     return true;
                 });
-                
+
                 figmaDesign.SetBindings(bindings);
                 return figmaDesign;
             }
@@ -298,7 +307,7 @@ namespace Cdm.Figma.UI
             // Try with component converters first.
             var componentConverter = componentConverters.FirstOrDefault(
                 c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
-            
+
             if (componentConverter != null)
             {
                 nodeObject = componentConverter.Convert(parentObject, node, args);
@@ -310,7 +319,7 @@ namespace Cdm.Figma.UI
             // Try with node converters.
             var nodeConverter = nodeConverters.FirstOrDefault(
                 c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
-            
+
             if (nodeConverter != null)
             {
                 nodeObject = nodeConverter.Convert(parentObject, node, args);
@@ -320,6 +329,28 @@ namespace Cdm.Figma.UI
             }
 
             nodeObject = null;
+            return false;
+        }
+
+        internal void ConvertEffects(FigmaNode node, IEnumerable<Effect> effects)
+        {
+            foreach (var effect in effects)
+            {
+                TryConvertEffect(node, effect);
+            }
+        }
+
+        internal bool TryConvertEffect(FigmaNode node, Effect effect)
+        {
+            foreach (var effectConverter in effectConverters)
+            {
+                if (effectConverter.CanConvert(node, effect))
+                {
+                    effectConverter.Convert(node, effect);
+                    return true;
+                }
+            }
+
             return false;
         }
 
@@ -386,7 +417,7 @@ namespace Cdm.Figma.UI
             if (figmaNode != null)
             {
                 generatedGameObjects.Remove<GameObject>(figmaNode.nodeId);
-                ObjectUtils.Destroy(figmaNode.gameObject);   
+                ObjectUtils.Destroy(figmaNode.gameObject);
             }
         }
 
