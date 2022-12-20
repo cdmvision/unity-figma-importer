@@ -96,12 +96,13 @@ namespace Cdm.Figma.Utils
         
         public static bool HasImageFill(SceneNode node)
         {
-            if (node.type == NodeType.Rectangle)
+            // Ignore other node types, we can't import them anyway.
+            if (node.type != NodeType.Rectangle && node.type != NodeType.Frame)
+                return false;
+            
+            if (node is INodeFill nodeFill)
             {
-                if (node is INodeFill nodeFill)
-                {
-                    return nodeFill.fills.Any(x => x is ImagePaint);
-                }
+                return nodeFill.fills.Any(x => x is ImagePaint);
             }
 
             return false;
@@ -212,9 +213,6 @@ namespace Cdm.Figma.Utils
 
         private static Sprite GenerateSpriteFromImage(FigmaFile file, SceneNode node, SpriteGenerateOptions options)
         {
-            if (node is not INodeRect nodeRect)
-                throw new ArgumentException("Specified node does not define a rectangle.", nameof(node));
-            
             if (node is not INodeFill nodeFill)
                 throw new ArgumentException("Specified node does not define a fill.", nameof(node));
             
