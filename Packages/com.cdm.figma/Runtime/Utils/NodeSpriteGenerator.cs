@@ -52,7 +52,6 @@ namespace Cdm.Figma.Utils
             
             var svg = GenerateSpriteSvg(node);
             var sprite = GenerateSprite(node, svg, spriteType, options);
-            
             //Debug.Log($"{node}, [Sprite Generated:{(sprite != null ? "YES": "NO")}]: {svg}");
             
             return sprite;
@@ -219,23 +218,6 @@ namespace Cdm.Figma.Utils
             if (node is not INodeFill nodeFill)
                 throw new ArgumentException("Specified node does not define a fill.", nameof(node));
             
-            var strokeAlign = nodeFill.strokeAlign ?? StrokeAlign.Center;
-            var strokeWidth = nodeFill.strokeWeight ?? 0;
-            var strokePadding = strokeWidth;
-
-            if (strokeAlign != StrokeAlign.Center)
-            {
-                strokePadding = strokeWidth * 2;
-            }
-
-            // Left, bottom, right and top.
-            var borders = new Vector4(
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
-                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
-                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
-            );
-
             var imagePaint = nodeFill.fills.FirstOrDefault(x => x is ImagePaint) as ImagePaint;
             if (imagePaint == null)
                 return null;
@@ -248,7 +230,7 @@ namespace Cdm.Figma.Utils
             var imageTexture = new Texture2D(1, 1);
             imageTexture.LoadImage(imageData, true);
 
-            return CreateTexturedSprite(node, options, imageTexture, 1f, borders);
+            return CreateTexturedSprite(node, options, imageTexture);
         }
 
         private static Sprite GenerateRectSpriteFromSvg(SceneNode node, string svg, SpriteGenerateOptions options)

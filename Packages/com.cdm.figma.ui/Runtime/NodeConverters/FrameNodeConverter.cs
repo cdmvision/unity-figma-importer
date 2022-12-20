@@ -1,5 +1,6 @@
 using System.Linq;
 using Cdm.Figma.UI.Styles;
+using Cdm.Figma.UI.Utils;
 using Cdm.Figma.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -61,6 +62,7 @@ namespace Cdm.Figma.UI
                 }
             }
 
+            // Add image style.
             {
                 var style = new ImageStyle();
                 style.componentEnabled.enabled = true;
@@ -70,10 +72,11 @@ namespace Cdm.Figma.UI
                 style.sprite.value = sprite;
 
                 style.imageType.enabled = true;
-                style.imageType.value = Image.Type.Sliced;
+                style.imageType.value = sprite.GetImageType();
                 nodeObject.styles.Add(style);
             }
             
+            // Add canvas group style.
             {
                 var style = new CanvasGroupStyle();
                 style.enabled = true;
