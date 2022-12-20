@@ -43,7 +43,7 @@ namespace Cdm.Figma.UI.Editor
             Transform parentForDraggedObjects,
             bool perform)
         {
-            if (DragAndDrop.objectReferences == null)
+            if (DragAndDrop.objectReferences == null || DragAndDrop.objectReferences.Length == 0)
                 return DragAndDropVisualMode.None;
 
             var go = DragAndDrop.objectReferences[0] as GameObject;
@@ -72,7 +72,7 @@ namespace Cdm.Figma.UI.Editor
             Transform parentForDraggedObjects,
             bool perform)
         {
-            if (DragAndDrop.objectReferences == null)
+            if (DragAndDrop.objectReferences == null || DragAndDrop.objectReferences.Length == 0)
                 return DragAndDropVisualMode.None;
 
             var go = DragAndDrop.objectReferences[0] as GameObject;

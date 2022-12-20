@@ -1,5 +1,7 @@
 using System;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Unity.VectorGraphics;
 using UnityEngine;
@@ -38,9 +40,16 @@ namespace Cdm.Figma.Utils
         /// <summary>
         /// Generates a sprite from the scene node.
         /// </summary>
-        public static Sprite GenerateSprite(SceneNode node, SpriteGenerateType spriteType,
+        public static Sprite GenerateSprite(FigmaFile file, SceneNode node, SpriteGenerateType spriteType,
             SpriteGenerateOptions options = null)
         {
+            if (HasImageFill(node))
+            {
+                var imageSprite = GenerateSpriteFromImage(file, node, options);
+                if (imageSprite != null)
+                    return imageSprite;
+            }
+            
             var svg = GenerateSpriteSvg(node);
             var sprite = GenerateSprite(node, svg, spriteType, options);
             
@@ -84,6 +93,19 @@ namespace Cdm.Figma.Utils
                 default:
                     throw new ArgumentOutOfRangeException(nameof(spriteType), spriteType, null);
             }
+        }
+        
+        public static bool HasImageFill(SceneNode node)
+        {
+            if (node.type == NodeType.Rectangle)
+            {
+                if (node is INodeFill nodeFill)
+                {
+                    return nodeFill.fills.Any(x => x is ImagePaint);
+                }
+            }
+
+            return false;
         }
 
         private static string GenerateSvgFromPath(SceneNode node)
@@ -189,18 +211,54 @@ namespace Cdm.Figma.Utils
             return svg.ToString();
         }
 
+        private static Sprite GenerateSpriteFromImage(FigmaFile file, SceneNode node, SpriteGenerateOptions options)
+        {
+            if (node is not INodeRect nodeRect)
+                throw new ArgumentException("Specified node does not define a rectangle.", nameof(node));
+            
+            if (node is not INodeFill nodeFill)
+                throw new ArgumentException("Specified node does not define a fill.", nameof(node));
+            
+            var strokeAlign = nodeFill.strokeAlign ?? StrokeAlign.Center;
+            var strokeWidth = nodeFill.strokeWeight ?? 0;
+            var strokePadding = strokeWidth;
+
+            if (strokeAlign != StrokeAlign.Center)
+            {
+                strokePadding = strokeWidth * 2;
+            }
+
+            // Left, bottom, right and top.
+            var borders = new Vector4(
+                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
+                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
+                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
+                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
+            );
+
+            var imagePaint = nodeFill.fills.FirstOrDefault(x => x is ImagePaint) as ImagePaint;
+            if (imagePaint == null)
+                return null;
+
+            if (!file.images.TryGetValue(imagePaint.imageRef, out var dataBase64))
+                return null;
+
+            var imageData = Convert.FromBase64String(dataBase64);
+
+            var imageTexture = new Texture2D(1, 1);
+            imageTexture.LoadImage(imageData, true);
+
+            return CreateTexturedSprite(node, options, imageTexture, 1f, borders);
+        }
+
         private static Sprite GenerateRectSpriteFromSvg(SceneNode node, string svg, SpriteGenerateOptions options)
         {
             if (node is not INodeRect nodeRect)
                 throw new ArgumentException("Specified node does not define a rectangle.", nameof(node));
 
-            if (node is not INodeTransform nodeTransform)
-                throw new ArgumentException("Specified node does not define a transform.", nameof(node));
-
             if (node is not INodeFill nodeFill)
                 throw new ArgumentException("Specified node does not define a fill.", nameof(node));
-
-
+            
             var strokeAlign = nodeFill.strokeAlign ?? StrokeAlign.Center;
             var strokeWidth = nodeFill.strokeWeight ?? 0;
             var strokePadding = strokeWidth;
@@ -455,15 +513,21 @@ namespace Cdm.Figma.Utils
             if (texture == null)
                 return null;
 
+            return CreateTexturedSprite(node, options, texture, ratio, borders);
+        }
+
+        private static Sprite CreateTexturedSprite(SceneNode node, SpriteGenerateOptions options,
+            Texture2D texture, float scale = 1f, Vector4? borders = null)
+        {
             var spriteRect = new Rect(0, 0, texture.width, texture.height);
             var spritePivot = spriteRect.center;
 
-            var pixelsPerUnity = options.pixelsPerUnit * ratio;
+            var pixelsPerUnity = options.pixelsPerUnit * scale;
 
             Sprite spriteWithTexture = null;
             if (borders.HasValue)
             {
-                borders *= ratio;
+                borders *= scale;
                 spriteWithTexture = Sprite.Create(
                     texture, spriteRect, spritePivot, pixelsPerUnity, 0, SpriteMeshType.FullRect, borders.Value);
             }
