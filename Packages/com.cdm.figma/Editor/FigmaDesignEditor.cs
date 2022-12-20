@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,11 +16,30 @@ namespace Cdm.Figma.Editor
         [MenuItem("CONTEXT/FigmaDesign/Copy File Content")]
         private static void CopyFileContent(MenuCommand command)
         {
+            CopyFileContent(command, false);
+        }
+        
+        [MenuItem("CONTEXT/FigmaDesign/Copy File Content (Full)")]
+        private static void CopyFileContentFull(MenuCommand command)
+        {
+            CopyFileContent(command, true);
+        }
+
+        private static void CopyFileContent(MenuCommand command, bool full)
+        {
             var figmaDesign = (FigmaDesign)command.context;
             var assetPath = AssetDatabase.GetAssetPath(figmaDesign);
             var json = File.ReadAllText(assetPath);
-            json = JObject.Parse(json).ToString(Formatting.Indented);
-            GUIUtility.systemCopyBuffer = json;
+            
+            var file = FigmaFile.Parse(json);
+            
+            if (!full)
+            {
+                file.thumbnail = null;
+                file.images = null;    
+            }
+
+            GUIUtility.systemCopyBuffer = file.ToString("I");
             
             Debug.Log($"File '{figmaDesign.title}' contents copied to clipboard.");
         }

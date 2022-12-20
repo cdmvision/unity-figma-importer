@@ -18,6 +18,11 @@ namespace Cdm.Figma
         /// </summary>
         public bool downloadDependencies { get; set; } = true;
 
+        /// <summary>
+        /// If set <c>true</c>, all images present in image fills in a document are also downloaded.
+        /// </summary>
+        public bool downloadImages { get; set; } = true;
+
         public async Task<FigmaFile> DownloadFileAsync(string fileId, string personalAccessToken, 
             IProgress<FigmaDownloaderProgress> progress = default, CancellationToken cancellationToken = default)
         {
@@ -51,8 +56,7 @@ namespace Cdm.Figma
 
             var file = FigmaFile.Parse(fileContentJson);
             file.fileId = fileId;
-            
-            
+
             if (!isDependency)
             {
                 if (!string.IsNullOrEmpty(file.thumbnailUrl))
@@ -71,10 +75,19 @@ namespace Cdm.Figma
                     }
                 }
                 
+                if (downloadImages)
+                {
+                    var images = await _figmaApi.GetImageFillsAsync(new ImageFillsRequest(fileId), cancellationToken);
+
+                    foreach (var image in images)
+                    {
+                        file.images.Add(image.Key, Convert.ToBase64String(image.Value));    
+                    }
+                }
             }
 
             _downloadedFiles.Add(file.fileId, file);
-
+            
             file.BuildHierarchy();
 
             if (downloadDependencies)
