@@ -41,7 +41,7 @@ namespace Cdm.Figma.UI
             return figmaNode;
         }
 
-        private void GenerateStyles(FigmaNode nodeObject, TNode vectorNode, NodeConvertArgs args,
+        private static void GenerateStyles(FigmaNode nodeObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
             if (vectorConvertArgs.generateSprite)
@@ -53,7 +53,8 @@ namespace Cdm.Figma.UI
                         if (!args.importer.generatedAssets.TryGet<Sprite>(vectorNode.id, out var sprite))
                         {
                             sprite = NodeSpriteGenerator.GenerateSprite(
-                                vectorNode, SpriteGenerateType.Path, args.importer.spriteOptions);
+                                args.file, vectorNode, SpriteGenerateType.Path, args.importer.spriteOptions);
+                            
                             if (sprite != null)
                             {
                                 args.importer.generatedAssets.Add(vectorNode.id, sprite);
