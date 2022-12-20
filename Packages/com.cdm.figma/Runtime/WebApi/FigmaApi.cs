@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -11,25 +12,25 @@ namespace Cdm.Figma
     public class FigmaApi : IDisposable
     {
         private const string BaseUri = "https://api.figma.com/v1";
-        
+
         private readonly HttpClient _httpClient;
 
         public FigmaApi(string personalAccessToken)
         {
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Add("X-FIGMA-TOKEN", personalAccessToken);
-            
+
             // Always accept json, so we can get detailed error message from backend.
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
-            
+
             _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue()
             {
                 NoCache = true,
                 NoStore = true
             };
         }
-        
+
         /// <summary>
         /// Returns the document referred to by :key as a JSON object string. The file key can be parsed from any
         /// Figma file url: https://www.figma.com/file/:key/:title
@@ -44,35 +45,88 @@ namespace Cdm.Figma
 
             var url = GetFileRequestUrl(fileRequest);
             var request = new HttpRequestMessage(HttpMethod.Get, url);
-            
+
             var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
-            
+
             return await response.Content.ReadAsStringAsync();
         }
 
         /// <summary>
         /// Gets metadata on a component by key.
         /// </summary>
-        public async Task<ComponentMetadata> GetComponentMetadataAsync(ComponentMetadataRequest requestData, 
+        public async Task<ComponentMetadata> GetComponentMetadataAsync(ComponentMetadataRequest requestData,
             CancellationToken cancellationToken = default)
         {
             if (requestData == null)
                 throw new ArgumentNullException(nameof(requestData));
-            
+
             if (string.IsNullOrEmpty(requestData.key))
                 throw new ArgumentNullException(nameof(requestData.key), "Component key cannot be empty.");
 
             var url = $"{BaseUri}/components/{requestData.key}";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
-            
+
             var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
-        
+
             var json = await response.Content.ReadAsStringAsync();
-            var metadataResponse = 
+            var metadataResponse =
                 JsonConvert.DeserializeObject<ComponentMetadataResponse>(json, JsonSerializerHelper.Settings);
             return metadataResponse?.metadata;
+        }
+
+        /// <summary>
+        /// Downloads  all images present in image fills in a document. Image fills are how Figma represents any user
+        /// supplied images. When you drag an image into Figma, we create a rectangle with a single fill that
+        /// represents the image, and the user is able to transform the rectangle (and properties on the fill)
+        /// as they wish.
+        /// </summary>
+        /// <see href="https://www.figma.com/developers/api#get-image-fills-endpoint"/>
+        public async Task<Dictionary<string, byte[]>> GetImageFillsAsync(ImageFillsRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            if (string.IsNullOrEmpty(request.fileId))
+                throw new ArgumentException("File ID cannot be empty.");
+
+            var url = GetImageFillsRequestUrl(request);
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+
+            var httpResponse = await _httpClient.SendAsync(httpRequest, cancellationToken);
+            httpResponse.EnsureSuccessStatusCode();
+
+            var json = await httpResponse.Content.ReadAsStringAsync();
+            var response = JsonConvert.DeserializeObject<ImageFillsResponse>(json, JsonSerializerHelper.Settings);
+
+            if (response == null || response.metadata == null)
+                return null;
+
+            // Download images data.
+            var images = new Dictionary<string, byte[]>();
+
+            foreach (var (imageRef, imageUrl) in response.metadata.images)
+            {
+                if (request.imageRefs != null && !request.imageRefs.Contains(imageRef))
+                    continue;
+                
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    var imageData = await GetBytesAsync(imageUrl, "application/octet-stream", cancellationToken);
+                    if (imageData == null)
+                        throw new Exception($"Image '{imageRef}' data could not be get from: {imageUrl}");
+
+                    images.Add(imageRef, imageData);
+                }
+                else
+                {
+                    images.Add(imageRef, null);
+                }
+            }
+
+            return images;
         }
 
         /// <summary>
@@ -91,28 +145,28 @@ namespace Cdm.Figma
         {
             if (imageRequest == null)
                 throw new ArgumentNullException(nameof(imageRequest));
-            
+
             if (string.IsNullOrEmpty(imageRequest.fileId))
                 throw new ArgumentException("File ID cannot be empty.");
-            
+
             if (imageRequest.ids == null || imageRequest.ids.Length == 0)
                 throw new ArgumentException("Image ids array must has at least one item.");
-            
+
             // Get image download URLs.
             var url = GetImageRequestUrl(imageRequest);
             var request = new HttpRequestMessage(HttpMethod.Get, url);
-            
+
             var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
-            
+
             var json = await response.Content.ReadAsStringAsync();
             var imageResponse = JsonConvert.DeserializeObject<ImageResponse>(json, JsonSerializerHelper.Settings);
             if (imageResponse == null)
                 return null;
-                
+
             // Download images data.
             var images = new Dictionary<string, byte[]>();
-                
+
             foreach (var (imageId, imageUrl) in imageResponse.images)
             {
                 if (!string.IsNullOrEmpty(imageUrl))
@@ -120,7 +174,7 @@ namespace Cdm.Figma
                     var imageData = await GetBytesAsync(imageUrl, "application/octet-stream", cancellationToken);
                     if (imageData == null)
                         throw new Exception($"Image '{imageId}' data could not be get from: {imageUrl}");
-                    
+
                     images.Add(imageId, imageData);
                 }
                 else
@@ -128,7 +182,7 @@ namespace Cdm.Figma
                     images.Add(imageId, null);
                 }
             }
-                
+
             return images;
         }
 
@@ -137,7 +191,7 @@ namespace Cdm.Figma
         {
             return await GetBytesAsync(thumbnailUrl, "image/png", cancellationToken);
         }
-        
+
         private static string GetFileRequestUrl(FileRequest request)
         {
             var url = $"{BaseUri}/files/{request.fileId}";
@@ -154,7 +208,7 @@ namespace Cdm.Figma
                 url = $"{url}{(firstArg ? "?" : "&")}depth={request.depth.Value}";
                 firstArg = false;
             }
-            
+
             if (!string.IsNullOrEmpty(request.geometry))
             {
                 url = $"{url}{(firstArg ? "?" : "&")}geometry={request.geometry}";
@@ -170,38 +224,43 @@ namespace Cdm.Figma
             return url;
         }
 
+        private static string GetImageFillsRequestUrl(ImageFillsRequest request)
+        {
+            return $"{BaseUri}/files/{request.fileId}/images";
+        }
+
         private static string GetImageRequestUrl(ImageRequest request)
         {
             var url = $"{BaseUri}/images/{request.fileId}";
             url = $"{url}?ids={string.Join(",", request.ids)}";
-            
+
             if (!string.IsNullOrEmpty(request.version))
             {
                 url = $"{url}&version={request.version}";
             }
-            
+
             if (!string.IsNullOrEmpty(request.format))
             {
                 url = $"{url}&format={request.format}";
             }
-            
+
             if (request.scale.HasValue)
             {
                 url = $"{url}&scale={request.scale.Value}";
             }
-            
+
             url = $"{url}&svg_include_id={request.svgIncludeId.ToString().ToLower()}";
             url = $"{url}&svg_simplify_stroke={request.svgSimplifyStroke.ToString().ToLower()}";
             url = $"{url}&use_absolute_bounds={request.useAbsoluteBounds.ToString().ToLower()}";
             return url;
         }
-        
-        private async Task<byte[]> GetBytesAsync(string url, string contentType, 
+
+        private async Task<byte[]> GetBytesAsync(string url, string contentType,
             CancellationToken cancellationToken = default)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
-            
+
             var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsByteArrayAsync();

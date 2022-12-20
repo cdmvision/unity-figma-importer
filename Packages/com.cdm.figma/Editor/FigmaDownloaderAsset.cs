@@ -56,6 +56,16 @@ namespace Cdm.Figma.Editor
             get => _downloadDependencies;
             set => _downloadDependencies = value;
         }
+        
+        [SerializeField]
+        private bool _downloadImages = true;
+
+        /// <inheritdoc cref="FigmaDownloader.downloadImages"/>
+        public bool downloadImages
+        {
+            get => _downloadImages;
+            set => _downloadImages = value;
+        }
 
         [SerializeField]
         private List<File> _files = new List<File>();

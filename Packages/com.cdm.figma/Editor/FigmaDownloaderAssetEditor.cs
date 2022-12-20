@@ -15,6 +15,7 @@ namespace Cdm.Figma.Editor
         private SerializedProperty _assetExtension;
         private SerializedProperty _assetPath;
         private SerializedProperty _downloadDependencies;
+        private SerializedProperty _downloadImages;
         private SerializedProperty _files;
 
         private ReorderableList _fileList;
@@ -32,6 +33,7 @@ namespace Cdm.Figma.Editor
             _assetPath = serializedObject.FindProperty("_assetPath");
             _assetExtension = serializedObject.FindProperty("_assetExtension");
             _downloadDependencies = serializedObject.FindProperty("_downloadDependencies");
+            _downloadImages = serializedObject.FindProperty("_downloadImages");
             _files = serializedObject.FindProperty("_files");
 
             _fileList = new ReorderableList(serializedObject, _files, true, true, true, true);
@@ -70,6 +72,7 @@ namespace Cdm.Figma.Editor
             EditorGUILayout.PropertyField(_assetPath);
             EditorGUILayout.PropertyField(_assetExtension);
             EditorGUILayout.PropertyField(_downloadDependencies);
+            EditorGUILayout.PropertyField(_downloadImages);
 
             EditorGUILayout.Separator();
             EditorGUILayout.Separator();

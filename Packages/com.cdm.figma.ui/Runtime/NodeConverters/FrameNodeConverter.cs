@@ -51,7 +51,8 @@ namespace Cdm.Figma.UI
 
                 if (!args.importer.generatedAssets.TryGet(node.id, out sprite))
                 {
-                    sprite = NodeSpriteGenerator.GenerateSprite(node, SpriteGenerateType.Rectangle, options);
+                    sprite = NodeSpriteGenerator.GenerateSprite(args.file, node, SpriteGenerateType.Rectangle, options);
+                    
                     if (sprite != null)
                     {
                         args.importer.generatedAssets.Add(node.id, sprite);
