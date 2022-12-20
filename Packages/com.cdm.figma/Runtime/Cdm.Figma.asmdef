@@ -2,9 +2,9 @@
     "name": "Cdm.Figma",
     "rootNamespace": "Cdm.Figma",
     "references": [
-        "GUID:f5896bc900222854b82b90f66a22df1a",
         "GUID:eec0964c48f6f4e40bc3ec2257ccf8c5",
-        "GUID:68550284b645f4b9894995579f34290a"
+        "GUID:68550284b645f4b9894995579f34290a",
+        "GUID:e94339caf4230cb45935f22b6d0d2ee5"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

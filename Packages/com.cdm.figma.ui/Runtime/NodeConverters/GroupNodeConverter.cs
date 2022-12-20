@@ -1,4 +1,3 @@
-using Cdm.Figma.UI.Styles;
 using UnityEngine;
 
 namespace Cdm.Figma.UI

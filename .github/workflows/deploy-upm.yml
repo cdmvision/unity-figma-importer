@@ -1,43 +1,31 @@
 name: Deploy Package
 
-# Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
-  # push:
-    # branches: [ master ]
-  pull_request:
+  push:
     branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   deploy:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       
-      - name: Commit changes to upm branch
-        run: git subtree split --prefix=Packages/com.cdm.figma --branch upm
-
-      - name: Get version
-        id: version
-        uses: notiz-dev/github-action-json-property@release
+      # Publish main package
+      - name: Publish upm package
+        uses: cdmvision/action-upm-publish@v1.1
         with:
-          path: "Packages/com.cdm.figma/package.json"
-          prop_path: "version"
-          
-      - name: Create version tag
-        run:  |
-          PKG_VERSION=${{steps.version.outputs.prop}}
-          git ls-remote --exit-code --tags origin $PKG_VERSION && echo "Same version already exists '$PKG_VERSION'" && exit 7
-          git tag $PKG_VERSION upm
-                
-      - name: Push version and upm branch
-        run: git push origin upm --tags --force
+          name: "com.cdm.figma"
+          upmBranch: "upm"
+
+      # Publish UGUI package
+      - name: Publish upm-ugui package
+        uses: cdmvision/action-upm-publish@v1.1
+        with:
+          name: "com.cdm.figma.ui"
+          upmBranch: "upm-ugui"
+          versionPostfix: "ugui"
