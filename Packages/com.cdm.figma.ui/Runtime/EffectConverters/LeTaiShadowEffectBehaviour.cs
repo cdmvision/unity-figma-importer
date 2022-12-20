@@ -76,10 +76,16 @@ namespace Cdm.Figma.UI
             }
         }
 #else
-        protected override void UpdateEffect() 
+        protected override void Awake()
         {
-            throw new NotImplementedException(
-                "LeTai True Shadow package must be installed and 'LETAI_TRUESHADOW' must be defined.");
+            base.Awake();
+
+            Debug.LogError("LeTai True Shadow package must be installed and 'LETAI_TRUESHADOW' must be defined.", this);
+            enabled = false;
+        }
+        
+        protected override void UpdateEffect()
+        {
         }
 #endif
     }
