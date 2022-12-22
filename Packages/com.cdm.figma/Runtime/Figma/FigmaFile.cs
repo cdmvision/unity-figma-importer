@@ -79,6 +79,13 @@ namespace Cdm.Figma
         [DataMember(Name = "schemaVersion")]
         public int schemaVersion { get; set; }
 
+        /// <summary>
+        /// All images present in image fills in the document.
+        /// Dictionary key is <see cref="ImagePaint.imageRef"/>, and the value is image data encoded as base64.
+        /// </summary>
+        [DataMember(Name = "images")]
+        public Dictionary<string, string> images { get; set; } = new Dictionary<string, string>();
+        
         [DataMember(Name = "fileDependencies")]
         public FigmaFileDependency[] fileDependencies { get; set; }
 

@@ -1,5 +1,6 @@
 using System.Linq;
 using Cdm.Figma.UI.Styles;
+using Cdm.Figma.UI.Utils;
 using Cdm.Figma.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,19 +42,22 @@ namespace Cdm.Figma.UI
             return figmaNode;
         }
 
-        private void GenerateStyles(FigmaNode nodeObject, TNode vectorNode, NodeConvertArgs args,
+        private static void GenerateStyles(FigmaNode nodeObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
             if (vectorConvertArgs.generateSprite)
             {
+                var sprite = vectorConvertArgs.sourceSprite;
+                
                 if ((vectorNode.fills.Any() || vectorNode.strokes.Any()))
                 {
-                    if (vectorConvertArgs.sourceSprite == null)
+                    if (sprite == null)
                     {
-                        if (!args.importer.generatedAssets.TryGet<Sprite>(vectorNode.id, out var sprite))
+                        if (!args.importer.generatedAssets.TryGet<Sprite>(vectorNode.id, out sprite))
                         {
                             sprite = NodeSpriteGenerator.GenerateSprite(
-                                vectorNode, SpriteGenerateType.Path, args.importer.spriteOptions);
+                                args.file, vectorNode, SpriteGenerateType.Path, args.importer.spriteOptions);
+                            
                             if (sprite != null)
                             {
                                 args.importer.generatedAssets.Add(vectorNode.id, sprite);
@@ -73,7 +77,7 @@ namespace Cdm.Figma.UI
                 style.sprite.value = vectorConvertArgs.sourceSprite;
 
                 style.imageType.enabled = true;
-                style.imageType.value = vectorNode is INodeRect ? Image.Type.Sliced : Image.Type.Simple;
+                style.imageType.value = sprite.GetImageType();
                 nodeObject.styles.Add(style);
             }
 
