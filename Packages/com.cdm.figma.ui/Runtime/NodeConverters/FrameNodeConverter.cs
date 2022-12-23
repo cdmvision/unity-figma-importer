@@ -146,6 +146,12 @@ namespace Cdm.Figma.UI
             INodeLayout childLayout = (INodeLayout)childElement.node;
             INodeTransform childTransform = (INodeTransform)childElement.node;
 
+            var parent = nodeObject.node.parent as FrameNode;
+            if (parent.layoutMode == LayoutMode.None)
+            {
+                return;
+            }
+            
             if (childLayout.layoutAlign == LayoutAlign.Stretch)
             {
                 if (layoutMode == LayoutMode.Horizontal)
@@ -220,6 +226,7 @@ namespace Cdm.Figma.UI
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
+
                     if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
                     {
                         nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
@@ -229,6 +236,7 @@ namespace Cdm.Figma.UI
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
+                   
                     if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
                     {
                         nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
@@ -242,6 +250,7 @@ namespace Cdm.Figma.UI
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
+                    
                     if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
                     {
                         nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
@@ -251,6 +260,7 @@ namespace Cdm.Figma.UI
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
+                    
                     if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
                     {
                         nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
