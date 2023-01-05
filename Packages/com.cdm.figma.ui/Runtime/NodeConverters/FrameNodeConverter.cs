@@ -207,6 +207,20 @@ namespace Cdm.Figma.UI
                     childElement.gameObject.GetComponent<LayoutElement>().minHeight = childTransform.size.y;
                 }
             }
+
+            var contentSizeFitter = childElement.GetComponent<ContentSizeFitter>();
+            if (contentSizeFitter)
+            {
+                if (contentSizeFitter.horizontalFit == ContentSizeFitter.FitMode.PreferredSize)
+                {
+                    childElement.gameObject.GetComponent<LayoutElement>().minWidth = 0;
+                }
+
+                if (contentSizeFitter.verticalFit == ContentSizeFitter.FitMode.PreferredSize)
+                {
+                    childElement.gameObject.GetComponent<LayoutElement>().minHeight = 0;
+                }
+            }
         }
 
         private static void AddContentSizeFitterIfNeeded(FigmaNode nodeObject, FrameNode groupNode)
