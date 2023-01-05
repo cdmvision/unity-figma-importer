@@ -146,7 +146,7 @@ namespace Cdm.Figma.UI
             INodeLayout childLayout = (INodeLayout)childElement.node;
             INodeTransform childTransform = (INodeTransform)childElement.node;
 
-            var parent = nodeObject.node.parent as FrameNode;
+            var parent = nodeObject.node as FrameNode;
             if (parent.layoutMode == LayoutMode.None)
             {
                 return;
@@ -198,12 +198,12 @@ namespace Cdm.Figma.UI
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    //nodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
+                    nodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().minWidth = childTransform.size.x;
                 }
                 else
                 {
-                    //nodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
+                    nodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().minHeight = childTransform.size.y;
                 }
             }
