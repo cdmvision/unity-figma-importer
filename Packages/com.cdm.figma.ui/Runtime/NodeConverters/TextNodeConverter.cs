@@ -175,6 +175,10 @@ namespace Cdm.Figma.UI
                     style.fontSizeMax.enabled = true;
                     style.fontSizeMax.value = 99;
                     break;
+                case TextAutoResize.Truncate:
+                    style.enableTruncate.value = true;
+                    style.enableTruncate.enabled = true;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
