@@ -176,8 +176,8 @@ namespace Cdm.Figma.UI
                     style.fontSizeMax.value = 99;
                     break;
                 case TextAutoResize.Truncate:
-                    style.enableTruncate.value = true;
                     style.enableTruncate.enabled = true;
+                    style.enableTruncate.value = TextOverflowModes.Ellipsis;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

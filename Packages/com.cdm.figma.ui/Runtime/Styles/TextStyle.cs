@@ -19,7 +19,6 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyFloat fontSizeMin = new StylePropertyFloat();
         public StylePropertyFloat fontSizeMax = new StylePropertyFloat();
         public StylePropertyBool enableAutoSizing = new StylePropertyBool();
-        public StylePropertyBool enableTruncate = new StylePropertyBool();
         public StylePropertyBool wordWrapping = new StylePropertyBool();
         public StylePropertyBool autoSizeTextContainer = new StylePropertyBool();
         public StylePropertyHorizontalAlignmentOptions horizontalAlignment =
@@ -28,6 +27,7 @@ namespace Cdm.Figma.UI.Styles
             new StylePropertyVerticalAlignmentOptions();
         public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
         public StylePropertyLocalizedString localizedString = new StylePropertyLocalizedString();
+        public StylePropertyTextTruncate enableTruncate = new StylePropertyTextTruncate(TextOverflowModes.Overflow);
 
         protected override void MergeTo(Style other, bool force)
         {
@@ -88,7 +88,7 @@ namespace Cdm.Figma.UI.Styles
                     textComponent.enableAutoSizing = enableAutoSizing.value;
                 
                 if (enableTruncate.enabled)
-                    textComponent.overflowMode = TextOverflowModes.Ellipsis;
+                    textComponent.overflowMode = enableTruncate.value;
                 
                 if (wordWrapping.enabled)
                     textComponent.enableWordWrapping = wordWrapping.value;
