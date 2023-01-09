@@ -180,7 +180,10 @@ namespace Cdm.Figma
         Height,
         
         [EnumMember(Value = "WIDTH_AND_HEIGHT")]
-        WidthAndHeight
+        WidthAndHeight,
+        
+        [EnumMember(Value = "TRUNCATE")]
+        Truncate
     }
     
     [DataContract]

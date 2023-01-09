@@ -1,5 +1,6 @@
 using System.Linq;
 using Cdm.Figma.UI.Styles;
+using Cdm.Figma.UI.Utils;
 using Cdm.Figma.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -61,6 +62,7 @@ namespace Cdm.Figma.UI
                 }
             }
 
+            // Add image style.
             {
                 var style = new ImageStyle();
                 style.componentEnabled.enabled = true;
@@ -70,10 +72,11 @@ namespace Cdm.Figma.UI
                 style.sprite.value = sprite;
 
                 style.imageType.enabled = true;
-                style.imageType.value = Image.Type.Sliced;
+                style.imageType.value = sprite.GetImageType();
                 nodeObject.styles.Add(style);
             }
             
+            // Add canvas group style.
             {
                 var style = new CanvasGroupStyle();
                 style.enabled = true;
@@ -143,6 +146,12 @@ namespace Cdm.Figma.UI
             INodeLayout childLayout = (INodeLayout)childElement.node;
             INodeTransform childTransform = (INodeTransform)childElement.node;
 
+            var parent = nodeObject.node as FrameNode;
+            if (parent.layoutMode == LayoutMode.None)
+            {
+                return;
+            }
+            
             if (childLayout.layoutAlign == LayoutAlign.Stretch)
             {
                 if (layoutMode == LayoutMode.Horizontal)
@@ -189,13 +198,27 @@ namespace Cdm.Figma.UI
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    //nodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
+                    nodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
                     childElement.gameObject.GetComponent<LayoutElement>().minWidth = childTransform.size.x;
                 }
                 else
                 {
-                    //nodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
+                    nodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
                     childElement.gameObject.GetComponent<LayoutElement>().minHeight = childTransform.size.y;
+                }
+            }
+
+            var contentSizeFitter = childElement.GetComponent<ContentSizeFitter>();
+            if (contentSizeFitter)
+            {
+                if (contentSizeFitter.horizontalFit == ContentSizeFitter.FitMode.PreferredSize)
+                {
+                    childElement.gameObject.GetComponent<LayoutElement>().minWidth = 0;
+                }
+
+                if (contentSizeFitter.verticalFit == ContentSizeFitter.FitMode.PreferredSize)
+                {
+                    childElement.gameObject.GetComponent<LayoutElement>().minHeight = 0;
                 }
             }
         }
@@ -217,6 +240,7 @@ namespace Cdm.Figma.UI
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
+
                     if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
                     {
                         nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
@@ -226,6 +250,7 @@ namespace Cdm.Figma.UI
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
+                   
                     if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
                     {
                         nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
@@ -239,6 +264,7 @@ namespace Cdm.Figma.UI
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
+                    
                     if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
                     {
                         nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
@@ -248,6 +274,7 @@ namespace Cdm.Figma.UI
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
+                    
                     if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
                     {
                         nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
