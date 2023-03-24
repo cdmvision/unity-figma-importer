@@ -1,6 +1,8 @@
 using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Image = UnityEngine.UI.Image;
 
 namespace Cdm.Figma.UI
 {
@@ -8,6 +10,7 @@ namespace Cdm.Figma.UI
     {
         private const string TemplateKey = BindingPrefix + "Template";
         private const string CaptionTextKey = BindingPrefix + "CaptionText";
+        private const string CaptionImageKey = BindingPrefix + "CaptionImage";
         private const string ContentItemKey = BindingPrefix + "ContentItem";
         private const string ContentItemTextKey = BindingPrefix + "ContentItemText";
         private const string ContentItemImageKey = BindingPrefix + "ContentItemImage";
@@ -52,6 +55,11 @@ namespace Cdm.Figma.UI
                 {
                     dropdown.captionText = captionText;
                     dropdown.captionText.DisableTextStyleTextOverride();
+                }
+
+                if (figmaNode.TryFindOptionalNode<Image>(CaptionImageKey, out var captionImage))
+                {
+                    dropdown.captionImage = captionImage;
                 }
 
                 var scrollView = template.GetComponent<ScrollRect>();
