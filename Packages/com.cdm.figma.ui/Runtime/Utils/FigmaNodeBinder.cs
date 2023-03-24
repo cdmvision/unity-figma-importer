@@ -28,13 +28,15 @@ namespace Cdm.Figma.UI.Utils
             return $"Binding of '{memberInfo.Name}' failed. {message}";
         }
     }
-    
+
     public class FigmaNodeBinder
     {
         public static BindingResult Bind(object obj, FigmaNode node)
         {
             var bindingResult = new BindingResult();
-            var members = obj.GetType().GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var members = obj.GetType()
+                .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
             foreach (var member in members)
             {
                 if (member.MemberType.HasFlag(MemberTypes.Field) ||
@@ -42,6 +44,7 @@ namespace Cdm.Figma.UI.Utils
                 {
                     var figmaNodeAttribute = (FigmaNodeAttribute)member.GetCustomAttributes()
                         .FirstOrDefault(x => x.GetType() == typeof(FigmaNodeAttribute));
+                    
                     if (figmaNodeAttribute != null)
                     {
                         var bindingKey = member.Name;
@@ -57,21 +60,35 @@ namespace Cdm.Figma.UI.Utils
                         if (typeof(UnityEngine.Component).IsAssignableFrom(fieldType))
                         {
                             var target = node.Query(bindingKey, fieldType);
+                            if (target == null)
+                            {
+                                // Add component and bind it on the fly if it does not exist.
+                                var child = node.Query(bindingKey);
+                                if (child != null && child.gameObject != node.gameObject)
+                                {
+                                    var childObj = child.gameObject.AddComponent(fieldType);
+                                    var result = Bind(childObj, child);
+                                    
+                                    target = childObj;
+                                    bindingResult.errors.AddRange(result.errors);
+                                }
+                            }
+                            
                             if (target != null)
                             {
                                 SetMemberValue(member, obj, target);
-                            }
+                            } 
                             else if (figmaNodeAttribute.isRequired)
                             {
                                 bindingResult.errors.Add(
-                                    new BindingError(member, 
-                                    $"Specified node '{bindingKey}' with the field type '{fieldType}' could not be found."));
+                                    new BindingError(member,
+                                        $"Specified node '{bindingKey}' with the field type '{fieldType}' could not be found."));
                             }
                         }
                         else
                         {
                             bindingResult.errors.Add(
-                                new BindingError(member, 
+                                new BindingError(member,
                                     $"{nameof(FigmaNodeAttribute)} only valid for types that sub class of {typeof(UnityEngine.Component)}. Got '{fieldType}'."));
                         }
                     }
@@ -85,7 +102,7 @@ namespace Cdm.Figma.UI.Utils
 
             return bindingResult;
         }
-        
+
         private static Type GetUnderlyingType(MemberInfo member)
         {
             switch (member.MemberType)

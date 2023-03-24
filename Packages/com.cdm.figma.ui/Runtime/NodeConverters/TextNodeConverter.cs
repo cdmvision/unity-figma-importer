@@ -35,6 +35,7 @@ namespace Cdm.Figma.UI
                 if (textNode.style.textAutoResize == TextAutoResize.Height)
                 {
                     fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                    fitter.horizontalFit = ContentSizeFitter.FitMode.MinSize;
                 }
                 else if (textNode.style.textAutoResize == TextAutoResize.WidthAndHeight)
                 {
