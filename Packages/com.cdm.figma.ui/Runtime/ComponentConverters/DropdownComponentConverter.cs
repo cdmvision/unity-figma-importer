@@ -1,25 +1,19 @@
 using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 
 namespace Cdm.Figma.UI
 {
-    public class DropdownComponentConverter : ComponentConverter
+    public abstract class DropdownComponentConverter<T> : ComponentConverter where T : TMP_Dropdown
     {
-        private const string TemplateKey = BindingPrefix + "Template";
-        private const string CaptionTextKey = BindingPrefix + "CaptionText";
-        private const string CaptionImageKey = BindingPrefix + "CaptionImage";
-        private const string ContentItemKey = BindingPrefix + "ContentItem";
-        private const string ContentItemTextKey = BindingPrefix + "ContentItemText";
-        private const string ContentItemImageKey = BindingPrefix + "ContentItemImage";
-
-        protected override bool CanConvertType(string typeId)
-        {
-            return typeId == "Dropdown";
-        }
-
+        protected const string TemplateKey = BindingPrefix + "Template";
+        protected const string CaptionTextKey = BindingPrefix + "CaptionText";
+        protected const string CaptionImageKey = BindingPrefix + "CaptionImage";
+        protected const string ContentItemKey = BindingPrefix + "ContentItem";
+        protected const string ContentItemTextKey = BindingPrefix + "ContentItemText";
+        protected const string ContentItemImageKey = BindingPrefix + "ContentItemImage";
+        
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             var figmaNode = base.Convert(parentObject, instanceNode, args);
@@ -31,7 +25,7 @@ namespace Cdm.Figma.UI
                     return figmaNode;
                 }
 
-                var dropdown = figmaNode.gameObject.AddComponent<TMP_Dropdown>();
+                var dropdown = figmaNode.gameObject.AddComponent<T>();
                 dropdown.transition = Selectable.Transition.None;
 
                 template.gameObject.SetActive(true);
@@ -67,6 +61,14 @@ namespace Cdm.Figma.UI
             }
 
             return figmaNode;
+        }
+    }
+    
+    public class DropdownComponentConverter : DropdownComponentConverter<TMP_Dropdown>
+    {
+        protected override bool CanConvertType(string typeId)
+        {
+            return typeId == "Dropdown";
         }
     }
 }
