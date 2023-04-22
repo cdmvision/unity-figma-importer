@@ -43,6 +43,11 @@ namespace Cdm.Figma.UI
         /// <seealso cref="ShadowEffect"/>
         public IList<IEffectConverter> effectConverters => _effectConverters;
         
+        /// <summary>
+        /// Localization converter for the <see cref="NodeType.Text"/> node.
+        /// </summary>
+        public ILocalizationConverter localizationConverter { get; set; }
+
         private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
         private readonly List<Binding> _bindings = new List<Binding>();
 

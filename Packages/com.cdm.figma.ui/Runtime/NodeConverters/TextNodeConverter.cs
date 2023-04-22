@@ -4,7 +4,6 @@ using Cdm.Figma.UI.Styles;
 using Cdm.Figma.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
@@ -45,20 +44,40 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void GenerateStyles(FigmaNode nodeObject, TextNode textNode, NodeConvertArgs args)
+        private static void GenerateStyles(FigmaText nodeObject, TextNode textNode, NodeConvertArgs args)
         {
             var style = new TextStyle();
             style.enabled = true;
 
+            SetTextValue(style, textNode, args);
             SetTextFont(style, textNode, args);
             SetTextAlignment(style, textNode);
             SetTextDecoration(style, textNode);
             SetTextAutoResize(style, textNode);
             SetFills(style, textNode);
-            SetLocalization(style, textNode);
             SetWordWrapping(style, textNode);
+            
+            // Disable text style property if localization style is added.
+            if (TryConvertLocalization(nodeObject, args))
+            {
+                style.text.enabled = false;
+            }
 
             nodeObject.styles.Add(style);
+        }
+        
+        private static bool TryConvertLocalization(FigmaText node, NodeConvertArgs args)
+        {
+            if (args.importer.localizationConverter != null)
+            {
+                if (args.importer.localizationConverter.CanConvert(node))
+                {
+                    args.importer.localizationConverter.Convert(node);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void SetWordWrapping(TextStyle style, TextNode textNode)
@@ -70,7 +89,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
+        private static void SetTextValue(TextStyle style, TextNode textNode, NodeConvertArgs args)
         {
             var textValue = textNode.characters;
             
@@ -85,7 +104,10 @@ namespace Cdm.Figma.UI
 
             style.text.enabled = true;
             style.text.value = textValue;
+        }
 
+        private static void SetTextFont(TextStyle style, TextNode textNode, NodeConvertArgs args)
+        {
             var fontName = FontHelpers.GetFontDescriptor(
                 textNode.style.fontFamily, textNode.style.fontWeight, textNode.style.italic);
 
@@ -215,26 +237,6 @@ namespace Cdm.Figma.UI
                 {
                     style.color.enabled = true;
                     style.color.value = solidPaint.color;
-                }
-            }
-        }
-
-        private static void SetLocalization(TextStyle style, TextNode textNode)
-        {
-            style.localizedString.enabled = false;
-
-            var localizationKey = textNode.GetLocalizationKey();
-            if (!string.IsNullOrEmpty(localizationKey))
-            {
-                if (LocalizationHelper.TryGetTableAndEntryReference(
-                        localizationKey, out var tableReference, out var tableEntryReference))
-                {
-                    style.localizedString.enabled = true;
-                    style.localizedString.value = new LocalizedString(tableReference, tableEntryReference);
-                }
-                else
-                {
-                    Debug.LogWarning($"Localization key cannot be mapped: {localizationKey}");
                 }
             }
         }

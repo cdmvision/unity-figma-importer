@@ -1,9 +1,8 @@
-﻿using System;
+using System;
 using Cdm.Figma.UI.Styles.Properties;
 using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Components;
 
 namespace Cdm.Figma.UI.Styles
 {
@@ -21,18 +20,19 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyBool enableAutoSizing = new StylePropertyBool();
         public StylePropertyBool wordWrapping = new StylePropertyBool();
         public StylePropertyBool autoSizeTextContainer = new StylePropertyBool();
+        public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
+        public StylePropertyTextTruncate enableTruncate = new StylePropertyTextTruncate(TextOverflowModes.Overflow);
+
         public StylePropertyHorizontalAlignmentOptions horizontalAlignment =
             new StylePropertyHorizontalAlignmentOptions();
-        public StylePropertyVerticalAlignmentOptions verticalAlignment = 
+
+        public StylePropertyVerticalAlignmentOptions verticalAlignment =
             new StylePropertyVerticalAlignmentOptions();
-        public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
-        public StylePropertyLocalizedString localizedString = new StylePropertyLocalizedString();
-        public StylePropertyTextTruncate enableTruncate = new StylePropertyTextTruncate(TextOverflowModes.Overflow);
 
         protected override void MergeTo(Style other, bool force)
         {
             base.MergeTo(other, force);
-            
+
             if (other is TextStyle otherStyle)
             {
                 OverwriteProperty(text, otherStyle.text, force);
@@ -50,10 +50,9 @@ namespace Cdm.Figma.UI.Styles
                 OverwriteProperty(horizontalAlignment, otherStyle.horizontalAlignment, force);
                 OverwriteProperty(verticalAlignment, otherStyle.verticalAlignment, force);
                 OverwriteProperty(characterSpacing, otherStyle.characterSpacing, force);
-                OverwriteProperty(localizedString, otherStyle.localizedString, force);
             }
         }
-        
+
         public override void SetStyle(GameObject gameObject, StyleArgs args)
         {
             var textComponent = gameObject.GetOrAddComponent<TextMeshProUGUI>();
@@ -62,10 +61,10 @@ namespace Cdm.Figma.UI.Styles
                 base.SetStyle(gameObject, args);
 
                 textComponent.raycastTarget = false;
-                
+
                 if (text.enabled)
                     textComponent.text = text.value;
-                
+
                 if (font.enabled)
                     textComponent.font = font.value;
 
@@ -73,7 +72,7 @@ namespace Cdm.Figma.UI.Styles
                     textComponent.fontStyle = fontStyle.value;
 
                 if (fontWeight.enabled)
-                    textComponent.fontWeight = (TMPro.FontWeight) fontWeight.value;
+                    textComponent.fontWeight = (TMPro.FontWeight)fontWeight.value;
 
                 if (fontSize.enabled)
                     textComponent.fontSize = fontSize.value;
@@ -107,14 +106,6 @@ namespace Cdm.Figma.UI.Styles
 
                 if (fontMaterial.enabled)
                     textComponent.fontMaterial = fontMaterial.value;
-
-                if (localizedString.enabled)
-                {
-                    var stringEvent = textComponent.gameObject.GetOrAddComponent<LocalizeStringEvent>();
-                    stringEvent.StringReference = localizedString.value;
-                    stringEvent.OnUpdateString.AddListener(str => { textComponent.text = str; });
-                    stringEvent.RefreshString();
-                }
             }
         }
     }

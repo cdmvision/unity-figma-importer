@@ -22,6 +22,7 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _filterMode;
         private SerializedProperty _sampleCount;
         private SerializedProperty _effectConverters;
+        private SerializedProperty _localizationConverter;
 
         private int _selectedTabIndex = 0;
         private int _errorCount = 0;
@@ -59,6 +60,7 @@ namespace Cdm.Figma.UI.Editor
             _filterMode = serializedObject.FindProperty("_filterMode");
             _sampleCount = serializedObject.FindProperty("_sampleCount");
             _effectConverters = serializedObject.FindProperty("_effectConverters");
+            _localizationConverter = serializedObject.FindProperty("_localizationConverter");
 
             var importer = (FigmaAssetImporter)target;
             var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
@@ -199,6 +201,10 @@ namespace Cdm.Figma.UI.Editor
         {
             DrawSpriteSettingsGui();
             EditorGUILayout.Space();
+            
+            DrawLocalizationConverterGui();
+            EditorGUILayout.Space();
+            
             DrawEffectConvertersGui();
         }
 
@@ -211,6 +217,16 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.PropertyField(_wrapMode);
             EditorGUILayout.PropertyField(_filterMode);
             IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);
+        }
+
+        private void DrawLocalizationConverterGui()
+        {
+            EditorGUILayout.LabelField("Localization", EditorStyles.boldLabel);
+            
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel("Converter");
+            EditorGUILayout.PropertyField(_localizationConverter);
+            EditorGUILayout.EndHorizontal();
         }
 
         private void DrawEffectConvertersGui()
