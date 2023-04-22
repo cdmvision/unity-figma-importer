@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changes
 - Removed Unity Localization dependency
 
+## [1.1.3] - 2023-01-06
+### Changes
+- Added "Truncate" resizing option to text nodes
+
 ## [1.1.2] - 2022-12-20
 ### Changes
 - Added downloading images referenced in a file
