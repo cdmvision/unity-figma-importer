@@ -4,6 +4,13 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2023-04-22
+### Changes
+- Removed Unity Localization dependency
+- Added selection of localization converter implementation
+- Made `DropdownComponentConverter` extendable more easily
+- Added extension class to set the sprite of an image with all its styles
+
 ## [1.1.4] - 2023-03-21
 ### Changes
 - Added binding component on the fly even if specified component does not exist while binding. 
