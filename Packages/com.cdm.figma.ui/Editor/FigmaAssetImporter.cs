@@ -98,6 +98,10 @@ namespace Cdm.Figma.UI.Editor
         }
 
         [SerializeField]
+        [SerializedType(typeof(ILocalizationConverter))]
+        private string _localizationConverter;
+
+        [SerializeField]
         [SerializedType(typeof(IEffectConverter))]
         private List<string> _effectConverters = new List<string>();
 
@@ -161,8 +165,8 @@ namespace Cdm.Figma.UI.Editor
                     sampleCount = sampleCount
                 }
             };
-
-            // Add effect converters from the list in settings.
+            
+            SetLocalizationConverter(figmaImporter);
             AddEffectConverters(figmaImporter);
 
             // Prioritize custom converters.
@@ -176,6 +180,33 @@ namespace Cdm.Figma.UI.Editor
             figmaImporter.AddDefaultComponentConverters();
 
             return figmaImporter;
+        }
+
+        private void SetLocalizationConverter(FigmaImporter figmaImporter)
+        {
+            var typeName = _localizationConverter;
+            
+            if (string.IsNullOrWhiteSpace(typeName))
+                return;
+            
+            var localizationConverterType = Type.GetType(typeName);
+            if (localizationConverterType != null)
+            {
+                var localizationConverter = (ILocalizationConverter)Activator.CreateInstance(localizationConverterType);
+                if (localizationConverter != null)
+                {
+                    figmaImporter.localizationConverter = localizationConverter;
+                    Debug.Log($"Localization converter set: {localizationConverter.GetType().FullName}");
+                }
+                else
+                {
+                    Debug.LogWarning($"Localization converter could not be set: {typeName}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Localization converter could not be set: {typeName}");
+            }
         }
 
         private void AddEffectConverters(FigmaImporter figmaImporter)
