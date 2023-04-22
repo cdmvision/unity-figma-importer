@@ -101,7 +101,7 @@ namespace Cdm.Figma.UI
         /// <remarks>
         /// It is available only while importing figma file.
         /// </remarks>
-        internal List<Styles.Style> styles { get; } = new List<Styles.Style>();
+        public List<Styles.Style> styles { get; } = new List<Styles.Style>();
 
         private RectTransform _rectTransform;
 

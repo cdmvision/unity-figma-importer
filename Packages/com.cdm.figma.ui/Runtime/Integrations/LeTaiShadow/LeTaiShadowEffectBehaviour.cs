@@ -1,11 +1,9 @@
-﻿using Cdm.Figma.UI.Utils;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Cdm.Figma.UI
 {
     public class LeTaiShadowEffectBehaviour : ShadowEffectBehaviour
     {
-#if LETAI_TRUESHADOW
         private LeTai.TrueShadow.TrueShadow _shadow;
 
         protected override void Awake()
@@ -75,18 +73,5 @@ namespace Cdm.Figma.UI
                     return LeTai.TrueShadow.BlendMode.Normal;
             }
         }
-#else
-        protected override void Awake()
-        {
-            base.Awake();
-
-            Debug.LogError("LeTai True Shadow package must be installed and 'LETAI_TRUESHADOW' must be defined.", this);
-            enabled = false;
-        }
-        
-        protected override void UpdateEffect()
-        {
-        }
-#endif
     }
 }
