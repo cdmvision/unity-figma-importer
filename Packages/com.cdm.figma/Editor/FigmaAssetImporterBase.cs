@@ -1,9 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Cdm.Figma.Editor
 {
@@ -31,7 +34,16 @@ namespace Cdm.Figma.Editor
 
         public override void OnImportAsset(AssetImportContext ctx)
         {
-            var fileJson = File.ReadAllText(ctx.assetPath);
+            using var compressedStream = File.Open(ctx.assetPath, FileMode.Open);
+            using var decompressedStream = new MemoryStream();
+            using var decompressor = new GZipStream(compressedStream, CompressionMode.Decompress);
+            decompressor.CopyTo(decompressedStream);
+
+            decompressedStream.Position = 0;
+            using var streamReader = new StreamReader(decompressedStream);
+            var fileJson = streamReader.ReadToEnd();
+
+            //var fileJson = File.ReadAllText(ctx.assetPath);
             var figmaFile = FigmaFile.Parse(fileJson);
 
             UpdatePages(figmaFile);

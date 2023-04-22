@@ -196,7 +196,7 @@ namespace Cdm.Figma.UI.Editor
                 if (localizationConverter != null)
                 {
                     figmaImporter.localizationConverter = localizationConverter;
-                    Debug.Log($"Localization converter set: {localizationConverter.GetType().FullName}");
+                    //Debug.Log($"Localization converter set: {localizationConverter.GetType().FullName}");
                 }
                 else
                 {

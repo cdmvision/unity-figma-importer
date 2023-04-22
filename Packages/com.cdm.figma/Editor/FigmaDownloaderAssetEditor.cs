@@ -1,10 +1,13 @@
 using System;
 using System.IO;
+using System.IO.Compression;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace Cdm.Figma.Editor
 {
@@ -224,7 +227,14 @@ namespace Cdm.Figma.Editor
             }
             
             var figmaAssetPath = GetFigmaAssetPath(downloader, fileName);
-            await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"), cancellationToken);
+            
+            // Save as compressed file.
+            using var content = new MemoryStream(Encoding.UTF8.GetBytes(newFile.ToString("N")));
+            await using var compressedFileStream = File.Create(figmaAssetPath);
+            await using var compressor = new GZipStream(compressedFileStream, CompressionLevel.Optimal);
+            await content.CopyToAsync(compressor, cancellationToken);
+            
+            //await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"), cancellationToken);
 
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
         }
