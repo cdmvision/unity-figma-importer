@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -108,6 +107,44 @@ namespace Cdm.Figma.Utils
             return false;
         }
 
+        private static Rect CalculateSvgViewBox(SceneNode node)
+        {
+            if (node is not INodeTransform transform)
+            {
+                Debug.LogWarning($"Node must implement {nameof(INodeTransform)}");
+                return Rect.zero;
+            }
+
+            if (node is not INodeFill fill)
+            {
+                Debug.LogWarning($"Node must implement {nameof(INodeFill)}");
+                return Rect.zero;
+            }
+
+            var strokeWeight = 0f;
+
+            if (fill.HasStroke() && fill.strokeWeight.HasValue)
+            {
+                strokeWeight = fill.strokeWeight.Value;
+            }
+
+            var strokeAlign = fill.strokeAlign ?? StrokeAlign.Center;
+            var strokePadding = strokeWeight;
+
+            if (strokeAlign != StrokeAlign.Center)
+            {
+                strokePadding = strokeWeight * 2;
+            }
+
+            var strokeHalfPadding = strokePadding * 0.5f;
+
+            return new Rect(
+                x: -strokeHalfPadding,
+                y: -strokeHalfPadding,
+                width: transform.size.x + strokePadding,
+                height: transform.size.y + strokePadding);
+        }
+
         private static string GenerateSvgFromPath(SceneNode node)
         {
             if (node is not VectorNode vectorNode)
@@ -117,41 +154,29 @@ namespace Cdm.Figma.Utils
 
             var width = vectorNode.size.x;
             var height = vectorNode.size.y;
-            
-            var strokeWeight = vectorNode.strokeWeight ?? 0;
-            var strokeAlign = vectorNode.strokeAlign ?? StrokeAlign.Center;
-            var strokePadding = strokeWeight;
-            
-            if (strokeAlign != StrokeAlign.Center)
-            {
-                strokePadding = strokeWeight * 2;
-            }
-            
-            var strokeHalfPadding = strokePadding * 0.5f;
-            var viewBox = new Rect(-strokeHalfPadding, -strokeHalfPadding, width + strokePadding, height + strokePadding);
+            var viewBox = CalculateSvgViewBox(vectorNode);
 
             var svg = new StringBuilder();
-
             svg.Append($@"<svg id=""{node.id}"" ");
-            svg.Append($@"width=""{width}"" height=""{height}"" ");
+            svg.Append($@"width=""{viewBox.width}"" height=""{viewBox.height}"" ");
             svg.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
-            
+
             foreach (var geometry in vectorNode.fillGeometry)
             {
                 var path = geometry.path;
                 var windingRule = geometry.windingRule;
                 PaintOverride paintOverride = null;
-                
+
                 if (vectorNode.fillOverrideTable != null && geometry.overrideId.HasValue)
                 {
                     vectorNode.fillOverrideTable.TryGetValue(geometry.overrideId.Value, out paintOverride);
                 }
-                
+
                 AppendSvgFillPathElement(svg, node, path, new Vector2(width, height), paintOverride, windingRule);
             }
-            
+
             foreach (var geometry in vectorNode.strokeGeometry)
             {
                 var path = geometry.path;
@@ -160,7 +185,7 @@ namespace Cdm.Figma.Utils
             }
 
             svg.AppendLine("</svg>");
-            
+
             //Debug.Log($"{node}: {svg}");
             return svg.ToString();
         }
@@ -184,16 +209,16 @@ namespace Cdm.Figma.Utils
 
             var width = nodeTransform.size.x;
             var height = nodeTransform.size.y;
-            var strokeWeight = nodeFill.strokeWeight ?? 0;
-            var strokeHalfWeight = strokeWeight * 0.5f;
-            var viewBox = new Rect(-strokeHalfWeight, -strokeHalfWeight, width + strokeWeight, height + strokeWeight);
 
+            var strokeWeight = nodeFill.GetStrokeWeightOrDefault();
+            var viewBox = CalculateSvgViewBox(node);
+            
             var fillPath = GetRectPath(nodeTransform, nodeRect);
             var strokePath = GetRectPath(nodeTransform, nodeRect);
+            
             var svg = new StringBuilder();
-
             svg.Append($@"<svg id=""{node.id}"" ");
-            svg.Append($@"width=""{width}"" height=""{height}"" ");
+            svg.Append($@"width=""{viewBox.width}"" height=""{viewBox.height}"" ");
             svg.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
@@ -202,7 +227,7 @@ namespace Cdm.Figma.Utils
 
             if (strokeWeight > 0)
             {
-                AppendSvgStrokeRectElement(svg, node, strokePath, new Vector2(width, height));    
+                AppendSvgStrokeRectElement(svg, node, strokePath, new Vector2(width, height));
             }
 
             svg.AppendLine("</svg>");
@@ -401,7 +426,7 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static void AppendSvgStrokeRectElement(StringBuilder svg, SceneNode node, string strokePath, 
+        private static void AppendSvgStrokeRectElement(StringBuilder svg, SceneNode node, string strokePath,
             Vector2 size, string windingRule = null)
         {
             var nodeFill = (INodeFill)node;
@@ -452,7 +477,8 @@ namespace Cdm.Figma.Utils
             var geometries =
                 VectorUtils.TessellateScene(sceneInfo.Scene, options.tessellationOptions, sceneInfo.NodeOpacity);
 
-            var sprite = VectorUtils.BuildSprite(geometries, options.pixelsPerUnit, VectorUtils.Alignment.TopLeft,
+            var sprite = VectorUtils.BuildSprite(geometries, sceneInfo.SceneViewport,
+                options.pixelsPerUnit, VectorUtils.Alignment.Center,
                 Vector2.zero, options.gradientResolution, true);
 
             if (sprite == null)
@@ -502,18 +528,18 @@ namespace Cdm.Figma.Utils
             var spriteRect = new Rect(0, 0, texture.width, texture.height);
             var spritePivot = spriteRect.center;
 
-            var pixelsPerUnity = options.pixelsPerUnit * scale;
+            var pixelsPerUnit = options.pixelsPerUnit * scale;
 
             Sprite spriteWithTexture = null;
             if (borders.HasValue)
             {
                 borders *= scale;
                 spriteWithTexture = Sprite.Create(
-                    texture, spriteRect, spritePivot, pixelsPerUnity, 0, SpriteMeshType.FullRect, borders.Value);
+                    texture, spriteRect, spritePivot, pixelsPerUnit, 0, SpriteMeshType.FullRect, borders.Value);
             }
             else
             {
-                spriteWithTexture = Sprite.Create(texture, spriteRect, spritePivot, pixelsPerUnity, 0);
+                spriteWithTexture = Sprite.Create(texture, spriteRect, spritePivot, pixelsPerUnit, 0);
             }
 
             spriteWithTexture.name = node.id;
