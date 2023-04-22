@@ -5,6 +5,23 @@ namespace Cdm.Figma
 {
     public static class NodeExtensions
     {    
+        public static bool HasStroke(this INodeFill node)
+        {
+            return node.strokes != null && node.strokes.Any();
+        }
+
+        public static float GetStrokeWeightOrDefault(this INodeFill node)
+        {
+            var strokeWeight = 0f;
+
+            if (node.HasStroke() && node.strokeWeight.HasValue)
+            {
+                strokeWeight = node.strokeWeight.Value;
+            }
+
+            return strokeWeight;
+        }
+        
         /// <summary>
         /// Traverse nodes by using depth first search from starting node given.
         /// </summary>
