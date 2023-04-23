@@ -57,13 +57,13 @@ namespace Cdm.Figma.UI
             SetFills(style, textNode);
             SetWordWrapping(style, textNode);
             
+            nodeObject.styles.Add(style);
+            
             // Disable text style property if localization style is added.
             if (TryConvertLocalization(nodeObject, args))
             {
                 style.text.enabled = false;
             }
-
-            nodeObject.styles.Add(style);
         }
         
         private static bool TryConvertLocalization(FigmaText node, NodeConvertArgs args)

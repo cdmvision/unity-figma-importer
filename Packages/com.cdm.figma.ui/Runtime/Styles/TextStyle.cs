@@ -62,7 +62,8 @@ namespace Cdm.Figma.UI.Styles
 
                 textComponent.raycastTarget = false;
 
-                if (text.enabled)
+                // Set text value even if it is not enabled for setting as default text value when importing.
+                if (text.enabled || !Application.isPlaying)
                     textComponent.text = text.value;
 
                 if (font.enabled)
