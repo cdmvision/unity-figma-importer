@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Cdm.Figma
 {
@@ -23,7 +24,8 @@ namespace Cdm.Figma
         /// </summary>
         public bool downloadImages { get; set; } = true;
 
-        public async Task<FigmaFile> DownloadFileAsync(string fileId, string personalAccessToken, 
+        public async Task<FigmaFile> DownloadFileAsync(
+            string personalAccessToken, string fileId, string fileVersion = "",
             IProgress<FigmaDownloaderProgress> progress = default, CancellationToken cancellationToken = default)
         {
             try
@@ -32,7 +34,7 @@ namespace Cdm.Figma
                 {
                     _downloadedFiles = new Dictionary<string, FigmaFile>();
                     return await DownloadFileAsyncInternal(
-                        fileId, personalAccessToken, false, progress, cancellationToken);
+                        personalAccessToken, fileId, fileVersion, false, progress, cancellationToken);
                 }
             }
             finally
@@ -42,7 +44,8 @@ namespace Cdm.Figma
             }
         }
 
-        private async Task<FigmaFile> DownloadFileAsyncInternal(string fileId, string personalAccessToken,
+        private async Task<FigmaFile> DownloadFileAsyncInternal(
+            string personalAccessToken, string fileId, string fileVersion,
             bool isDependency, IProgress<FigmaDownloaderProgress> progress, CancellationToken cancellationToken)
         {
             progress?.Report(new FigmaDownloaderProgress(fileId, 0f, isDependency));
@@ -50,6 +53,7 @@ namespace Cdm.Figma
             var fileContentJson = await _figmaApi.GetFileAsync(
                 new FileRequest(fileId)
                 {
+                    version = fileVersion,
                     geometry = "paths",
                     plugins = new[] { PluginData.Id }
                 }, cancellationToken);
@@ -74,37 +78,36 @@ namespace Cdm.Figma
                         Debug.LogWarning($"File '{file.fileId}' thumbnail could not be downloaded.\n {e}");
                     }
                 }
-                
+
                 if (downloadImages)
                 {
                     var images = await _figmaApi.GetImageFillsAsync(new ImageFillsRequest(fileId), cancellationToken);
 
                     foreach (var image in images)
                     {
-                        file.images.Add(image.Key, Convert.ToBase64String(image.Value));    
+                        file.images.Add(image.Key, Convert.ToBase64String(image.Value));
                     }
                 }
             }
 
             _downloadedFiles.Add(file.fileId, file);
-            
+
             file.BuildHierarchy();
 
             if (downloadDependencies)
             {
                 progress?.Report(new FigmaDownloaderProgress(fileId, 0.5f, isDependency));
-                
-                file.fileDependencies = 
+
+                file.fileDependencies =
                     await DownloadFileDependenciesAsync(file, personalAccessToken, progress, cancellationToken);
             }
-            
-            progress?.Report(new FigmaDownloaderProgress(fileId, 1f, isDependency));
 
+            progress?.Report(new FigmaDownloaderProgress(fileId, 1f, isDependency));
             return file;
         }
 
         private async Task<FigmaFileDependency[]> DownloadFileDependenciesAsync(
-            FigmaFile mainFile, string personalAccessToken, IProgress<FigmaDownloaderProgress> progress, 
+            FigmaFile mainFile, string personalAccessToken, IProgress<FigmaDownloaderProgress> progress,
             CancellationToken cancellationToken)
         {
             // Find external components.
@@ -127,7 +130,7 @@ namespace Cdm.Figma
                         if (!_downloadedFiles.ContainsKey(componentMetadata.fileKey))
                         {
                             await DownloadFileAsyncInternal(
-                                componentMetadata.fileKey, personalAccessToken, true, progress, cancellationToken);
+                                personalAccessToken, componentMetadata.fileKey, "", true, progress, cancellationToken);
                         }
 
                         {

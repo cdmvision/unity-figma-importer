@@ -6,7 +6,7 @@ namespace Cdm.Figma
 {
     public interface IFigmaDownloader
     {
-        Task<FigmaFile> DownloadFileAsync(string fileId, string personalAccessToken, 
+        Task<FigmaFile> DownloadFileAsync(string personalAccessToken, string fileId, string fileVersion = "", 
             IProgress<FigmaDownloaderProgress> progress = default, CancellationToken cancellationToken = default);
     }
 
