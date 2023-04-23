@@ -12,7 +12,7 @@ namespace Cdm.Figma.UI
     {
         public StylePropertyLocalizedString localizedString = new StylePropertyLocalizedString();
 
-        protected override void MergeTo(Styles.Style other, bool force)
+        protected override void MergeTo(Style other, bool force)
         {
             if (other is UnityLocalizationStyle otherStyle)
             {
@@ -32,9 +32,13 @@ namespace Cdm.Figma.UI
                     stringEvent = gameObject.AddComponent<LocalizeStringEvent>();
                     UnityLocalizationHelper.AddUpdateStringEvent(textComponent, stringEvent);
                 }
-                
+
                 stringEvent.StringReference = localizedString.value;
-                stringEvent.RefreshString();
+
+                if (Application.isPlaying)
+                {
+                    stringEvent.RefreshString();
+                }
             }
         }
     }
