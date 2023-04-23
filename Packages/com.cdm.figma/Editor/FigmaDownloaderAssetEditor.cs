@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
+using Debug = UnityEngine.Debug;
 
 namespace Cdm.Figma.Editor
 {
@@ -19,9 +19,10 @@ namespace Cdm.Figma.Editor
         private SerializedProperty _assetPath;
         private SerializedProperty _downloadDependencies;
         private SerializedProperty _downloadImages;
-        private SerializedProperty _files;
-
-        private ReorderableList _fileList;
+        private SerializedProperty _fileId;
+        private SerializedProperty _fileVersion;
+        private SerializedProperty _fileName;
+        private SerializedProperty _defaultFileName;
 
         private bool _isDownloading = false;
         private bool _isDownloadingCompleted = false;
@@ -37,11 +38,10 @@ namespace Cdm.Figma.Editor
             _assetExtension = serializedObject.FindProperty("_assetExtension");
             _downloadDependencies = serializedObject.FindProperty("_downloadDependencies");
             _downloadImages = serializedObject.FindProperty("_downloadImages");
-            _files = serializedObject.FindProperty("_files");
-
-            _fileList = new ReorderableList(serializedObject, _files, true, true, true, true);
-            _fileList.drawHeaderCallback = DrawHeader;
-            _fileList.drawElementCallback = DrawElement;
+            _fileId = serializedObject.FindProperty("_fileId");
+            _fileVersion = serializedObject.FindProperty("_fileVersion");
+            _fileName = serializedObject.FindProperty("_fileName");
+            _defaultFileName = serializedObject.FindProperty("_defaultFileName");
         }
 
         public override bool RequiresConstantRepaint()
@@ -69,6 +69,12 @@ namespace Cdm.Figma.Editor
             {
                 Application.OpenURL("https://www.figma.com/developers/api#access-tokens");
             }
+            
+            EditorGUILayout.Separator();
+            EditorGUILayout.Separator();
+            EditorGUILayout.PropertyField(_fileId, new GUIContent("File ID"));
+            DrawFileName();
+            EditorGUILayout.PropertyField(_fileVersion);
 
             EditorGUILayout.Separator();
             EditorGUILayout.Separator();
@@ -79,12 +85,10 @@ namespace Cdm.Figma.Editor
 
             EditorGUILayout.Separator();
             EditorGUILayout.Separator();
-            _fileList.DoLayoutList();
-            EditorGUILayout.Separator();
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Download Files", EditorStyles.miniButton))
+            if (GUILayout.Button("Download", EditorStyles.miniButton))
             {
                 _isDownloadingCompleted = false;
                 _cancellationTokenSource = new CancellationTokenSource();
@@ -100,7 +104,7 @@ namespace Cdm.Figma.Editor
                     : $"File dependency: {_downloadingFile}";
 
                 if (EditorUtility.DisplayCancelableProgressBar(
-                        "Downloading Figma files", description, _downloadingProgress))
+                        "Downloading Figma File", description, _downloadingProgress))
                 {
                     _cancellationTokenSource.Cancel();
                 }
@@ -108,46 +112,28 @@ namespace Cdm.Figma.Editor
             else if (_isDownloadingCompleted)
             {
                 _isDownloadingCompleted = false;
-                
+
                 EditorUtility.ClearProgressBar();
                 AssetDatabase.Refresh();
             }
 
             serializedObject.ApplyModifiedProperties();
         }
-
-        private void DrawHeader(Rect rect)
+        
+        private void DrawFileName()
         {
-            EditorGUI.LabelField(rect, _files.displayName);
-        }
-
-        private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
-        {
-            var file = _fileList.serializedProperty.GetArrayElementAtIndex(index);
-            var fileId = file.FindPropertyRelative("id");
-            var fileName = file.FindPropertyRelative("name");
-            var defaultName = file.FindPropertyRelative("defaultName");
-
-            var idRect = new Rect(rect.x, rect.y + 2, rect.width * 0.5f, EditorGUIUtility.singleLineHeight);
-
-            EditorGUI.PropertyField(idRect, fileId, GUIContent.none);
-
-            if (string.IsNullOrEmpty(fileId.stringValue))
-            {
-                Placeholder(new Rect(idRect.x + 2, idRect.y, idRect.width - 2, idRect.height), "File ID");
-            }
-
-            var nameRect = new Rect(idRect.x + idRect.width + 2,
-                rect.y + 2, rect.width - (idRect.width - 2), EditorGUIUtility.singleLineHeight);
-
-            EditorGUI.PropertyField(nameRect, fileName, GUIContent.none);
+            var rect = EditorGUILayout.GetControlRect(true);
+            EditorGUI.PropertyField(rect, _fileName);
             
-            if (string.IsNullOrEmpty(fileName.stringValue))
+            if (string.IsNullOrEmpty(_fileName.stringValue))
             {
-                var text = !string.IsNullOrEmpty(defaultName.stringValue)
-                    ? defaultName.stringValue
+                var text = !string.IsNullOrEmpty(_defaultFileName.stringValue)
+                    ? _defaultFileName.stringValue
                     : "File name (optional)";
-                Placeholder(new Rect(nameRect.x + 2, nameRect.y, nameRect.width - 2, nameRect.height), text);
+                
+                Placeholder(new Rect(
+                    rect.x + EditorGUIUtility.labelWidth + 4, rect.y, 
+                    rect.width - 4 - EditorGUIUtility.labelWidth, rect.height), text);
             }
         }
 
@@ -170,19 +156,11 @@ namespace Cdm.Figma.Editor
             {
                 _isDownloading = true;
                 _downloadingProgress = 0f;
+                _downloadingFile = downloader.fileId;
 
-                var fileCount = downloader.files.Count;
-                for (var i = 0; i < fileCount; i++)
-                {
-                    var file = downloader.files[i];
+                await DownloadAndSaveFigmaFileAsync(downloader, _cancellationTokenSource.Token);
 
-                    _downloadingFile = file.id;
-                    _downloadingProgress = (float)i / fileCount;
-
-                    await DownloadAndSaveFigmaFileAsync(downloader, file, _cancellationTokenSource.Token);
-
-                    _downloadingProgress = (float)(i + 1) / fileCount;
-                }
+                _downloadingProgress = 1f;
             }
             catch (TaskCanceledException)
             {
@@ -198,42 +176,43 @@ namespace Cdm.Figma.Editor
                 _isDownloadingCompleted = true;
                 _isDownloadingDependency = false;
                 _downloadingProgress = 0f;
-                
+
                 _cancellationTokenSource.Dispose();
             }
         }
 
-        private async Task DownloadAndSaveFigmaFileAsync(FigmaDownloaderAsset downloader,
-            FigmaDownloaderAsset.File file, CancellationToken cancellationToken)
+        private async Task DownloadAndSaveFigmaFileAsync(
+            FigmaDownloaderAsset downloader, CancellationToken cancellationToken)
         {
             var newFile = await downloader.GetDownloader()
-                .DownloadFileAsync(file.id, downloader.personalAccessToken, new Progress<FigmaDownloaderProgress>(
-                    progress =>
-                    {
-                        _isDownloadingDependency = progress.isDependency;
-                        _downloadingFile = progress.fileId;
-                    }), cancellationToken);
-
+                .DownloadFileAsync(downloader.personalAccessToken, downloader.fileId, downloader.fileVersion,
+                    new Progress<FigmaDownloaderProgress>(
+                        progress =>
+                        {
+                            _isDownloadingDependency = progress.isDependency;
+                            _downloadingFile = progress.fileId;
+                        }), cancellationToken);
+            
             var directory = Path.Combine("Assets", downloader.assetPath);
             Directory.CreateDirectory(directory);
 
-            file.defaultName = newFile.name;
+            downloader.defaultFileName = newFile.name;
             EditorUtility.SetDirty(downloader);
 
-            var fileName = file.defaultName;
-            if (!string.IsNullOrEmpty(file.name))
+            var fileName = downloader.defaultFileName;
+            if (!string.IsNullOrEmpty(downloader.fileName))
             {
-                fileName = file.name;
+                fileName = downloader.fileName;
             }
-            
+
             var figmaAssetPath = GetFigmaAssetPath(downloader, fileName);
-            
+
             // Save as compressed file.
             using var content = new MemoryStream(Encoding.UTF8.GetBytes(newFile.ToString("N")));
             await using var compressedFileStream = File.Create(figmaAssetPath);
             await using var compressor = new GZipStream(compressedFileStream, CompressionLevel.Optimal);
             await content.CopyToAsync(compressor, cancellationToken);
-            
+
             //await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"), cancellationToken);
 
             Debug.Log($"Figma file saved at: {figmaAssetPath}");

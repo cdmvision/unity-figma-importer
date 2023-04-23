@@ -44,12 +44,12 @@ namespace Cdm.Figma
                 throw new ArgumentException("File ID cannot be empty.");
 
             var url = GetFileRequestUrl(fileRequest);
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            var response = await _httpClient.SendAsync(request, cancellationToken);
+            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -65,9 +65,9 @@ namespace Cdm.Figma
                 throw new ArgumentNullException(nameof(requestData.key), "Component key cannot be empty.");
 
             var url = $"{BaseUri}/components/{requestData.key}";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            var response = await _httpClient.SendAsync(request, cancellationToken);
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
@@ -93,12 +93,12 @@ namespace Cdm.Figma
                 throw new ArgumentException("File ID cannot be empty.");
 
             var url = GetImageFillsRequestUrl(request);
-            var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Get, url);
 
-            var httpResponse = await _httpClient.SendAsync(httpRequest, cancellationToken);
+            using var httpResponse = await _httpClient.SendAsync(httpRequest, cancellationToken).ConfigureAwait(false);
             httpResponse.EnsureSuccessStatusCode();
 
-            var json = await httpResponse.Content.ReadAsStringAsync();
+            var json = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);;
             var response = JsonConvert.DeserializeObject<ImageFillsResponse>(json, JsonSerializerHelper.Settings);
 
             if (response == null || response.metadata == null)
@@ -114,7 +114,10 @@ namespace Cdm.Figma
                 
                 if (!string.IsNullOrEmpty(imageUrl))
                 {
-                    var imageData = await GetBytesAsync(imageUrl, "application/octet-stream", cancellationToken);
+                    var imageData = 
+                        await GetBytesAsync(imageUrl, "application/octet-stream", cancellationToken)
+                            .ConfigureAwait(false);
+                    
                     if (imageData == null)
                         throw new Exception($"Image '{imageRef}' data could not be get from: {imageUrl}");
 
@@ -154,9 +157,9 @@ namespace Cdm.Figma
 
             // Get image download URLs.
             var url = GetImageRequestUrl(imageRequest);
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            var response = await _httpClient.SendAsync(request, cancellationToken);
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
@@ -189,7 +192,7 @@ namespace Cdm.Figma
         public async Task<byte[]> GetThumbnailImageAsync(string thumbnailUrl,
             CancellationToken cancellationToken = default)
         {
-            return await GetBytesAsync(thumbnailUrl, "image/png", cancellationToken);
+            return await GetBytesAsync(thumbnailUrl, "image/png", cancellationToken).ConfigureAwait(false);
         }
 
         private static string GetFileRequestUrl(FileRequest request)
@@ -258,15 +261,15 @@ namespace Cdm.Figma
         private async Task<byte[]> GetBytesAsync(string url, string contentType,
             CancellationToken cancellationToken = default)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(contentType));
 
-            var response = await _httpClient.SendAsync(request, cancellationToken);
+            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsByteArrayAsync();
+            
+            return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }
-
-
+        
         public void Dispose()
         {
             _httpClient?.Dispose();

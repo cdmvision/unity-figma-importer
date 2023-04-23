@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Cdm.Figma.Editor
@@ -68,32 +66,48 @@ namespace Cdm.Figma.Editor
         }
 
         [SerializeField]
-        private List<File> _files = new List<File>();
+        private string _fileId;
 
-        /// <summary>
-        /// Figma file IDs to be downloaded.
-        /// </summary>
-        public List<File> files => _files;
+        public string fileId
+        {
+            get => _fileId;
+            set => _fileId = value;
+        }
+
+        [SerializeField, Tooltip("Optional")]
+        private string _fileVersion;
+        
+        public string fileVersion
+        {
+            get => _fileVersion;
+            set => _fileVersion = value;
+        }
+
+        [SerializeField, Tooltip("Optional")]
+        private string _fileName;
+        
+        public string fileName
+        {
+            get => _fileName;
+            set => _fileName = value;
+        }
+        
+        [SerializeField]
+        private string _defaultFileName;
+        
+        public string defaultFileName
+        {
+            get => _defaultFileName;
+            internal set => _defaultFileName = value;
+        }
 
         public virtual FigmaDownloader GetDownloader()
         {
             return new FigmaDownloader()
             {
-                downloadDependencies = downloadDependencies
+                downloadDependencies = downloadDependencies,
+                downloadImages = downloadImages
             };
-        }
-        
-        [Serializable]
-        public class File
-        {
-            public string id;
-            public string name;
-            public string defaultName;
-
-            public override string ToString()
-            {
-                return id;
-            }
         }
     }
 }
