@@ -107,7 +107,7 @@ namespace Cdm.Figma.Utils
             return false;
         }
 
-        private static Rect CalculateSvgViewBox(SceneNode node)
+        private static Rect CalculateSvgViewBox(SceneNode node, bool isRectangle)
         {
             if (node is not INodeTransform transform)
             {
@@ -133,7 +133,7 @@ namespace Cdm.Figma.Utils
 
             if (strokeAlign != StrokeAlign.Center)
             {
-                strokePadding = strokeWeight * 2;
+                strokePadding = isRectangle ? strokeWeight : strokeWeight * 2;
             }
 
             var strokeHalfPadding = strokePadding * 0.5f;
@@ -147,14 +147,14 @@ namespace Cdm.Figma.Utils
 
         private static string GenerateSvgFromPath(SceneNode node)
         {
-            if (node is not VectorNode vectorNode)
+            if (node is not VectorNode vectorNode || node is RectangleNode)
             {
                 return GenerateSvgFromRect(node);
             }
 
             var width = vectorNode.size.x;
             var height = vectorNode.size.y;
-            var viewBox = CalculateSvgViewBox(vectorNode);
+            var viewBox = CalculateSvgViewBox(vectorNode, false);
 
             var svg = new StringBuilder();
             svg.Append($@"<svg id=""{node.id}"" ");
@@ -211,10 +211,8 @@ namespace Cdm.Figma.Utils
             var height = nodeTransform.size.y;
 
             var strokeWeight = nodeFill.GetStrokeWeightOrDefault();
-            var viewBox = CalculateSvgViewBox(node);
-            
-            var fillPath = GetRectPath(nodeTransform, nodeRect);
-            var strokePath = GetRectPath(nodeTransform, nodeRect);
+            var viewBox = CalculateSvgViewBox(node, true);
+            var path = GetRectPath(nodeTransform, nodeRect);
             
             var svg = new StringBuilder();
             svg.Append($@"<svg id=""{node.id}"" ");
@@ -223,11 +221,11 @@ namespace Cdm.Figma.Utils
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
-            AppendSvgFillPathElement(svg, node, fillPath, new Vector2(width, height));
+            AppendSvgFillPathElement(svg, node, path, new Vector2(width, height));
 
             if (strokeWeight > 0)
             {
-                AppendSvgStrokeRectElement(svg, node, strokePath, new Vector2(width, height));
+                AppendSvgStrokeRectElement(svg, node, path, new Vector2(width, height));
             }
 
             svg.AppendLine("</svg>");
