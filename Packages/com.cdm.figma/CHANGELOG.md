@@ -4,6 +4,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2023-04-23
+### Changes
+- Added file version option to `FigmaDownloaderAsset`
+- `FigmaDownloaderAsset` now accepts single file entry
+
+### Fixes
+- Fixed a bug that images always are downloaded ignoring the "Download Images" option from the `FigmaDownloaderAsset`
+
 ## [1.3.0] - 2023-04-22
 ### Changes
 - Downloaded Figma file is compressed to save space.
