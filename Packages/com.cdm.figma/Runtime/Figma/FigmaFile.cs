@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Linq;
 
@@ -297,7 +299,19 @@ namespace Cdm.Figma
         {
             return JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.Settings);
         }
+        
+        public static FigmaFile ParseBinary(Stream stream)
+        {
+            using var decompressedStream = new MemoryStream();
+            using var decompressor = new GZipStream(stream, CompressionMode.Decompress);
+            decompressor.CopyTo(decompressedStream);
 
+            decompressedStream.Position = 0;
+            using var streamReader = new StreamReader(decompressedStream);
+            var fileJson = streamReader.ReadToEnd();
+            
+            return Parse(fileJson);
+        }
 
         public override string ToString()
         {

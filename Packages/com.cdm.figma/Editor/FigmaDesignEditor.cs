@@ -29,9 +29,13 @@ namespace Cdm.Figma.Editor
         {
             var figmaDesign = (FigmaDesign)command.context;
             var assetPath = AssetDatabase.GetAssetPath(figmaDesign);
-            var json = File.ReadAllText(assetPath);
+
+            FigmaFile file;
             
-            var file = FigmaFile.Parse(json);
+            using (var compressedStream = File.Open(assetPath, FileMode.Open))
+            {
+                file = FigmaFile.ParseBinary(compressedStream);    
+            }
             
             if (!full)
             {

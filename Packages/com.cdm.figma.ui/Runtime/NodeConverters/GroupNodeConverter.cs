@@ -31,12 +31,12 @@ namespace Cdm.Figma.UI
             }
 
             BuildChildren(groupNode, figmaNode, args);
-            
+
             if (groupNode.isMask)
             {
                 args.importer.LogWarning("Group node with mask is not supported.", figmaNode);
             }
-            
+
             return figmaNode;
         }
 
@@ -45,21 +45,32 @@ namespace Cdm.Figma.UI
             var children = currentNode.GetChildren();
             if (children != null)
             {
-                foreach (var child in children)
+                for (var i = 0; i < children.Length; i++)
                 {
-                    if (child.IsIgnored())
+                    if (children[i].IsIgnored())
                         continue;
 
-                    if (args.importer.TryConvertNode(nodeObject, child, args, out var childObject))
+                    Node overrideNode = null;
+
+                    var overrideNodeChildren = args.overrideNode?.GetChildren();
+                    if (overrideNodeChildren != null && overrideNodeChildren.Length == children.Length)
                     {
-                        if (childObject != nodeObject)
+                        overrideNode = overrideNodeChildren[i];
+                    }
+
+                    using (args.OverrideNode(overrideNode))
+                    {
+                        if (args.importer.TryConvertNode(nodeObject, children[i], args, out var childObject))
                         {
-                            childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
-                            childObject.AdjustPosition(currentNode.size);
-                            
-                            // Transform importing is disabled due to a bug right now.
-                            // Add transform style after all changes made on rect transform.
-                            //childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));
+                            if (childObject != nodeObject)
+                            {
+                                childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
+                                childObject.AdjustPosition(currentNode.size);
+
+                                // Transform importing is disabled due to a bug right now.
+                                // Add transform style after all changes made on rect transform.
+                                //childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));
+                            }
                         }
                     }
                 }

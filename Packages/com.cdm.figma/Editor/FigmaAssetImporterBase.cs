@@ -34,18 +34,13 @@ namespace Cdm.Figma.Editor
 
         public override void OnImportAsset(AssetImportContext ctx)
         {
-            using var compressedStream = File.Open(ctx.assetPath, FileMode.Open);
-            using var decompressedStream = new MemoryStream();
-            using var decompressor = new GZipStream(compressedStream, CompressionMode.Decompress);
-            decompressor.CopyTo(decompressedStream);
-
-            decompressedStream.Position = 0;
-            using var streamReader = new StreamReader(decompressedStream);
-            var fileJson = streamReader.ReadToEnd();
-
-            //var fileJson = File.ReadAllText(ctx.assetPath);
-            var figmaFile = FigmaFile.Parse(fileJson);
-
+            FigmaFile figmaFile;
+            
+            using (var compressedStream = File.Open(ctx.assetPath, FileMode.Open))
+            {
+                figmaFile = FigmaFile.ParseBinary(compressedStream);    
+            }
+            
             UpdatePages(figmaFile);
 
             var figmaImporter = GetFigmaImporter();

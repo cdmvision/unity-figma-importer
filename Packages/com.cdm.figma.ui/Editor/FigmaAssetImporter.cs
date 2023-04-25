@@ -9,6 +9,7 @@ using TMPro;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Cdm.Figma.UI.Editor
 {
@@ -51,6 +52,15 @@ namespace Cdm.Figma.UI.Editor
             get => _pixelsPerUnit;
             set => _pixelsPerUnit = value;
         }
+        
+        [SerializeField, Min(0.001f)]
+        private float _scaleFactor = 1f;
+
+        public float scaleFactor
+        {
+            get => _scaleFactor;
+            set => _scaleFactor = Mathf.Max(0.001f, value);
+        }
 
         [SerializeField]
         private ushort _gradientResolution = 128;
@@ -62,12 +72,21 @@ namespace Cdm.Figma.UI.Editor
         }
 
         [SerializeField]
-        private int _textureSize = 1024;
+        private int _minTextureSize = 64;
 
-        public int textureSize
+        public int minTextureSize
         {
-            get => _textureSize;
-            set => _textureSize = value;
+            get => _minTextureSize;
+            set => _minTextureSize = value;
+        }
+        
+        [SerializeField]
+        private int _maxTextureSize = 1024;
+
+        public int maxTextureSize
+        {
+            get => _maxTextureSize;
+            set => _maxTextureSize = value;
         }
 
         [SerializeField]
@@ -152,18 +171,20 @@ namespace Cdm.Figma.UI.Editor
 
         protected override IFigmaImporter GetFigmaImporter()
         {
+            var spriteOptions = SpriteGenerateOptions.GetDefault();
+            spriteOptions.pixelsPerUnit = pixelsPerUnit;
+            spriteOptions.scaleFactor = scaleFactor;
+            spriteOptions.gradientResolution = gradientResolution;
+            spriteOptions.minTextureSize = minTextureSize;
+            spriteOptions.maxTextureSize = maxTextureSize;
+            spriteOptions.wrapMode = wrapMode;
+            spriteOptions.filterMode = filterMode;
+            spriteOptions.sampleCount = sampleCount;
+            
             var figmaImporter = new FigmaImporter()
             {
                 failOnError = false,
-                spriteOptions = new SpriteGenerateOptions()
-                {
-                    pixelsPerUnit = pixelsPerUnit,
-                    gradientResolution = gradientResolution,
-                    textureSize = textureSize,
-                    wrapMode = wrapMode,
-                    filterMode = filterMode,
-                    sampleCount = sampleCount
-                }
+                spriteOptions = spriteOptions
             };
             
             SetLocalizationConverter(figmaImporter);

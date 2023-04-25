@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Cdm.Figma.UI.Styles;
 using Cdm.Figma.UI.Utils;
@@ -13,8 +14,8 @@ namespace Cdm.Figma.UI
         public bool generateSprite { get; set; } = true;
     }
 
-    public abstract class VectorNodeConverter<TNode, TFigmaNode> : NodeConverter<TNode> 
-        where TNode : VectorNode 
+    public abstract class VectorNodeConverter<TNode, TFigmaNode> : NodeConverter<TNode>
+        where TNode : VectorNode
         where TFigmaNode : FigmaNode
     {
         protected override FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args)
@@ -24,9 +25,10 @@ namespace Cdm.Figma.UI
             {
                 args.importer.LogWarning("Vector node with mask is not supported.", figmaNode);
             }
+
             return figmaNode;
         }
-        
+
         protected FigmaNode Convert(FigmaNode parentObject, TNode vectorNode, NodeConvertArgs args,
             VectorConvertArgs vectorConvertArgs)
         {
@@ -48,23 +50,12 @@ namespace Cdm.Figma.UI
             if (vectorConvertArgs.generateSprite)
             {
                 var sprite = vectorConvertArgs.sourceSprite;
-                
-                if ((vectorNode.fills.Any() || vectorNode.strokes.Any()))
+                if (sprite == null)
                 {
-                    if (sprite == null)
+                    sprite = GenerateSprite(vectorNode, SpriteGenerateType.Path, args);
+                    
+                    if (sprite != null)
                     {
-                        if (!args.importer.generatedAssets.TryGet<Sprite>(vectorNode.id, out sprite))
-                        {
-                            sprite = NodeSpriteGenerator.GenerateSprite(
-                                args.file, vectorNode, SpriteGenerateType.Path, args.importer.spriteOptions);
-                            
-                            if (sprite != null)
-                            {
-                                args.importer.generatedAssets.Add(vectorNode.id, sprite);
-                                args.importer.generatedAssets.Add(vectorNode.id, sprite.texture);
-                            }
-                        }
-
                         vectorConvertArgs.sourceSprite = sprite;
                     }
                 }
@@ -89,6 +80,47 @@ namespace Cdm.Figma.UI
             }
 
             args.importer.ConvertEffects(nodeObject, vectorNode.effects);
+        }
+        
+        public static Sprite GenerateSprite(SceneNode node, SpriteGenerateType generateType, NodeConvertArgs args)
+        {
+            if (node is not INodeFill)
+                return null;
+            
+            var nodeId = node.id;
+            var spriteOptions = args.importer.spriteOptions;
+            
+            var fills = ((INodeFill)node).fills;
+            var strokes = ((INodeFill)node).strokes;
+            
+            if (args.overrideNode is INodeFill overrideNodeFill and SceneNode overrideSceneNode)
+            {
+                nodeId = $"{node.id}_{args.overrideNode.id}";
+                spriteOptions.overrideNode = overrideSceneNode;
+                
+                fills = overrideNodeFill.fills;
+                strokes = overrideNodeFill.strokes;
+            }
+            
+            if ((fills != null && fills.Any()) || (strokes != null && strokes.Any()))
+            {
+                if (!args.importer.generatedAssets.TryGet<Sprite>(nodeId, out var sprite))
+                {
+                    sprite = NodeSpriteGenerator.GenerateSprite(args.file, node, generateType, spriteOptions);
+
+                    if (sprite != null)
+                    {
+                        sprite.name = nodeId;
+                        args.importer.generatedAssets.Add(nodeId, sprite);
+                        args.importer.generatedAssets.Add(nodeId, sprite.texture);
+                        return sprite;
+                    }
+                }
+
+                return sprite;
+            }
+
+            return null;
         }
     }
 

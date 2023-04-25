@@ -39,28 +39,7 @@ namespace Cdm.Figma.UI
 
         private static void GenerateStyles(FigmaNode nodeObject, FrameNode node, NodeConvertArgs args)
         {
-            Sprite sprite = null;
-            if (node.fills.Any() || node.strokes.Any())
-            {
-                var options = new SpriteGenerateOptions()
-                {
-                    filterMode = FilterMode.Bilinear,
-                    wrapMode = TextureWrapMode.Clamp,
-                    sampleCount = 8,
-                    textureSize = 1024
-                };
-
-                if (!args.importer.generatedAssets.TryGet(node.id, out sprite))
-                {
-                    sprite = NodeSpriteGenerator.GenerateSprite(args.file, node, SpriteGenerateType.Rectangle, options);
-                    
-                    if (sprite != null)
-                    {
-                        args.importer.generatedAssets.Add(node.id, sprite);
-                        args.importer.generatedAssets.Add(node.id, sprite.texture);
-                    }
-                }
-            }
+            var sprite = VectorNodeConverter.GenerateSprite(node, SpriteGenerateType.Rectangle, args);
 
             // Add image style.
             {
@@ -113,28 +92,39 @@ namespace Cdm.Figma.UI
             var children = currentNode.children;
             if (children != null)
             {
-                for (var child = 0; child < children.Length; child++)
+                for (var i = 0; i < children.Length; i++)
                 {
-                    if (children[child].IsIgnored())
+                    if (children[i].IsIgnored())
                         continue;
-                    
-                    if (args.importer.TryConvertNode(nodeObject, children[child], args, out var childObject))
-                    {
-                        if (currentNode.layoutMode != LayoutMode.None)
-                        {
-                            childObject.gameObject.AddComponent<LayoutElement>();
-                            HandleFillContainer(currentNode.layoutMode, nodeObject, childObject);
-                        }
 
-                        childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
-                        childObject.AdjustPosition(currentNode.size);
-                        
-                        // Do not add transform style if frame has any auto layout component.
-                        if (!isAutoLayout)
+                    Node overrideNode = null;
+                    
+                    var overrideNodeChildren = args.overrideNode?.GetChildren();
+                    if (overrideNodeChildren != null && overrideNodeChildren.Length == children.Length)
+                    {
+                        overrideNode = overrideNodeChildren[i];
+                    }
+
+                    using (args.OverrideNode(overrideNode))
+                    {
+                        if (args.importer.TryConvertNode(nodeObject, children[i], args, out var childObject))
                         {
-                            // Transform importing is disabled due to a bug right now.
-                            // Add transform style after all changes made on rect transform.
-                            //childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));    
+                            if (currentNode.layoutMode != LayoutMode.None)
+                            {
+                                childObject.gameObject.AddComponent<LayoutElement>();
+                                HandleFillContainer(currentNode.layoutMode, nodeObject, childObject);
+                            }
+
+                            childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
+                            childObject.AdjustPosition(currentNode.size);
+                        
+                            // Do not add transform style if frame has any auto layout component.
+                            if (!isAutoLayout)
+                            {
+                                // Transform importing is disabled due to a bug right now.
+                                // Add transform style after all changes made on rect transform.
+                                //childObject.styles.Add(TransformStyle.GetTransformStyle(childObject.rectTransform));    
+                            }
                         }
                     }
                 }
