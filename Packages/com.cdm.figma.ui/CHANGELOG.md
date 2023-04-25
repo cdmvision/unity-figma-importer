@@ -4,6 +4,11 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2023-04-25
+### Changes
+- Added importing the override colors of the instance swap
+- Added scale factor and min-max texture size parameters for sprite generation
+
 ## [1.4.1] - 2023-04-23
 ### Fixes
 - Fixed a bug that text localization is ignored if `TextNode` is not inside a `ComponentSetNode`
