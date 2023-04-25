@@ -202,7 +202,7 @@ namespace Cdm.Figma.Utils
             {
                 var path = geometry.path;
                 var windingRule = geometry.windingRule;
-                AppendSvgStrokePathElement(svg, node, path, new Vector2(width, height), windingRule);
+                AppendSvgStrokePathElement(svg, node, path, new Vector2(width, height), overrideNode, windingRule);
             }
 
             svg.AppendLine("</svg>");
@@ -429,14 +429,28 @@ namespace Cdm.Figma.Utils
         }
         
         private static void AppendSvgStrokePathElement(StringBuilder svg, SceneNode node, string strokePath, 
-            Vector2 size, string windingRule = null)
+            Vector2 size, SceneNode overrideNode = null, string windingRule = null)
         {
+            List<Paint> strokes = null;
+
+            if (overrideNode is INodeFill fill)
+            {
+                strokes = fill.strokes;
+            }
+            else
+            {
+                strokes = ((INodeFill)node)?.strokes;
+            }
+            
+            if (strokes == null)
+                return;
+            
             var nodeFill = (INodeFill)node;
             Debug.Assert(nodeFill != null);
             
-            for (var i = 0; i < nodeFill.strokes.Count; i++)
+            for (var i = 0; i < strokes.Count; i++)
             {
-                var stroke = nodeFill.strokes[i];
+                var stroke = strokes[i];
 
                 if (!stroke.visible)
                     continue;
