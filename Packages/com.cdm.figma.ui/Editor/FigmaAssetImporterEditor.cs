@@ -17,7 +17,9 @@ namespace Cdm.Figma.UI.Editor
 
         private SerializedProperty _pixelsPerUnit;
         private SerializedProperty _gradientResolution;
-        private SerializedProperty _textureSize;
+        private SerializedProperty _minTextureSize;
+        private SerializedProperty _maxTextureSize;
+        private SerializedProperty _scaleFactor;
         private SerializedProperty _wrapMode;
         private SerializedProperty _filterMode;
         private SerializedProperty _sampleCount;
@@ -55,7 +57,9 @@ namespace Cdm.Figma.UI.Editor
 
             _pixelsPerUnit = serializedObject.FindProperty("_pixelsPerUnit");
             _gradientResolution = serializedObject.FindProperty("_gradientResolution");
-            _textureSize = serializedObject.FindProperty("_textureSize");
+            _minTextureSize = serializedObject.FindProperty("_minTextureSize");
+            _maxTextureSize = serializedObject.FindProperty("_maxTextureSize");
+            _scaleFactor = serializedObject.FindProperty("_scaleFactor");
             _wrapMode = serializedObject.FindProperty("_wrapMode");
             _filterMode = serializedObject.FindProperty("_filterMode");
             _sampleCount = serializedObject.FindProperty("_sampleCount");
@@ -212,8 +216,10 @@ namespace Cdm.Figma.UI.Editor
         {
             EditorGUILayout.LabelField("Sprite Settings", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_pixelsPerUnit);
+            EditorGUILayout.PropertyField(_scaleFactor);
             EditorGUILayout.PropertyField(_gradientResolution);
-            EditorGUILayout.PropertyField(_textureSize);
+            EditorGUILayout.PropertyField(_minTextureSize);
+            EditorGUILayout.PropertyField(_maxTextureSize);
             EditorGUILayout.PropertyField(_wrapMode);
             EditorGUILayout.PropertyField(_filterMode);
             IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);

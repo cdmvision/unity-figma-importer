@@ -22,10 +22,12 @@ namespace Cdm.Figma.Utils
 
         public FilterMode filterMode { get; set; }
         public TextureWrapMode wrapMode { get; set; }
-        public int textureSize { get; set; }
+        public int minTextureSize { get; set; }
+        public int maxTextureSize { get; set; }
         public int sampleCount { get; set; }
         public ushort gradientResolution { get; set; }
         public float pixelsPerUnit { get; set; }
+        public float scaleFactor { get; set; }
         public SceneNode overrideNode { get; set; }
 
         public static SpriteGenerateOptions GetDefault()
@@ -41,10 +43,12 @@ namespace Cdm.Figma.Utils
                 },
                 filterMode = FilterMode.Bilinear,
                 wrapMode = TextureWrapMode.Clamp,
-                textureSize = 256,
+                minTextureSize = 64,
+                maxTextureSize = 256,
                 sampleCount = 4,
                 gradientResolution = 128,
                 pixelsPerUnit = 100f,
+                scaleFactor = 1f,
                 overrideNode = null
             };
         }
@@ -534,18 +538,32 @@ namespace Cdm.Figma.Utils
             if (sprite == null)
                 return null;
 
-            var widthRatio = options.textureSize / sprite.rect.width;
-            var heightRatio = options.textureSize / sprite.rect.height;
+            var spriteWidth = sprite.rect.width * options.scaleFactor;
+            var spriteHeight = sprite.rect.height * options.scaleFactor;
 
-            var ratio = Mathf.Min(widthRatio, heightRatio);
-            var widthScaled = sprite.rect.width * ratio;
-            var heightScaled = sprite.rect.height * ratio;
+            var sizeRatio = 1f;
+
+            if (spriteWidth > options.maxTextureSize || spriteHeight > options.maxTextureSize)
+            {
+                var widthRatio = options.maxTextureSize / spriteWidth;
+                var heightRatio = options.maxTextureSize / spriteHeight;    
+                sizeRatio = Mathf.Min(widthRatio, heightRatio);
+            }
+            else if (spriteWidth < options.minTextureSize && spriteHeight < options.minTextureSize)
+            {
+                var widthRatio = options.minTextureSize / spriteWidth;
+                var heightRatio = options.minTextureSize / spriteHeight;
+                sizeRatio = Mathf.Min(widthRatio, heightRatio);
+            }
+
+            var widthScaled = spriteWidth * sizeRatio;
+            var heightScaled = spriteHeight * sizeRatio;
 
             // Use sprite's original dimensions to preserve its aspect ratio.
             if (widthScaled < 1 || heightScaled < 1)
             {
-                widthScaled = sprite.rect.width;
-                heightScaled = sprite.rect.height;
+                widthScaled = spriteWidth;
+                heightScaled = spriteHeight;
             }
 
             var textureWidth = Mathf.RoundToInt(Mathf.Max(widthScaled, 1f));
@@ -569,7 +587,7 @@ namespace Cdm.Figma.Utils
             if (texture == null)
                 return null;
 
-            return CreateTexturedSprite(node, options, texture, ratio, borders);
+            return CreateTexturedSprite(node, options, texture, sizeRatio, borders);
         }
 
         private static Sprite CreateTexturedSprite(SceneNode node, SpriteGenerateOptions options,
