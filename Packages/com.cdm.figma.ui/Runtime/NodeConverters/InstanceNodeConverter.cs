@@ -11,23 +11,28 @@ namespace Cdm.Figma.UI
 
             // Use instance node's transform.
             var instanceNode = frameNodeConverter.Convert(parentObject, node, args);
-
+            
             var propertyReference = node.componentPropertyReferences?.mainComponent;
             if (!string.IsNullOrEmpty(propertyReference))
             {
                 if (args.componentPropertyAssignments.TryGetValue(propertyReference, out var componentNode))
                 {
-                    var componentInstance = frameNodeConverter.Convert(parentObject, componentNode, args);
-                    componentInstance.referenceNode = node;
-                    
-                    instanceNode.rectTransform.CopyTo(componentInstance.rectTransform);
+                    FigmaNode componentInstance = null;
 
+                    using (args.OverrideNode(node))
+                    {
+                        componentInstance = frameNodeConverter.Convert(parentObject, componentNode, args);
+                        componentInstance.referenceNode = node;
+                    }
+
+                    instanceNode.rectTransform.CopyTo(componentInstance.rectTransform);
                     args.importer.DestroyFigmaNode(instanceNode);
                     return componentInstance;
                 }
 
                 Debug.LogWarning(
-                    $"Instance node {node} instance swap property reference could not found: {propertyReference}");
+                    $"It is ok for single component." +
+                    $"\nInstance node {node} instance swap property reference could not found: {propertyReference}");
             }
 
             return instanceNode;

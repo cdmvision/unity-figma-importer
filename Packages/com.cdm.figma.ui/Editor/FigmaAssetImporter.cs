@@ -152,18 +152,18 @@ namespace Cdm.Figma.UI.Editor
 
         protected override IFigmaImporter GetFigmaImporter()
         {
+            var spriteOptions = SpriteGenerateOptions.GetDefault();
+            spriteOptions.pixelsPerUnit = pixelsPerUnit;
+            spriteOptions.gradientResolution = gradientResolution;
+            spriteOptions.textureSize = textureSize;
+            spriteOptions.wrapMode = wrapMode;
+            spriteOptions.filterMode = filterMode;
+            spriteOptions.sampleCount = sampleCount;
+            
             var figmaImporter = new FigmaImporter()
             {
                 failOnError = false,
-                spriteOptions = new SpriteGenerateOptions()
-                {
-                    pixelsPerUnit = pixelsPerUnit,
-                    gradientResolution = gradientResolution,
-                    textureSize = textureSize,
-                    wrapMode = wrapMode,
-                    filterMode = filterMode,
-                    sampleCount = sampleCount
-                }
+                spriteOptions = spriteOptions
             };
             
             SetLocalizationConverter(figmaImporter);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,23 +16,38 @@ namespace Cdm.Figma.Utils
         Rectangle
     }
 
-    public class SpriteGenerateOptions
+    public struct SpriteGenerateOptions
     {
-        public VectorUtils.TessellationOptions tessellationOptions { get; set; } =
-            new VectorUtils.TessellationOptions()
-            {
-                StepDistance = 2.0f,
-                MaxCordDeviation = 0.5f,
-                MaxTanAngleDeviation = 0.1f,
-                SamplingStepSize = 0.01f
-            };
+        public VectorUtils.TessellationOptions tessellationOptions { get; set; }
 
-        public FilterMode filterMode { get; set; } = FilterMode.Bilinear;
-        public TextureWrapMode wrapMode { get; set; } = TextureWrapMode.Clamp;
-        public int textureSize { get; set; } = 256;
-        public int sampleCount { get; set; } = 4;
-        public ushort gradientResolution { get; set; } = 128;
-        public float pixelsPerUnit { get; set; } = 100f;
+        public FilterMode filterMode { get; set; }
+        public TextureWrapMode wrapMode { get; set; }
+        public int textureSize { get; set; }
+        public int sampleCount { get; set; }
+        public ushort gradientResolution { get; set; }
+        public float pixelsPerUnit { get; set; }
+        public SceneNode overrideNode { get; set; }
+
+        public static SpriteGenerateOptions GetDefault()
+        {
+            return new SpriteGenerateOptions()
+            {
+                tessellationOptions = new VectorUtils.TessellationOptions()
+                {
+                    StepDistance = 1.0f,
+                    MaxCordDeviation = 0.5f,
+                    MaxTanAngleDeviation = 0.1f,
+                    SamplingStepSize = 0.01f
+                },
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                textureSize = 256,
+                sampleCount = 4,
+                gradientResolution = 128,
+                pixelsPerUnit = 100f,
+                overrideNode = null
+            };
+        }
     }
     
     public class NodeSpriteGenerator
@@ -40,16 +56,18 @@ namespace Cdm.Figma.Utils
         /// Generates a sprite from the scene node.
         /// </summary>
         public static Sprite GenerateSprite(FigmaFile file, SceneNode node, SpriteGenerateType spriteType,
-            SpriteGenerateOptions options = null)
+            SpriteGenerateOptions? options = null)
         {
+            options ??= SpriteGenerateOptions.GetDefault();
+            
             if (HasImageFill(node))
             {
-                var imageSprite = GenerateSpriteFromImage(file, node, options);
+                var imageSprite = GenerateSpriteFromImage(file, node, options.Value);
                 if (imageSprite != null)
                     return imageSprite;
             }
             
-            var svg = GenerateSpriteSvg(node);
+            var svg = GenerateSpriteSvg(node, options.Value.overrideNode);
             var sprite = GenerateSprite(node, svg, spriteType, options);
             //Debug.Log($"{node}, [Sprite Generated:{(sprite != null ? "YES": "NO")}]: {svg}");
             
@@ -59,34 +77,36 @@ namespace Cdm.Figma.Utils
         /// <summary>
         /// Generates SVG string from the scene node.
         /// </summary>
-        public static string GenerateSpriteSvg(SceneNode node)
+        public static string GenerateSpriteSvg(SceneNode node, SceneNode overrideNode)
         {
-            return GenerateSvgFromPath(node);
+            return GenerateSvgFromPath(node, overrideNode);
         }
 
         /// <summary>
         /// Generates a sprite from the scene node and the SVG string given.
         /// </summary>
         public static Sprite GenerateSprite(SceneNode node, string svg, SpriteGenerateType spriteType,
-            SpriteGenerateOptions options = null)
+            SpriteGenerateOptions? options = null)
         {
+            options ??= SpriteGenerateOptions.GetDefault();
+            
             switch (spriteType)
             {
                 case SpriteGenerateType.Auto:
                     if (node is INodeRect)
                     {
-                        return GenerateRectSpriteFromSvg(node, svg, options);
+                        return GenerateRectSpriteFromSvg(node, svg, options.Value);
                     }
                     else
                     {
-                        return GenerateSpriteFromSvg(node, svg, options);
+                        return GenerateSpriteFromSvg(node, svg, options.Value);
                     }
 
                 case SpriteGenerateType.Path:
-                    return GenerateSpriteFromSvg(node, svg, options);
+                    return GenerateSpriteFromSvg(node, svg, options.Value);
 
                 case SpriteGenerateType.Rectangle:
-                    return GenerateRectSpriteFromSvg(node, svg, options);
+                    return GenerateRectSpriteFromSvg(node, svg, options.Value);
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(spriteType), spriteType, null);
@@ -145,11 +165,11 @@ namespace Cdm.Figma.Utils
                 height: transform.size.y + strokePadding);
         }
 
-        private static string GenerateSvgFromPath(SceneNode node)
+        private static string GenerateSvgFromPath(SceneNode node, SceneNode overrideNode)
         {
             if (node is not VectorNode vectorNode || node is RectangleNode)
             {
-                return GenerateSvgFromRect(node);
+                return GenerateSvgFromRect(node, overrideNode);
             }
 
             var width = vectorNode.size.x;
@@ -162,7 +182,7 @@ namespace Cdm.Figma.Utils
             svg.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
-
+            
             foreach (var geometry in vectorNode.fillGeometry)
             {
                 var path = geometry.path;
@@ -173,8 +193,9 @@ namespace Cdm.Figma.Utils
                 {
                     vectorNode.fillOverrideTable.TryGetValue(geometry.overrideId.Value, out paintOverride);
                 }
-
-                AppendSvgFillPathElement(svg, node, path, new Vector2(width, height), paintOverride, windingRule);
+                
+                AppendSvgFillPathElement(
+                    svg, node, path, new Vector2(width, height), overrideNode, paintOverride, windingRule);
             }
 
             foreach (var geometry in vectorNode.strokeGeometry)
@@ -196,7 +217,7 @@ namespace Cdm.Figma.Utils
             return CreateTexturedSprite(node, options, sceneInfo);
         }
 
-        private static string GenerateSvgFromRect(SceneNode node)
+        private static string GenerateSvgFromRect(SceneNode node, SceneNode overrideNode)
         {
             if (node is not INodeRect nodeRect)
                 throw new ArgumentException("Specified node does not define a rectangle.", nameof(node));
@@ -221,7 +242,7 @@ namespace Cdm.Figma.Utils
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
-            AppendSvgFillPathElement(svg, node, path, new Vector2(width, height));
+            AppendSvgFillPathElement(svg, node, path, new Vector2(width, height), overrideNode);
 
             if (strokeWeight > 0)
             {
@@ -349,9 +370,26 @@ namespace Cdm.Figma.Utils
         }
 
         private static void AppendSvgFillPathElement(StringBuilder svg, SceneNode node, string fillPath,
-            Vector2 size, PaintOverride paintOverride = null, string windingRule = null)
+            Vector2 size, SceneNode overrideNode = null, PaintOverride paintOverride = null, string windingRule = null)
         {
-            var fills = paintOverride != null ? paintOverride.fills : ((INodeFill)node)?.fills;
+            List<Paint> fills = null;
+
+            if (paintOverride != null)
+            {
+                fills = paintOverride.fills;
+            }
+            else
+            {
+                if (overrideNode is INodeFill fill)
+                {
+                    fills = fill.fills;
+                }
+                else
+                {
+                    fills = ((INodeFill)node)?.fills;
+                }
+            }
+            
             if (fills == null)
                 return;
             

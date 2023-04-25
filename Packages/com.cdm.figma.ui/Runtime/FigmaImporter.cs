@@ -81,13 +81,7 @@ namespace Cdm.Figma.UI
         /// <summary>
         /// Sprite generation options.
         /// </summary>
-        public SpriteGenerateOptions spriteOptions { get; set; } = new SpriteGenerateOptions()
-        {
-            filterMode = FilterMode.Bilinear,
-            wrapMode = TextureWrapMode.Clamp,
-            sampleCount = 8,
-            textureSize = 1024
-        };
+        public SpriteGenerateOptions spriteOptions { get; set; } = SpriteGenerateOptions.GetDefault();
 
         /// <summary>
         /// Gets or sets the fallback font that is used when a font mapping does not found.
@@ -165,7 +159,6 @@ namespace Cdm.Figma.UI
                 throw new ArgumentNullException(nameof(file));
 
             options ??= new IFigmaImporter.Options();
-            spriteOptions ??= new SpriteGenerateOptions();
 
             file.BuildHierarchy();
 
