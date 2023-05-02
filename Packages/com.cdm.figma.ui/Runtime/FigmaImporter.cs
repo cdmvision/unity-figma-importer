@@ -89,6 +89,11 @@ namespace Cdm.Figma.UI
         public TMP_FontAsset fallbackFont { get; set; }
 
         /// <summary>
+        /// The layer the <see cref="FigmaNode"/> game objects are in. Default value is <c>UI</c>.
+        /// </summary>
+        public int layer { get; set; } = LayerMask.NameToLayer("UI");
+        
+        /// <summary>
         /// Gets the default node converters that are used for importing Figma nodes.
         /// </summary>
         public static NodeConverter[] GetDefaultNodeConverters()
@@ -406,6 +411,7 @@ namespace Cdm.Figma.UI
         internal T CreateFigmaNode<T>(Node node, GameObject existingGameObject = null) where T : FigmaNode
         {
             var figmaNode = FigmaNode.Create<T>(node, existingGameObject);
+            figmaNode.gameObject.layer = layer;
             generatedGameObjects.Add(figmaNode.nodeId, figmaNode.gameObject);
             return figmaNode;
         }
@@ -482,6 +488,25 @@ namespace Cdm.Figma.UI
             {
                 AddDefaultNodeConverters();
             }
+
+            for (var i = 0; i < nodeConverters.Count; i++)
+            {
+                for (var j = i + 1; j < nodeConverters.Count; j++)
+                {
+                    var first = nodeConverters[i];
+                    var second = nodeConverters[j];
+
+                    if (first is FigmaNodeBehaviourConverter firstConverter &&
+                        second is FigmaNodeBehaviourConverter secondConverter &&
+                        firstConverter.bindingKey == secondConverter.bindingKey &&
+                        firstConverter.type != secondConverter.type)
+                    {
+                        throw new InvalidOperationException(
+                            $"Same binding key '{firstConverter.bindingKey}' for different type of classes " +
+                            $"is not allowed for types '{firstConverter.type}' and '{secondConverter.type}'.");
+                    }
+                }
+            }
         }
 
         private void InitComponentConverters()
@@ -489,6 +514,25 @@ namespace Cdm.Figma.UI
             if (!componentConverters.Any())
             {
                 AddDefaultComponentConverters();
+            }
+            
+            for (var i = 0; i < componentConverters.Count; i++)
+            {
+                for (var j = i + 1; j < componentConverters.Count; j++)
+                {
+                    var first = componentConverters[i];
+                    var second = componentConverters[j];
+
+                    if (first is FigmaComponentBehaviourConverter firstConverter &&
+                        second is FigmaComponentBehaviourConverter secondConverter &&
+                        firstConverter.typeId == secondConverter.typeId &&
+                        firstConverter.type != secondConverter.type)
+                    {
+                        throw new InvalidOperationException(
+                            $"Same type id '{firstConverter.typeId}' for different type of classes " +
+                            $"is not allowed for types '{firstConverter.type}' and '{secondConverter.type}'.");
+                    }
+                }
             }
         }
     }

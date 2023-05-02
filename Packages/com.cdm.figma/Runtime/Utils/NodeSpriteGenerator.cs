@@ -53,7 +53,7 @@ namespace Cdm.Figma.Utils
             };
         }
     }
-    
+
     public class NodeSpriteGenerator
     {
         /// <summary>
@@ -63,18 +63,18 @@ namespace Cdm.Figma.Utils
             SpriteGenerateOptions? options = null)
         {
             options ??= SpriteGenerateOptions.GetDefault();
-            
+
             if (HasImageFill(node))
             {
                 var imageSprite = GenerateSpriteFromImage(file, node, options.Value);
                 if (imageSprite != null)
                     return imageSprite;
             }
-            
+
             var svg = GenerateSpriteSvg(node, options.Value.overrideNode);
             var sprite = GenerateSprite(node, svg, spriteType, options);
             //Debug.Log($"{node}, [Sprite Generated:{(sprite != null ? "YES": "NO")}]: {svg}");
-            
+
             return sprite;
         }
 
@@ -93,7 +93,7 @@ namespace Cdm.Figma.Utils
             SpriteGenerateOptions? options = null)
         {
             options ??= SpriteGenerateOptions.GetDefault();
-            
+
             switch (spriteType)
             {
                 case SpriteGenerateType.Auto:
@@ -116,13 +116,13 @@ namespace Cdm.Figma.Utils
                     throw new ArgumentOutOfRangeException(nameof(spriteType), spriteType, null);
             }
         }
-        
+
         public static bool HasImageFill(SceneNode node)
         {
             // Ignore other node types, we can't import them anyway.
             if (node.type != NodeType.Rectangle && node.type != NodeType.Frame)
                 return false;
-            
+
             if (node is INodeFill nodeFill)
             {
                 return nodeFill.fills.Any(x => x is ImagePaint);
@@ -186,7 +186,7 @@ namespace Cdm.Figma.Utils
             svg.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
-            
+
             foreach (var geometry in vectorNode.fillGeometry)
             {
                 var path = geometry.path;
@@ -197,7 +197,7 @@ namespace Cdm.Figma.Utils
                 {
                     vectorNode.fillOverrideTable.TryGetValue(geometry.overrideId.Value, out paintOverride);
                 }
-                
+
                 AppendSvgFillPathElement(
                     svg, node, path, new Vector2(width, height), overrideNode, paintOverride, windingRule);
             }
@@ -238,7 +238,7 @@ namespace Cdm.Figma.Utils
             var strokeWeight = nodeFill.GetStrokeWeightOrDefault();
             var viewBox = CalculateSvgViewBox(node, true);
             var path = GetRectPath(nodeTransform, nodeRect);
-            
+
             var svg = new StringBuilder();
             svg.Append($@"<svg id=""{node.id}"" ");
             svg.Append($@"width=""{viewBox.width}"" height=""{viewBox.height}"" ");
@@ -263,7 +263,7 @@ namespace Cdm.Figma.Utils
         {
             if (node is not INodeFill nodeFill)
                 throw new ArgumentException("Specified node does not define a fill.", nameof(node));
-            
+
             var imagePaint = nodeFill.fills.FirstOrDefault(x => x is ImagePaint) as ImagePaint;
             if (imagePaint == null)
                 return null;
@@ -286,7 +286,7 @@ namespace Cdm.Figma.Utils
 
             if (node is not INodeFill nodeFill)
                 throw new ArgumentException("Specified node does not define a fill.", nameof(node));
-            
+
             var strokeAlign = nodeFill.strokeAlign ?? StrokeAlign.Center;
             var strokeWidth = nodeFill.strokeWeight ?? 0;
             var strokePadding = strokeWidth;
@@ -303,7 +303,7 @@ namespace Cdm.Figma.Utils
                 Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
             );
-            
+
             var sceneInfo = SVGParser.ImportSVG(new StringReader(svg), ViewportOptions.PreserveViewport);
             return CreateTexturedSprite(node, options, sceneInfo, borders);
         }
@@ -393,10 +393,10 @@ namespace Cdm.Figma.Utils
                     fills = ((INodeFill)node)?.fills;
                 }
             }
-            
+
             if (fills == null)
                 return;
-            
+
             for (var i = 0; i < fills.Count; i++)
             {
                 var fill = fills[i];
@@ -431,8 +431,8 @@ namespace Cdm.Figma.Utils
                 }
             }
         }
-        
-        private static void AppendSvgStrokePathElement(StringBuilder svg, SceneNode node, string strokePath, 
+
+        private static void AppendSvgStrokePathElement(StringBuilder svg, SceneNode node, string strokePath,
             Vector2 size, SceneNode overrideNode = null, string windingRule = null)
         {
             List<Paint> strokes = null;
@@ -445,13 +445,13 @@ namespace Cdm.Figma.Utils
             {
                 strokes = ((INodeFill)node)?.strokes;
             }
-            
+
             if (strokes == null)
                 return;
-            
+
             var nodeFill = (INodeFill)node;
             Debug.Assert(nodeFill != null);
-            
+
             for (var i = 0; i < strokes.Count; i++)
             {
                 var stroke = strokes[i];
@@ -460,7 +460,7 @@ namespace Cdm.Figma.Utils
                     continue;
 
                 svg.Append($@"<path d=""{strokePath}"" ");
-                
+
                 if (stroke is SolidPaint solid)
                 {
                     svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
@@ -525,6 +525,7 @@ namespace Cdm.Figma.Utils
             }
         }
 
+
         private static Sprite CreateTexturedSprite(SceneNode node, SpriteGenerateOptions options,
             SVGParser.SceneInfo sceneInfo, Vector4? borders = null)
         {
@@ -546,7 +547,7 @@ namespace Cdm.Figma.Utils
             if (spriteWidth > options.maxTextureSize || spriteHeight > options.maxTextureSize)
             {
                 var widthRatio = options.maxTextureSize / spriteWidth;
-                var heightRatio = options.maxTextureSize / spriteHeight;    
+                var heightRatio = options.maxTextureSize / spriteHeight;
                 sizeRatio = Mathf.Min(widthRatio, heightRatio);
             }
             else if (spriteWidth < options.minTextureSize && spriteHeight < options.minTextureSize)
@@ -570,7 +571,7 @@ namespace Cdm.Figma.Utils
             var textureHeight = Mathf.RoundToInt(Mathf.Max(heightScaled, 1f));
 
             var expandEdges = options.filterMode != FilterMode.Point || options.sampleCount > 1;
-            var material = new Material(Shader.Find("Unlit/VectorGradient"));
+            var material = GetSpriteMaterial();
             var texture =
                 VectorUtils.RenderSpriteToTexture2D(
                     sprite, textureWidth, textureHeight, material, options.sampleCount, expandEdges);
@@ -582,7 +583,15 @@ namespace Cdm.Figma.Utils
             }
 
             Object.DestroyImmediate(sprite);
-            Object.DestroyImmediate(material);
+
+#if UNITY_EDITOR
+            if (!UnityEditor.EditorUtility.IsPersistent(material))
+            {
+#endif
+                Object.DestroyImmediate(material);
+#if UNITY_EDITOR
+            }
+#endif
 
             if (texture == null)
                 return null;
@@ -601,7 +610,7 @@ namespace Cdm.Figma.Utils
             Sprite spriteWithTexture = null;
             if (borders.HasValue)
             {
-                borders *= scale;
+                borders *= scale * options.scaleFactor;
                 spriteWithTexture = Sprite.Create(
                     texture, spriteRect, spritePivot, pixelsPerUnit, 0, SpriteMeshType.FullRect, borders.Value);
             }
@@ -642,6 +651,27 @@ namespace Cdm.Figma.Utils
 
             svgString.Append("Z");
             return svgString.ToString();
+        }
+
+        private const string SpriteMaterialPath = 
+            "Packages/com.unity.vectorgraphics/Runtime/Materials/Unlit_VectorGradient.mat";
+
+        private const string SpriteShaderName = "Unlit/VectorGradient";
+        
+        private static Material GetSpriteMaterial()
+        {
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+#endif
+                return new Material(Shader.Find(SpriteShaderName));
+#if UNITY_EDITOR
+            }
+#endif
+            
+#if UNITY_EDITOR
+            return UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(SpriteMaterialPath);
+#endif
         }
     }
 }

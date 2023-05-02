@@ -15,6 +15,7 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _fallbackFont;
         private SerializedProperty _fonts;
 
+        private SerializedProperty _layer;
         private SerializedProperty _pixelsPerUnit;
         private SerializedProperty _gradientResolution;
         private SerializedProperty _minTextureSize;
@@ -55,6 +56,7 @@ namespace Cdm.Figma.UI.Editor
             _fonts = serializedObject.FindProperty("_fonts");
             _fallbackFont = serializedObject.FindProperty("_fallbackFont");
 
+            _layer = serializedObject.FindProperty("_layer");
             _pixelsPerUnit = serializedObject.FindProperty("_pixelsPerUnit");
             _gradientResolution = serializedObject.FindProperty("_gradientResolution");
             _minTextureSize = serializedObject.FindProperty("_minTextureSize");
@@ -203,6 +205,9 @@ namespace Cdm.Figma.UI.Editor
 
         private void DrawSettingsGui()
         {
+            DrawBasicSettingsGui();
+            EditorGUILayout.Space();
+            
             DrawSpriteSettingsGui();
             EditorGUILayout.Space();
             
@@ -210,6 +215,12 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.Space();
             
             DrawEffectConvertersGui();
+        }
+
+        private void DrawBasicSettingsGui()
+        {
+            EditorGUILayout.LabelField("Basic Settings", EditorStyles.boldLabel);
+            _layer.intValue = EditorGUILayout.LayerField(_layer.displayName, _layer.intValue);
         }
 
         private void DrawSpriteSettingsGui()
