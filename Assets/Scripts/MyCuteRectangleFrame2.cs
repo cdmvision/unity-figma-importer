@@ -1,7 +1,10 @@
-﻿namespace DefaultNamespace
+﻿using Cdm.Figma.UI;
+using UnityEngine;
+
+// Uncomment to check same binding key exception.
+//[FigmaNode("MyCuteRectangleFrame")]
+public class MyCuteRectangleFrame2 : MonoBehaviour
 {
-    public class MyCuteRectangleFrame2
-    {
-        
-    }
+    [FigmaNode("MyCuteRectangle")]
+    public GameObject rect;
 }

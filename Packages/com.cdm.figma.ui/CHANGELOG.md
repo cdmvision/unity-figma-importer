@@ -4,6 +4,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] - 2023-05-02
+### Changes
+- Added an option to specify `FigmaNode` game objects' layer
+
+### Fixes
+- An exception thrown is the same binding key is used for different type of classes while binding nodes with `FigmaNodeBehaviourConverter` 
+- An exception thrown is the same type id is used for different type of classes while binding components with `FigmaComponentBehaviourConverter`
+
 ## [1.4.2] - 2023-04-25
 ### Changes
 - Added importing the override colors of the instance swap
