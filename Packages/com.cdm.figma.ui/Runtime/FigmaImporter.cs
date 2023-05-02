@@ -488,6 +488,25 @@ namespace Cdm.Figma.UI
             {
                 AddDefaultNodeConverters();
             }
+
+            for (var i = 0; i < nodeConverters.Count; i++)
+            {
+                for (var j = i + 1; j < nodeConverters.Count; j++)
+                {
+                    var first = nodeConverters[i];
+                    var second = nodeConverters[j];
+
+                    if (first is FigmaNodeBehaviourConverter firstConverter &&
+                        second is FigmaNodeBehaviourConverter secondConverter &&
+                        firstConverter.bindingKey == secondConverter.bindingKey &&
+                        firstConverter.type != secondConverter.type)
+                    {
+                        throw new InvalidOperationException(
+                            $"Same binding key '{firstConverter.bindingKey}' for different type of classes " +
+                            $"is not allowed for types '{firstConverter.type}' and '{secondConverter.type}'.");
+                    }
+                }
+            }
         }
 
         private void InitComponentConverters()
@@ -495,6 +514,25 @@ namespace Cdm.Figma.UI
             if (!componentConverters.Any())
             {
                 AddDefaultComponentConverters();
+            }
+            
+            for (var i = 0; i < componentConverters.Count; i++)
+            {
+                for (var j = i + 1; j < componentConverters.Count; j++)
+                {
+                    var first = componentConverters[i];
+                    var second = componentConverters[j];
+
+                    if (first is FigmaComponentBehaviourConverter firstConverter &&
+                        second is FigmaComponentBehaviourConverter secondConverter &&
+                        firstConverter.typeId == secondConverter.typeId &&
+                        firstConverter.type != secondConverter.type)
+                    {
+                        throw new InvalidOperationException(
+                            $"Same type id '{firstConverter.typeId}' for different type of classes " +
+                            $"is not allowed for types '{firstConverter.type}' and '{secondConverter.type}'.");
+                    }
+                }
             }
         }
     }
