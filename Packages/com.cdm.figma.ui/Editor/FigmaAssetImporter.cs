@@ -45,6 +45,15 @@ namespace Cdm.Figma.UI.Editor
         }
 
         [SerializeField]
+        private int _layer;
+        
+        public int layer
+        {
+            get => _layer;
+            set => _layer = value;
+        }
+        
+        [SerializeField]
         private float _pixelsPerUnit = 100f;
 
         public float pixelsPerUnit
@@ -124,6 +133,16 @@ namespace Cdm.Figma.UI.Editor
         [SerializedType(typeof(IEffectConverter))]
         private List<string> _effectConverters = new List<string>();
 
+        public override void OnImportAsset(AssetImportContext ctx)
+        {
+            base.OnImportAsset(ctx);
+
+            if (importSettingsMissing)
+            {
+                layer = LayerMask.NameToLayer("UI");
+            }
+        }
+
         protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter,
             FigmaFile figmaFile)
         {
@@ -183,6 +202,7 @@ namespace Cdm.Figma.UI.Editor
             
             var figmaImporter = new FigmaImporter()
             {
+                layer = layer,
                 failOnError = false,
                 spriteOptions = spriteOptions
             };

@@ -89,6 +89,11 @@ namespace Cdm.Figma.UI
         public TMP_FontAsset fallbackFont { get; set; }
 
         /// <summary>
+        /// The layer the <see cref="FigmaNode"/> game objects are in. Default value is <c>UI</c>.
+        /// </summary>
+        public int layer { get; set; } = LayerMask.NameToLayer("UI");
+        
+        /// <summary>
         /// Gets the default node converters that are used for importing Figma nodes.
         /// </summary>
         public static NodeConverter[] GetDefaultNodeConverters()
@@ -406,6 +411,7 @@ namespace Cdm.Figma.UI
         internal T CreateFigmaNode<T>(Node node, GameObject existingGameObject = null) where T : FigmaNode
         {
             var figmaNode = FigmaNode.Create<T>(node, existingGameObject);
+            figmaNode.gameObject.layer = layer;
             generatedGameObjects.Add(figmaNode.nodeId, figmaNode.gameObject);
             return figmaNode;
         }
