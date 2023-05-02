@@ -57,7 +57,10 @@ namespace Cdm.Figma.UI.Utils
                         var fieldType = GetUnderlyingType(member);
                         //Debug.Log($"{member.Name}, {bindingKey}, {fieldType.Name}");
 
-                        if (typeof(UnityEngine.Component).IsAssignableFrom(fieldType))
+                        var isComponentType = typeof(UnityEngine.Component).IsAssignableFrom(fieldType);
+                        var isGameObjectType = fieldType == typeof(GameObject);
+                        
+                        if (isComponentType)
                         {
                             var target = node.Query(bindingKey, fieldType);
                             if (target == null)
@@ -85,11 +88,27 @@ namespace Cdm.Figma.UI.Utils
                                         $"Specified node '{bindingKey}' with the field type '{fieldType}' could not be found."));
                             }
                         }
+                        else if (isGameObjectType)
+                        {
+                            var target = node.Query(bindingKey);
+                            if (target != null)
+                            {
+                                SetMemberValue(member, obj, target.gameObject);
+                            }
+                            else
+                            {
+                                bindingResult.errors.Add(
+                                    new BindingError(member,
+                                        $"Specified node '{bindingKey}' with the type of '{nameof(GameObject)}' could not be found."));
+                            }
+                        }
                         else
                         {
                             bindingResult.errors.Add(
                                 new BindingError(member,
-                                    $"{nameof(FigmaNodeAttribute)} only valid for types that sub class of {typeof(UnityEngine.Component)}. Got '{fieldType}'."));
+                                    $"{nameof(FigmaNodeAttribute)} only valid for types that sub class of " + 
+                                    $"{typeof(UnityEngine.Component)} or is on {nameof(GameObject)}." +
+                                    $" Got '{fieldType}'."));
                         }
                     }
                 }
@@ -132,7 +151,7 @@ namespace Cdm.Figma.UI.Utils
                     ((PropertyInfo)member).SetValue(target, value, null);
                     break;
                 default:
-                    throw new ArgumentException("MemberInfo must be if type FieldInfo or PropertyInfo", "member");
+                    throw new ArgumentException("MemberInfo must be if type FieldInfo or PropertyInfo", nameof(member));
             }
         }
     }
