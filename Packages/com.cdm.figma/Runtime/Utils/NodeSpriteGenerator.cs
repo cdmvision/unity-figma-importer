@@ -610,7 +610,7 @@ namespace Cdm.Figma.Utils
             Sprite spriteWithTexture = null;
             if (borders.HasValue)
             {
-                borders *= scale;
+                borders *= scale * options.scaleFactor;
                 spriteWithTexture = Sprite.Create(
                     texture, spriteRect, spritePivot, pixelsPerUnit, 0, SpriteMeshType.FullRect, borders.Value);
             }
