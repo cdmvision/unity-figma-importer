@@ -98,7 +98,7 @@ namespace Cdm.Figma.UI
                     }
                     catch (Exception e)
                     {
-                        args.importer.LogError(e, instanceObject.gameObject);
+                        args.importer.LogError(e, instanceObject);
                         break;
                     }
                     finally

@@ -5,7 +5,6 @@ using Cdm.Figma.UI.Utils;
 using Cdm.Figma.Utils;
 using TMPro;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.UI
 {
@@ -201,7 +200,8 @@ namespace Cdm.Figma.UI
                     figmaPage.rectTransform.offsetMin = new Vector2(0, 0);
                     figmaPage.rectTransform.offsetMax = new Vector2(0, 0);
                     figmaPage.transform.SetParent(figmaDocument.rectTransform, false);
-
+                    figmaDocument.pages.Add(figmaPage);
+                    
                     AddBindingIfExist(figmaPage);
 
                     var nodes = pageNode.children;
@@ -222,11 +222,10 @@ namespace Cdm.Figma.UI
                             }
                         }
                     }
+                    
+                    SetPageLogs(figmaPage, _logs);
+                    _logs.Clear();
                 }
-
-                figmaDocument.InitPages();
-                SetDocumentLogs(figmaDocument, _logs);
-                _logs.Clear();
 
                 var bindings = new List<Binding>();
                 foreach (var binding in _bindings)
@@ -425,7 +424,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        internal void LogWarning(string message, Object target = null)
+        internal void LogWarning(string message, FigmaNode target = null)
         {
             Debug.LogWarning(message, target);
 
@@ -433,7 +432,7 @@ namespace Cdm.Figma.UI
                 new FigmaImporterLog(FigmaImporterLogType.Warning, message), target));
         }
 
-        internal void LogError(Exception exception, Object target = null)
+        internal void LogError(Exception exception, FigmaNode target = null)
         {
             if (failOnError)
             {
@@ -445,41 +444,22 @@ namespace Cdm.Figma.UI
                 new FigmaImporterLog(FigmaImporterLogType.Error, exception.Message), target));
         }
 
-        internal void LogError(string message, Object target = null)
+        internal void LogError(string message, FigmaNode target = null)
         {
             LogError(new Exception(message), target);
         }
 
-        private static void SetDocumentLogs(FigmaDocument figmaDocument,
-            IEnumerable<FigmaImporterLogReference> logReferences)
+        private static void SetPageLogs(FigmaPage page, IList<FigmaImporterLogReference> logReferences)
         {
             foreach (var logReference in logReferences)
             {
                 if (logReference.target != null)
                 {
-                    GameObject targetGameObject = null;
-
-                    if (logReference.target is GameObject gameObject)
-                    {
-                        targetGameObject = gameObject;
-                    }
-                    else if (logReference.target is UnityEngine.Component component)
-                    {
-                        targetGameObject = component.gameObject;
-                    }
-
-                    if (targetGameObject != null)
-                    {
-                        var figmaNode = targetGameObject.GetComponent<FigmaNode>();
-                        if (figmaNode != null)
-                        {
-                            figmaNode.logs.Add(logReference.log);
-                        }
-                    }
+                    logReference.target.logs.Add(logReference.log);
                 }
-
-                figmaDocument.allLogs.Add(logReference);
             }
+            
+            page.allLogs.AddRange(logReferences);
         }
 
         private void InitNodeConverters()
@@ -541,9 +521,9 @@ namespace Cdm.Figma.UI
     public struct FigmaImporterLogReference
     {
         public FigmaImporterLog log;
-        public Object target;
+        public FigmaNode target;
 
-        public FigmaImporterLogReference(FigmaImporterLog log, Object target)
+        public FigmaImporterLogReference(FigmaImporterLog log, FigmaNode target)
         {
             this.log = log;
             this.target = target;

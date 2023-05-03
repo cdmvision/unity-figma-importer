@@ -20,12 +20,13 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.Separator();
 
             var figmaDocument = (FigmaDocument)target;
-            if (figmaDocument.allLogs.Any())
+
+            if (figmaDocument.GetLogs().Any())
             {
                 isAllLogsExpanded = EditorGUILayout.BeginFoldoutHeaderGroup(isAllLogsExpanded, "All Logs");
                 if (isAllLogsExpanded)
                 {
-                    foreach (var logRef in figmaDocument.allLogs)
+                    foreach (var logRef in figmaDocument.GetLogs())
                     {
                         EditorGUILayout.BeginHorizontal();
                         EditorGUILayout.LabelField(GetLogIcon(logRef.log.type), 
@@ -48,7 +49,7 @@ namespace Cdm.Figma.UI.Editor
                         EditorGUILayout.EndHorizontal();
                     }
                 }
-
+                
                 EditorGUILayout.EndFoldoutHeaderGroup();
             }
         }

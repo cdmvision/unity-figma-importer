@@ -100,15 +100,8 @@ namespace Cdm.Figma.UI.Editor
         private static GameObject InstantiateFigmaDesign(FigmaDesign figmaDesign, GameObject parentObject)
         {
             var parent = parentObject != null ? parentObject.transform : null;
-            var figmaDesignGo = (GameObject)PrefabUtility.InstantiatePrefab(figmaDesign.gameObject, parent);
-
-            foreach (var page in figmaDesign.document.pages)
-            {
-                PrefabUtility.InstantiatePrefab(page, figmaDesignGo.transform);
-            }
-
-            figmaDesignGo.GetComponent<FigmaDocument>().InitPages();
-            return figmaDesignGo;
+            var document = FigmaDocument.InstantiatePrefab(figmaDesign.document, parent);
+            return document.gameObject;
         }
     }
 }

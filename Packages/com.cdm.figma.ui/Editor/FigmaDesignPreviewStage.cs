@@ -50,14 +50,7 @@ namespace Cdm.Figma.UI.Editor
             var success = false;
             if (_design != null)
             {
-                var designGo = (GameObject)PrefabUtility.InstantiatePrefab(_design.gameObject, _canvas.transform);
-
-                foreach (var p in _design.document.pages)
-                {
-                    PrefabUtility.InstantiatePrefab(p.gameObject, designGo.transform);
-                }
-
-                designGo.GetComponent<FigmaDocument>().InitPages();
+                FigmaDocument.InstantiatePrefab(_design.document, _canvas.transform);
                 success = true;
             }
 

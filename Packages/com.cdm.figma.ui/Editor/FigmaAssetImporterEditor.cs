@@ -72,7 +72,7 @@ namespace Cdm.Figma.UI.Editor
             var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
             if (figmaDesign != null)
             {
-                foreach (var logReference in figmaDesign.document.allLogs)
+                foreach (var logReference in figmaDesign.document.GetLogs())
                 {
                     if (logReference.log.type == FigmaImporterLogType.Error)
                     {
