@@ -46,13 +46,13 @@ namespace Cdm.Figma.UI.Editor
 
         [SerializeField]
         private int _layer;
-        
+
         public int layer
         {
             get => _layer;
             set => _layer = value;
         }
-        
+
         [SerializeField]
         private float _pixelsPerUnit = 100f;
 
@@ -61,7 +61,7 @@ namespace Cdm.Figma.UI.Editor
             get => _pixelsPerUnit;
             set => _pixelsPerUnit = value;
         }
-        
+
         [SerializeField, Min(0.001f)]
         private float _scaleFactor = 1f;
 
@@ -88,7 +88,7 @@ namespace Cdm.Figma.UI.Editor
             get => _minTextureSize;
             set => _minTextureSize = value;
         }
-        
+
         [SerializeField]
         private int _maxTextureSize = 1024;
 
@@ -176,12 +176,34 @@ namespace Cdm.Figma.UI.Editor
             // Add generated objects to the asset.
             foreach (var generatedAsset in importer.generatedAssets)
             {
+                if (generatedAsset.Value.hideFlags.HasFlag(HideFlags.DontSaveInBuild) ||
+                    generatedAsset.Value.hideFlags.HasFlag(HideFlags.DontSaveInEditor) ||
+                    generatedAsset.Value.hideFlags.HasFlag(HideFlags.DontUnloadUnusedAsset) ||
+                    generatedAsset.Value.hideFlags.HasFlag(HideFlags.DontSave) ||
+                    generatedAsset.Value.hideFlags.HasFlag(HideFlags.HideAndDontSave))
+                {
+                    Debug.LogWarning(
+                        $"An asset '{generatedAsset.Value.name}' marked with {generatedAsset.Value.hideFlags} " +
+                        "might cause a build error. Did you forget to mark with HideFlags.None?", generatedAsset.Value);
+                }
+
                 ctx.AddObjectToAsset(generatedAsset.Key, generatedAsset.Value);
             }
 
             // Register dependency assets.
             foreach (var dependencyAsset in importer.dependencyAssets)
             {
+                if (dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSaveInBuild) ||
+                    dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSaveInEditor) ||
+                    dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontUnloadUnusedAsset) ||
+                    dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSave) ||
+                    dependencyAsset.Value.hideFlags.HasFlag(HideFlags.HideAndDontSave))
+                {
+                    Debug.LogWarning(
+                        $"A dependency asset '{dependencyAsset.Value.name}' " +
+                        $"marked with {dependencyAsset.Value.hideFlags} might cause an error.", dependencyAsset.Value);
+                }
+
                 ctx.DependsOnSourceAsset(AssetDatabase.GetAssetPath(dependencyAsset.Value));
             }
 
@@ -199,14 +221,14 @@ namespace Cdm.Figma.UI.Editor
             spriteOptions.wrapMode = wrapMode;
             spriteOptions.filterMode = filterMode;
             spriteOptions.sampleCount = sampleCount;
-            
+
             var figmaImporter = new FigmaImporter()
             {
                 layer = layer,
                 failOnError = false,
                 spriteOptions = spriteOptions
             };
-            
+
             SetLocalizationConverter(figmaImporter);
             AddEffectConverters(figmaImporter);
 
@@ -226,10 +248,10 @@ namespace Cdm.Figma.UI.Editor
         private void SetLocalizationConverter(FigmaImporter figmaImporter)
         {
             var typeName = _localizationConverter;
-            
+
             if (string.IsNullOrWhiteSpace(typeName))
                 return;
-            
+
             var localizationConverterType = Type.GetType(typeName);
             if (localizationConverterType != null)
             {

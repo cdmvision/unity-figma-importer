@@ -275,7 +275,9 @@ namespace Cdm.Figma.Utils
 
             var imageTexture = new Texture2D(1, 1);
             imageTexture.LoadImage(imageData, true);
-
+            imageTexture.name = node.id;
+            imageTexture.hideFlags = HideFlags.NotEditable;
+            
             return CreateTexturedSprite(node, options, imageTexture);
         }
 
@@ -578,6 +580,8 @@ namespace Cdm.Figma.Utils
 
             if (texture != null)
             {
+                texture.name = node.id;
+                texture.hideFlags = HideFlags.NotEditable;
                 texture.filterMode = options.filterMode;
                 texture.wrapMode = options.wrapMode;
             }
@@ -620,6 +624,7 @@ namespace Cdm.Figma.Utils
             }
 
             spriteWithTexture.name = node.id;
+            spriteWithTexture.hideFlags = HideFlags.NotEditable;
 
             return spriteWithTexture;
         }
@@ -653,11 +658,11 @@ namespace Cdm.Figma.Utils
             return svgString.ToString();
         }
 
-        private const string SpriteMaterialPath = 
+        private const string SpriteMaterialPath =
             "Packages/com.unity.vectorgraphics/Runtime/Materials/Unlit_VectorGradient.mat";
 
         private const string SpriteShaderName = "Unlit/VectorGradient";
-        
+
         private static Material GetSpriteMaterial()
         {
 #if UNITY_EDITOR
@@ -668,7 +673,7 @@ namespace Cdm.Figma.Utils
 #if UNITY_EDITOR
             }
 #endif
-            
+
 #if UNITY_EDITOR
             return UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(SpriteMaterialPath);
 #endif
