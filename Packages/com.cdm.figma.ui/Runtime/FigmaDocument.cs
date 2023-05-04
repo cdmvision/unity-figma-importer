@@ -44,7 +44,7 @@ namespace Cdm.Figma.UI
 #else
         public static FigmaDocument InstantiatePrefab(FigmaDocument original, Transform parent = null)
         {
-            throw new NotImplementedException();
+            throw new System.NotImplementedException();
         }
 #endif
         

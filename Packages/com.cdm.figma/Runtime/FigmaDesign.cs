@@ -70,6 +70,10 @@ namespace Cdm.Figma
                     figmaFile.thumbnail = new Texture2D(1, 1);
                     figmaFile.thumbnail.name = "Thumbnail";
                     figmaFile.thumbnail.LoadImage(thumbnailData);
+                    
+#if UNITY_EDITOR
+                    figmaFile.hideFlags = HideFlags.NotEditable;
+#endif
                 }
                 catch (Exception)
                 {
