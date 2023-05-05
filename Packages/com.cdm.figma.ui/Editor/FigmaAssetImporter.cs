@@ -126,6 +126,15 @@ namespace Cdm.Figma.UI.Editor
         }
 
         [SerializeField]
+        private bool _markExternalAssetAsDependency = true;
+        
+        public bool markExternalAssetAsDependency
+        {
+            get => _markExternalAssetAsDependency;
+            set => _markExternalAssetAsDependency = value;
+        }
+
+        [SerializeField]
         [SerializedType(typeof(ILocalizationConverter))]
         private string _localizationConverter;
 
@@ -191,22 +200,25 @@ namespace Cdm.Figma.UI.Editor
             }
 
             // Register dependency assets.
-            foreach (var dependencyAsset in importer.dependencyAssets)
+            if (markExternalAssetAsDependency)
             {
-                if (dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSaveInBuild) ||
-                    dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSaveInEditor) ||
-                    dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontUnloadUnusedAsset) ||
-                    dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSave) ||
-                    dependencyAsset.Value.hideFlags.HasFlag(HideFlags.HideAndDontSave))
+                foreach (var dependencyAsset in importer.dependencyAssets)
                 {
-                    Debug.LogWarning(
-                        $"A dependency asset '{dependencyAsset.Value.name}' " +
-                        $"marked with {dependencyAsset.Value.hideFlags} might cause an error.", dependencyAsset.Value);
+                    if (dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSaveInBuild) ||
+                        dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSaveInEditor) ||
+                        dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontUnloadUnusedAsset) ||
+                        dependencyAsset.Value.hideFlags.HasFlag(HideFlags.DontSave) ||
+                        dependencyAsset.Value.hideFlags.HasFlag(HideFlags.HideAndDontSave))
+                    {
+                        Debug.LogWarning(
+                            $"A dependency asset '{dependencyAsset.Value.name}' " +
+                            $"marked with {dependencyAsset.Value.hideFlags} might cause an error.", dependencyAsset.Value);
+                    }
+
+                    ctx.DependsOnSourceAsset(AssetDatabase.GetAssetPath(dependencyAsset.Value));
                 }
-
-                ctx.DependsOnSourceAsset(AssetDatabase.GetAssetPath(dependencyAsset.Value));
             }
-
+            
             UpdatePageReferences(design);
         }
 
