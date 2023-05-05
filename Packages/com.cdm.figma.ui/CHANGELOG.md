@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.6] - 2023-05-05
+### Changes
+- Added asset importer option to make the imported asset not dependant any external asset
+
 ## [1.4.5] - 2023-05-04
 ### Fixes
 - Fixed a bug that created `Sprite` and `Texture` assets were marked with `HideFlags.DontSave` which causes build errors

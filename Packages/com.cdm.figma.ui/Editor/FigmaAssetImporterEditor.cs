@@ -26,6 +26,7 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _sampleCount;
         private SerializedProperty _effectConverters;
         private SerializedProperty _localizationConverter;
+        private SerializedProperty _markExternalAssetAsDependency;
 
         private int _selectedTabIndex = 0;
         private int _errorCount = 0;
@@ -67,6 +68,7 @@ namespace Cdm.Figma.UI.Editor
             _sampleCount = serializedObject.FindProperty("_sampleCount");
             _effectConverters = serializedObject.FindProperty("_effectConverters");
             _localizationConverter = serializedObject.FindProperty("_localizationConverter");
+            _markExternalAssetAsDependency = serializedObject.FindProperty("_markExternalAssetAsDependency");
 
             var importer = (FigmaAssetImporter)target;
             var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
@@ -221,6 +223,7 @@ namespace Cdm.Figma.UI.Editor
         {
             EditorGUILayout.LabelField("Basic Settings", EditorStyles.boldLabel);
             _layer.intValue = EditorGUILayout.LayerField(_layer.displayName, _layer.intValue);
+            EditorGUILayout.PropertyField(_markExternalAssetAsDependency);
         }
 
         private void DrawSpriteSettingsGui()
