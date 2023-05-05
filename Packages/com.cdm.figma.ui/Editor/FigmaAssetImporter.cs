@@ -126,7 +126,7 @@ namespace Cdm.Figma.UI.Editor
         }
 
         [SerializeField]
-        private bool _markExternalAssetAsDependency;
+        private bool _markExternalAssetAsDependency = true;
         
         public bool markExternalAssetAsDependency
         {
