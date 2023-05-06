@@ -1,11 +1,10 @@
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-public class CommandLineArgs
+public class CloudBuild
 {
     [InitializeOnLoadMethod]
-    public static void PrintArgs()
+    public static void PreExport()
     {
         // Print command line arguments for detection of error in Unity cloud build.
         var args = string.Join(" ", System.Environment.GetCommandLineArgs());
