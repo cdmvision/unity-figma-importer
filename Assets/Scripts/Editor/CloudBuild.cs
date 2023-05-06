@@ -1,11 +1,14 @@
 using UnityEngine;
 
-public class CloudBuild
+namespace Cdm
 {
-    public static void PreExport(UnityEngine.CloudBuild.BuildManifestObject manifest)
+    public class CloudBuild
     {
-        // Print command line arguments for detection of error in Unity cloud build.
-        var args = string.Join(" ", System.Environment.GetCommandLineArgs());
-        Debug.Log($"Editor args: {args}");
+        public static void PreExport(UnityEngine.CloudBuild.BuildManifestObject manifest)
+        {
+            // Print command line arguments for detection of error in Unity cloud build.
+            var args = string.Join(" ", System.Environment.GetCommandLineArgs());
+            Debug.Log($"Editor args: {args}");
+        }
     }
 }
