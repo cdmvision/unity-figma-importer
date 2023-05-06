@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using System.Linq;
 using Cdm.Figma.UI.Styles;
 using Cdm.Figma.UI.Utils;
 using Cdm.Figma.Utils;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
@@ -52,7 +50,7 @@ namespace Cdm.Figma.UI
                 var sprite = vectorConvertArgs.sourceSprite;
                 if (sprite == null)
                 {
-                    sprite = GenerateSprite(vectorNode, SpriteGenerateType.Path, args);
+                    sprite = GenerateSprite(vectorNode, nodeObject, SpriteGenerateType.Path, args);
                     
                     if (sprite != null)
                     {
@@ -82,7 +80,8 @@ namespace Cdm.Figma.UI
             args.importer.ConvertEffects(nodeObject, vectorNode.effects);
         }
         
-        public static Sprite GenerateSprite(SceneNode node, SpriteGenerateType generateType, NodeConvertArgs args)
+        public static Sprite GenerateSprite(SceneNode node, FigmaNode figmaNode, 
+            SpriteGenerateType generateType, NodeConvertArgs args)
         {
             if (node is not INodeFill)
                 return null;
@@ -106,14 +105,21 @@ namespace Cdm.Figma.UI
             {
                 if (!args.importer.generatedAssets.TryGet<Sprite>(nodeId, out var sprite))
                 {
-                    sprite = NodeSpriteGenerator.GenerateSprite(args.file, node, generateType, spriteOptions);
-
-                    if (sprite != null)
+                    try
                     {
-                        sprite.name = nodeId;
-                        args.importer.generatedAssets.Add(nodeId, sprite);
-                        args.importer.generatedAssets.Add(nodeId, sprite.texture);
-                        return sprite;
+                        sprite = NodeSpriteGenerator.GenerateSprite(args.file, node, generateType, spriteOptions);
+                        
+                        if (sprite != null)
+                        {
+                            sprite.name = nodeId;
+                            args.importer.generatedAssets.Add(nodeId, sprite);
+                            args.importer.generatedAssets.Add(nodeId, sprite.texture);
+                            return sprite;
+                        }
+                    }
+                    catch (SvgImportException e)
+                    {
+                        args.importer.LogError(e, figmaNode);
                     }
                 }
 
