@@ -119,7 +119,7 @@ namespace Cdm.Figma.UI
                     }
                     catch (SvgImportException e)
                     {
-                        args.importer.LogError(e, figmaNode);
+                        args.importer.LogError(e + $": {e.svg}", figmaNode);
                     }
                 }
 
