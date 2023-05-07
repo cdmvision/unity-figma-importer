@@ -39,7 +39,7 @@ namespace Cdm.Figma.UI
 
         private static void GenerateStyles(FigmaNode nodeObject, FrameNode node, NodeConvertArgs args)
         {
-            var sprite = VectorNodeConverter.GenerateSprite(node, SpriteGenerateType.Rectangle, args);
+            var sprite = VectorNodeConverter.GenerateSprite(node, nodeObject, SpriteGenerateType.Rectangle, args);
 
             // Add image style.
             {

@@ -217,8 +217,20 @@ namespace Cdm.Figma.Utils
 
         private static Sprite GenerateSpriteFromSvg(SceneNode node, string svg, SpriteGenerateOptions options)
         {
-            var sceneInfo = SVGParser.ImportSVG(new StringReader(svg), ViewportOptions.PreserveViewport);
+            var sceneInfo = ImportSvg(svg);
             return CreateTexturedSprite(node, options, sceneInfo);
+        }
+
+        private static SVGParser.SceneInfo ImportSvg(string svg)
+        {
+            try
+            {
+                return SVGParser.ImportSVG(new StringReader(svg), ViewportOptions.PreserveViewport);
+            }
+            catch (Exception e) // SVGFormatException is internal class, so we need to catch its base class.
+            {
+                throw new SvgImportException(e.Message, svg, e);
+            }
         }
 
         private static string GenerateSvgFromRect(SceneNode node, SceneNode overrideNode)
@@ -305,8 +317,8 @@ namespace Cdm.Figma.Utils
                 Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
                 Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
             );
-
-            var sceneInfo = SVGParser.ImportSVG(new StringReader(svg), ViewportOptions.PreserveViewport);
+            
+            var sceneInfo = ImportSvg(svg);
             return CreateTexturedSprite(node, options, sceneInfo, borders);
         }
 
