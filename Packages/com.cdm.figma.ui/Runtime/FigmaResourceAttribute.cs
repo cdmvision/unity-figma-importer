@@ -8,7 +8,7 @@ namespace Cdm.Figma.UI
         public string path { get; }
         
         /// <summary>
-        /// The field or property is whether required.
+        /// The binding of field or property is whether required.
         /// </summary>
         public bool isRequired { get; set; }
 
