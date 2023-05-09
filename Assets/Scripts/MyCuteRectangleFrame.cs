@@ -6,4 +6,7 @@ public class MyCuteRectangleFrame : MonoBehaviour
 {
     [FigmaNode("MyCuteRectangle")]
     public GameObject rect;
+
+    [FigmaResource("Cube")]
+    public GameObject myCube;
 }
