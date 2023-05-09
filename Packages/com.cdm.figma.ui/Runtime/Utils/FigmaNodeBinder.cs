@@ -34,6 +34,54 @@ namespace Cdm.Figma.UI.Utils
         public static BindingResult Bind(object obj, FigmaNode node)
         {
             var bindingResult = new BindingResult();
+
+            BindFigmaNodeAttributes(obj, node, bindingResult);
+            BindFigmaResourceAttributes(obj, node, bindingResult);
+            
+            if (obj is IFigmaNodeBinder nodeBinder)
+            {
+                nodeBinder.OnBind(node);
+            }
+
+            return bindingResult;
+        }
+
+        private static void BindFigmaResourceAttributes(object obj, FigmaNode node, BindingResult bindingResult)
+        {
+            var members = obj.GetType()
+                .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            foreach (var member in members)
+            {
+                if (!member.MemberType.HasFlag(MemberTypes.Field) &&
+                    !member.MemberType.HasFlag(MemberTypes.Property))
+                    continue;
+                
+                var figmaResourceAttribute = (FigmaResourceAttribute)member.GetCustomAttributes()
+                    .FirstOrDefault(x => x.GetType() == typeof(FigmaResourceAttribute));
+
+                if (figmaResourceAttribute == null)
+                    continue;
+                    
+                var fieldType = GetUnderlyingType(member);
+                var resource = Resources.Load(figmaResourceAttribute.path, fieldType);
+                    
+                if (resource != null)
+                {
+                    SetMemberValue(member, obj, resource);
+                } 
+                else if (figmaResourceAttribute.isRequired)
+                {
+                    bindingResult.errors.Add(
+                        new BindingError(member,
+                            $"Specified resource '{figmaResourceAttribute.path}' with the field type " + 
+                            $"'{fieldType}' could not be found."));
+                }
+            }
+        }
+
+        private static void BindFigmaNodeAttributes(object obj, FigmaNode node, BindingResult bindingResult)
+        {
             var members = obj.GetType()
                 .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -113,13 +161,6 @@ namespace Cdm.Figma.UI.Utils
                     }
                 }
             }
-
-            if (obj is IFigmaNodeBinder nodeBinder)
-            {
-                nodeBinder.OnBind(node);
-            }
-
-            return bindingResult;
         }
 
         private static Type GetUnderlyingType(MemberInfo member)
