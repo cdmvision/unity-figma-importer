@@ -328,14 +328,18 @@ namespace Cdm.Figma.Utils
             {
                 svg.Append($@"<stop ");
                 svg.Append($@"offset=""{gradientStop.position}"" ");
-                svg.Append($@"stop-color=""{gradientStop.color.ToString("rgb-hex")}"" ");
+                svg.Append($@"stop-color=""{gradientStop.color.ToString("rgb-hex")}"" stop-opacity=""{gradientStop.color.a}"" ");
                 svg.AppendLine("/>");
             }
         }
 
-        private static void AppendSvgGradient(StringBuilder svg, GradientPaint gradient, string gradientID,
-            Vector2 viewSize)
+        private static void AppendSvgGradient(StringBuilder svg, SceneNode node, GradientPaint gradient, int index,
+            Vector2 viewSize, bool isStroke)
         {
+            var type = isStroke ? "stroke" : "fill";
+            var gradientID = $"{type}{index}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
+            svg.AppendLine($@"{type}=""url(#{gradientID})"" />");
+            
             if (gradient is LinearGradientPaint)
             {
                 // Handles are normalized. So un-normalize them.
@@ -429,21 +433,45 @@ namespace Cdm.Figma.Utils
 
                 if (fill is SolidPaint solid)
                 {
-                    svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
+                    AppendSvgSolid(svg, node, solid, size, i, false);
                 }
                 else if (fill is GradientPaint gradient)
                 {
-                    var gradientID = $"f{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
-
-                    svg.AppendLine($@"fill=""url(#{gradientID})"" />");
-
-                    AppendSvgGradient(svg, gradient, gradientID, size);
+                    AppendSvgGradient(svg, node, gradient, i, size, false);
                 }
                 else
                 {
                     svg.AppendLine("/>");
                 }
             }
+        }
+        
+        private static void AppendSvgSolidAsGradient(StringBuilder svg, SolidPaint solid, string gradientID,
+            Vector2 viewSize)
+        {
+            // Handles are normalized. So un-normalize them.
+            var p1 = Vector2.Scale(new Vector2(0, 0), viewSize);
+            var p2 = Vector2.Scale(new Vector2(1, 1), viewSize);
+
+            svg.AppendLine(@"<defs>");
+            svg.Append($@"<linearGradient ");
+            svg.Append($@"id=""{gradientID}"" ");
+            svg.Append($@"x1=""{p1.x}"" y1=""{p1.y}"" x2=""{p2.x}"" y2=""{p2.y}"" ");
+            svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
+            svg.AppendLine($@">");
+            
+            svg.Append($@"<stop ");
+            svg.Append($@"offset=""0"" ");
+            svg.Append($@"stop-color=""{solid.color.ToString("rgb-hex")}"" stop-opacity=""{solid.opacity}"" ");
+            svg.AppendLine("/>");
+            
+            svg.Append($@"<stop ");
+            svg.Append($@"offset=""1"" ");
+            svg.Append($@"stop-color=""{solid.color.ToString("rgb-hex")}"" stop-opacity=""{solid.opacity}"" ");
+            svg.AppendLine("/>");
+            
+            svg.AppendLine(@"</linearGradient>");
+            svg.AppendLine(@"</defs>");
         }
 
         private static void AppendSvgStrokePathElement(StringBuilder svg, SceneNode node, string strokePath,
@@ -477,21 +505,38 @@ namespace Cdm.Figma.Utils
 
                 if (stroke is SolidPaint solid)
                 {
-                    svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
+                    AppendSvgSolid(svg, node, solid, size, i, true);
                 }
                 else if (stroke is GradientPaint gradient)
                 {
-                    var gradientID = $"s{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
-
-                    svg.AppendLine($@"fill=""url(#{gradientID})"" />");
-
-                    AppendSvgGradient(svg, gradient, gradientID, size);
+                    AppendSvgGradient(svg, node, gradient, i, size, true);
                 }
                 else
                 {
                     svg.AppendLine("/>");
                 }
             }
+        }
+
+        private static void AppendSvgSolid(StringBuilder svg, SceneNode node, SolidPaint solid, Vector2 size, 
+            int index, bool isStroke)
+        {
+            // Using solid fill color could not be generated in Unity Cloud Build.
+            // So we generate solid fills using gradient.
+            // https://forum.unity.com/threads/vector-graphics-preview-package.529845/page-27#post-8999671
+            //svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
+
+            if (isStroke)
+            {
+                // Gradient stroke is not supported by Vector Graphics package.
+                svg.AppendLine($@"stroke=""{solid.color.ToString("rgb-hex")}"" />");
+                return;
+            }
+            
+            var gradientID = $"fill_{index}_solid_{NodeUtils.HyphenateNodeID(node.id)}";
+            svg.AppendLine($@"fill=""url(#{gradientID})"" />");
+
+            AppendSvgSolidAsGradient(svg, solid, gradientID, size);
         }
 
         private static void AppendSvgStrokeRectElement(StringBuilder svg, SceneNode node, string strokePath,
@@ -522,15 +567,11 @@ namespace Cdm.Figma.Utils
 
                 if (stroke is SolidPaint solid)
                 {
-                    svg.AppendLine($@"stroke=""{solid.color.ToString("rgb-hex")}"" />");
+                    AppendSvgSolid(svg, node, solid, size, i, true);
                 }
                 else if (stroke is GradientPaint gradient)
                 {
-                    var gradientID = $"s{i}_{gradient.type.ToLowerInvariant()}_{NodeUtils.HyphenateNodeID(node.id)}";
-
-                    svg.AppendLine($@"stroke=""url(#{gradientID})"" />");
-
-                    AppendSvgGradient(svg, gradient, gradientID, size);
+                    AppendSvgGradient(svg, node, gradient, i, size, true);
                 }
                 else
                 {
