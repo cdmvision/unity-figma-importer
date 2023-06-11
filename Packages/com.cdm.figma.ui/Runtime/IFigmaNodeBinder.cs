@@ -2,6 +2,6 @@
 {
     public interface IFigmaNodeBinder
     {
-        void OnBind(FigmaNode figmaNode);
+        void OnBind(FigmaNode node);
     }
 }
