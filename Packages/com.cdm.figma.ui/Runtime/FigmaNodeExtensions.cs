@@ -210,6 +210,11 @@ namespace Cdm.Figma.UI
         {
             return node.QueryAll(bindingKey, typeof(T)).Cast<T>().ToArray();
         }
+        
+        public static T Query<T>(this FigmaNode node, bool includeInactive = false) where T : UnityEngine.Component
+        {
+            return node.GetComponentInChildren<T>(includeInactive);
+        }
 
         public static UnityEngine.Component Query(this FigmaNode node, string bindingKey, Type type)
         {
