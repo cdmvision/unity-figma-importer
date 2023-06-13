@@ -204,9 +204,7 @@ namespace Cdm.Figma.Utils
 
             foreach (var geometry in vectorNode.strokeGeometry)
             {
-                var path = geometry.path;
-                var windingRule = geometry.windingRule;
-                AppendSvgStrokePathElement(svg, node, path, new Vector2(width, height), overrideNode, windingRule);
+                AppendSvgStrokePathElement(svg, node, geometry.path, new Vector2(width, height), overrideNode);
             }
 
             svg.AppendLine("</svg>");
@@ -392,7 +390,9 @@ namespace Cdm.Figma.Utils
         }
 
         private static void AppendSvgFillPathElement(StringBuilder svg, SceneNode node, string fillPath,
-            Vector2 size, SceneNode overrideNode = null, PaintOverride paintOverride = null, string windingRule = null)
+            Vector2 size, SceneNode overrideNode = null, 
+            PaintOverride paintOverride = null, 
+            WindingRule? windingRule = null)
         {
             List<Paint> fills = null;
 
@@ -425,15 +425,16 @@ namespace Cdm.Figma.Utils
                 svg.Append($@"<path d=""{fillPath}"" ");
                 svg.Append($@"fill-opacity=""{fill.opacity}"" ");
 
-                if (!string.IsNullOrEmpty(windingRule))
+                if (windingRule.HasValue && windingRule.Value != WindingRule.None)
                 {
-                    svg.Append($@"fill-rule=""{windingRule.ToLowerInvariant()}"" ");
-                    svg.Append($@"clip-rule=""{windingRule.ToLowerInvariant()}"" ");
+                    var windingRuleString = GetWindingRuleString(windingRule.Value);
+                    svg.Append($@"fill-rule=""{windingRuleString}"" ");
+                    svg.Append($@"clip-rule=""{windingRuleString}"" ");
                 }
-
+                
                 if (fill is SolidPaint solid)
                 {
-                    AppendSvgSolid(svg, node, solid, size, i, false);
+                    AppendSvgSolid(svg, node, solid, size, i, false, windingRule);
                 }
                 else if (fill is GradientPaint gradient)
                 {
@@ -445,7 +446,7 @@ namespace Cdm.Figma.Utils
                 }
             }
         }
-        
+
         private static void AppendSvgSolidAsGradient(StringBuilder svg, SolidPaint solid, string gradientID,
             Vector2 viewSize)
         {
@@ -475,7 +476,7 @@ namespace Cdm.Figma.Utils
         }
 
         private static void AppendSvgStrokePathElement(StringBuilder svg, SceneNode node, string strokePath,
-            Vector2 size, SceneNode overrideNode = null, string windingRule = null)
+            Vector2 size, SceneNode overrideNode = null)
         {
             List<Paint> strokes = null;
 
@@ -519,13 +520,8 @@ namespace Cdm.Figma.Utils
         }
 
         private static void AppendSvgSolid(StringBuilder svg, SceneNode node, SolidPaint solid, Vector2 size, 
-            int index, bool isStroke)
+            int index, bool isStroke, WindingRule? windingRule = null)
         {
-            // Using solid fill color could not be generated in Unity Cloud Build.
-            // So we generate solid fills using gradient.
-            // https://forum.unity.com/threads/vector-graphics-preview-package.529845/page-27#post-8999671
-            //svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
-
             if (isStroke)
             {
                 // Gradient stroke is not supported by Vector Graphics package.
@@ -533,14 +529,28 @@ namespace Cdm.Figma.Utils
                 return;
             }
             
-            var gradientID = $"fill_{index}_solid_{NodeUtils.HyphenateNodeID(node.id)}";
-            svg.AppendLine($@"fill=""url(#{gradientID})"" />");
+            // Using solid fill color could not be generated in Unity Cloud Build.
+            // So we generate solid fills using gradient.
+            // https://forum.unity.com/threads/vector-graphics-preview-package.529845/page-27#post-8999671
+            //svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
 
-            AppendSvgSolidAsGradient(svg, solid, gradientID, size);
+            if (windingRule.HasValue && windingRule.Value == WindingRule.EvenOdd)
+            {
+                // Using gradient while winding rule is EvenOdd fails to render it correctly.
+                // So we have to use it as normal way.
+                svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
+            }
+            else
+            {
+                var gradientID = $"fill_{index}_solid_{NodeUtils.HyphenateNodeID(node.id)}";
+                svg.AppendLine($@"fill=""url(#{gradientID})"" />");
+
+                AppendSvgSolidAsGradient(svg, solid, gradientID, size);    
+            }
         }
 
-        private static void AppendSvgStrokeRectElement(StringBuilder svg, SceneNode node, string strokePath,
-            Vector2 size, string windingRule = null)
+        private static void AppendSvgStrokeRectElement(StringBuilder svg, SceneNode node, string strokePath, 
+            Vector2 size)
         {
             var nodeFill = (INodeFill)node;
             Debug.Assert(nodeFill != null);
@@ -709,6 +719,21 @@ namespace Cdm.Figma.Utils
 
             svgString.Append("Z");
             return svgString.ToString();
+        }
+        
+        private static string GetWindingRuleString(WindingRule windingRule)
+        {
+            switch (windingRule)
+            {
+                case WindingRule.None:
+                    return "none";
+                case WindingRule.NonZero:
+                    return "nonzero";
+                case WindingRule.EvenOdd:
+                    return "evenodd";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(windingRule), windingRule, null);
+            }
         }
 
         private const string SpriteMaterialPath =

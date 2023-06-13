@@ -130,7 +130,7 @@ namespace Cdm.Figma
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object fill.
         /// </summary>
         [DataMember(Name = "fillGeometry")]
-        public Path[] fillGeometry { get; set; }
+        public VectorPath[] fillGeometry { get; set; }
 
         /// <summary>
         /// The weight of strokes on the node.
@@ -170,7 +170,7 @@ namespace Cdm.Figma
         /// Only specified if parameter geometry=paths is used. An array of paths representing the object stroke.
         /// </summary>
         [DataMember(Name = "strokeGeometry")]
-        public Path[] strokeGeometry { get; set; }
+        public VectorPath[] strokeGeometry { get; set; }
         
         /// <summary>
         /// Position of stroke relative to vector outline.
@@ -188,25 +188,12 @@ namespace Cdm.Figma
         /// <summary>
         /// Map from ID to <see cref="PaintOverride"/> for looking up fill overrides. To see which regions are
         /// overriden, you must use the <see cref="FileRequest.geometry"/> = paths option. Each path returned may
-        /// have an <see cref="Path.overrideId"/> which maps to this table.
+        /// have an <see cref="VectorPath.overrideId"/> which maps to this table.
         /// </summary>
         [DataMember(Name = "fillOverrideTable")]
         public Dictionary<int, PaintOverride> fillOverrideTable { get; private set; } =
             new Dictionary<int, PaintOverride>();
 
-        [DataContract]
-        public class Path
-        {
-            [DataMember(Name = "path")]
-            public string path { get; set; }
-
-            [DataMember(Name = "overrideID")]
-            public int? overrideId { get; set; }
-            
-            [DataMember(Name = "windingRule")]
-            public string windingRule { get; set; }
-        }
-        
         [DataContract]
         public enum StyleType
         {
