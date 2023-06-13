@@ -1,0 +1,47 @@
+[
+  {
+    "type": "INNER_SHADOW",
+    "visible": true,
+    "color": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0.25
+    },
+    "blendMode": "NORMAL",
+    "offset": {
+      "x": 1,
+      "y": 4
+    },
+    "radius": 4,
+    "spread": 3
+  },
+  {
+    "type": "LAYER_BLUR",
+    "visible": true,
+    "radius": 4
+  },
+  {
+    "type": "BACKGROUND_BLUR",
+    "visible": true,
+    "radius": 4
+  },
+  {
+    "type": "DROP_SHADOW",
+    "visible": true,
+    "color": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0.25
+    },
+    "blendMode": "NORMAL",
+    "offset": {
+      "x": 0,
+      "y": 4
+    },
+    "radius": 4,
+    "spread": 2,
+    "showShadowBehindNode": false
+  }
+]

@@ -1,0 +1,17 @@
+{
+    "name": "Cdm.Figma",
+    "rootNamespace": "Cdm.Figma",
+    "references": [
+        "GUID:68550284b645f4b9894995579f34290a",
+        "GUID:e94339caf4230cb45935f22b6d0d2ee5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
