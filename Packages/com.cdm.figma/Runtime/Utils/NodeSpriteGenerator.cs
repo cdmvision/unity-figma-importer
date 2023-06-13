@@ -1,3 +1,5 @@
+//#define DEBUG_SVG_STRING
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -209,7 +211,9 @@ namespace Cdm.Figma.Utils
 
             svg.AppendLine("</svg>");
 
-            //Debug.Log($"{node}: {svg}");
+#if DEBUG_SVG_STRING
+            Debug.Log($"{node}: {svg}");
+#endif
             return svg.ToString();
         }
 
@@ -265,7 +269,9 @@ namespace Cdm.Figma.Utils
 
             svg.AppendLine("</svg>");
 
-            //Debug.Log($"{node}: {svg}");
+#if DEBUG_SVG_STRING
+            Debug.Log($"{node}: {svg}");
+#endif
             return svg.ToString();
         }
 
