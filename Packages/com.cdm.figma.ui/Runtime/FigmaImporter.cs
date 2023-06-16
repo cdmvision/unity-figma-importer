@@ -32,16 +32,16 @@ namespace Cdm.Figma.UI
         /// <seealso cref="GetDefaultComponentConverters"/>
         /// <seealso cref="AddDefaultComponentConverters"/>
         public IList<ComponentConverter> componentConverters => _componentConverters;
-        
+
         private readonly List<IEffectConverter> _effectConverters = new List<IEffectConverter>();
-        
+
         /// <summary>
         /// Figma effect converters.
         /// </summary>
         /// <seealso cref="BlurEffect"/>
         /// <seealso cref="ShadowEffect"/>
         public IList<IEffectConverter> effectConverters => _effectConverters;
-        
+
         /// <summary>
         /// Localization converter for the <see cref="NodeType.Text"/> node.
         /// </summary>
@@ -55,7 +55,7 @@ namespace Cdm.Figma.UI
         /// </summary>
         /// <seealso cref="TextNode"/>
         public List<FontSource> fonts { get; } = new List<FontSource>();
-        
+
         /// <summary>
         /// Generated UI elements as <see cref="GameObject"/>.
         /// </summary>
@@ -91,7 +91,7 @@ namespace Cdm.Figma.UI
         /// The layer the <see cref="FigmaNode"/> game objects are in. Default value is <c>UI</c>.
         /// </summary>
         public int layer { get; set; } = LayerMask.NameToLayer("UI");
-        
+
         /// <summary>
         /// Gets the default node converters that are used for importing Figma nodes.
         /// </summary>
@@ -99,6 +99,7 @@ namespace Cdm.Figma.UI
         {
             return new NodeConverter[]
             {
+                new PageNodeConverter(),
                 new GroupNodeConverter(),
                 new FrameNodeConverter(),
                 new VectorNodeConverter(),
@@ -194,34 +195,12 @@ namespace Cdm.Figma.UI
                     if (options.selectedPages != null && options.selectedPages.All(p => p != pageNode.id))
                         continue;
 
-                    var figmaPage = CreateFigmaNode<FigmaPage>(pageNode);
-                    figmaPage.rectTransform.anchorMin = new Vector2(0, 0);
-                    figmaPage.rectTransform.anchorMax = new Vector2(1, 1);
-                    figmaPage.rectTransform.offsetMin = new Vector2(0, 0);
-                    figmaPage.rectTransform.offsetMax = new Vector2(0, 0);
+                    if (!TryConvertNode(figmaDocument, pageNode, conversionArgs, out var figmaNode))
+                        continue;
+
+                    var figmaPage = (FigmaPage)figmaNode;
                     figmaPage.transform.SetParent(figmaDocument.rectTransform, false);
                     figmaDocument.pages.Add(figmaPage);
-                    
-                    AddBindingIfExist(figmaPage);
-
-                    var nodes = pageNode.children;
-                    foreach (var node in nodes)
-                    {
-                        if (node.IsIgnored())
-                            continue;
-
-                        if (node is FrameNode)
-                        {
-                            if (TryConvertNode(figmaPage, node, conversionArgs, out var frameNode))
-                            {
-                                frameNode.rectTransform.anchorMin = new Vector2(0, 0);
-                                frameNode.rectTransform.anchorMax = new Vector2(1, 1);
-                                frameNode.rectTransform.offsetMin = new Vector2(0, 0);
-                                frameNode.rectTransform.offsetMax = new Vector2(0, 0);
-                                frameNode.transform.SetParent(figmaPage.rectTransform, false);
-                            }
-                        }
-                    }
                     
                     SetPageLogs(figmaPage, _logs);
                     _logs.Clear();
@@ -458,7 +437,7 @@ namespace Cdm.Figma.UI
                     logReference.target.logs.Add(logReference.log);
                 }
             }
-            
+
             page.allLogs.AddRange(logReferences);
         }
 
@@ -495,7 +474,7 @@ namespace Cdm.Figma.UI
             {
                 AddDefaultComponentConverters();
             }
-            
+
             for (var i = 0; i < componentConverters.Count; i++)
             {
                 for (var j = i + 1; j < componentConverters.Count; j++)
