@@ -1,4 +1,4 @@
-#define DEBUG_SVG_STRING
+//#define DEBUG_SVG_STRING
 
 using System;
 using System.Collections.Generic;
