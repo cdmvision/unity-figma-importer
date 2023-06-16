@@ -1,4 +1,4 @@
-//#define DEBUG_SVG_STRING
+#define DEBUG_SVG_STRING
 
 using System;
 using System.Collections.Generic;
@@ -449,7 +449,7 @@ namespace Cdm.Figma.Utils
 
                 if (fill is SolidPaint solid)
                 {
-                    AppendSvgSolid(svg, node, solid, size, geometryIndex, fillIndex, false, windingRule);
+                    AppendSvgSolid(svg, node, solid, size, geometryIndex, fillIndex, false, false, windingRule);
                 }
                 else if (fill is GradientPaint gradient)
                 {
@@ -521,7 +521,7 @@ namespace Cdm.Figma.Utils
 
                 if (stroke is SolidPaint solid)
                 {
-                    AppendSvgSolid(svg, node, solid, size, geometryIndex, strokeIndex, true);
+                    AppendSvgSolid(svg, node, solid, size, geometryIndex, strokeIndex, true, true);
                 }
                 else if (stroke is GradientPaint gradient)
                 {
@@ -535,8 +535,14 @@ namespace Cdm.Figma.Utils
         }
 
         private static void AppendSvgSolid(StringBuilder svg, SceneNode node, SolidPaint solid, Vector2 size,
-            int geometryIndex, int fillIndex, bool isStroke, WindingRule? windingRule = null)
+            int geometryIndex, int fillIndex, bool isStroke, bool isStrokeOutline, 
+            WindingRule? windingRule = null)
         {
+            if (isStroke && !isStrokeOutline)
+            {
+                svg.AppendLine($@"stroke=""{solid.color.ToString("rgb-hex")}"" />");
+            }
+            
             // Using solid fill color could not be generated in Unity Cloud Build correctly.
             // So we generate solid fill as a gradient.
             // https://forum.unity.com/threads/vector-graphics-preview-package.529845/page-27#post-8999671
@@ -590,7 +596,7 @@ namespace Cdm.Figma.Utils
 
                 if (stroke is SolidPaint solid)
                 {
-                    AppendSvgSolid(svg, node, solid, size, geometryIndex, strokeIndex, true);
+                    AppendSvgSolid(svg, node, solid, size, geometryIndex, strokeIndex, true, false);
                 }
                 else if (stroke is GradientPaint gradient)
                 {

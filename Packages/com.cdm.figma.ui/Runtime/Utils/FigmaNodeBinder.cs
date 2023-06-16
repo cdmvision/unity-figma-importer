@@ -143,7 +143,7 @@ namespace Cdm.Figma.UI.Utils
                             {
                                 SetMemberValue(member, obj, target.gameObject);
                             }
-                            else
+                            else if (figmaNodeAttribute.isRequired)
                             {
                                 bindingResult.errors.Add(
                                     new BindingError(member,
