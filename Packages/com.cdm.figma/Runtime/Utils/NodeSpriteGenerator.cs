@@ -579,7 +579,6 @@ namespace Cdm.Figma.Utils
                     continue;
 
                 svg.Append($@"<path d=""{strokePath}"" ");
-                svg.Append($@"fill=""none"" ");
                 svg.Append($@"stroke-width=""{strokeWidth}"" ");
                 svg.Append($@"stroke-opacity=""{stroke.opacity}"" ");
                 svg.Append($@"stroke-alignment=""{strokeAlign}"" ");
@@ -603,7 +602,6 @@ namespace Cdm.Figma.Utils
                 }
             }
         }
-
 
         private static Sprite CreateTexturedSprite(SceneNode node, SpriteGenerateOptions options,
             SVGParser.SceneInfo sceneInfo, Vector4? borders = null)
