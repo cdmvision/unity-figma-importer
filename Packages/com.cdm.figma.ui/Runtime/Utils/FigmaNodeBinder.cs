@@ -31,12 +31,13 @@ namespace Cdm.Figma.UI.Utils
 
     public class FigmaNodeBinder
     {
-        public static BindingResult Bind(object obj, FigmaNode node)
+        public static BindingResult Bind(object obj, FigmaNode node, FigmaImporter importer = null)
         {
             var bindingResult = new BindingResult();
 
-            BindFigmaNodeAttributes(obj, node, bindingResult);
-            BindFigmaResourceAttributes(obj, node, bindingResult);
+            BindFigmaNodeAttributes(obj, node, bindingResult, importer);
+            BindFigmaResourceAttributes(obj, node, bindingResult, importer);
+            BindFigmaLocalizeAttribute(obj, node, bindingResult, importer);
             
             if (obj is IFigmaNodeBinder nodeBinder)
             {
@@ -46,7 +47,54 @@ namespace Cdm.Figma.UI.Utils
             return bindingResult;
         }
 
-        private static void BindFigmaResourceAttributes(object obj, FigmaNode node, BindingResult bindingResult)
+        private static void BindFigmaLocalizeAttribute(object obj, FigmaNode node, BindingResult bindingResult, 
+            FigmaImporter importer)
+        {
+            if (importer == null || importer.localizationConverter == null)
+                return;
+            
+            var members = obj.GetType()
+                .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            foreach (var member in members)
+            {
+                if (!member.MemberType.HasFlag(MemberTypes.Field) &&
+                    !member.MemberType.HasFlag(MemberTypes.Property))
+                    continue;
+                
+                var figmaLocalizeAttribute = (FigmaLocalizeAttribute)member.GetCustomAttributes()
+                    .FirstOrDefault(x => x.GetType() == typeof(FigmaLocalizeAttribute));
+
+                if (figmaLocalizeAttribute == null)
+                    continue;
+                
+                var fieldType = GetUnderlyingType(member);
+                
+                if (!importer.localizationConverter.CanBind(fieldType))
+                {
+                    bindingResult.errors.Add(
+                        new BindingError(member,
+                            $"Specified localization key '{figmaLocalizeAttribute.localizationKey}' could not be "+ 
+                            $"bound to '{fieldType.FullName}'."));
+                    continue;
+                }
+
+                var key = figmaLocalizeAttribute.localizationKey;
+                if (importer.localizationConverter.TryGetLocalizedValue(key, out var value))
+                {
+                    SetMemberValue(member, obj, value);
+                }
+                else
+                {
+                    bindingResult.errors.Add(
+                        new BindingError(member,
+                            $"Specified localization key '{figmaLocalizeAttribute.localizationKey}' could not be bound."));
+                }
+            }
+        }
+
+        private static void BindFigmaResourceAttributes(object obj, FigmaNode node, BindingResult bindingResult,
+            FigmaImporter importer = null)
         {
             var members = obj.GetType()
                 .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -80,7 +128,8 @@ namespace Cdm.Figma.UI.Utils
             }
         }
 
-        private static void BindFigmaNodeAttributes(object obj, FigmaNode node, BindingResult bindingResult)
+        private static void BindFigmaNodeAttributes(object obj, FigmaNode node, BindingResult bindingResult, 
+            FigmaImporter importer = null)
         {
             var members = obj.GetType()
                 .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -118,7 +167,7 @@ namespace Cdm.Figma.UI.Utils
                                 if (child != null && child.gameObject != node.gameObject)
                                 {
                                     var childObj = child.gameObject.AddComponent(fieldType);
-                                    var result = Bind(childObj, child);
+                                    var result = Bind(childObj, child, importer);
                                     
                                     target = childObj;
                                     bindingResult.errors.AddRange(result.errors);
