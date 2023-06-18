@@ -1,4 +1,4 @@
-﻿using Cdm.Figma.UI.Styles;
+﻿using System;
 using UnityEngine;
 using UnityEngine.Localization;
 
@@ -17,20 +17,37 @@ namespace Cdm.Figma.UI
             style.localizedString.enabled = false;
 
             var localizationKey = node.localizationKey;
-            if (!string.IsNullOrEmpty(localizationKey))
+            if (TryGetLocalizedValue(localizationKey, out var value))
             {
-                if (UnityLocalizationHelper.TryGetTableAndEntryReference(
-                        localizationKey, out var tableReference, out var tableEntryReference))
-                {
-                    style.localizedString.SetValue(new LocalizedString(tableReference, tableEntryReference));
-                }
-                else
-                {
-                    Debug.LogWarning($"Localization key could not be mapped: {localizationKey}");
-                }
+                style.localizedString.SetValue((LocalizedString)value);
+            }
+            else
+            {
+                Debug.LogWarning($"Localization key could not be mapped: {localizationKey}");
             }
 
             node.styles.Add(style);
+        }
+
+        public bool CanBind(Type type)
+        {
+            return type == typeof(LocalizedString);
+        }
+
+        public bool TryGetLocalizedValue(string key, out object value)
+        {
+            if (!string.IsNullOrEmpty(key))
+            {
+                if (UnityLocalizationHelper.TryGetTableAndEntryReference(
+                        key, out var tableReference, out var tableEntryReference))
+                {
+                    value = new LocalizedString(tableReference, tableEntryReference);
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
         }
     }
 }

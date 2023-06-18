@@ -13,7 +13,7 @@ namespace Cdm.Figma.UI.Utils
 
             var component = nodeObject.gameObject.AddComponent(type);
 
-            var bindingResult = FigmaNodeBinder.Bind(component, nodeObject);
+            var bindingResult = FigmaNodeBinder.Bind(component, nodeObject, args.importer);
             if (bindingResult.hasErrors)
             {
                 if (args.importer.failOnError)
