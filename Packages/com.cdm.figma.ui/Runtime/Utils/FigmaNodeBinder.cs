@@ -38,7 +38,7 @@ namespace Cdm.Figma.UI.Utils
             BindFigmaNodeAttributes(obj, node, bindingResult, importer);
             BindFigmaResourceAttributes(obj, node, bindingResult, importer);
             BindFigmaLocalizeAttribute(obj, node, bindingResult, importer);
-            
+
             if (obj is IFigmaNodeBinder nodeBinder)
             {
                 nodeBinder.OnBind(node);
@@ -47,12 +47,12 @@ namespace Cdm.Figma.UI.Utils
             return bindingResult;
         }
 
-        private static void BindFigmaLocalizeAttribute(object obj, FigmaNode node, BindingResult bindingResult, 
+        private static void BindFigmaLocalizeAttribute(object obj, FigmaNode node, BindingResult bindingResult,
             FigmaImporter importer)
         {
             if (importer == null || importer.localizationConverter == null)
                 return;
-            
+
             var members = obj.GetType()
                 .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -61,21 +61,22 @@ namespace Cdm.Figma.UI.Utils
                 if (!member.MemberType.HasFlag(MemberTypes.Field) &&
                     !member.MemberType.HasFlag(MemberTypes.Property))
                     continue;
-                
+
                 var figmaLocalizeAttribute = (FigmaLocalizeAttribute)member.GetCustomAttributes()
                     .FirstOrDefault(x => x.GetType() == typeof(FigmaLocalizeAttribute));
 
                 if (figmaLocalizeAttribute == null)
                     continue;
-                
+
                 var fieldType = GetUnderlyingType(member);
-                
+
+                // Check field type if compatible with localization converter.
                 if (!importer.localizationConverter.CanBind(fieldType))
                 {
                     bindingResult.errors.Add(
                         new BindingError(member,
-                            $"Specified localization key '{figmaLocalizeAttribute.localizationKey}' could not be "+ 
-                            $"bound to '{fieldType.FullName}'."));
+                            $"Specified localization key '{figmaLocalizeAttribute.localizationKey}' could not be " +
+                            $"bound to type of '{fieldType.FullName}'."));
                     continue;
                 }
 
@@ -84,7 +85,7 @@ namespace Cdm.Figma.UI.Utils
                 {
                     SetMemberValue(member, obj, value);
                 }
-                else
+                else if (figmaLocalizeAttribute.isRequired)
                 {
                     bindingResult.errors.Add(
                         new BindingError(member,
@@ -104,31 +105,31 @@ namespace Cdm.Figma.UI.Utils
                 if (!member.MemberType.HasFlag(MemberTypes.Field) &&
                     !member.MemberType.HasFlag(MemberTypes.Property))
                     continue;
-                
+
                 var figmaResourceAttribute = (FigmaResourceAttribute)member.GetCustomAttributes()
                     .FirstOrDefault(x => x.GetType() == typeof(FigmaResourceAttribute));
 
                 if (figmaResourceAttribute == null)
                     continue;
-                    
+
                 var fieldType = GetUnderlyingType(member);
                 var resource = Resources.Load(figmaResourceAttribute.path, fieldType);
-                    
+
                 if (resource != null)
                 {
                     SetMemberValue(member, obj, resource);
-                } 
+                }
                 else if (figmaResourceAttribute.isRequired)
                 {
                     bindingResult.errors.Add(
                         new BindingError(member,
-                            $"Specified resource '{figmaResourceAttribute.path}' with the field type " + 
+                            $"Specified resource '{figmaResourceAttribute.path}' with the field type " +
                             $"'{fieldType}' could not be found."));
                 }
             }
         }
 
-        private static void BindFigmaNodeAttributes(object obj, FigmaNode node, BindingResult bindingResult, 
+        private static void BindFigmaNodeAttributes(object obj, FigmaNode node, BindingResult bindingResult,
             FigmaImporter importer = null)
         {
             var members = obj.GetType()
@@ -141,7 +142,7 @@ namespace Cdm.Figma.UI.Utils
                 {
                     var figmaNodeAttribute = (FigmaNodeAttribute)member.GetCustomAttributes()
                         .FirstOrDefault(x => x.GetType() == typeof(FigmaNodeAttribute));
-                    
+
                     if (figmaNodeAttribute != null)
                     {
                         var bindingKey = member.Name;
@@ -156,7 +157,7 @@ namespace Cdm.Figma.UI.Utils
 
                         var isComponentType = typeof(UnityEngine.Component).IsAssignableFrom(fieldType);
                         var isGameObjectType = fieldType == typeof(GameObject);
-                        
+
                         if (isComponentType)
                         {
                             var target = node.Query(bindingKey, fieldType);
@@ -168,16 +169,16 @@ namespace Cdm.Figma.UI.Utils
                                 {
                                     var childObj = child.gameObject.AddComponent(fieldType);
                                     var result = Bind(childObj, child, importer);
-                                    
+
                                     target = childObj;
                                     bindingResult.errors.AddRange(result.errors);
                                 }
                             }
-                            
+
                             if (target != null)
                             {
                                 SetMemberValue(member, obj, target);
-                            } 
+                            }
                             else if (figmaNodeAttribute.isRequired)
                             {
                                 bindingResult.errors.Add(
@@ -203,7 +204,7 @@ namespace Cdm.Figma.UI.Utils
                         {
                             bindingResult.errors.Add(
                                 new BindingError(member,
-                                    $"{nameof(FigmaNodeAttribute)} only valid for types that sub class of " + 
+                                    $"{nameof(FigmaNodeAttribute)} only valid for types that sub class of " +
                                     $"{typeof(UnityEngine.Component)} or is on {nameof(GameObject)}." +
                                     $" Got '{fieldType}'."));
                         }
