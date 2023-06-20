@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2023-06-20
+### Changes
+- Added `ProgressBar` component
+
 ## [1.5.0] - 2023-06-19
 ### Changes
 - Changed default value of `isRequired` to `true` for  `FigmaNodeAttribute`, `FigmaResourceAttribute` and `FigmaLocalizeAttribute`

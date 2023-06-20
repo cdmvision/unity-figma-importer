@@ -79,7 +79,7 @@ namespace Cdm.Figma.UI.Components
 #endif
 
         [DataContract]
-        private class ComponentData
+        public class ComponentData
         {
             [DataMember]
             public Image.FillMethod direction { get; set; } = Image.FillMethod.Horizontal;
