@@ -35,8 +35,11 @@ namespace Cdm.Figma.UI.Components
             if (_fill == null)
                 return;
 
+            // Set default values.
             _fill.type = Image.Type.Filled;
-
+            _fill.fillMethod = Image.FillMethod.Horizontal;
+            _fill.fillOrigin = (int) Image.OriginHorizontal.Left;
+            
             if (node.node.TryGetPluginData(out var pluginData))
             {
                 var componentData = pluginData.GetComponentDataAs<ComponentData>();

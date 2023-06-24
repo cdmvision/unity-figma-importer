@@ -44,6 +44,15 @@ namespace Cdm.Figma.UI
             interactable = IsInteractable();
         }
 
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            
+            isPointerDown = false;
+            isPointerInside = false;
+            UpdateVariant();
+        }
+
         protected override void Start()
         {
             base.Start();
