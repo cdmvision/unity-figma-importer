@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -56,7 +57,7 @@ namespace Cdm.Figma.Utils
         }
     }
 
-    public class NodeSpriteGenerator
+    public static class NodeSpriteGenerator
     {
         /// <summary>
         /// Generates a sprite from the scene node.
@@ -184,8 +185,7 @@ namespace Cdm.Figma.Utils
 
             var svg = new StringBuilder();
             svg.Append($@"<svg id=""{node.id}"" ");
-            svg.Append($@"width=""{viewBox.width}"" height=""{viewBox.height}"" ");
-            svg.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
+            svg.AppendSvgSizeAndViewBox(viewBox);
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
@@ -261,8 +261,7 @@ namespace Cdm.Figma.Utils
 
             var svg = new StringBuilder();
             svg.Append($@"<svg id=""{node.id}"" ");
-            svg.Append($@"width=""{viewBox.width}"" height=""{viewBox.height}"" ");
-            svg.Append($@"viewBox=""{viewBox.x} {viewBox.y} {viewBox.width} {viewBox.height}"" ");
+            svg.AppendSvgSizeAndViewBox(viewBox);
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
@@ -279,6 +278,18 @@ namespace Cdm.Figma.Utils
             Debug.Log($"{node}: {svg}");
 #endif
             return svg.ToString();
+        }
+
+        private static void AppendSvgSizeAndViewBox(this StringBuilder svg, Rect viewBox)
+        {
+            svg.Append($@"width=""{viewBox.width.ToString(CultureInfo.InvariantCulture)}"" ");
+            svg.Append($@"height=""{viewBox.height.ToString(CultureInfo.InvariantCulture)}"" ");
+            
+            svg.Append($@"viewBox=""");
+            svg.Append($@"{viewBox.x.ToString(CultureInfo.InvariantCulture)} ");
+            svg.Append($@"{viewBox.y.ToString(CultureInfo.InvariantCulture)} ");
+            svg.Append($@"{viewBox.width.ToString(CultureInfo.InvariantCulture)} ");
+            svg.Append($@"{viewBox.height.ToString(CultureInfo.InvariantCulture)}"" ");
         }
 
         private static Sprite GenerateSpriteFromImage(FigmaFile file, SceneNode node, SpriteGenerateOptions options)
@@ -337,9 +348,9 @@ namespace Cdm.Figma.Utils
             foreach (var gradientStop in gradient.gradientStops)
             {
                 svg.Append($@"<stop ");
-                svg.Append($@"offset=""{gradientStop.position}"" ");
-                svg.Append(
-                    $@"stop-color=""{gradientStop.color.ToString("rgb-hex")}"" stop-opacity=""{gradientStop.color.a}"" ");
+                svg.Append($@"offset=""{gradientStop.position.ToString(CultureInfo.InvariantCulture)}"" ");
+                svg.Append($@"stop-color=""{gradientStop.color.ToString("rgb-hex")}"" ");
+                svg.Append($@"stop-opacity=""{gradientStop.color.a.ToString(CultureInfo.InvariantCulture)}"" ");
                 svg.AppendLine("/>");
             }
         }
@@ -361,7 +372,10 @@ namespace Cdm.Figma.Utils
                 svg.AppendLine(@"<defs>");
                 svg.Append($@"<linearGradient ");
                 svg.Append($@"id=""{gradientId}"" ");
-                svg.Append($@"x1=""{p1.x}"" y1=""{p1.y}"" x2=""{p2.x}"" y2=""{p2.y}"" ");
+                svg.Append($@"x1=""{p1.x.ToString(CultureInfo.InvariantCulture)}"" ");
+                svg.Append($@"y1=""{p1.y.ToString(CultureInfo.InvariantCulture)}"" ");
+                svg.Append($@"x2=""{p2.x.ToString(CultureInfo.InvariantCulture)}"" ");
+                svg.Append($@"y2=""{p2.y.ToString(CultureInfo.InvariantCulture)}"" ");
                 svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
                 svg.AppendLine($@">");
 
@@ -389,7 +403,10 @@ namespace Cdm.Figma.Utils
                 svg.Append($@"id=""{gradientId}"" ");
                 svg.Append($@"cx=""0"" cy=""0"" r=""1"" ");
                 svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
-                svg.Append($@"gradientTransform=""translate({p1.x} {p1.y}) rotate({angle}) scale({sx} {sy})"" ");
+                svg.Append($@"gradientTransform=""");
+                svg.Append($@"translate({p1.x.ToString(CultureInfo.InvariantCulture)} {p1.y.ToString(CultureInfo.InvariantCulture)}) ");
+                svg.Append($@"rotate({angle.ToString(CultureInfo.InvariantCulture)})");
+                svg.Append($@"scale({sx.ToString(CultureInfo.InvariantCulture)} {sy.ToString(CultureInfo.InvariantCulture)})""");
                 svg.AppendLine(">");
 
                 AppendSvgGradientStops(svg, gradient);
@@ -438,7 +455,7 @@ namespace Cdm.Figma.Utils
                     continue;
 
                 svg.Append($@"<path d=""{fillPath}"" ");
-                svg.Append($@"fill-opacity=""{fill.opacity}"" ");
+                svg.Append($@"fill-opacity=""{fill.opacity.ToString(CultureInfo.InvariantCulture)}"" ");
 
                 if (windingRule.HasValue && windingRule.Value != WindingRule.None)
                 {
@@ -472,18 +489,24 @@ namespace Cdm.Figma.Utils
             svg.AppendLine(@"<defs>");
             svg.Append($@"<linearGradient ");
             svg.Append($@"id=""{gradientID}"" ");
-            svg.Append($@"x1=""{p1.x}"" y1=""{p1.y}"" x2=""{p2.x}"" y2=""{p2.y}"" ");
+            svg.Append($@"x1=""{p1.x.ToString(CultureInfo.InvariantCulture)}"" ");
+            svg.Append($@"y1=""{p1.y.ToString(CultureInfo.InvariantCulture)}"" ");
+            svg.Append($@"x2=""{p2.x.ToString(CultureInfo.InvariantCulture)}"" ");
+            svg.Append($@"y2=""{p2.y.ToString(CultureInfo.InvariantCulture)}"" ");
+            
             svg.Append($@"gradientUnits=""userSpaceOnUse"" ");
             svg.AppendLine($@">");
 
             svg.Append($@"<stop ");
             svg.Append($@"offset=""0"" ");
-            svg.Append($@"stop-color=""{solid.color.ToString("rgb-hex")}"" stop-opacity=""{solid.opacity}"" ");
+            svg.Append($@"stop-color=""{solid.color.ToString("rgb-hex")}"" ");
+            svg.Append($@"stop-opacity=""{solid.opacity.ToString(CultureInfo.InvariantCulture)}"" ");
             svg.AppendLine("/>");
 
             svg.Append($@"<stop ");
             svg.Append($@"offset=""1"" ");
-            svg.Append($@"stop-color=""{solid.color.ToString("rgb-hex")}"" stop-opacity=""{solid.opacity}"" ");
+            svg.Append($@"stop-color=""{solid.color.ToString("rgb-hex")}"" ");
+            svg.Append($@"stop-opacity=""{solid.opacity.ToString(CultureInfo.InvariantCulture)}"" ");
             svg.AppendLine("/>");
 
             svg.AppendLine(@"</linearGradient>");
@@ -585,13 +608,15 @@ namespace Cdm.Figma.Utils
                     continue;
 
                 svg.Append($@"<path d=""{strokePath}"" ");
-                svg.Append($@"stroke-width=""{strokeWidth}"" ");
-                svg.Append($@"stroke-opacity=""{stroke.opacity}"" ");
+                svg.Append($@"stroke-width=""{strokeWidth.ToString(CultureInfo.InvariantCulture)}"" ");
+                svg.Append($@"stroke-opacity=""{stroke.opacity.ToString(CultureInfo.InvariantCulture)}"" ");
                 svg.Append($@"stroke-alignment=""{strokeAlign}"" ");
 
                 if (nodeFill.strokeDashes != null)
                 {
-                    svg.Append($@"stroke-dasharray=""{string.Join(' ', nodeFill.strokeDashes)}"" ");
+                    var dashArrayStr = string.Join(' ',
+                        nodeFill.strokeDashes.Select(x => x.ToString(CultureInfo.InvariantCulture)));
+                    svg.Append($@"stroke-dasharray=""{dashArrayStr}"" ");
                 }
 
                 if (stroke is SolidPaint solid)
@@ -722,8 +747,11 @@ namespace Cdm.Figma.Utils
 
             Debug.Assert(segments.Length > 1);
 
-            var svgString = new StringBuilder();
-            svgString.Append($@"M {segments[0].P0.x} {segments[0].P0.y} ");
+            var svg = new StringBuilder();
+            svg.Append("M ");
+            svg.Append($"{segments[0].P0.x.ToString(CultureInfo.InvariantCulture)} ");
+            svg.Append($"{segments[0].P0.y.ToString(CultureInfo.InvariantCulture)} ");
+            
             for (var i = 0; i < segments.Length; i++)
             {
                 var segment = segments[i];
@@ -731,12 +759,18 @@ namespace Cdm.Figma.Utils
                 var control1 = segment.P1;
                 var control2 = segment.P2;
                 var end = segmentNext.P0;
-
-                svgString.Append($@"C {control1.x} {control1.y} {control2.x} {control2.y} {end.x} {end.y} ");
+                
+                svg.Append("C ");
+                svg.Append($"{control1.x.ToString(CultureInfo.InvariantCulture)} ");
+                svg.Append($"{control1.y.ToString(CultureInfo.InvariantCulture)} ");
+                svg.Append($"{control2.x.ToString(CultureInfo.InvariantCulture)} ");
+                svg.Append($"{control2.y.ToString(CultureInfo.InvariantCulture)} ");
+                svg.Append($"{end.x.ToString(CultureInfo.InvariantCulture)} ");
+                svg.Append($"{end.y.ToString(CultureInfo.InvariantCulture)} ");
             }
 
-            svgString.Append("Z");
-            return svgString.ToString();
+            svg.Append("Z");
+            return svg.ToString();
         }
 
         private static string GetWindingRuleString(WindingRule windingRule)
