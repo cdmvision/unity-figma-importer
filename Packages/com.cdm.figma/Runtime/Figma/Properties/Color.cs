@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.Serialization;
 using UnityEngine;
 
@@ -60,7 +61,7 @@ namespace Cdm.Figma
                 case "rgb":
                     return $"rgb({c.r}, {c.g}, {c.b})";
                 case "rgba":
-                    return $"rgba({c.r}, {c.g}, {c.b}, {a:F1})";
+                    return $"rgba({c.r}, {c.g}, {c.b}, {a.ToString(CultureInfo.InvariantCulture)})";
                 case "rgb-hex":
                     return $"#{ColorUtility.ToHtmlStringRGB((UnityEngine.Color) this)}";
                 case "rgba-hex":
