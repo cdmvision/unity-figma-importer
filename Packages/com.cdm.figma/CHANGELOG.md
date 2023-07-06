@@ -4,6 +4,13 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2023-07-06
+### Changes
+-  Added `FIGMA_PRINT_SVG_STRING` definition for printing svg strings to the console while importing (you should add this definition to `PlayerSettings` for enable printing)
+
+### Fixes
+- Fixed a bug that svg string is generated respecting to the operating system's region format
+
 ## [1.5.2] - 2023-06-25
 - No changes
 
