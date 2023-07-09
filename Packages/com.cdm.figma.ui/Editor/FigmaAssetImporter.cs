@@ -143,7 +143,7 @@ namespace Cdm.Figma.UI.Editor
         private List<string> _effectConverters = new List<string>();
 
         [SerializeField]
-        private List<AssetBindingData> _assetBindings = new List<AssetBindingData>();
+        private List<SerializableAssetBinding> _assetBindings = new List<SerializableAssetBinding>();
 
         public override void OnImportAsset(AssetImportContext ctx)
         {
@@ -503,22 +503,36 @@ namespace Cdm.Figma.UI.Editor
         }
         
         [Serializable]
-        private struct AssetBindingData
+        internal struct SerializableAssetBinding
         {
+            /// <summary>
+            /// Type of the class that having asset binding members.
+            /// </summary>
             public string type;
-            public List<AssetBindingMemberData> bindings;
+            
+            /// <summary>
+            /// The asset bindings of the members.
+            /// </summary>
+            public List<SerializableAssetBindingMember> bindings;
 
-            public AssetBindingData(string type)
+            public SerializableAssetBinding(string type)
             {
                 this.type = type;
-                this.bindings = new List<AssetBindingMemberData>();
+                this.bindings = new List<SerializableAssetBindingMember>();
             }
         }
 
         [Serializable]
-        private struct AssetBindingMemberData
+        internal struct SerializableAssetBindingMember
         {
+            /// <summary>
+            /// The name of the <see cref="MemberInfo"/>.
+            /// </summary>
             public string name;
+            
+            /// <summary>
+            /// The asset is being assigned to the <see cref="MemberInfo"/>.
+            /// </summary>
             public Object asset;
         }
     }

@@ -3,7 +3,7 @@
 namespace Cdm.Figma.UI
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class FigmaAssetAttribute : FigmaImporterAttribute
+    public class FigmaAssetAttribute : Attribute
     {
         /// <summary>
         /// Optional display name of the asset.

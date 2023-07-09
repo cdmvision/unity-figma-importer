@@ -103,10 +103,21 @@ namespace Cdm.Figma.UI.Utils
             var binding = importer.assetBindings.FirstOrDefault(x => x.type == type);
             if (binding == null)
                 return;
-
+            
+            var members = type.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            
             foreach (var bindingMember in binding.memberBindings)
             {
                 var member = bindingMember.member;
+
+                if (!members.Contains(member))
+                {
+                    bindingResult.errors.Add(
+                        new BindingError(member, 
+                            $"Specified member '{member.Name}' does not exist for type '{type}'."));
+                    continue;
+                }
+                
                 var asset = bindingMember.asset;
 
                 var figmaAssetAttribute = (FigmaAssetAttribute)member.GetCustomAttributes()

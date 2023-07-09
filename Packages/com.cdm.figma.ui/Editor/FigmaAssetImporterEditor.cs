@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,6 +14,18 @@ namespace Cdm.Figma.UI.Editor
     [CustomEditor(typeof(FigmaAssetImporter), editorForChildClasses: true)]
     public class FigmaAssetImporterEditor : ScriptedImporterEditor
     {
+        private const string AssetBindingTypePropertyPath =
+            nameof(FigmaAssetImporter.SerializableAssetBinding.type);
+
+        private const string AssetBindingsPropertyPath =
+            nameof(FigmaAssetImporter.SerializableAssetBinding.bindings);
+
+        private const string AssetBindingNamePropertyPath =
+            nameof(FigmaAssetImporter.SerializableAssetBindingMember.name);
+
+        private const string AssetBindingAssetPropertyPath =
+            nameof(FigmaAssetImporter.SerializableAssetBindingMember.asset);
+
         private SerializedProperty _pages;
         private SerializedProperty _pageReferences;
         private SerializedProperty _fallbackFont;
@@ -37,9 +48,9 @@ namespace Cdm.Figma.UI.Editor
         private int _selectedTabIndex = 0;
         private int _errorCount = 0;
         private int _warningCount = 0;
-        
-        private readonly Dictionary<Type, List<TypeBindingData>> _bindings = 
-            new Dictionary<Type, List<TypeBindingData>>();
+
+        private readonly Dictionary<Type, List<AssetBindingMember>> _bindings =
+            new Dictionary<Type, List<AssetBindingMember>>();
 
         private readonly GUIContent[] _sampleCountContents =
         {
@@ -104,9 +115,9 @@ namespace Cdm.Figma.UI.Editor
 
             var selectedTabIndex = GUILayout.Toolbar(_selectedTabIndex, new GUIContent[]
             {
-                new GUIContent("Pages"), 
-                new GUIContent("Fonts"), 
-                new GUIContent("Settings"), 
+                new GUIContent("Pages"),
+                new GUIContent("Fonts"),
+                new GUIContent("Settings"),
                 new GUIContent("Bindings")
             });
 
@@ -223,25 +234,13 @@ namespace Cdm.Figma.UI.Editor
             }
         }
 
-        private struct TypeBindingData
-        {
-            public MemberInfo memberInfo;
-            public FigmaAssetAttribute attribute;
-
-            public TypeBindingData(MemberInfo memberInfo, FigmaAssetAttribute attribute)
-            {
-                this.memberInfo = memberInfo;
-                this.attribute = attribute;
-            }
-        }
-
         private void RefreshAssetBindings()
         {
             _bindings.Clear();
-            
+
             var monoBehaviours = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes().Where(t => typeof(MonoBehaviour).IsAssignableFrom(t)));
-            
+
             foreach (var monoBehaviour in monoBehaviours)
             {
                 var members = monoBehaviour.GetMembers(
@@ -261,14 +260,14 @@ namespace Cdm.Figma.UI.Editor
 
                     if (!_bindings.ContainsKey(monoBehaviour))
                     {
-                        _bindings.Add(monoBehaviour, new List<TypeBindingData>());
+                        _bindings.Add(monoBehaviour, new List<AssetBindingMember>());
                     }
-                    
-                    _bindings[monoBehaviour].Add(new TypeBindingData(member, figmaAssetAttribute));
+
+                    _bindings[monoBehaviour].Add(new AssetBindingMember(member, figmaAssetAttribute));
                 }
             }
         }
-        
+
         private void DrawBindingsGui(bool refresh)
         {
             if (refresh)
@@ -278,84 +277,109 @@ namespace Cdm.Figma.UI.Editor
 
             foreach (var binding in _bindings)
             {
-                var type = binding.Key;
-                var typeIndex = FindAssetBindingByType(type);
-                
-                EditorGUILayout.LabelField(type.FullName, EditorStyles.boldLabel);
+                var bindingType = binding.Key;
+
+                EditorGUILayout.LabelField(bindingType.FullName, EditorStyles.boldLabel);
                 EditorGUI.indentLevel += 1;
-                
-                foreach (var data in binding.Value)
+
+                foreach (var memberBinding in binding.Value)
                 {
-                    var memberIndex = -1;
-                    var member = data.memberInfo;
-                    var attribute = data.attribute;
+                    var bindingIndex = -1;
+                    var member = memberBinding.member;
+                    var attribute = memberBinding.attribute;
                     UnityEngine.Object value = null;
-                    
-                    if (typeIndex >= 0)
+
+                    var bindingTypeIndex = FindSerializableAssetBindingByType(bindingType);
+                    if (bindingTypeIndex >= 0)
                     {
-                       memberIndex = FindAssetBindingMemberByType(typeIndex, member);
-                       if (memberIndex >= 0)
-                       {
-                           var bindingElement = _assetBindings.GetArrayElementAtIndex(typeIndex);
-                           var members = bindingElement.FindPropertyRelative("bindings");
-                           var memberElement = members.GetArrayElementAtIndex(memberIndex);
-                           var assetProperty = memberElement.FindPropertyRelative("asset");
-                           value = assetProperty.objectReferenceValue;
-                       }
+                        bindingIndex = FindSerializableAssetBindingMemberByType(bindingTypeIndex, member);
+
+                        if (bindingIndex >= 0)
+                        {
+                            var bindingProperty = _assetBindings.GetArrayElementAtIndex(bindingTypeIndex);
+                            var bindingsProperty = bindingProperty.FindPropertyRelative(AssetBindingsPropertyPath);
+                            var memberProperty = bindingsProperty.GetArrayElementAtIndex(bindingIndex);
+                            var assetProperty = memberProperty.FindPropertyRelative(AssetBindingAssetPropertyPath);
+                            value = assetProperty.objectReferenceValue;
+                        }
                     }
-                    
-                    var fieldType = ReflectionHelper.GetUnderlyingType(member);
-                    var displayName = !string.IsNullOrEmpty(attribute.name) 
-                        ? attribute.name 
+
+                    var displayName = !string.IsNullOrEmpty(attribute.name)
+                        ? attribute.name
                         : ObjectNames.NicifyVariableName(member.Name);
-                    
+
+                    var fieldType = ReflectionHelper.GetUnderlyingType(member);
+
                     EditorGUI.BeginChangeCheck();
-                    var newValue = 
-                        EditorGUILayout.ObjectField(new GUIContent(displayName, member.Name), value, fieldType, false);
-                    
+                    var newValue = EditorGUILayout.ObjectField(
+                        new GUIContent(displayName, member.Name), value, fieldType, false);
+
                     if (EditorGUI.EndChangeCheck())
                     {
-                        if (typeIndex < 0)
+                        if (newValue != null)
                         {
-                            _assetBindings.arraySize += 1;
-                            typeIndex = _assetBindings.arraySize - 1;
-                        }
+                            if (bindingTypeIndex < 0)
+                            {
+                                _assetBindings.arraySize += 1;
+                                bindingTypeIndex = _assetBindings.arraySize - 1;
+                            }
 
-                        var bindingElement = _assetBindings.GetArrayElementAtIndex(typeIndex);
-                        bindingElement.FindPropertyRelative("type").stringValue = type.AssemblyQualifiedName;
-                        
-                        var members = bindingElement.FindPropertyRelative("bindings");
-                        
-                        if (memberIndex < 0)
+                            var bindingProperty = _assetBindings.GetArrayElementAtIndex(bindingTypeIndex);
+                            var bindingTypeProperty = bindingProperty.FindPropertyRelative(AssetBindingTypePropertyPath);
+                            bindingTypeProperty.stringValue = bindingType.AssemblyQualifiedName;
+
+                            var bindingsProperty = bindingProperty.FindPropertyRelative(AssetBindingsPropertyPath);
+
+                            if (bindingIndex < 0)
+                            {
+                                bindingsProperty.arraySize += 1;
+                                bindingIndex = bindingsProperty.arraySize - 1;
+                            }
+
+                            var memberProperty = bindingsProperty.GetArrayElementAtIndex(bindingIndex);
+                            var nameProperty = memberProperty.FindPropertyRelative(AssetBindingNamePropertyPath);
+                            var assetProperty = memberProperty.FindPropertyRelative(AssetBindingAssetPropertyPath);
+
+                            nameProperty.stringValue = member.Name;
+                            assetProperty.objectReferenceValue = newValue;
+                        }
+                        else
                         {
-                            members.arraySize += 1;
-                            memberIndex = members.arraySize - 1;
-                        }
-                        
-                        var memberElement = members.GetArrayElementAtIndex(memberIndex);
-                        var nameProperty = memberElement.FindPropertyRelative("name");
-                        var assetProperty = memberElement.FindPropertyRelative("asset");
+                            if (bindingTypeIndex >= 0)
+                            {
+                                var bindingProperty = _assetBindings.GetArrayElementAtIndex(bindingTypeIndex);
+                                var bindingsProperty = bindingProperty.FindPropertyRelative(AssetBindingsPropertyPath);
+                                
+                                if (bindingIndex >= 0)
+                                {
+                                    bindingsProperty.DeleteArrayElementAtIndex(bindingIndex);
+                                }
 
-                        nameProperty.stringValue = member.Name;
-                        assetProperty.objectReferenceValue = newValue;
+                                if (bindingsProperty.arraySize == 0)
+                                {
+                                    _assetBindings.DeleteArrayElementAtIndex(bindingTypeIndex);
+                                }
+                            }
+                        }
                     }
                 }
-                
+
                 EditorGUI.indentLevel -= 1;
                 EditorGUILayout.Space();
             }
         }
 
-        private int FindAssetBindingByType(Type targetType)
+        private int FindSerializableAssetBindingByType(Type targetType)
         {
             if (targetType == null)
                 return -1;
-            
+
             for (var i = 0; i < _assetBindings.arraySize; i++)
             {
                 var binding = _assetBindings.GetArrayElementAtIndex(i);
+                var bindingTypeName = binding.FindPropertyRelative(AssetBindingTypePropertyPath)?.stringValue;
                 
-                var type = Type.GetType(binding.FindPropertyRelative("type")?.stringValue ?? "");
+                var type = Type.GetType(bindingTypeName ?? "");
                 if (type == targetType)
                 {
                     return i;
@@ -365,15 +389,18 @@ namespace Cdm.Figma.UI.Editor
             return -1;
         }
 
-        private int FindAssetBindingMemberByType(int bindingIndex, MemberInfo memberInfo)
+        private int FindSerializableAssetBindingMemberByType(int bindingIndex, MemberInfo memberInfo)
         {
+            const string bindingsPropertyPath = nameof(FigmaAssetImporter.SerializableAssetBinding.bindings);
+            const string namePropertyPath = nameof(FigmaAssetImporter.SerializableAssetBindingMember.name);
+
             var binding = _assetBindings.GetArrayElementAtIndex(bindingIndex);
-            var members = binding.FindPropertyRelative("bindings");
+            var members = binding.FindPropertyRelative(bindingsPropertyPath);
 
             for (var i = 0; i < members.arraySize; i++)
             {
                 var member = members.GetArrayElementAtIndex(i);
-                var memberName = member.FindPropertyRelative("name");
+                var memberName = member.FindPropertyRelative(namePropertyPath);
 
                 if (memberName.stringValue.Equals(memberInfo.Name))
                 {
@@ -383,18 +410,18 @@ namespace Cdm.Figma.UI.Editor
 
             return -1;
         }
-        
+
         private void DrawSettingsGui()
         {
             DrawBasicSettingsGui();
             EditorGUILayout.Space();
-            
+
             DrawSpriteSettingsGui();
             EditorGUILayout.Space();
-            
+
             DrawLocalizationConverterGui();
             EditorGUILayout.Space();
-            
+
             DrawEffectConvertersGui();
         }
 
@@ -421,7 +448,7 @@ namespace Cdm.Figma.UI.Editor
         private void DrawLocalizationConverterGui()
         {
             EditorGUILayout.LabelField("Localization", EditorStyles.boldLabel);
-            
+
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel("Converter");
             EditorGUILayout.PropertyField(_localizationConverter);
@@ -504,6 +531,18 @@ namespace Cdm.Figma.UI.Editor
 
             fontAsset = null;
             return false;
+        }
+
+        private struct AssetBindingMember
+        {
+            public MemberInfo member;
+            public FigmaAssetAttribute attribute;
+
+            public AssetBindingMember(MemberInfo member, FigmaAssetAttribute attribute)
+            {
+                this.member = member;
+                this.attribute = attribute;
+            }
         }
     }
 }

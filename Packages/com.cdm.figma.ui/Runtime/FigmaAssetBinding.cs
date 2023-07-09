@@ -15,7 +15,6 @@ namespace Cdm.Figma.UI
         public FigmaAssetBinding(Type type)
         {
             this.type = type;
-            this.memberBindings = memberBindings;
         }
         
         public FigmaAssetBinding(Type type, ISet<FigmaAssetBindingMember> memberBindings)
