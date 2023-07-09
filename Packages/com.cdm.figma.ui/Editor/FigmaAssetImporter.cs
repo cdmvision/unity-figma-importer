@@ -9,7 +9,7 @@ using TMPro;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
-using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.UI.Editor
 {
@@ -142,6 +142,9 @@ namespace Cdm.Figma.UI.Editor
         [SerializedType(typeof(IEffectConverter))]
         private List<string> _effectConverters = new List<string>();
 
+        [SerializeField]
+        private List<AssetBindingData> _assetBindings = new List<AssetBindingData>();
+
         public override void OnImportAsset(AssetImportContext ctx)
         {
             base.OnImportAsset(ctx);
@@ -251,10 +254,39 @@ namespace Cdm.Figma.UI.Editor
             SearchAndAddComponentConverters(figmaImporter);
             SearchAndAddNodeConverters(figmaImporter);
 
+            SetAssetBindings(figmaImporter);
+
             figmaImporter.AddDefaultNodeConverters();
             figmaImporter.AddDefaultComponentConverters();
 
             return figmaImporter;
+        }
+        
+        private void SetAssetBindings(FigmaImporter figmaImporter)
+        {
+            figmaImporter.assetBindings = new HashSet<FigmaAssetBinding>();
+
+            foreach (var binding in _assetBindings)
+            {
+                var type = Type.GetType(binding.type);
+                if (type == null)
+                    continue;
+
+                var assetBinding = new FigmaAssetBinding(type);
+                assetBinding.memberBindings = new HashSet<FigmaAssetBindingMember>();
+
+                foreach (var memberBinding in binding.bindings)
+                {
+                    var members = type.GetMember(memberBinding.name);
+                    if (members.Length <= 0)
+                        continue;
+
+                    // We don't care methods, so there should be only one member.
+                    assetBinding.memberBindings.Add(new FigmaAssetBindingMember(members[0], memberBinding.asset));
+                }
+
+                figmaImporter.assetBindings.Add(assetBinding);
+            }
         }
 
         private void SetLocalizationConverter(FigmaImporter figmaImporter)
@@ -468,6 +500,26 @@ namespace Cdm.Figma.UI.Editor
                     _pageReferences[i] = figmaPage;
                 }
             }
+        }
+        
+        [Serializable]
+        private struct AssetBindingData
+        {
+            public string type;
+            public List<AssetBindingMemberData> bindings;
+
+            public AssetBindingData(string type)
+            {
+                this.type = type;
+                this.bindings = new List<AssetBindingMemberData>();
+            }
+        }
+
+        [Serializable]
+        private struct AssetBindingMemberData
+        {
+            public string name;
+            public Object asset;
         }
     }
 }

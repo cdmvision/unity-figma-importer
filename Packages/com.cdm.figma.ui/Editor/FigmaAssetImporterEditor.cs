@@ -1,5 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEditor;
 using UnityEditor.AssetImporters;
@@ -27,10 +32,14 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _effectConverters;
         private SerializedProperty _localizationConverter;
         private SerializedProperty _markExternalAssetAsDependency;
+        private SerializedProperty _assetBindings;
 
         private int _selectedTabIndex = 0;
         private int _errorCount = 0;
         private int _warningCount = 0;
+        
+        private readonly Dictionary<Type, List<TypeBindingData>> _bindings = 
+            new Dictionary<Type, List<TypeBindingData>>();
 
         private readonly GUIContent[] _sampleCountContents =
         {
@@ -69,6 +78,7 @@ namespace Cdm.Figma.UI.Editor
             _effectConverters = serializedObject.FindProperty("_effectConverters");
             _localizationConverter = serializedObject.FindProperty("_localizationConverter");
             _markExternalAssetAsDependency = serializedObject.FindProperty("_markExternalAssetAsDependency");
+            _assetBindings = serializedObject.FindProperty("_assetBindings");
 
             var importer = (FigmaAssetImporter)target;
             var figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(importer.assetPath);
@@ -92,26 +102,34 @@ namespace Cdm.Figma.UI.Editor
         {
             serializedObject.Update();
 
-            _selectedTabIndex = GUILayout.Toolbar(_selectedTabIndex, new GUIContent[]
+            var selectedTabIndex = GUILayout.Toolbar(_selectedTabIndex, new GUIContent[]
             {
-                new GUIContent("Pages"), new GUIContent("Fonts"), new GUIContent("Settings")
+                new GUIContent("Pages"), 
+                new GUIContent("Fonts"), 
+                new GUIContent("Settings"), 
+                new GUIContent("Bindings")
             });
 
             EditorGUILayout.Space();
 
-            if (_selectedTabIndex == 0)
+            if (selectedTabIndex == 0)
             {
                 DrawPagesGui();
             }
-            else if (_selectedTabIndex == 1)
+            else if (selectedTabIndex == 1)
             {
                 DrawFontsGui();
             }
-            else if (_selectedTabIndex == 2)
+            else if (selectedTabIndex == 2)
             {
                 DrawSettingsGui();
             }
+            else if (selectedTabIndex == 3)
+            {
+                DrawBindingsGui(selectedTabIndex != _selectedTabIndex);
+            }
 
+            _selectedTabIndex = selectedTabIndex;
             serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.Separator();
@@ -205,6 +223,167 @@ namespace Cdm.Figma.UI.Editor
             }
         }
 
+        private struct TypeBindingData
+        {
+            public MemberInfo memberInfo;
+            public FigmaAssetAttribute attribute;
+
+            public TypeBindingData(MemberInfo memberInfo, FigmaAssetAttribute attribute)
+            {
+                this.memberInfo = memberInfo;
+                this.attribute = attribute;
+            }
+        }
+
+        private void RefreshAssetBindings()
+        {
+            _bindings.Clear();
+            
+            var monoBehaviours = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes().Where(t => typeof(MonoBehaviour).IsAssignableFrom(t)));
+            
+            foreach (var monoBehaviour in monoBehaviours)
+            {
+                var members = monoBehaviour.GetMembers(
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                foreach (var member in members)
+                {
+                    if (!member.MemberType.HasFlag(MemberTypes.Field) &&
+                        !member.MemberType.HasFlag(MemberTypes.Property))
+                        continue;
+
+                    var figmaAssetAttribute = (FigmaAssetAttribute)member.GetCustomAttributes()
+                        .FirstOrDefault(x => x.GetType() == typeof(FigmaAssetAttribute));
+
+                    if (figmaAssetAttribute == null)
+                        continue;
+
+                    if (!_bindings.ContainsKey(monoBehaviour))
+                    {
+                        _bindings.Add(monoBehaviour, new List<TypeBindingData>());
+                    }
+                    
+                    _bindings[monoBehaviour].Add(new TypeBindingData(member, figmaAssetAttribute));
+                }
+            }
+        }
+        
+        private void DrawBindingsGui(bool refresh)
+        {
+            if (refresh)
+            {
+                RefreshAssetBindings();
+            }
+
+            foreach (var binding in _bindings)
+            {
+                var type = binding.Key;
+                var typeIndex = FindAssetBindingByType(type);
+                
+                EditorGUILayout.LabelField(type.FullName, EditorStyles.boldLabel);
+                EditorGUI.indentLevel += 1;
+                
+                foreach (var data in binding.Value)
+                {
+                    var memberIndex = -1;
+                    var member = data.memberInfo;
+                    var attribute = data.attribute;
+                    UnityEngine.Object value = null;
+                    
+                    if (typeIndex >= 0)
+                    {
+                       memberIndex = FindAssetBindingMemberByType(typeIndex, member);
+                       if (memberIndex >= 0)
+                       {
+                           var bindingElement = _assetBindings.GetArrayElementAtIndex(typeIndex);
+                           var members = bindingElement.FindPropertyRelative("bindings");
+                           var memberElement = members.GetArrayElementAtIndex(memberIndex);
+                           var assetProperty = memberElement.FindPropertyRelative("asset");
+                           value = assetProperty.objectReferenceValue;
+                       }
+                    }
+                    
+                    var fieldType = ReflectionHelper.GetUnderlyingType(member);
+                    var displayName = !string.IsNullOrEmpty(attribute.name) 
+                        ? attribute.name 
+                        : ObjectNames.NicifyVariableName(member.Name);
+                    
+                    EditorGUI.BeginChangeCheck();
+                    var newValue = 
+                        EditorGUILayout.ObjectField(new GUIContent(displayName, member.Name), value, fieldType, false);
+                    
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        if (typeIndex < 0)
+                        {
+                            _assetBindings.arraySize += 1;
+                            typeIndex = _assetBindings.arraySize - 1;
+                        }
+
+                        var bindingElement = _assetBindings.GetArrayElementAtIndex(typeIndex);
+                        bindingElement.FindPropertyRelative("type").stringValue = type.AssemblyQualifiedName;
+                        
+                        var members = bindingElement.FindPropertyRelative("bindings");
+                        
+                        if (memberIndex < 0)
+                        {
+                            members.arraySize += 1;
+                            memberIndex = members.arraySize - 1;
+                        }
+                        
+                        var memberElement = members.GetArrayElementAtIndex(memberIndex);
+                        var nameProperty = memberElement.FindPropertyRelative("name");
+                        var assetProperty = memberElement.FindPropertyRelative("asset");
+
+                        nameProperty.stringValue = member.Name;
+                        assetProperty.objectReferenceValue = newValue;
+                    }
+                }
+                
+                EditorGUI.indentLevel -= 1;
+                EditorGUILayout.Space();
+            }
+        }
+
+        private int FindAssetBindingByType(Type targetType)
+        {
+            if (targetType == null)
+                return -1;
+            
+            for (var i = 0; i < _assetBindings.arraySize; i++)
+            {
+                var binding = _assetBindings.GetArrayElementAtIndex(i);
+                
+                var type = Type.GetType(binding.FindPropertyRelative("type")?.stringValue ?? "");
+                if (type == targetType)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private int FindAssetBindingMemberByType(int bindingIndex, MemberInfo memberInfo)
+        {
+            var binding = _assetBindings.GetArrayElementAtIndex(bindingIndex);
+            var members = binding.FindPropertyRelative("bindings");
+
+            for (var i = 0; i < members.arraySize; i++)
+            {
+                var member = members.GetArrayElementAtIndex(i);
+                var memberName = member.FindPropertyRelative("name");
+
+                if (memberName.stringValue.Equals(memberInfo.Name))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+        
         private void DrawSettingsGui()
         {
             DrawBasicSettingsGui();
