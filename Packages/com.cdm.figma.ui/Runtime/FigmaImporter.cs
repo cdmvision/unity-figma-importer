@@ -46,6 +46,11 @@ namespace Cdm.Figma.UI
         /// Localization converter for the <see cref="NodeType.Text"/> node.
         /// </summary>
         public ILocalizationConverter localizationConverter { get; set; }
+        
+        /// <summary>
+        /// External asset bindings.
+        /// </summary>
+        public ISet<FigmaAssetBinding> assetBindings { get; set; }
 
         private readonly List<FigmaImporterLogReference> _logs = new List<FigmaImporterLogReference>();
         private readonly List<Binding> _bindings = new List<Binding>();

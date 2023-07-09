@@ -9,4 +9,10 @@ public class MyCuteRectangleFrame : MonoBehaviour
 
     [FigmaResource("Cube")]
     public GameObject myCube;
+    
+    [FigmaAsset]
+    public GameObject rectDependency;
+    
+    [FigmaAsset(name = "My Rectangle")]
+    public GameObject rectDependencyWithName;
 }

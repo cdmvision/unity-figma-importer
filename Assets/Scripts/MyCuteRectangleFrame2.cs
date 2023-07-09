@@ -7,4 +7,7 @@ public class MyCuteRectangleFrame2 : MonoBehaviour
 {
     [FigmaNode("MyCuteRectangle")]
     public GameObject rect;
+    
+    [FigmaAsset]
+    public GameObject anotherAsset;
 }
