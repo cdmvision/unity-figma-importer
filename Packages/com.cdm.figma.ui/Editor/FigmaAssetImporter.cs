@@ -277,7 +277,9 @@ namespace Cdm.Figma.UI.Editor
 
                 foreach (var memberBinding in binding.bindings)
                 {
-                    var members = type.GetMember(memberBinding.name);
+                    var bindingAttributes = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                    var members = type.GetMember(memberBinding.name, bindingAttributes);
+                    
                     if (members.Length <= 0)
                         continue;
 

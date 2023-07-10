@@ -83,6 +83,9 @@ namespace Cdm.Figma.UI.Editor
                             {
                                 _assetBindings.arraySize += 1;
                                 bindingTypeIndex = _assetBindings.arraySize - 1;
+                                
+                                _assetBindings.GetArrayElementAtIndex(bindingTypeIndex)
+                                    .FindPropertyRelative(AssetBindingsPropertyPath).arraySize = 0;
                             }
 
                             var bindingProperty = _assetBindings.GetArrayElementAtIndex(bindingTypeIndex);
