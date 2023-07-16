@@ -11,30 +11,30 @@ namespace Cdm.Figma.UI
     {
         protected override FigmaNode Convert(FigmaNode parentObject, FrameNode frameNode, NodeConvertArgs args)
         {
-            var figmaNode = args.importer.CreateFigmaNode<FigmaNode>(frameNode);
-            figmaNode.SetTransform(frameNode);
+            var frameNodeObject = args.importer.CreateFigmaNode<FigmaNode>(frameNode);
+            frameNodeObject.SetTransform(frameNode);
 
             // Frame node's parent may be a page so check if it is INodeTransform.
             if (frameNode.parent is INodeTransform parent)
             {
-                figmaNode.SetLayoutConstraints(parent);
+                frameNodeObject.SetLayoutConstraints(parent);
             }
 
-            GenerateStyles(figmaNode, frameNode, args);
+            GenerateStyles(frameNodeObject, frameNode, args);
 
-            figmaNode.ApplyStyles();
+            frameNodeObject.ApplyStyles();
 
-            AddLayoutComponentIfNeeded(figmaNode, frameNode);
-            AddContentSizeFitterIfNeeded(figmaNode, frameNode);
-            AddGridIfNeeded(figmaNode, frameNode);
+            AddLayoutComponentIfNeeded(frameNodeObject, frameNode);
+            AddContentSizeFitterIfNeeded(frameNodeObject, frameNode);
+            AddGridIfNeeded(frameNodeObject, frameNode);
 
-            BuildChildren(frameNode, figmaNode, args);
+            BuildChildren(frameNode, frameNodeObject, args);
             
-            if (figmaNode != null && frameNode.isMask)
+            if (frameNodeObject != null && frameNode.isMask)
             {
-                args.importer.LogWarning("Frame node with mask is not supported.", figmaNode);
+                args.importer.LogWarning("Frame node with mask is not supported.", frameNodeObject);
             }
-            return figmaNode;
+            return frameNodeObject;
         }
 
         private static void GenerateStyles(FigmaNode nodeObject, FrameNode node, NodeConvertArgs args)
@@ -85,11 +85,11 @@ namespace Cdm.Figma.UI
             args.importer.ConvertEffects(nodeObject, node.effects);
         }
 
-        private static void BuildChildren(FrameNode currentNode, FigmaNode nodeObject, NodeConvertArgs args)
+        private static void BuildChildren(FrameNode frameNode, FigmaNode frameNodeObject, NodeConvertArgs args)
         {
-            var isAutoLayout = nodeObject.GetComponent<LayoutGroup>() != null;
+            var isAutoLayout = frameNodeObject.GetComponent<LayoutGroup>() != null;
             
-            var children = currentNode.children;
+            var children = frameNode.children;
             if (children != null)
             {
                 for (var i = 0; i < children.Length; i++)
@@ -107,16 +107,15 @@ namespace Cdm.Figma.UI
 
                     using (args.OverrideNode(overrideNode))
                     {
-                        if (args.importer.TryConvertNode(nodeObject, children[i], args, out var childObject))
+                        if (args.importer.TryConvertNode(frameNodeObject, children[i], args, out var childObject))
                         {
-                            if (currentNode.layoutMode != LayoutMode.None)
+                            if (frameNode.layoutMode != LayoutMode.None)
                             {
-                                childObject.gameObject.AddComponent<LayoutElement>();
-                                HandleFillContainer(currentNode.layoutMode, nodeObject, childObject);
+                                HandleFillContainer(frameNode.layoutMode, frameNodeObject, childObject);
                             }
 
-                            childObject.rectTransform.SetParent(nodeObject.rectTransform, false);
-                            childObject.AdjustPosition(currentNode.size);
+                            childObject.rectTransform.SetParent(frameNodeObject.rectTransform, false);
+                            childObject.AdjustPosition(frameNode.size);
                         
                             // Do not add transform style if frame has any auto layout component.
                             if (!isAutoLayout)
@@ -131,41 +130,48 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void HandleFillContainer(LayoutMode layoutMode, FigmaNode nodeObject, FigmaNode childElement)
+        private static void HandleFillContainer(LayoutMode layoutMode, FigmaNode nodeObject, FigmaNode child)
         {
-            INodeLayout childLayout = (INodeLayout)childElement.node;
-            INodeTransform childTransform = (INodeTransform)childElement.node;
-
-            var parent = nodeObject.node as FrameNode;
+            var parent = (FrameNode) nodeObject.node;
             if (parent.layoutMode == LayoutMode.None)
-            {
                 return;
+            
+            var layoutGroup = nodeObject.GetComponent<HorizontalOrVerticalLayoutGroup>();
+            var layoutElement = child.gameObject.GetOrAddComponent<LayoutElement>();
+            
+            var childNode = (SceneNode)child.node;
+            var childLayout = (INodeLayout)child.node;
+            var childTransform = (INodeTransform)child.node;
+            
+            if (childNode.layoutPositioning == LayoutPositioning.Absolute)
+            {
+                layoutElement.ignoreLayout = true;
             }
             
             if (childLayout.layoutAlign == LayoutAlign.Stretch)
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
-                    childElement.gameObject.GetComponent<LayoutElement>().flexibleHeight = 1;
+                    layoutGroup.childControlHeight = true;
+                    layoutElement.flexibleHeight = 1;
                 }
                 else if (layoutMode == LayoutMode.Vertical)
                 {
-                    nodeObject.GetComponent<VerticalLayoutGroup>().childControlWidth = true;
-                    childElement.gameObject.GetComponent<LayoutElement>().flexibleWidth = 1;
+                    layoutGroup.childControlWidth = true;
+                    layoutElement.flexibleWidth = 1;
                 }
             }
             else
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    //nodeObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
-                    childElement.gameObject.GetComponent<LayoutElement>().minHeight = childTransform.size.y;
+                    //layoutGroup.childControlHeight = true;
+                    layoutElement.minHeight = childTransform.size.y;
                 }
                 else
                 {
-                    //nodeObject.GetComponent<VerticalLayoutGroup>().childControlWidth = true;
-                    childElement.gameObject.GetComponent<LayoutElement>().minWidth = childTransform.size.x;
+                    //layoutGroup.childControlWidth = true;
+                    layoutElement.minWidth = childTransform.size.x;
                 }
             }
 
@@ -173,60 +179,60 @@ namespace Cdm.Figma.UI
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
-                    childElement.gameObject.GetComponent<LayoutElement>().flexibleWidth = 1;
-                    childElement.gameObject.GetComponent<LayoutElement>().minWidth = 1;
+                    layoutGroup.childControlWidth = true;
+                    layoutElement.flexibleWidth = 1;
+                    layoutElement.minWidth = 1;
                 }
                 else if (layoutMode == LayoutMode.Vertical)
                 {
-                    nodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
-                    childElement.gameObject.GetComponent<LayoutElement>().flexibleHeight = 1;
-                    childElement.gameObject.GetComponent<LayoutElement>().minHeight = 1;
+                    layoutGroup.childControlHeight = true;
+                    layoutElement.flexibleHeight = 1;
+                    layoutElement.minHeight = 1;
                 }
             }
             else
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
-                    childElement.gameObject.GetComponent<LayoutElement>().minWidth = childTransform.size.x;
+                    layoutGroup.childControlWidth = true;
+                    layoutElement.minWidth = childTransform.size.x;
                 }
                 else
                 {
-                    nodeObject.GetComponent<VerticalLayoutGroup>().childControlHeight = true;
-                    childElement.gameObject.GetComponent<LayoutElement>().minHeight = childTransform.size.y;
+                    layoutGroup.childControlHeight = true;
+                    layoutElement.minHeight = childTransform.size.y;
                 }
             }
 
-            var contentSizeFitter = childElement.GetComponent<ContentSizeFitter>();
+            var contentSizeFitter = child.GetComponent<ContentSizeFitter>();
             if (contentSizeFitter)
             {
                 if (contentSizeFitter.horizontalFit == ContentSizeFitter.FitMode.PreferredSize)
                 {
-                    childElement.gameObject.GetComponent<LayoutElement>().minWidth = 0;
+                    layoutElement.minWidth = 0;
                 }
 
                 if (contentSizeFitter.verticalFit == ContentSizeFitter.FitMode.PreferredSize)
                 {
-                    childElement.gameObject.GetComponent<LayoutElement>().minHeight = 0;
+                    layoutElement.minHeight = 0;
                 }
             }
         }
 
-        private static void AddContentSizeFitterIfNeeded(FigmaNode nodeObject, FrameNode groupNode)
+        private static void AddContentSizeFitterIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
         {
-            if (groupNode.layoutMode == LayoutMode.None)
+            if (frameNode.layoutMode == LayoutMode.None)
                 return;
 
-            if (groupNode.primaryAxisSizingMode == AxisSizingMode.Auto ||
-                groupNode.counterAxisSizingMode == AxisSizingMode.Auto)
+            if (frameNode.primaryAxisSizingMode == AxisSizingMode.Auto ||
+                frameNode.counterAxisSizingMode == AxisSizingMode.Auto)
             {
                 nodeObject.gameObject.AddComponent<ContentSizeFitter>();
             }
 
-            if (groupNode.primaryAxisSizingMode == AxisSizingMode.Auto)
+            if (frameNode.primaryAxisSizingMode == AxisSizingMode.Auto)
             {
-                if (groupNode.layoutMode == LayoutMode.Horizontal)
+                if (frameNode.layoutMode == LayoutMode.Horizontal)
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
@@ -248,9 +254,9 @@ namespace Cdm.Figma.UI
                 }
             }
 
-            if (groupNode.counterAxisSizingMode == AxisSizingMode.Auto)
+            if (frameNode.counterAxisSizingMode == AxisSizingMode.Auto)
             {
-                if (groupNode.layoutMode == LayoutMode.Horizontal)
+                if (frameNode.layoutMode == LayoutMode.Horizontal)
                 {
                     nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
                         ContentSizeFitter.FitMode.PreferredSize;
@@ -273,9 +279,9 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void AddLayoutComponentIfNeeded(FigmaNode nodeObject, FrameNode groupNode)
+        private static void AddLayoutComponentIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
         {
-            var layoutMode = groupNode.layoutMode;
+            var layoutMode = frameNode.layoutMode;
             if (layoutMode == LayoutMode.None)
                 return;
 
@@ -285,62 +291,62 @@ namespace Cdm.Figma.UI
             {
                 layoutGroup = nodeObject.gameObject.AddComponent<HorizontalLayoutGroup>();
 
-                if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Min)
+                if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Min)
                 {
-                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperLeft;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
                     {
                         layoutGroup.childAlignment = TextAnchor.LowerLeft;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.MiddleLeft;
                     }
                 }
-                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Max)
+                else if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Max)
                 {
-                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperRight;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
                     {
                         layoutGroup.childAlignment = TextAnchor.LowerRight;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.MiddleRight;
                     }
                 }
-                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Center)
+                else if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Center)
                 {
-                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperCenter;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
                     {
                         layoutGroup.childAlignment = TextAnchor.LowerCenter;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.MiddleCenter;
                     }
                 }
-                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+                else if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
                 {
-                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperLeft;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
                     {
                         layoutGroup.childAlignment = TextAnchor.LowerLeft;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.MiddleLeft;
                     }
@@ -350,62 +356,62 @@ namespace Cdm.Figma.UI
             {
                 layoutGroup = nodeObject.gameObject.AddComponent<VerticalLayoutGroup>();
 
-                if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Min)
+                if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Min)
                 {
-                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperLeft;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperRight;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperCenter;
                     }
                 }
-                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Max)
+                else if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Max)
                 {
-                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
                     {
                         layoutGroup.childAlignment = TextAnchor.LowerLeft;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
                     {
                         layoutGroup.childAlignment = TextAnchor.LowerRight;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.LowerCenter;
                     }
                 }
-                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Center)
+                else if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.Center)
                 {
-                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
                     {
                         layoutGroup.childAlignment = TextAnchor.MiddleLeft;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
                     {
                         layoutGroup.childAlignment = TextAnchor.MiddleRight;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.MiddleCenter;
                     }
                 }
-                else if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+                else if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
                 {
-                    if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
+                    if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Min)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperLeft;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Max)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperRight;
                     }
-                    else if (groupNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
+                    else if (frameNode.counterAxisAlignItems == CounterAxisAlignItems.Center)
                     {
                         layoutGroup.childAlignment = TextAnchor.UpperCenter;
                     }
@@ -419,7 +425,7 @@ namespace Cdm.Figma.UI
             layoutGroup.childForceExpandWidth = false;
             layoutGroup.childForceExpandHeight = false;
 
-            if (groupNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+            if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
             {
                 if (layoutMode == LayoutMode.Vertical)
                 {
@@ -432,14 +438,14 @@ namespace Cdm.Figma.UI
             }
 
             // Set padding.
-            nodeObject.GetComponent<LayoutGroup>().padding = new RectOffset(
-                (int)groupNode.paddingLeft,
-                (int)groupNode.paddingRight,
-                (int)groupNode.paddingTop,
-                (int)groupNode.paddingBottom);
+            layoutGroup.padding = new RectOffset(
+                left: Mathf.RoundToInt(frameNode.paddingLeft),
+                right: Mathf.RoundToInt(frameNode.paddingRight),
+                top: Mathf.RoundToInt(frameNode.paddingTop),
+                bottom: Mathf.RoundToInt(frameNode.paddingBottom));
 
             // Set spacing.
-            layoutGroup.spacing = groupNode.itemSpacing;
+            layoutGroup.spacing = frameNode.itemSpacing;
         }
 
         private static void AddGridIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
