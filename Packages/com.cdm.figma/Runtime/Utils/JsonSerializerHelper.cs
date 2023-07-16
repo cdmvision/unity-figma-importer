@@ -19,6 +19,7 @@ namespace Cdm.Figma
                 Converters =
                 {
                     new IsoDateTimeConverter {DateTimeStyles = DateTimeStyles.AssumeUniversal},
+                    new StringEnumConverter(),
                     new AffineTransformConverter(),
                     GetNodeConverter(),
                     GetEffectConverter(),

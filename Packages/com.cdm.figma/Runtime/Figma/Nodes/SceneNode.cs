@@ -18,7 +18,7 @@ namespace Cdm.Figma
         /// </remarks>
         [DataMember(Name = "visible")]
         public bool visible { get; set; } = true;
-        
+
         /// <summary>
         /// Whether the node is locked or not, preventing certain user interactions on the canvas such as selecting
         /// and dragging. Does not affect a plugin's ability to write to those properties.
@@ -33,5 +33,22 @@ namespace Cdm.Figma
         /// </remarks>
         [DataMember(Name = "locked")]
         public bool locked { get; set; } = true;
+
+        /// <summary>
+        /// This property is applicable only for direct children of auto-layout frames. Determines whether a
+        /// layer's size and position should be determined by auto-layout settings or manually adjustable.
+        /// <list type="bullet">
+        /// <item>
+        /// The default value of <see cref="LayoutPositioning.Auto"/> will layout this child according to auto-layout rules.
+        /// </item>
+        /// <item>
+        /// Setting <see cref="LayoutPositioning.Absolute"/> will take this child out of auto-layout flow,
+        /// while still nesting inside the auto-layout frame. This allows explicitly setting x, y, width, and height.
+        /// <see cref="LayoutPositioning.Absolute"/> positioned nodes respect constraint settings.
+        /// </item>
+        /// </list>
+        /// </summary>
+        [DataMember(Name = "layoutPositioning")]
+        public LayoutPositioning layoutPositioning { get; set; } = LayoutPositioning.Auto;
     }
 }
