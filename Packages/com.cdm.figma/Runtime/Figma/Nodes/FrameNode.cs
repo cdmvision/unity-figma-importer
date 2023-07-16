@@ -44,5 +44,12 @@ namespace Cdm.Figma
         
         [DataMember(Name = "opacity")]
         public float opacity { get; set; } = 1f;
+        
+        /// <summary>
+        /// Determines the canvas stacking order of layers in this frame. When <c>true</c>, the first layer will be
+        /// draw on top. This property is only applicable for auto-layout frames.
+        /// </summary>
+        [DataMember(Name = "itemReverseZIndex")]
+        public bool itemReverseZIndex { get; set; } = false;
     }
 }
