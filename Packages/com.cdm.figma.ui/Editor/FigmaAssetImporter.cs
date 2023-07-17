@@ -13,7 +13,7 @@ using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.UI.Editor
 {
-    [ScriptedImporter(1, DefaultExtension)]
+    [ScriptedImporter(1, DefaultExtension, ImportQueueOffset)]
     public class FigmaAssetImporter : FigmaAssetImporterBase
     {
         [SerializeField]
@@ -225,7 +225,7 @@ namespace Cdm.Figma.UI.Editor
             UpdatePageReferences(design);
         }
 
-        protected override IFigmaImporter GetFigmaImporter()
+        protected override IFigmaImporter GetFigmaImporter(AssetImportContext ctx)
         {
             var spriteOptions = SpriteGenerateOptions.GetDefault();
             spriteOptions.pixelsPerUnit = pixelsPerUnit;
@@ -254,7 +254,7 @@ namespace Cdm.Figma.UI.Editor
             SearchAndAddComponentConverters(figmaImporter);
             SearchAndAddNodeConverters(figmaImporter);
 
-            SetAssetBindings(figmaImporter);
+            SetAssetBindings(ctx, figmaImporter);
 
             figmaImporter.AddDefaultNodeConverters();
             figmaImporter.AddDefaultComponentConverters();
@@ -262,7 +262,7 @@ namespace Cdm.Figma.UI.Editor
             return figmaImporter;
         }
         
-        private void SetAssetBindings(FigmaImporter figmaImporter)
+        private void SetAssetBindings(AssetImportContext ctx, FigmaImporter figmaImporter)
         {
             figmaImporter.assetBindings = new HashSet<FigmaAssetBinding>();
 
@@ -283,8 +283,18 @@ namespace Cdm.Figma.UI.Editor
                     if (members.Length <= 0)
                         continue;
 
+                    if (memberBinding.asset.isSet &&
+                        AssetDatabase.TryGetGUIDAndLocalFileIdentifier(memberBinding.asset, out var guid, out long _))
+                    {
+                        ctx.DependsOnArtifact(guid);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    
                     // We don't care methods, so there should be only one member.
-                    assetBinding.memberBindings.Add(new FigmaAssetBindingMember(members[0], memberBinding.asset));
+                    assetBinding.memberBindings.Add(new FigmaAssetBindingMember(members[0], memberBinding.asset.asset));
                 }
 
                 figmaImporter.assetBindings.Add(assetBinding);
@@ -535,7 +545,7 @@ namespace Cdm.Figma.UI.Editor
             /// <summary>
             /// The asset is being assigned to the <see cref="MemberInfo"/>.
             /// </summary>
-            public Object asset;
+            public LazyLoadReference<Object> asset;
         }
     }
 }

@@ -1,18 +1,16 @@
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace Cdm.Figma.Editor
 {
     public abstract class FigmaAssetImporterBase : ScriptedImporter
     {
         protected const string DefaultExtension = "figma";
+        protected const int ImportQueueOffset = 999;
 
         protected const string FigmaIconColorPath = EditorHelper.PackageFolderPath +
                                                     "/Editor Default Resources/FigmaIcon-Color.png";
@@ -43,7 +41,7 @@ namespace Cdm.Figma.Editor
             
             UpdatePages(figmaFile);
 
-            var figmaImporter = GetFigmaImporter();
+            var figmaImporter = GetFigmaImporter(ctx);
             OnAssetImporting(ctx, figmaImporter, figmaFile);
 
             var figmaDesign = figmaImporter.ImportFile(figmaFile, new IFigmaImporter.Options()
@@ -107,7 +105,7 @@ namespace Cdm.Figma.Editor
             return DefaultExtension;
         }
 
-        protected abstract IFigmaImporter GetFigmaImporter();
+        protected abstract IFigmaImporter GetFigmaImporter(AssetImportContext ctx);
     }
 
     [Serializable]
