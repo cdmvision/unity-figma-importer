@@ -24,6 +24,7 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _effectConverters;
         private SerializedProperty _localizationConverter;
         private SerializedProperty _markExternalAssetAsDependency;
+        private SerializedProperty _generateUniqueNodeName;
         private SerializedProperty _assetBindings;
 
         private int _selectedTabIndex = 0;
@@ -64,6 +65,7 @@ namespace Cdm.Figma.UI.Editor
             _effectConverters = serializedObject.FindProperty("_effectConverters");
             _localizationConverter = serializedObject.FindProperty("_localizationConverter");
             _markExternalAssetAsDependency = serializedObject.FindProperty("_markExternalAssetAsDependency");
+            _generateUniqueNodeName = serializedObject.FindProperty("_generateUniqueNodeName");
             _assetBindings = serializedObject.FindProperty("_assetBindings");
 
             var importer = (FigmaAssetImporter)target;

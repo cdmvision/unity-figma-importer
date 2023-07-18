@@ -134,6 +134,24 @@ namespace Cdm.Figma.UI.Editor
             set => _markExternalAssetAsDependency = value;
         }
 
+        [Tooltip("If you disable this, you might see bunch of 'Identifier uniqueness violation' warnings on the console.")]
+        [SerializeField]
+        private bool _generateUniqueNodeName = false;
+
+        /// <summary>
+        /// Generates unique name for each <see cref="GameObject"/> node by appending its
+        /// Figma node <see cref="Node.id"/>.
+        /// </summary>
+        /// <remarks>
+        /// If you set this to <c>false</c>, you might see bunch of 'Identifier uniqueness violation' warnings
+        /// on the console.
+        /// </remarks>
+        public bool generateUniqueNodeName
+        {
+            get => _generateUniqueNodeName;
+            set => _generateUniqueNodeName = value;
+        }
+
         [SerializeField]
         [SerializedType(typeof(ILocalizationConverter))]
         private string _localizationConverter;
@@ -181,6 +199,11 @@ namespace Cdm.Figma.UI.Editor
             foreach (var page in design.document.pages)
             {
                 ctx.AddObjectToAsset($"{page.nodeId}", page.gameObject, icon);
+
+                if (generateUniqueNodeName)
+                {
+                    GenerateUniqueName(page);
+                }
             }
 
             var importer = (FigmaImporter)figmaImporter;
@@ -260,6 +283,18 @@ namespace Cdm.Figma.UI.Editor
             figmaImporter.AddDefaultComponentConverters();
 
             return figmaImporter;
+        }
+        
+        private static void GenerateUniqueName(FigmaPage page)
+        {
+            var nodes = page.GetComponentsInChildren<FigmaNode>(true);
+            foreach (var node in nodes)
+            {
+                node.name += $" ({node.nodeId})";
+            }
+
+            // Do not append id on the page name.
+            page.name = page.nodeName;
         }
         
         private void SetAssetBindings(AssetImportContext ctx, FigmaImporter figmaImporter)
