@@ -680,7 +680,7 @@ namespace Cdm.Figma.Utils
             var material = GetSpriteMaterial();
             var texture =
                 VectorUtils.RenderSpriteToTexture2D(
-                    sprite, textureWidth, textureHeight, material, options.sampleCount, expandEdges);
+                    sprite, textureWidth, textureHeight, material, options.sampleCount, false);
 
             if (texture != null)
             {
@@ -789,7 +789,7 @@ namespace Cdm.Figma.Utils
         private const string SpriteMaterialPath =
             "Packages/com.unity.vectorgraphics/Runtime/Materials/Unlit_VectorGradientUI.mat";
 
-        private const string SpriteShaderName = "Unlit/VectorGradient";
+        private const string SpriteShaderName = "Unlit/VectorGradientUI";
 
         private static Material GetSpriteMaterial()
         {
