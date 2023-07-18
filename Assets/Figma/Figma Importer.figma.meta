@@ -15,6 +15,9 @@ ScriptedImporter:
   - enabled: 0
     id: 617:2
     name: Grid Layout
+  - enabled: 1
+    id: 1512:2
+    name: Simple Logo
   - enabled: 0
     id: 357:2
     name: Logo
@@ -40,6 +43,12 @@ ScriptedImporter:
     id: 220:11
     name: Auto Layout Frames
   - enabled: 0
+    id: 1502:2
+    name: Auto Layout (Absolute Positioning)
+  - enabled: 0
+    id: 1504:2
+    name: Localization
+  - enabled: 0
     id: 1:22
     name: Basic Shapes
   - enabled: 0
@@ -52,24 +61,29 @@ ScriptedImporter:
     id: 100:2
     name: Complex
   _fonts:
+  - fontName: Inter-Regular
+    font: {instanceID: 0}
   - fontName: Roboto-Regular
     font: {instanceID: 0}
   _fallbackFont: {instanceID: 0}
   _pageReferences:
-  - {fileID: 5576642346788630430, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: -8848929761043796158, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: 3925464301144752866, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: -6458169704730829540, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {fileID: 867790202690663306, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
+  - {instanceID: 0}
+  - {instanceID: 0}
   - {fileID: 2791104846312087597, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: 8998963780504498433, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: 825821956420420175, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: -2794417187053166547, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: -6143250116261526769, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: 801437295035082751, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: -7125610994749612371, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: -3238522650493653119, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: -39202083856114588, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
-  - {fileID: -906766753479752295, guid: 2402d9dddef1547fbb55aff95b915ab4, type: 3}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {instanceID: 0}
   _layer: 5
   _pixelsPerUnit: 100
   _scaleFactor: 1
@@ -77,9 +91,11 @@ ScriptedImporter:
   _minTextureSize: 256
   _maxTextureSize: 1024
   _wrapMode: 1
-  _filterMode: 1
-  _sampleCount: 8
+  _filterMode: 0
+  _sampleCount: 1
   _markExternalAssetAsDependency: 0
+  _generateUniqueNodeName: 1
   _localizationConverter: Cdm.Figma.UI.UnityLocalizationConverter, Cdm.Figma.UI.UnityLocalization,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
   _effectConverters: []
+  _assetBindings: []
