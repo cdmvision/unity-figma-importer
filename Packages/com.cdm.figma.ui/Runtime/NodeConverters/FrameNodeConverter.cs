@@ -486,10 +486,16 @@ namespace Cdm.Figma.UI
                         }
                     }
                 }
+
+                // If there is another layout group added already.
+                var layoutGroup = nodeObject.gameObject.GetComponent<LayoutGroup>();
+                if (layoutGroup != null && layoutGroup is not GridLayoutGroup)
+                    return;
                 
-                var gridView = nodeObject.gameObject.AddComponent<GridLayoutGroup>();
+                var gridView = nodeObject.gameObject.GetOrAddComponent<GridLayoutGroup>();
                 var alignmentCol = Alignment.Min;
                 var alignmentRow = Alignment.Min;
+                
                 foreach (var grid in frameNode.layoutGrids)
                 {
                     if (grid.pattern == Pattern.Columns)
