@@ -91,8 +91,8 @@ ScriptedImporter:
   _minTextureSize: 256
   _maxTextureSize: 1024
   _wrapMode: 1
-  _filterMode: 0
-  _sampleCount: 1
+  _filterMode: 2
+  _sampleCount: 8
   _markExternalAssetAsDependency: 0
   _generateUniqueNodeName: 1
   _localizationConverter: Cdm.Figma.UI.UnityLocalizationConverter, Cdm.Figma.UI.UnityLocalization,
