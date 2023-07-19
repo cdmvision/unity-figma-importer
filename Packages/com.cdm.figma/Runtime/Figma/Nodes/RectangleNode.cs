@@ -9,7 +9,7 @@ namespace Cdm.Figma
     [DataContract]
     public class RectangleNode : VectorNode, INodeRect
     {
-        public override string type => NodeType.Rectangle;
+        public override NodeType type => NodeType.Rectangle;
         
         [DataMember(Name = "cornerRadius")]
         public float? cornerRadius { get; set; }

@@ -238,7 +238,7 @@ namespace Cdm.Figma.UI
                 if (textNode.fills[0] is SolidPaint solidPaint)
                 {
                     style.color.enabled = true;
-                    style.color.value = solidPaint.color;
+                    style.color.value = (UnityEngine.Color)solidPaint.color;
                 }
             }
         }

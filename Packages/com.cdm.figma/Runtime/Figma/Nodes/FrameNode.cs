@@ -13,7 +13,7 @@ namespace Cdm.Figma
     [DataContract]
     public class FrameNode : GroupNode, INodeFill, INodeRect
     {
-        public override string type => NodeType.Frame;
+        public override NodeType type => NodeType.Frame;
         
         /// <summary>
         /// A list of layout grids attached to this node (see layout grids section for more details).

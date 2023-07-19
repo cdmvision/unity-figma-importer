@@ -72,7 +72,7 @@ namespace Cdm.Figma
 
             var json = await response.Content.ReadAsStringAsync();
             var metadataResponse =
-                JsonConvert.DeserializeObject<ComponentMetadataResponse>(json, JsonSerializerHelper.Settings);
+                JsonConvert.DeserializeObject<ComponentMetadataResponse>(json, JsonSerializerHelper.settings);
             return metadataResponse?.metadata;
         }
 
@@ -99,7 +99,7 @@ namespace Cdm.Figma
             httpResponse.EnsureSuccessStatusCode();
 
             var json = await httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);;
-            var response = JsonConvert.DeserializeObject<ImageFillsResponse>(json, JsonSerializerHelper.Settings);
+            var response = JsonConvert.DeserializeObject<ImageFillsResponse>(json, JsonSerializerHelper.settings);
 
             if (response == null || response.metadata == null)
                 return null;
@@ -163,7 +163,7 @@ namespace Cdm.Figma
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
-            var imageResponse = JsonConvert.DeserializeObject<ImageResponse>(json, JsonSerializerHelper.Settings);
+            var imageResponse = JsonConvert.DeserializeObject<ImageResponse>(json, JsonSerializerHelper.settings);
             if (imageResponse == null)
                 return null;
 

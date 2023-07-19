@@ -14,7 +14,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.cdm.figma": "1.5.9",
+        "com.cdm.figma": "1.6.0",
         "com.unity.nuget.newtonsoft-json": "2.0.2",
         "com.unity.vectorgraphics": "2.0.0-preview.21"
       }

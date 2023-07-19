@@ -8,17 +8,17 @@ namespace Cdm.Figma.Utils
     {
         public override void WriteJson(JsonWriter writer, Color value, JsonSerializer serializer)
         {
-            writer.WriteValue($"#{ColorUtility.ToHtmlStringRGBA(value).ToLower()}");
+            writer.WriteValue($"#{ColorUtility.ToHtmlStringRGBA((UnityEngine.Color)value).ToLower()}");
         }
 
         public override Color ReadJson(JsonReader reader, Type objectType, Color existingValue, bool hasExistingValue,
             JsonSerializer serializer)
         {
             if (ColorUtility.TryParseHtmlString((string)reader.Value, out var color))
-                return color;
-            
+                return (Color)color;
+
             if (ColorUtility.TryParseHtmlString($"#{(string)reader.Value}", out color))
-                return color;
+                return (Color)color;
 
             if (hasExistingValue)
                 return existingValue;

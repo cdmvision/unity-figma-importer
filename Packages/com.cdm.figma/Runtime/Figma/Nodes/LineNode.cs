@@ -10,6 +10,6 @@ namespace Cdm.Figma
     [DataContract]
     public class LineNode : VectorNode
     {
-        public override string type => NodeType.Line;
+        public override NodeType type => NodeType.Line;
     }
 }

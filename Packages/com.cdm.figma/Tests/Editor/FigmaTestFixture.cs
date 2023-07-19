@@ -64,7 +64,7 @@ namespace Cdm.Figma.Tests
 
         private static void CheckNodeTypes(Node node)
         {
-            var nodes = new Dictionary<string, Type>()
+            var nodes = new Dictionary<NodeType, Type>()
             {
                 {NodeType.Boolean, typeof(BooleanNode)},
                 {NodeType.Page, typeof(PageNode)},
@@ -86,7 +86,7 @@ namespace Cdm.Figma.Tests
 
             if (nodes.TryGetValue(node.type, out var type))
             {
-                Assert.True(node.GetType() == type, node.type);
+                Assert.True(node.GetType() == type, node.type.ToString());
             }
             else
             {

@@ -8,6 +8,6 @@ namespace Cdm.Figma
     [DataContract]
     public class PolygonNode : VectorNode
     {
-        public override string type => NodeType.Polygon;
+        public override NodeType type => NodeType.Polygon;
     }
 }

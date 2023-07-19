@@ -8,6 +8,6 @@ namespace Cdm.Figma
     [DataContract]
     public class StarNode : VectorNode
     {
-        public override string type => NodeType.Star;
+        public override NodeType type => NodeType.Star;
     }
 }

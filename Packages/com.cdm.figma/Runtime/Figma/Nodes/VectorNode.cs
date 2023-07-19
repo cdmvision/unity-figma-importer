@@ -14,7 +14,7 @@ namespace Cdm.Figma
     [DataContract]
     public class VectorNode : SceneNode, INodeTransform, INodeLayout, INodeFill, INodeTransition, INodeExport
     {
-        public override string type => NodeType.Vector;
+        public override NodeType type => NodeType.Vector;
         
         /// <summary>
         /// A list of export settings representing images to export from the canvas.

@@ -10,7 +10,7 @@ namespace Cdm.Figma
     [DataContract]
     public class DocumentNode : Node
     {
-        public override string type => NodeType.Document;
+        public override NodeType type => NodeType.Document;
         
         /// <summary>
         /// A list of canvases attached to the document.

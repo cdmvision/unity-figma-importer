@@ -10,7 +10,7 @@ namespace Cdm.Figma
     [DataContract]
     public class InstanceNode : FrameNode
     {
-        public override string type => NodeType.Instance;
+        public override NodeType type => NodeType.Instance;
 
         /// <summary>
         /// ID of component that this instance came from, refers to components table.
