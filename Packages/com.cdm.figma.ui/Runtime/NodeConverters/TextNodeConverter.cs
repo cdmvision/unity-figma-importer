@@ -121,7 +121,7 @@ namespace Cdm.Figma.UI
             else
             {
                 style.font.enabled = false;
-                Debug.LogWarning($"{fontName} could not be found.");
+                //Debug.LogWarning($"{fontName} could not be found.");
             }
 
             if (textNode.style.italic)

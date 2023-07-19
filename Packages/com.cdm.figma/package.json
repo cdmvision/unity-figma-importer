@@ -1,7 +1,7 @@
 {
   "name": "com.cdm.figma",
   "displayName": "Unity Figma Importer",
-  "version": "1.5.7",
+  "version": "1.5.8",
   "unity": "2021.3",
   "author": "CDM Vision",
   "description": "Unity Figma Importer turns your Figma design into Unity UI and can generate code and layout files to create Unity apps.",
