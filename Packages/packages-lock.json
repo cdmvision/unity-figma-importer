@@ -6,7 +6,7 @@
       "source": "embedded",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "2.0.2",
-        "com.unity.vectorgraphics": "2.0.0-preview.20"
+        "com.unity.vectorgraphics": "2.0.0-preview.16"
       }
     },
     "com.cdm.figma.ui": {
@@ -16,7 +16,7 @@
       "dependencies": {
         "com.cdm.figma": "1.5.7",
         "com.unity.nuget.newtonsoft-json": "2.0.2",
-        "com.unity.vectorgraphics": "2.0.0-preview.20"
+        "com.unity.vectorgraphics": "2.0.0-preview.16"
       }
     },
     "com.unity.2d.sprite": {
@@ -137,7 +137,7 @@
       }
     },
     "com.unity.vectorgraphics": {
-      "version": "2.0.0-preview.21",
+      "version": "2.0.0-preview.16",
       "depth": 0,
       "source": "registry",
       "dependencies": {
