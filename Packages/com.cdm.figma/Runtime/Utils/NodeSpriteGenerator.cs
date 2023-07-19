@@ -680,7 +680,7 @@ namespace Cdm.Figma.Utils
             var material = GetSpriteMaterial();
             var texture =
                 VectorUtils.RenderSpriteToTexture2D(
-                    sprite, textureWidth, textureHeight, material, options.sampleCount, false);
+                    sprite, textureWidth, textureHeight, material, options.sampleCount, expandEdges);
 
             if (texture != null)
             {
