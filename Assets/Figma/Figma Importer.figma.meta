@@ -93,6 +93,7 @@ ScriptedImporter:
   _wrapMode: 1
   _filterMode: 2
   _sampleCount: 8
+  _expandEdges: 0
   _markExternalAssetAsDependency: 0
   _generateUniqueNodeName: 1
   _localizationConverter: Cdm.Figma.UI.UnityLocalizationConverter, Cdm.Figma.UI.UnityLocalization,
