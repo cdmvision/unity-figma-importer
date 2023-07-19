@@ -71,7 +71,10 @@ namespace Cdm.Figma.UI.Styles
             }
             else
             {
-                Debug.LogWarning($"Style with selector could not found: {args.selector}", this);
+                if (Application.isPlaying)
+                {
+                    Debug.LogWarning($"Style with selector could not found: {args.selector}", this);    
+                }
             }
         }
 
