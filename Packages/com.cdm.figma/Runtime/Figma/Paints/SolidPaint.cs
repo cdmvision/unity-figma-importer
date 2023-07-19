@@ -10,7 +10,7 @@ namespace Cdm.Figma
         /// <summary>
         /// Solid color of the paint.
         /// </summary>
-        [DataMember(Name = "color")]
+        [DataMember(Name = "color", IsRequired = true)]
         public Color color { get; set; }
     }
 }

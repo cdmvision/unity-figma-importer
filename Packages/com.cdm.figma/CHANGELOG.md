@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.5.8] - 2023-07-19
 ### Changes
-- Added `expandEdges` sprite generation option to importer.
-- Solid paint imported as solid instead of gradient.
+- Added `expandEdges` sprite generation option to importer
+- Solid paint imported as solid instead of gradient
 
 ## [1.5.7] - 2023-07-18
 - No changes
