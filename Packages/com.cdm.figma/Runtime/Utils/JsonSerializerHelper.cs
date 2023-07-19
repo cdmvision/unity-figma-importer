@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Reflection;
+using Cdm.Figma.Utils;
 using JsonSubTypes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -22,12 +23,13 @@ namespace Cdm.Figma
                     new StringEnumConverter(),
                     new AffineTransformConverter(),
                     GetNodeConverter(),
-                    GetEffectConverter(),
-                    GetPaintConverter(),
+                    new EffectJsonConverter(),
+                    new PaintJsonConverter(),
                     GetComponentPropertyDefinitionConverter(),
                     GetComponentPropertyAssignmentConverter()
                 },
                 NullValueHandling = NullValueHandling.Ignore,
+                TypeNameHandling = TypeNameHandling.None
             };
         }
 

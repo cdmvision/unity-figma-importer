@@ -141,7 +141,7 @@ namespace Cdm.Figma.UI.Editor
         [Tooltip("When true, expand the edges to avoid a dark banding effect caused by filtering." + 
                  "This is slower to render and uses more graphics memory.")]
         [SerializeField]
-        private bool _expandEdges;
+        private bool _expandEdges = false;
         
         /// <inheritdoc cref="SpriteGenerateOptions.expandEdges"/>
         public bool expandEdges
@@ -202,7 +202,7 @@ namespace Cdm.Figma.UI.Editor
             FigmaFile figmaFile)
         {
             base.OnAssetImporting(ctx, figmaImporter, figmaFile);
-
+            
             UpdateFonts((FigmaImporter)figmaImporter, figmaFile);
         }
 

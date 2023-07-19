@@ -10,7 +10,7 @@ namespace Cdm.Figma.Editor
     public abstract class FigmaAssetImporterBase : ScriptedImporter
     {
         protected const string DefaultExtension = "figma";
-        protected const int ImportQueueOffset = 999;
+        protected const int ImportQueueOffset = 9999;
 
         protected const string FigmaIconColorPath = EditorHelper.PackageFolderPath +
                                                     "/Editor Default Resources/FigmaIcon-Color.png";
