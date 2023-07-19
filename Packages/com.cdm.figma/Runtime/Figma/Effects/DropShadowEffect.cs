@@ -5,7 +5,7 @@ namespace Cdm.Figma
     [DataContract]
     public class DropShadowEffect : ShadowEffect
     {
-        public override string type => EffectType.DropShadow;
+        public override EffectType type => EffectType.DropShadow;
         
         /// <summary>
         /// Whether to show the shadow behind translucent or transparent pixels.

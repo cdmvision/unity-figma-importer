@@ -5,7 +5,7 @@ namespace Cdm.Figma
     [DataContract]
     public class SolidPaint : Paint
     {
-        public override string type => PaintType.Solid;
+        public override PaintType type => PaintType.Solid;
         
         /// <summary>
         /// Solid color of the paint.

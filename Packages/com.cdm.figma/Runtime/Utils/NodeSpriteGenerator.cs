@@ -319,8 +319,8 @@ namespace Cdm.Figma.Utils
             int geometryIndex, int fillIndex, Vector2 viewSize, bool isStroke)
         {
             var type = isStroke ? "stroke" : "fill";
-            var gradientId = $"{GetGradientId(node.id, type, geometryIndex, fillIndex)}" +
-                             $"{gradient.type.ToLowerInvariant()}";
+            var gradientId = $"{GetGradientId(node.id, type, geometryIndex, fillIndex)}" + 
+                             $"{gradient.type.ToString()}";
             svg.AppendLine($@"{type}=""url(#{gradientId})"" />");
 
             if (gradient is LinearGradientPaint)

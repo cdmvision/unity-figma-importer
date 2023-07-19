@@ -13,7 +13,7 @@ namespace Cdm.Figma
         /// </summary>
         /// <seealso cref="PaintType"/>
         [DataMember(Name = "type", IsRequired = true)]
-        public virtual string type { get; set; }
+        public virtual PaintType type { get; set; }
         
         /// <summary>
         /// Is the paint enabled?
@@ -35,14 +35,26 @@ namespace Cdm.Figma
         [DataMember(Name = "blendMode")]
         public BlendMode blendMode { get; set; } = BlendMode.Normal;
     }
-    
-    public static class PaintType
+
+    [DataContract]
+    public enum PaintType
     {
-        public const string Solid = "SOLID";
-        public const string GradientLinear = "GRADIENT_LINEAR";
-        public const string GradientRadial = "GRADIENT_RADIAL";
-        public const string GradientAngular = "GRADIENT_ANGULAR";
-        public const string GradientDiamond = "GRADIENT_DIAMOND";
-        public const string Image = "IMAGE";
+        [EnumMember(Value = "SOLID")]
+        Solid,
+        
+        [EnumMember(Value = "GRADIENT_LINEAR")]
+        GradientLinear,
+        
+        [EnumMember(Value = "GRADIENT_RADIAL")]
+        GradientRadial,
+        
+        [EnumMember(Value = "GRADIENT_ANGULAR")]
+        GradientAngular,
+        
+        [EnumMember(Value = "GRADIENT_DIAMOND")]
+        GradientDiamond,
+        
+        [EnumMember(Value = "IMAGE")]
+        Image
     }
 }
