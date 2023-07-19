@@ -10,7 +10,7 @@ namespace Cdm.Figma
     [DataContract]
     public class PageNode : Node
     {
-        public override string type => NodeType.Page;
+        public override NodeType type => NodeType.Page;
         
         /// <summary>
         /// A list of top level layers on the canvas.

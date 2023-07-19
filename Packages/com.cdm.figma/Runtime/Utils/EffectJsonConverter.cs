@@ -25,10 +25,10 @@ namespace Cdm.Figma.Utils
                 case EffectType.BackgroundBlur:
                     type = typeof(BackgroundBlurEffect);
                     return true;
+                default:
+                    type = typeof(Effect);
+                    return true;
             }
-
-            type = default;
-            return false;
         }
     }
 }

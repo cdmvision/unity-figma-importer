@@ -15,7 +15,7 @@ namespace Cdm.Figma
     [DataContract]
     public class BooleanNode : VectorNode
     {
-        public override string type => NodeType.Boolean;
+        public override NodeType type => NodeType.Boolean;
 
         /// <summary>
         /// A list of nodes that are being boolean operated on.

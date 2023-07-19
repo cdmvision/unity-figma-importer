@@ -130,7 +130,7 @@ namespace Cdm.Figma.UI
             nodeObject.node = node;
             nodeObject.nodeId = node.id;
             nodeObject.nodeName = node.name;
-            nodeObject.nodeType = node.type;
+            nodeObject.nodeType = node.type.ToString();
             nodeObject.bindingKey = node.GetBindingKey();
             nodeObject.tags = node.GetTags();
 

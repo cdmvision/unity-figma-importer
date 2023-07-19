@@ -43,7 +43,7 @@ namespace Cdm.Figma
         /// <summary>
         /// Traverse nodes specified types by using depth first search from starting node.
         /// </summary>
-        public static void TraverseDfs(this Node node, Func<Node, bool> handler, params string[] nodeTypes)
+        public static void TraverseDfs(this Node node, Func<Node, bool> handler, params NodeType[] nodeTypes)
         {
             node.TraverseDfs(n =>
             {
@@ -87,7 +87,7 @@ namespace Cdm.Figma
             return target;
         }
 
-        public static Node Find(this Node node, string nodeId, params string[] nodeTypes)
+        public static Node Find(this Node node, string nodeId, params NodeType[] nodeTypes)
         {
             Node target = null;
             node.TraverseDfs(n =>

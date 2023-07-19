@@ -18,7 +18,7 @@ namespace Cdm.Figma
     public class GroupNode
         : SceneNode, INodeTransform, INodeLayout, INodeTransition, INodeExport
     {
-        public override string type => NodeType.Group;
+        public override NodeType type => NodeType.Group;
 
         /// <summary>
         /// A list of nodes that are direct children of this node.

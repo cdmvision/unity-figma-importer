@@ -11,7 +11,7 @@ namespace Cdm.Figma
     [DataContract]
     public class SliceNode : SceneNode, INodeTransform, INodeExport
     {
-        public override string type => NodeType.Slice;
+        public override NodeType type => NodeType.Slice;
         
         /// <summary>
         /// A list of export settings representing images to export from the canvas.

@@ -29,7 +29,7 @@ namespace Cdm.Figma
         /// </summary>
         /// <seealso cref="NodeType"/>
         [DataMember(Name = "type", IsRequired = true)]
-        public virtual string type { get; private set; }
+        public virtual NodeType type { get; set; }
 
         /// <summary>
         /// Data written by plugins that is visible only to the plugin that wrote it. Requires the `pluginData` to
@@ -37,14 +37,14 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "pluginData")]
         public Dictionary<string, JObject> pluginData { get; set; }
-        
+
         /// <summary>
         /// Data written by plugins that is visible to all plugins. Requires the `pluginData` parameter to include
         /// the string "shared".
         /// </summary>
         [DataMember(Name = "sharedPluginData")]
         public Dictionary<string, JObject> sharedPluginData { get; set; }
-        
+
         /// <summary>
         /// A mapping of a layer's property to component property name of component properties attached to this node.
         /// The component property name can be used to look up more information on the node's containing
@@ -84,23 +84,55 @@ namespace Cdm.Figma
     /// <summary>
     /// The type of the node, refer to table below for details.
     /// </summary>
-    public class NodeType
+    [DataContract]
+    public enum NodeType
     {
-        public const string Boolean = "BOOLEAN_OPERATION";
-        public const string Page = "CANVAS";
-        public const string Component = "COMPONENT";
-        public const string ComponentSet = "COMPONENT_SET";
-        public const string Document = "DOCUMENT";
-        public const string Ellipse = "ELLIPSE";
-        public const string Frame = "FRAME";
-        public const string Group = "GROUP";
-        public const string Instance = "INSTANCE";
-        public const string Line = "LINE";
-        public const string Rectangle = "RECTANGLE";
-        public const string Polygon = "REGULAR_POLYGON";
-        public const string Slice = "SLICE";
-        public const string Star = "STAR";
-        public const string Text = "TEXT";
-        public const string Vector = "VECTOR";    
+        [EnumMember(Value = "BOOLEAN_OPERATION")]
+        Boolean,
+
+        [EnumMember(Value = "CANVAS")]
+        Page,
+
+        [EnumMember(Value = "COMPONENT")]
+        Component,
+
+        [EnumMember(Value = "COMPONENT_SET")]
+        ComponentSet,
+
+        [EnumMember(Value = "DOCUMENT")]
+        Document,
+
+        [EnumMember(Value = "ELLIPSE")]
+        Ellipse,
+
+        [EnumMember(Value = "FRAME")]
+        Frame,
+
+        [EnumMember(Value = "GROUP")]
+        Group,
+
+        [EnumMember(Value = "INSTANCE")]
+        Instance,
+
+        [EnumMember(Value = "LINE")]
+        Line,
+
+        [EnumMember(Value = "RECTANGLE")]
+        Rectangle,
+
+        [EnumMember(Value = "REGULAR_POLYGON")]
+        Polygon,
+
+        [EnumMember(Value = "SLICE")]
+        Slice,
+
+        [EnumMember(Value = "STAR")]
+        Star,
+
+        [EnumMember(Value = "TEXT")]
+        Text,
+
+        [EnumMember(Value = "VECTOR")]
+        Vector
     }
 }

@@ -10,7 +10,7 @@ namespace Cdm.Figma
     [DataContract]
     public class ComponentNode : FrameNode
     {
-        public override string type => NodeType.Component;
+        public override NodeType type => NodeType.Component;
         
         /// <summary>
         /// A mapping of name to <see cref="ComponentPropertyDefinition"/> for every component property on this

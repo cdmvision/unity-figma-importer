@@ -41,7 +41,7 @@ namespace Cdm.Figma
 
         public static PluginData FromString(string json)
         {
-            return JsonConvert.DeserializeObject<PluginData>(json, JsonSerializerHelper.Settings);
+            return JsonConvert.DeserializeObject<PluginData>(json, JsonSerializerHelper.settings);
         }
 
         public static PluginData FromJson(JObject json)
@@ -55,7 +55,7 @@ namespace Cdm.Figma
             {
                 if (!string.IsNullOrEmpty(componentData))
                 {
-                    return JsonConvert.DeserializeObject<T>(componentData, JsonSerializerHelper.Settings);    
+                    return JsonConvert.DeserializeObject<T>(componentData, JsonSerializerHelper.settings);    
                 }
             }
             catch (Exception)
@@ -68,7 +68,7 @@ namespace Cdm.Figma
 
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, JsonSerializerHelper.Settings);
+            return JsonConvert.SerializeObject(this, JsonSerializerHelper.settings);
         }
     }
 }

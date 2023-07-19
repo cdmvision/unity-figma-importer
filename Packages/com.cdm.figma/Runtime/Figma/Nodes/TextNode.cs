@@ -10,7 +10,7 @@ namespace Cdm.Figma
     [DataContract]
     public class TextNode : VectorNode
     {
-        public override string type => NodeType.Text;
+        public override NodeType type => NodeType.Text;
         
         /// <summary>
         /// Text contained within a text box.

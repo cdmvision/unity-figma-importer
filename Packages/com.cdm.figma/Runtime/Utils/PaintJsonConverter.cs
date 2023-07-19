@@ -17,24 +17,24 @@ namespace Cdm.Figma.Utils
                     type = typeof(SolidPaint);
                     return true;
                 case PaintType.GradientLinear:
-                    type =  typeof(LinearGradientPaint);
+                    type = typeof(LinearGradientPaint);
                     return true;
                 case PaintType.GradientRadial:
-                    type =  typeof(RadialGradientPaint);
+                    type = typeof(RadialGradientPaint);
                     return true;
                 case PaintType.GradientAngular:
-                    type =  typeof(AngularGradientPaint);
+                    type = typeof(AngularGradientPaint);
                     return true;
                 case PaintType.GradientDiamond:
-                    type =  typeof(DiamondGradientPaint);
+                    type = typeof(DiamondGradientPaint);
                     return true;
                 case PaintType.Image:
-                    type =  typeof(ImagePaint);
+                    type = typeof(ImagePaint);
+                    return true;
+                default:
+                    type = typeof(Paint);
                     return true;
             }
-
-            type = default;
-            return false;  
         }
     }
 }

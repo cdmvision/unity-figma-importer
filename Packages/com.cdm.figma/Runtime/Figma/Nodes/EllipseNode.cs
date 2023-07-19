@@ -9,7 +9,7 @@ namespace Cdm.Figma
     [DataContract]
     public class EllipseNode : VectorNode
     {
-        public override string type => NodeType.Ellipse;
+        public override NodeType type => NodeType.Ellipse;
         
         /// <summary>
         /// Start and end angles of the ellipse measured clockwise from the x axis, plus the inner radius for donuts.
