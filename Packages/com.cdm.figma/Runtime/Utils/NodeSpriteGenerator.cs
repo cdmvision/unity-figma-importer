@@ -787,9 +787,9 @@ namespace Cdm.Figma.Utils
         }
 
         private const string SpriteMaterialPath =
-            "Packages/com.unity.vectorgraphics/Runtime/Materials/Unlit_VectorGradientUI.mat";
+            "Packages/com.unity.vectorgraphics/Runtime/Materials/Unlit_VectorGradient.mat";
 
-        private const string SpriteShaderName = "Unlit/VectorGradientUI";
+        private const string SpriteShaderName = "Unlit/VectorGradient";
 
         private static Material GetSpriteMaterial()
         {
