@@ -49,7 +49,7 @@ namespace Cdm.Figma.UI
                     horizontalLayoutGroup.childForceExpandHeight = true;
                 }
                 
-                var contentSizeFitter = scrollRect.content.gameObject.AddComponent<ContentSizeFitter>();
+                var contentSizeFitter = scrollRect.content.gameObject.GetOrAddComponent<ContentSizeFitter>();
                 
                 if (figmaNode.TryFindOptionalNode<Scrollbar>(HorizontalScrollbarKey, out var horizontalScrollbar))
                 {

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Cdm.Figma.UI.Styles;
+using Cdm.Figma.UI.Utils;
 using Cdm.Figma.Utils;
 using TMPro;
 using UnityEngine;
@@ -30,16 +31,17 @@ namespace Cdm.Figma.UI
         {
             if (textNode.style.textAutoResize != TextAutoResize.None)
             {
-                var fitter = nodeObject.gameObject.AddComponent<ContentSizeFitter>();
+                var contentSizeFitter = nodeObject.gameObject.GetOrAddComponent<ContentSizeFitter>();
+                
                 if (textNode.style.textAutoResize == TextAutoResize.Height)
                 {
-                    fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-                    fitter.horizontalFit = ContentSizeFitter.FitMode.MinSize;
+                    contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.MinSize;
                 }
                 else if (textNode.style.textAutoResize == TextAutoResize.WidthAndHeight)
                 {
-                    fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-                    fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
                 }
             }
         }

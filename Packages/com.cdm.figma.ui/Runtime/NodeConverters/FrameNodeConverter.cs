@@ -224,32 +224,31 @@ namespace Cdm.Figma.UI
             if (frameNode.layoutMode == LayoutMode.None)
                 return;
 
-            if (frameNode.primaryAxisSizingMode == AxisSizingMode.Auto ||
-                frameNode.counterAxisSizingMode == AxisSizingMode.Auto)
-            {
-                nodeObject.gameObject.AddComponent<ContentSizeFitter>();
-            }
-
+            if (frameNode.primaryAxisSizingMode != AxisSizingMode.Auto &&
+                frameNode.counterAxisSizingMode != AxisSizingMode.Auto)
+                return;
+            
+            var contentSizeFitter = nodeObject.gameObject.GetOrAddComponent<ContentSizeFitter>();
+            var horizontalLayoutGroup = nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>();
+            
             if (frameNode.primaryAxisSizingMode == AxisSizingMode.Auto)
             {
                 if (frameNode.layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
-                        ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-                    if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
+                    if (horizontalLayoutGroup != null)
                     {
-                        nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
+                        horizontalLayoutGroup.childControlWidth = true;
                     }
                 }
                 else
                 {
-                    nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
-                        ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                    
-                    if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
+                    if (horizontalLayoutGroup != null)
                     {
-                        nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
+                        horizontalLayoutGroup.childControlHeight = true;
                     }
                 }
             }
@@ -258,22 +257,20 @@ namespace Cdm.Figma.UI
             {
                 if (frameNode.layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
-                        ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                     
-                    if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
+                    if (horizontalLayoutGroup != null)
                     {
-                        nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
+                        horizontalLayoutGroup.childControlHeight = true;
                     }
                 }
                 else
                 {
-                    nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
-                        ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
                     
-                    if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
+                    if (horizontalLayoutGroup != null)
                     {
-                        nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
+                        horizontalLayoutGroup.childControlWidth = true;
                     }
                 }
             }
