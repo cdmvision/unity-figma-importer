@@ -53,7 +53,15 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.PropertyField(_maxTextureSize);
             EditorGUILayout.PropertyField(_wrapMode);
             EditorGUILayout.PropertyField(_filterMode);
+            EditorGUILayout.PropertyField(_expandEdges);
             IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);
+
+            if (_expandEdges.boolValue)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.HelpBox(
+                    $"{_expandEdges.displayName} might not work correctly on Unity Cloud Build.", MessageType.Warning);
+            }
         }
 
         private void DrawLocalizationConverterGui()

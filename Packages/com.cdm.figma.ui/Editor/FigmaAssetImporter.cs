@@ -47,6 +47,7 @@ namespace Cdm.Figma.UI.Editor
         [SerializeField]
         private int _layer;
 
+        /// <inheritdoc cref="FigmaImporter.layer"/>
         public int layer
         {
             get => _layer;
@@ -56,6 +57,7 @@ namespace Cdm.Figma.UI.Editor
         [SerializeField]
         private float _pixelsPerUnit = 100f;
 
+        /// <inheritdoc cref="SpriteGenerateOptions.pixelsPerUnit"/>
         public float pixelsPerUnit
         {
             get => _pixelsPerUnit;
@@ -65,6 +67,7 @@ namespace Cdm.Figma.UI.Editor
         [SerializeField, Min(0.001f)]
         private float _scaleFactor = 1f;
 
+        /// <inheritdoc cref="SpriteGenerateOptions.scaleFactor"/>
         public float scaleFactor
         {
             get => _scaleFactor;
@@ -74,6 +77,7 @@ namespace Cdm.Figma.UI.Editor
         [SerializeField]
         private ushort _gradientResolution = 128;
 
+        /// <inheritdoc cref="SpriteGenerateOptions.gradientResolution"/>
         public ushort gradientResolution
         {
             get => _gradientResolution;
@@ -83,6 +87,7 @@ namespace Cdm.Figma.UI.Editor
         [SerializeField]
         private int _minTextureSize = 64;
 
+        /// <inheritdoc cref="SpriteGenerateOptions.minTextureSize"/>
         public int minTextureSize
         {
             get => _minTextureSize;
@@ -92,6 +97,7 @@ namespace Cdm.Figma.UI.Editor
         [SerializeField]
         private int _maxTextureSize = 1024;
 
+        /// <inheritdoc cref="SpriteGenerateOptions.maxTextureSize"/>
         public int maxTextureSize
         {
             get => _maxTextureSize;
@@ -101,6 +107,7 @@ namespace Cdm.Figma.UI.Editor
         [SerializeField]
         private TextureWrapMode _wrapMode = TextureWrapMode.Clamp;
 
+        /// <inheritdoc cref="SpriteGenerateOptions.wrapMode"/>
         public TextureWrapMode wrapMode
         {
             get => _wrapMode;
@@ -110,6 +117,7 @@ namespace Cdm.Figma.UI.Editor
         [SerializeField]
         private FilterMode _filterMode = FilterMode.Bilinear;
 
+        /// <inheritdoc cref="SpriteGenerateOptions.filterMode"/>
         public FilterMode filterMode
         {
             get => _filterMode;
@@ -118,11 +126,28 @@ namespace Cdm.Figma.UI.Editor
 
         [SerializeField]
         private int _sampleCount = 4;
-
+        
+        /// <inheritdoc cref="SpriteGenerateOptions.sampleCount"/>
         public int sampleCount
         {
             get => _sampleCount;
             set => _sampleCount = value;
+        }
+
+        // Draw the sprite again, but clear with the texture rendered in the previous step,
+        // this will make the bilinear filter to interpolate the colors with values different
+        // than "transparent black", which causes black-ish outlines around the shape.
+        
+        [Tooltip("When true, expand the edges to avoid a dark banding effect caused by filtering." + 
+                 "This is slower to render and uses more graphics memory.")]
+        [SerializeField]
+        private bool _expandEdges;
+        
+        /// <inheritdoc cref="SpriteGenerateOptions.expandEdges"/>
+        public bool expandEdges
+        {
+            get => _expandEdges;
+            set => _expandEdges = value;
         }
 
         [SerializeField]
@@ -259,6 +284,7 @@ namespace Cdm.Figma.UI.Editor
             spriteOptions.wrapMode = wrapMode;
             spriteOptions.filterMode = filterMode;
             spriteOptions.sampleCount = sampleCount;
+            spriteOptions.expandEdges = expandEdges;
 
             var figmaImporter = new FigmaImporter()
             {

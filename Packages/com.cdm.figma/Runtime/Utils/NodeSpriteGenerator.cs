@@ -16,45 +16,7 @@ namespace Cdm.Figma.Utils
         Path,
         Rectangle
     }
-
-    public struct SpriteGenerateOptions
-    {
-        public VectorUtils.TessellationOptions tessellationOptions { get; set; }
-
-        public FilterMode filterMode { get; set; }
-        public TextureWrapMode wrapMode { get; set; }
-        public int minTextureSize { get; set; }
-        public int maxTextureSize { get; set; }
-        public int sampleCount { get; set; }
-        public ushort gradientResolution { get; set; }
-        public float pixelsPerUnit { get; set; }
-        public float scaleFactor { get; set; }
-        public SceneNode overrideNode { get; set; }
-
-        public static SpriteGenerateOptions GetDefault()
-        {
-            return new SpriteGenerateOptions()
-            {
-                tessellationOptions = new VectorUtils.TessellationOptions()
-                {
-                    StepDistance = 1.0f,
-                    MaxCordDeviation = 0.5f,
-                    MaxTanAngleDeviation = 0.1f,
-                    SamplingStepSize = 0.01f
-                },
-                filterMode = FilterMode.Bilinear,
-                wrapMode = TextureWrapMode.Clamp,
-                minTextureSize = 64,
-                maxTextureSize = 256,
-                sampleCount = 4,
-                gradientResolution = 128,
-                pixelsPerUnit = 100f,
-                scaleFactor = 1f,
-                overrideNode = null
-            };
-        }
-    }
-
+    
     public static class NodeSpriteGenerator
     {
         /// <summary>
@@ -676,7 +638,9 @@ namespace Cdm.Figma.Utils
             var textureWidth = Mathf.RoundToInt(Mathf.Max(widthScaled, 1f));
             var textureHeight = Mathf.RoundToInt(Mathf.Max(heightScaled, 1f));
 
-            var expandEdges = options.filterMode != FilterMode.Point || options.sampleCount > 1;
+            var expandEdges = options.expandEdges && 
+                              (options.filterMode != FilterMode.Point || options.sampleCount > 1);
+            
             var material = GetSpriteMaterial();
             var texture =
                 VectorUtils.RenderSpriteToTexture2D(

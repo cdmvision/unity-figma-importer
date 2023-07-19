@@ -21,6 +21,8 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _wrapMode;
         private SerializedProperty _filterMode;
         private SerializedProperty _sampleCount;
+        private SerializedProperty _expandEdges;
+        
         private SerializedProperty _effectConverters;
         private SerializedProperty _localizationConverter;
         private SerializedProperty _markExternalAssetAsDependency;
@@ -62,6 +64,8 @@ namespace Cdm.Figma.UI.Editor
             _wrapMode = serializedObject.FindProperty("_wrapMode");
             _filterMode = serializedObject.FindProperty("_filterMode");
             _sampleCount = serializedObject.FindProperty("_sampleCount");
+            _expandEdges = serializedObject.FindProperty("_expandEdges");
+            
             _effectConverters = serializedObject.FindProperty("_effectConverters");
             _localizationConverter = serializedObject.FindProperty("_localizationConverter");
             _markExternalAssetAsDependency = serializedObject.FindProperty("_markExternalAssetAsDependency");
