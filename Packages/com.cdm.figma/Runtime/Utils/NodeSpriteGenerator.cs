@@ -525,25 +525,9 @@ namespace Cdm.Figma.Utils
             {
                 svg.AppendLine($@"stroke=""{solid.color.ToString("rgb-hex")}"" />");
             }
-            
-            // Using solid fill color could not be generated in Unity Cloud Build correctly.
-            // So we generate solid fill as a gradient.
-            // https://forum.unity.com/threads/vector-graphics-preview-package.529845/page-27#post-8999671
-
-            if (windingRule.HasValue && windingRule.Value == WindingRule.EvenOdd)
-            {
-                // Using gradient while winding rule is EvenOdd fails to render it correctly.
-                // So we have to use it as normal way.
-                // https://forum.unity.com/threads/vector-graphics-preview-package.529845/page-27#post-9077119
-
-                svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
-            }
             else
             {
-                var type = isStroke ? "stroke" : "fill";
-                var gradientID = GetGradientId(node.id, type, geometryIndex, fillIndex);
-                svg.AppendLine($@"fill=""url(#{gradientID})"" />");
-                AppendSvgSolidAsGradient(svg, solid, gradientID, size);
+                svg.AppendLine($@"fill=""{solid.color.ToString("rgb-hex")}"" />");
             }
         }
 
