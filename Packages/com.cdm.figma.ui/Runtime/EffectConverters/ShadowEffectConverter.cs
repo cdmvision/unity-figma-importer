@@ -2,7 +2,7 @@
 
 namespace Cdm.Figma.UI
 {
-    public abstract class ShadowEffectConverter : 
+    public abstract class ShadowEffectConverter :
         EffectConverter<ShadowEffect, ShadowStyle, ShadowStyleSetter, ShadowEffectBehaviour>
     {
         protected override ShadowStyle CreateStyle(FigmaNode node, ShadowEffect effect)
@@ -10,7 +10,7 @@ namespace Cdm.Figma.UI
             var style = new ShadowStyle();
             style.enabled = effect.visible;
 
-            style.color.SetValue(effect.color);
+            style.color.SetValue((UnityEngine.Color)effect.color);
             style.radius.SetValue(effect.radius);
             style.inner.SetValue(effect is InnerShadowEffect);
             style.offset.SetValue(effect.offset);

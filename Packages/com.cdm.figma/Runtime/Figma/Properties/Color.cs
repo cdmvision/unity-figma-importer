@@ -71,7 +71,7 @@ namespace Cdm.Figma
             }
         }
         
-        public static implicit operator UnityEngine.Color(Color c) => new UnityEngine.Color(c.r, c.g, c.b, c.a);
-        public static implicit operator Color(UnityEngine.Color c) => new Color(c.r, c.g, c.b, c.a);
+        public static explicit operator UnityEngine.Color(Color c) => new UnityEngine.Color(c.r, c.g, c.b, c.a);
+        public static explicit operator Color(UnityEngine.Color c) => new Color(c.r, c.g, c.b, c.a);
     }
 }
