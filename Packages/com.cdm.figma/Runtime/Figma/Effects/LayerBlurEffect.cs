@@ -5,6 +5,6 @@ namespace Cdm.Figma
     [DataContract]
     public class LayerBlurEffect : BlurEffect
     {
-        public override string type => EffectType.LayerBlur;
+        public override EffectType type => EffectType.LayerBlur;
     }
 }

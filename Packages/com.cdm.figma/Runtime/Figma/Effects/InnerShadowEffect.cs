@@ -5,6 +5,6 @@ namespace Cdm.Figma
     [DataContract]
     public class InnerShadowEffect : ShadowEffect
     {
-        public override string type => EffectType.InnerShadow;
+        public override EffectType type => EffectType.InnerShadow;
     }
 }

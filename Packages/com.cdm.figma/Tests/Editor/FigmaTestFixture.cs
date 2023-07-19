@@ -106,7 +106,7 @@ namespace Cdm.Figma.Tests
         [Test]
         public void EffectDeserializationByType()
         {
-            var effectTypes = new Dictionary<string, Type>()
+            var effectTypes = new Dictionary<EffectType, Type>()
             {
                 {EffectType.InnerShadow, typeof(InnerShadowEffect)},
                 {EffectType.DropShadow, typeof(DropShadowEffect)},
@@ -123,7 +123,7 @@ namespace Cdm.Figma.Tests
             {
                 if (effectTypes.TryGetValue(effect.type, out var type))
                 {
-                    Assert.True(effect.GetType() == type, effect.type);
+                    Assert.True(effect.GetType() == type, effect.type.ToString());
                 }
                 else
                 {
@@ -135,7 +135,7 @@ namespace Cdm.Figma.Tests
         [Test]
         public void PaintDeserializationByType()
         {
-            var paintTypes = new Dictionary<string, Type>()
+            var paintTypes = new Dictionary<PaintType, Type>()
             {
                 {PaintType.Solid, typeof(SolidPaint)},
                 {PaintType.GradientLinear, typeof(LinearGradientPaint)},
@@ -154,7 +154,7 @@ namespace Cdm.Figma.Tests
             {
                 if (paintTypes.TryGetValue(paint.type, out var type))
                 {
-                    Assert.True(paint.GetType() == type, paint.type);
+                    Assert.True(paint.GetType() == type, paint.type.ToString());
                 }
                 else
                 {

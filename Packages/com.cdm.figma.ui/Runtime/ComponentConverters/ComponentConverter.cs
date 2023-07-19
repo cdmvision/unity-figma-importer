@@ -78,35 +78,38 @@ namespace Cdm.Figma.UI
             SetComponentPropertyAssignments(instanceNode, args);
             InitVariantsDictionary(instanceNode);
 
-            foreach (var componentVariant in componentSetVariants)
+            using (args.ImportingComponentSet())
             {
-                // Array of State=Hover, Checked=On etc.
-                var propertyVariants =
-                    componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
-                        .ToArray();
-
-                // Debug.Log($"Property variants: {string.Join(",", propertyVariants)}");
-
-                if (TryGetSelector(propertyVariants, out var selector))
+                foreach (var componentVariant in componentSetVariants)
                 {
-                    var frameNodeConverter = new FrameNodeConverter();
-                    var nodeVariant = frameNodeConverter.Convert(parentObject, componentVariant, args);
+                    // Array of State=Hover, Checked=On etc.
+                    var propertyVariants =
+                        componentVariant.name.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())
+                            .ToArray();
 
-                    try
+                    // Debug.Log($"Property variants: {string.Join(",", propertyVariants)}");
+
+                    if (TryGetSelector(propertyVariants, out var selector))
                     {
-                        MergeComponentVariant(instanceObject, nodeVariant, selector);
-                    }
-                    catch (Exception e)
-                    {
-                        args.importer.LogError(e, instanceObject);
-                        break;
-                    }
-                    finally
-                    {
-                        // We don't need variant object.
-                        if (nodeVariant != null)
+                        var frameNodeConverter = new FrameNodeConverter();
+                        var nodeVariant = frameNodeConverter.Convert(parentObject, componentVariant, args);
+
+                        try
                         {
-                            ObjectUtils.Destroy(nodeVariant.gameObject);
+                            MergeComponentVariant(instanceObject, nodeVariant, selector);
+                        }
+                        catch (Exception e)
+                        {
+                            args.importer.LogError(e, instanceObject);
+                            break;
+                        }
+                        finally
+                        {
+                            // We don't need variant object.
+                            if (nodeVariant != null)
+                            {
+                                ObjectUtils.Destroy(nodeVariant.gameObject);
+                            }
                         }
                     }
                 }

@@ -40,6 +40,7 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.LabelField("Basic Settings", EditorStyles.boldLabel);
             _layer.intValue = EditorGUILayout.LayerField(_layer.displayName, _layer.intValue);
             EditorGUILayout.PropertyField(_markExternalAssetAsDependency);
+            EditorGUILayout.PropertyField(_generateUniqueNodeName);
         }
 
         private void DrawSpriteSettingsGui()
@@ -52,6 +53,7 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.PropertyField(_maxTextureSize);
             EditorGUILayout.PropertyField(_wrapMode);
             EditorGUILayout.PropertyField(_filterMode);
+            EditorGUILayout.PropertyField(_expandEdges);
             IntPopup(_sampleCount, _sampleCountContents, _sampleCountValues);
         }
 

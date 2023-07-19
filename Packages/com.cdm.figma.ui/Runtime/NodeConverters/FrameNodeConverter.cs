@@ -224,32 +224,31 @@ namespace Cdm.Figma.UI
             if (frameNode.layoutMode == LayoutMode.None)
                 return;
 
-            if (frameNode.primaryAxisSizingMode == AxisSizingMode.Auto ||
-                frameNode.counterAxisSizingMode == AxisSizingMode.Auto)
-            {
-                nodeObject.gameObject.AddComponent<ContentSizeFitter>();
-            }
-
+            if (frameNode.primaryAxisSizingMode != AxisSizingMode.Auto &&
+                frameNode.counterAxisSizingMode != AxisSizingMode.Auto)
+                return;
+            
+            var contentSizeFitter = nodeObject.gameObject.GetOrAddComponent<ContentSizeFitter>();
+            var horizontalLayoutGroup = nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>();
+            
             if (frameNode.primaryAxisSizingMode == AxisSizingMode.Auto)
             {
                 if (frameNode.layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
-                        ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-                    if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
+                    if (horizontalLayoutGroup != null)
                     {
-                        nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
+                        horizontalLayoutGroup.childControlWidth = true;
                     }
                 }
                 else
                 {
-                    nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
-                        ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                    
-                    if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
+                    if (horizontalLayoutGroup != null)
                     {
-                        nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
+                        horizontalLayoutGroup.childControlHeight = true;
                     }
                 }
             }
@@ -258,22 +257,20 @@ namespace Cdm.Figma.UI
             {
                 if (frameNode.layoutMode == LayoutMode.Horizontal)
                 {
-                    nodeObject.gameObject.GetComponent<ContentSizeFitter>().verticalFit =
-                        ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
                     
-                    if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
+                    if (horizontalLayoutGroup != null)
                     {
-                        nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlHeight = true;
+                        horizontalLayoutGroup.childControlHeight = true;
                     }
                 }
                 else
                 {
-                    nodeObject.gameObject.GetComponent<ContentSizeFitter>().horizontalFit =
-                        ContentSizeFitter.FitMode.PreferredSize;
+                    contentSizeFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
                     
-                    if (nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>())
+                    if (horizontalLayoutGroup != null)
                     {
-                        nodeObject.gameObject.GetComponent<HorizontalLayoutGroup>().childControlWidth = true;
+                        horizontalLayoutGroup.childControlWidth = true;
                     }
                 }
             }
@@ -453,9 +450,10 @@ namespace Cdm.Figma.UI
             var visibleGridLayoutCount = frameNode.layoutGrids.Count(x => x.visible);
             if (visibleGridLayoutCount == 1 || visibleGridLayoutCount == 2)
             {
-                int colGrids = 0;
-                int rowGrids = 0;
-                int grids = 0;
+                var colGrids = 0;
+                var rowGrids = 0;
+                var grids = 0;
+                
                 foreach (var grid in frameNode.layoutGrids)
                 {
                     if (grid.pattern == Pattern.Columns)
@@ -463,7 +461,7 @@ namespace Cdm.Figma.UI
                         colGrids++;
                         if (colGrids > 2)
                         {
-                            Debug.Log("Frame cannot have more than 2 Figma column grid, skipping.");
+                            Debug.LogWarning("Frame cannot have more than 2 Figma column grid, skipping.");
                             return;
                         }
                     }
@@ -472,7 +470,7 @@ namespace Cdm.Figma.UI
                         rowGrids++;
                         if (rowGrids > 2)
                         {
-                            Debug.Log("Frame cannot have more than 2 Figma row grid, skipping.");
+                            Debug.LogWarning("Frame cannot have more than 2 Figma row grid, skipping.");
                             return;
                         }
                     }
@@ -481,36 +479,42 @@ namespace Cdm.Figma.UI
                         grids++;
                         if (grids > 1)
                         {
-                            Debug.Log("Frame cannot have more than 1 Figma grid, skipping.");
+                            Debug.LogWarning("Frame cannot have more than 1 Figma grid, skipping.");
                             return;
                         }
                     }
                 }
+
+                // If there is another layout group added already.
+                var layoutGroup = nodeObject.gameObject.GetComponent<LayoutGroup>();
+                if (layoutGroup != null && layoutGroup is not GridLayoutGroup)
+                    return;
                 
-                var gridView = nodeObject.gameObject.AddComponent<GridLayoutGroup>();
+                var gridLayoutGroup = nodeObject.gameObject.GetOrAddComponent<GridLayoutGroup>();
                 var alignmentCol = Alignment.Min;
                 var alignmentRow = Alignment.Min;
+                
                 foreach (var grid in frameNode.layoutGrids)
                 {
                     if (grid.pattern == Pattern.Columns)
                     {
                         alignmentCol = grid.alignment;
-                        gridView.spacing = new Vector2(grid.gutterSize, gridView.spacing.y);
-                        gridView.padding.left = (int)grid.offset;
-                        gridView.padding.right = (int)grid.offset;
-                        gridView.cellSize = new Vector2(grid.sectionSize, gridView.cellSize.y);
+                        gridLayoutGroup.spacing = new Vector2(grid.gutterSize, gridLayoutGroup.spacing.y);
+                        gridLayoutGroup.padding.left = (int)grid.offset;
+                        gridLayoutGroup.padding.right = (int)grid.offset;
+                        gridLayoutGroup.cellSize = new Vector2(grid.sectionSize, gridLayoutGroup.cellSize.y);
                     }
                     else if (grid.pattern == Pattern.Rows)
                     {
                         alignmentRow = grid.alignment;
-                        gridView.spacing = new Vector2(gridView.spacing.x, grid.gutterSize);
-                        gridView.padding.top = (int)grid.offset;
-                        gridView.padding.bottom = (int)grid.offset;
-                        gridView.cellSize = new Vector2(gridView.cellSize.x, grid.sectionSize);
+                        gridLayoutGroup.spacing = new Vector2(gridLayoutGroup.spacing.x, grid.gutterSize);
+                        gridLayoutGroup.padding.top = (int)grid.offset;
+                        gridLayoutGroup.padding.bottom = (int)grid.offset;
+                        gridLayoutGroup.cellSize = new Vector2(gridLayoutGroup.cellSize.x, grid.sectionSize);
                     }
                     else if (grid.pattern == Pattern.Grid)
                     {
-                        gridView.cellSize = new Vector2(grid.sectionSize, grid.sectionSize);
+                        gridLayoutGroup.cellSize = new Vector2(grid.sectionSize, grid.sectionSize);
                     }
                 }
 
@@ -518,45 +522,45 @@ namespace Cdm.Figma.UI
                 {
                     if (alignmentRow == Alignment.Min)
                     {
-                        gridView.childAlignment = TextAnchor.UpperLeft;
+                        gridLayoutGroup.childAlignment = TextAnchor.UpperLeft;
                     }
                     else if (alignmentRow == Alignment.Center)
                     {
-                        gridView.childAlignment = TextAnchor.MiddleLeft;
+                        gridLayoutGroup.childAlignment = TextAnchor.MiddleLeft;
                     }
                     else if (alignmentRow == Alignment.Max)
                     {
-                        gridView.childAlignment = TextAnchor.LowerLeft;
+                        gridLayoutGroup.childAlignment = TextAnchor.LowerLeft;
                     }
                 }
                 else if (alignmentCol == Alignment.Center)
                 {
                     if (alignmentRow == Alignment.Min)
                     {
-                        gridView.childAlignment = TextAnchor.UpperCenter;
+                        gridLayoutGroup.childAlignment = TextAnchor.UpperCenter;
                     }
                     else if (alignmentRow == Alignment.Center)
                     {
-                        gridView.childAlignment = TextAnchor.MiddleCenter;
+                        gridLayoutGroup.childAlignment = TextAnchor.MiddleCenter;
                     }
                     else if (alignmentRow == Alignment.Max)
                     {
-                        gridView.childAlignment = TextAnchor.LowerCenter;
+                        gridLayoutGroup.childAlignment = TextAnchor.LowerCenter;
                     }
                 }
                 else if (alignmentCol == Alignment.Max)
                 {
                     if (alignmentRow == Alignment.Min)
                     {
-                        gridView.childAlignment = TextAnchor.UpperRight;
+                        gridLayoutGroup.childAlignment = TextAnchor.UpperRight;
                     }
                     else if (alignmentRow == Alignment.Center)
                     {
-                        gridView.childAlignment = TextAnchor.MiddleRight;
+                        gridLayoutGroup.childAlignment = TextAnchor.MiddleRight;
                     }
                     else if (alignmentRow == Alignment.Max)
                     {
-                        gridView.childAlignment = TextAnchor.LowerRight;
+                        gridLayoutGroup.childAlignment = TextAnchor.LowerRight;
                     }
                 }
             }

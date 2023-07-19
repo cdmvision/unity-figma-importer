@@ -5,7 +5,7 @@ namespace Cdm.Figma
     [DataContract]
     public class ImagePaint : Paint
     {
-        public override string type => PaintType.Image;
+        public override PaintType type => PaintType.Image;
         
         /// <summary>
         /// Image scaling mode.

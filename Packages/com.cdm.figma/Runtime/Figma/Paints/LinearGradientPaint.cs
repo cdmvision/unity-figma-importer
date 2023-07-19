@@ -5,6 +5,6 @@ namespace Cdm.Figma
     [DataContract]
     public class LinearGradientPaint : GradientPaint
     {
-        public override string type => PaintType.GradientLinear;
+        public override PaintType type => PaintType.GradientLinear;
     }
 }

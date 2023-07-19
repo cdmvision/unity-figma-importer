@@ -13,7 +13,7 @@ namespace Cdm.Figma
         /// </summary>
         /// <seealso cref="EffectType"/>
         [DataMember(Name = "type", IsRequired = true)]
-        public virtual string type { get; private set; }
+        public virtual EffectType type { get; private set; }
 
         /// <summary>
         /// Is the effect active?
@@ -21,12 +21,20 @@ namespace Cdm.Figma
         [DataMember(Name = "visible")]
         public bool visible { get; set; } = true;
     }
-    
-    public class EffectType
+
+    [DataContract]
+    public enum EffectType
     {
-        public const string InnerShadow = "INNER_SHADOW";
-        public const string DropShadow = "DROP_SHADOW";
-        public const string LayerBlur = "LAYER_BLUR";
-        public const string BackgroundBlur = "BACKGROUND_BLUR";
+        [EnumMember(Value = "INNER_SHADOW")]
+        InnerShadow,
+        
+        [EnumMember(Value = "DROP_SHADOW")]
+        DropShadow,
+        
+        [EnumMember(Value = "LAYER_BLUR")]
+        LayerBlur,
+        
+        [EnumMember(Value = "BACKGROUND_BLUR")]
+        BackgroundBlur,
     }
 }

@@ -14,6 +14,7 @@ namespace Cdm.Figma.UI
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
         public Node overrideNode { get; private set; }
+        public bool isImportingComponentSet { get; private set; }
 
         public Dictionary<string, ComponentNode> componentPropertyAssignments { get; } =
             new Dictionary<string, ComponentNode>();
@@ -32,6 +33,11 @@ namespace Cdm.Figma.UI
             return new NodeOverride(this, node);
         }
 
+        public IDisposable ImportingComponentSet()
+        {
+            return new ImportingComponentSetOverride(this);
+        }
+
         /// It is used to restore the <see cref="NodeConvertArgs.overrideNode"/> automatically.
         private class NodeOverride : IDisposable
         {
@@ -48,6 +54,24 @@ namespace Cdm.Figma.UI
             public void Dispose()
             {
                 args.overrideNode = previousNode;
+            }
+        }
+        
+        private class ImportingComponentSetOverride : IDisposable
+        {
+            public NodeConvertArgs args { get; }
+            public bool isImportingComponentSet { get; set; }
+            
+            public ImportingComponentSetOverride(NodeConvertArgs args)
+            {
+                this.args = args;
+                this.isImportingComponentSet = args.isImportingComponentSet;
+                args.isImportingComponentSet = true;
+            }
+
+            public void Dispose()
+            {
+                args.isImportingComponentSet = isImportingComponentSet;
             }
         }
     }
