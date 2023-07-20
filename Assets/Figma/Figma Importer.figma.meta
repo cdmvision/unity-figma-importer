@@ -15,7 +15,7 @@ ScriptedImporter:
   - enabled: 0
     id: 617:2
     name: Grid Layout
-  - enabled: 1
+  - enabled: 0
     id: 1512:2
     name: Simple Logo
   - enabled: 0
@@ -45,7 +45,7 @@ ScriptedImporter:
   - enabled: 0
     id: 1502:2
     name: Auto Layout (Absolute Positioning)
-  - enabled: 0
+  - enabled: 1
     id: 1504:2
     name: Localization
   - enabled: 0
@@ -62,10 +62,10 @@ ScriptedImporter:
     name: Complex
   _fonts:
   - fontName: Inter-Regular
-    font: {instanceID: 0}
+    font: {fileID: 11400000, guid: de6f48f3fc6298f4584153ee3e9622d2, type: 2}
   - fontName: Roboto-Regular
-    font: {instanceID: 0}
-  _fallbackFont: {instanceID: 0}
+    font: {fileID: 11400000, guid: de6f48f3fc6298f4584153ee3e9622d2, type: 2}
+  _fallbackFont: {fileID: 11400000, guid: de6f48f3fc6298f4584153ee3e9622d2, type: 2}
   _pageReferences:
   - {instanceID: 0}
   - {instanceID: 0}
