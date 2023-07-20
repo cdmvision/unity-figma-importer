@@ -68,7 +68,7 @@ namespace Cdm.Figma.UI.Styles
 
                 if (font.enabled)
                     textComponent.font = font.value;
-
+                
                 if (fontStyle.enabled)
                     textComponent.fontStyle = fontStyle.value;
 
