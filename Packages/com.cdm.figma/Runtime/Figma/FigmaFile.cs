@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
+using Cdm.Figma.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Cdm.Figma

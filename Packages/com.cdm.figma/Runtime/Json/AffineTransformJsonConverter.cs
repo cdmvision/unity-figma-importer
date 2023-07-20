@@ -2,9 +2,9 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Cdm.Figma
+namespace Cdm.Figma.Json
 {
-    public class AffineTransformConverter : JsonConverter<AffineTransform>
+    public class AffineTransformJsonConverter : JsonConverter<AffineTransform>
     {
         public override void WriteJson(JsonWriter writer, AffineTransform value, JsonSerializer serializer)
         {
@@ -17,10 +17,11 @@ namespace Cdm.Figma
         public override AffineTransform ReadJson(JsonReader reader, Type objectType, AffineTransform existingValue, 
             bool hasExistingValue, JsonSerializer serializer)
         {
-            JToken token = JToken.Load(reader);
+            var token = JToken.Load(reader);
+            
             if (token.Type == JTokenType.Array)
             {
-                var values = token.ToObject<float[][]>();
+                var values = token.ToObject<float[][]>(serializer);
                 return new AffineTransform(values);
             }
 

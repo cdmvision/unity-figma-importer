@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cdm.Figma.Utils
+namespace Cdm.Figma.Json
 {
     public class NodeJsonConverter : SubTypeJsonConverter<Node, NodeType>
     {

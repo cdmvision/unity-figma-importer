@@ -1,6 +1,6 @@
 ﻿namespace Cdm.Figma.Utils
 {
-    public class NodeUtils
+    public abstract class NodeUtils
     {
         public static string HyphenateNodeID(string nodeId)
         {

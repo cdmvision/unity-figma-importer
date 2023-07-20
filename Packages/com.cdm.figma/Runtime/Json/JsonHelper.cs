@@ -1,14 +1,12 @@
-using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using Cdm.Figma.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
-namespace Cdm.Figma
+namespace Cdm.Figma.Json
 {
     public static class JsonHelper
     {
@@ -46,7 +44,7 @@ namespace Cdm.Figma
                 {
                     new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal },
                     new StringEnumConverter(),
-                    new AffineTransformConverter(),
+                    new AffineTransformJsonConverter(),
                     new NodeJsonConverter(),
                     new EffectJsonConverter(),
                     new PaintJsonConverter(),

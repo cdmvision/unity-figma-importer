@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using Cdm.Figma.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Cdm.Figma

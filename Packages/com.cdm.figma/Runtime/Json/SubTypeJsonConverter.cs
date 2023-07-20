@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Cdm.Figma.Utils
+namespace Cdm.Figma.Json
 {
     public abstract class SubTypeJsonConverter<TObjectType, TTypeToken> : JsonConverter
     {
