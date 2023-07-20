@@ -77,6 +77,7 @@ namespace Cdm.Figma.UI.Styles
                     }
                     else
                     {
+                        // TODO: Find a better solution.
                         // At initial import settings object might not be loaded, so import fails.
                         // To prevent import failure, do not set font asset of TextMeshPro component.
                         var settings = TMP_Settings.LoadDefaultSettings();
