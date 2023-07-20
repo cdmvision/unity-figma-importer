@@ -9,22 +9,22 @@ namespace Cdm.Figma
     public class PluginData
     {
         public const string Id = "1047282855279327962";
-        
+
         [DataMember]
         public string bindingKey { get; set; }
-        
+
         [DataMember]
         public string localizationKey { get; set; }
-        
+
         [DataMember]
         public string componentType { get; set; }
-        
+
         [DataMember]
         private string componentData { get; set; }
-        
+
         [DataMember]
         public string tags { get; set; }
-        
+
         public bool isIgnored { get; private set; }
 
         [DataMember(Name = "ignored")]
@@ -33,7 +33,7 @@ namespace Cdm.Figma
             get => isIgnored ? "true" : "false";
             set => isIgnored = value.ToLowerInvariant() == "true";
         }
-        
+
         public bool hasBindingKey => !string.IsNullOrWhiteSpace(bindingKey);
         public bool hasLocalizationKey => !string.IsNullOrWhiteSpace(localizationKey);
         public bool hasComponentType => !string.IsNullOrWhiteSpace(componentType);
@@ -41,7 +41,7 @@ namespace Cdm.Figma
 
         public static PluginData FromString(string json)
         {
-            return JsonConvert.DeserializeObject<PluginData>(json, JsonSerializerHelper.settings);
+            return JsonHelper.Deserialize<PluginData>(json);
         }
 
         public static PluginData FromJson(JObject json)
@@ -55,7 +55,7 @@ namespace Cdm.Figma
             {
                 if (!string.IsNullOrEmpty(componentData))
                 {
-                    return JsonConvert.DeserializeObject<T>(componentData, JsonSerializerHelper.settings);    
+                    return JsonHelper.Deserialize<T>(componentData);
                 }
             }
             catch (Exception)
@@ -68,7 +68,7 @@ namespace Cdm.Figma
 
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, JsonSerializerHelper.settings);
+            return JsonHelper.Serialize(this);
         }
     }
 }
