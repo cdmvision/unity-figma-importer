@@ -16,6 +16,8 @@ namespace Cdm.Figma.UI.Editor
     [ScriptedImporter(1, DefaultExtension, ImportQueueOffset)]
     public class FigmaAssetImporter : FigmaAssetImporterBase
     {
+        private const string TextMeshProSettingsAssetPath = "Assets/TextMesh Pro/Resources/TMP Settings.asset";
+        
         [SerializeField]
         private FontSource[] _fonts;
 
@@ -198,12 +200,18 @@ namespace Cdm.Figma.UI.Editor
             }
         }
 
+        private static string[] GatherDependenciesFromSourceFile(string path)
+        {
+            return new[] { TextMeshProSettingsAssetPath };
+        }
+
         protected override void OnAssetImporting(AssetImportContext ctx, IFigmaImporter figmaImporter,
             FigmaFile figmaFile)
         {
             base.OnAssetImporting(ctx, figmaImporter, figmaFile);
             
             UpdateFonts((FigmaImporter)figmaImporter, figmaFile);
+            ForceLoadTextMeshProSettings();
         }
 
         protected override void OnAssetImported(AssetImportContext ctx, IFigmaImporter figmaImporter,
@@ -558,6 +566,17 @@ namespace Cdm.Figma.UI.Editor
 
             figmaImporter.fonts.AddRange(_fonts);
             figmaImporter.fallbackFont = fallbackFont;
+        }
+        
+        private static void ForceLoadTextMeshProSettings()
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<TMP_Settings>(TextMeshProSettingsAssetPath);
+            if (settings != null)
+            {
+                var type = typeof(TMP_Settings);
+                var field = type.GetField("s_Instance", BindingFlags.NonPublic | BindingFlags.Static);
+                field?.SetValue(null, settings);
+            }
         }
 
         private void UpdatePageReferences(FigmaDesign figmaDesign)
