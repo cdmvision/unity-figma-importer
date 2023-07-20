@@ -1,5 +1,8 @@
+using System;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
+using System.Text;
 using Cdm.Figma.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -7,9 +10,32 @@ using Newtonsoft.Json.Serialization;
 
 namespace Cdm.Figma
 {
-    public static class JsonSerializerHelper
+    public static class JsonHelper
     {
-        public static JsonSerializerSettings settings => CreateSettings();
+        public static T Deserialize<T>(string json)
+        {
+            var serializer = JsonSerializer.Create(CreateSettings());
+
+            using (var reader = new JsonTextReader(new StringReader(json)))
+            {
+                return serializer.Deserialize<T>(reader);
+            }
+        }
+
+        public static string Serialize(object value, Formatting formatting = Formatting.None)
+        {
+            var serializer = JsonSerializer.Create(CreateSettings());
+            serializer.Formatting = formatting;
+
+            var stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
+            using (var jsonTextWriter = new JsonTextWriter(stringWriter))
+            {
+                jsonTextWriter.Formatting = serializer.Formatting;
+                serializer.Serialize(jsonTextWriter, value, null);
+            }
+
+            return stringWriter.ToString();
+        }
 
         public static JsonSerializerSettings CreateSettings()
         {

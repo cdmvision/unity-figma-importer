@@ -115,7 +115,7 @@ namespace Cdm.Figma.Tests
             };
 
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("Effects.json"));
-            var effects = JsonConvert.DeserializeObject<Effect[]>(json.text, JsonSerializerHelper.CreateSettings());
+            var effects = JsonHelper.Deserialize<Effect[]>(json.text);
 
             Assert.NotNull(effects);
 
@@ -146,7 +146,7 @@ namespace Cdm.Figma.Tests
             };
 
             var json = AssetDatabase.LoadAssetAtPath<TextAsset>(GetFilePath("Paints.json"));
-            var paints = JsonConvert.DeserializeObject<Paint[]>(json.text, JsonSerializerHelper.CreateSettings());
+            var paints = JsonHelper.Deserialize<Paint[]>(json.text);
 
             Assert.NotNull(paints);
 

@@ -297,7 +297,7 @@ namespace Cdm.Figma
 
         public static FigmaFile Parse(string json)
         {
-            return JsonConvert.DeserializeObject<FigmaFile>(json, JsonSerializerHelper.settings);
+            return JsonHelper.Deserialize<FigmaFile>(json);
         }
         
         public static FigmaFile ParseBinary(Stream stream)
@@ -325,9 +325,9 @@ namespace Cdm.Figma
             switch (format.ToUpperInvariant())
             {
                 case "I":
-                    return JsonConvert.SerializeObject(this, Formatting.Indented, JsonSerializerHelper.settings);
+                    return JsonHelper.Serialize(this, Formatting.Indented);
                 case "N":
-                    return JsonConvert.SerializeObject(this, Formatting.None, JsonSerializerHelper.settings);
+                    return JsonHelper.Serialize(this);
                 default:
                     throw new FormatException($"The {format} format string is not supported.");
             }
