@@ -2,9 +2,9 @@
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace Cdm.Figma.Utils
+namespace Cdm.Figma.Json
 {
-    public class ColorHexConverter : JsonConverter<Color>
+    public class ColorHexJsonConverter : JsonConverter<Color>
     {
         public override void WriteJson(JsonWriter writer, Color value, JsonSerializer serializer)
         {

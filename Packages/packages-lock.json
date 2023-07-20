@@ -14,7 +14,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.cdm.figma": "1.6.2",
+        "com.cdm.figma": "1.6.3",
         "com.unity.nuget.newtonsoft-json": "2.0.2",
         "com.unity.vectorgraphics": "2.0.0-preview.21"
       }
@@ -82,7 +82,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.nuget.newtonsoft-json": {
-      "version": "3.0.2",
+      "version": "3.2.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
@@ -154,13 +154,6 @@
         "com.unity.modules.unitywebrequestwww": "1.0.0"
       },
       "url": "https://packages.unity.com"
-    },
-    "jillejr.newtonsoft.json-for-unity.converters": {
-      "version": "https://github.com/jilleJr/Newtonsoft.Json-for-Unity.Converters.git#1.3.0",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "0355a4fdb274ed8ccad7b00d594496ab9bd29e6a"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

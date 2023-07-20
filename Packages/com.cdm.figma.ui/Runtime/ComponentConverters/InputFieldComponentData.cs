@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using Cdm.Figma.Utils;
+using Cdm.Figma.Json;
 using Newtonsoft.Json;
 
 namespace Cdm.Figma.UI
@@ -8,14 +8,14 @@ namespace Cdm.Figma.UI
     public class InputFieldComponentData
     {
         [DataMember]
-        [JsonConverter(typeof(ColorHexConverter))]
+        [JsonConverter(typeof(ColorHexJsonConverter))]
         public Color selectionColor { get; set; }
 
         [DataMember]
         public int selectionColorOpacity { get; set; } = 75;
         
         [DataMember]
-        [JsonConverter(typeof(ColorHexConverter))]
+        [JsonConverter(typeof(ColorHexJsonConverter))]
         public Color caretColor { get; set; }
 
         [DataMember]
