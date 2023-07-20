@@ -67,7 +67,27 @@ namespace Cdm.Figma.UI.Styles
                     textComponent.text = text.value;
 
                 if (font.enabled)
-                    textComponent.font = font.value;
+                {
+#if UNITY_EDITOR
+                    if (Application.isPlaying)
+                    {
+#endif
+                        textComponent.font = font.value;
+#if UNITY_EDITOR
+                    }
+                    else
+                    {
+                        // At initial import settings object might not be loaded, so import fails.
+                        // To prevent import failure, do not set font asset of TextMeshPro component.
+                        var settings = TMP_Settings.LoadDefaultSettings();
+                        if (settings != null)
+                        {
+                            textComponent.font = font.value;
+                        }
+                    }
+#endif
+                }
+                    
 
                 if (fontStyle.enabled)
                     textComponent.fontStyle = fontStyle.value;
