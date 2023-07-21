@@ -4,6 +4,7 @@ using Cdm.Figma.UI.Styles.Properties;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
+using UnityEngine.Localization.SmartFormat.Core.Formatting;
 
 namespace Cdm.Figma.UI
 {
@@ -32,13 +33,27 @@ namespace Cdm.Figma.UI
                     stringEvent = gameObject.AddComponent<LocalizeStringEvent>();
                     UnityLocalizationHelper.AddUpdateStringEvent(textComponent, stringEvent);
                 }
-
-                stringEvent.StringReference = localizedString.value;
-
+#if UNITY_EDITOR
                 if (Application.isPlaying)
                 {
+#endif
+                    stringEvent.StringReference = localizedString.value;
                     stringEvent.RefreshString();
+#if UNITY_EDITOR
                 }
+                else
+                {
+                    // Importing fails while smart strings are being calculated without args.
+                    // So ignore the error in Editor.
+                    try
+                    {
+                        stringEvent.StringReference = localizedString.value;
+                    }
+                    catch (FormattingException)
+                    {
+                    }
+                }
+#endif
             }
         }
     }
