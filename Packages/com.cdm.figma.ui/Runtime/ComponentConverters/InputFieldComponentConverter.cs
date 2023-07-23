@@ -5,17 +5,14 @@ using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class InputFieldComponentConverter :
-        SelectableComponentConverter<TMP_InputField, SelectableComponentVariantFilter>
+    public abstract class InputFieldComponentConverter<TInputField, TComponentVariantFilter> :
+        SelectableComponentConverter<TInputField, TComponentVariantFilter>
+        where TInputField : TMP_InputField
+        where TComponentVariantFilter : SelectableComponentVariantFilter
     {
-        private const string TextViewportKey = BindingPrefix + "TextViewport";
-        private const string TextComponentKey = BindingPrefix + "Text";
-        private const string PlaceholderKey = BindingPrefix + "Placeholder";
-
-        protected override bool CanConvertType(string typeId)
-        {
-            return typeId == "InputField";
-        }
+        protected const string TextViewportKey = BindingPrefix + "TextViewport";
+        protected const string TextComponentKey = BindingPrefix + "Text";
+        protected const string PlaceholderKey = BindingPrefix + "Placeholder";
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
@@ -28,9 +25,9 @@ namespace Cdm.Figma.UI
                 {
                     return figmaNode;
                 }
-                
+
                 textComponent.DisableTextStyleTextOverride();
-                
+
                 var inputField = figmaNode.GetComponent<TMP_InputField>();
                 inputField.textViewport = textViewport;
                 inputField.textComponent = textComponent;
@@ -65,6 +62,15 @@ namespace Cdm.Figma.UI
             }
 
             return figmaNode;
+        }
+    }
+
+    public class InputFieldComponentConverter
+        : InputFieldComponentConverter<TMP_InputField, SelectableComponentVariantFilter>
+    {
+        protected override bool CanConvertType(string typeId)
+        {
+            return typeId == "InputField";
         }
     }
 }

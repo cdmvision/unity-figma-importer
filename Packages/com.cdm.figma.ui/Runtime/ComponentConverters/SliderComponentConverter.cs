@@ -1,20 +1,17 @@
-﻿using System;
-using Cdm.Figma.UI.Styles;
+﻿using Cdm.Figma.UI.Styles;
 using Cdm.Figma.UI.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Cdm.Figma.UI
 {
-    public class SliderComponentConverter : SelectableComponentConverter<Slider, SelectableComponentVariantFilter>
+    public abstract class SliderComponentConverter<TSlider, TComponentVariantFilter>
+        : SelectableComponentConverter<TSlider, TComponentVariantFilter>
+        where TSlider : Slider
+        where TComponentVariantFilter : SelectableComponentVariantFilter
     {
-        private const string HandleKey = BindingPrefix + "Handle";
-        private const string FillKey = BindingPrefix + "Fill";
-
-        protected override bool CanConvertType(string typeId)
-        {
-            return typeId == "Slider";
-        }
+        protected const string HandleKey = BindingPrefix + "Handle";
+        protected const string FillKey = BindingPrefix + "Fill";
 
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
@@ -63,6 +60,14 @@ namespace Cdm.Figma.UI
             }
 
             return figmaNode;
+        }
+    }
+    
+    public class SliderComponentConverter : SliderComponentConverter<Slider, SelectableComponentVariantFilter>
+    {
+        protected override bool CanConvertType(string typeId)
+        {
+            return typeId == "Slider";
         }
     }
 }
