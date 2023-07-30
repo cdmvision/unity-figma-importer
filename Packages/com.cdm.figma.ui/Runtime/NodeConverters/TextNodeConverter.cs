@@ -151,7 +151,9 @@ namespace Cdm.Figma.UI
                     style.verticalAlignment.value = VerticalAlignmentOptions.Top;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    Debug.LogWarning(
+                        $"{nameof(TextAlignVertical)} value is not handled: '{textNode.style.textAlignVertical}'");
+                    break;
             }
 
             switch (textNode.style.textAlignHorizontal)
@@ -169,7 +171,9 @@ namespace Cdm.Figma.UI
                     style.horizontalAlignment.value = HorizontalAlignmentOptions.Right;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    Debug.LogWarning(
+                        $"{nameof(TextAlignHorizontal)} value is not handled: '{textNode.style.textAlignHorizontal}'");
+                    break;
             }
         }
 
@@ -192,8 +196,15 @@ namespace Cdm.Figma.UI
                     style.fontSizeMax.enabled = true;
                     style.fontSizeMax.value = 99;
                     break;
+#pragma warning disable CS0618
+                case TextAutoResize.Truncate:
+                    // It is deprecated.
+#pragma warning restore CS0618
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    Debug.LogWarning(
+                        $"{nameof(TextAutoResize)} value is not handled: '{textNode.style.textAutoResize}'");
+                    break;
             }
         }
 
