@@ -36,12 +36,13 @@ namespace Cdm.Figma
         /// Keep height and width constrained to same ratio.
         /// </summary>
         [DataMember(Name = "preserveRatio")]
-        public bool preserveRatio { get; set; } = false;
+        public bool preserveRatio { get; set; }
 
         /// <summary>
         /// Group node does not have this property.
         /// </summary>
-        public int? layoutGrow { get; set; } = null;
+        [DataMember(Name = "layoutGrow")]
+        public float? layoutGrow { get; set; }
 
         /// <summary>
         /// Horizontal and vertical layout constraints for node.
@@ -55,6 +56,18 @@ namespace Cdm.Figma
         /// </summary>
         [DataMember(Name = "layoutAlign")]
         public LayoutAlign layoutAlign { get; set; }
+        
+        [DataMember(Name = "minWidth")]
+        public float? minWidth { get; set; }
+        
+        [DataMember(Name = "maxWidth")]
+        public float? maxWidth { get; set; }
+        
+        [DataMember(Name = "minHeight")]
+        public float? minHeight { get; set; }
+        
+        [DataMember(Name = "maxHeight")]
+        public float? maxHeight { get; set; }
 
         /// <summary>
         /// Node ID of node to transition to in prototyping.

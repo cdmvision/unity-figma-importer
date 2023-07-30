@@ -21,7 +21,7 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyBool wordWrapping = new StylePropertyBool();
         public StylePropertyBool autoSizeTextContainer = new StylePropertyBool();
         public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
-        public StylePropertyTextTruncate enableTruncate = new StylePropertyTextTruncate(TextOverflowModes.Overflow);
+        public StylePropertyTextOverflowMode overflowMode = new StylePropertyTextOverflowMode(TextOverflowModes.Overflow);
 
         public StylePropertyHorizontalAlignmentOptions horizontalAlignment =
             new StylePropertyHorizontalAlignmentOptions();
@@ -44,7 +44,7 @@ namespace Cdm.Figma.UI.Styles
                 OverwriteProperty(fontSizeMin, otherStyle.fontSizeMin, force);
                 OverwriteProperty(fontSizeMax, otherStyle.fontSizeMax, force);
                 OverwriteProperty(enableAutoSizing, otherStyle.enableAutoSizing, force);
-                OverwriteProperty(enableTruncate, otherStyle.enableTruncate, force);
+                OverwriteProperty(overflowMode, otherStyle.overflowMode, force);
                 OverwriteProperty(wordWrapping, otherStyle.wordWrapping, force);
                 OverwriteProperty(autoSizeTextContainer, otherStyle.autoSizeTextContainer, force);
                 OverwriteProperty(horizontalAlignment, otherStyle.horizontalAlignment, force);
@@ -87,9 +87,9 @@ namespace Cdm.Figma.UI.Styles
                 if (enableAutoSizing.enabled)
                     textComponent.enableAutoSizing = enableAutoSizing.value;
                 
-                if (enableTruncate.enabled)
-                    textComponent.overflowMode = enableTruncate.value;
-                
+                if (overflowMode.enabled)
+                    textComponent.overflowMode = overflowMode.value;
+                 
                 if (wordWrapping.enabled)
                     textComponent.enableWordWrapping = wordWrapping.value;
 

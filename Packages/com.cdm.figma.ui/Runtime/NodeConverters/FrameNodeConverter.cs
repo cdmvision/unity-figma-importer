@@ -24,10 +24,15 @@ namespace Cdm.Figma.UI
 
             frameNodeObject.ApplyStyles();
 
-            AddLayoutComponentIfNeeded(frameNodeObject, frameNode);
-            AddContentSizeFitterIfNeeded(frameNodeObject, frameNode);
-            AddGridIfNeeded(frameNodeObject, frameNode);
+            SetLayoutGroupIfExist(frameNodeObject, frameNode);
+            SetContentSizeFitterIfExist(frameNodeObject, frameNode);
+            SetGridLayoutGroupIfExist(frameNodeObject, frameNode);
 
+            if (frameNode.layoutMode != LayoutMode.None)
+            {
+                SetMinSizeConstraints(frameNodeObject);
+            }
+            
             BuildChildren(frameNode, frameNodeObject, args);
             
             if (frameNodeObject != null && frameNode.isMask)
@@ -111,7 +116,8 @@ namespace Cdm.Figma.UI
                         {
                             if (frameNode.layoutMode != LayoutMode.None)
                             {
-                                HandleFillContainer(frameNode.layoutMode, frameNodeObject, childObject);
+                                HandleFillContainer(frameNodeObject, childObject);
+                                SetMinSizeConstraints(childObject);
                             }
 
                             childObject.rectTransform.SetParent(frameNodeObject.rectTransform, false);
@@ -129,11 +135,27 @@ namespace Cdm.Figma.UI
                 }
             }
         }
+        
+        private static void SetMinSizeConstraints(FigmaNode figmaNode)
+        {
+            var childLayout = (INodeLayout) figmaNode.node;
+            if (childLayout == null)
+                return;
 
-        private static void HandleFillContainer(LayoutMode layoutMode, FigmaNode nodeObject, FigmaNode child)
+            if (!childLayout.minWidth.HasValue && !childLayout.minHeight.HasValue)
+                return;
+            
+            var layoutElement = figmaNode.gameObject.GetOrAddComponent<LayoutElement>();
+            layoutElement.minWidth = childLayout.minWidth ?? 0;
+            layoutElement.minHeight = childLayout.minHeight ?? 0;
+        }
+
+        private static void HandleFillContainer(FigmaNode nodeObject, FigmaNode child)
         {
             var parent = (FrameNode) nodeObject.node;
-            if (parent.layoutMode == LayoutMode.None)
+            
+            var layoutMode = parent.layoutMode;
+            if (layoutMode == LayoutMode.None)
                 return;
             
             var layoutGroup = nodeObject.GetComponent<HorizontalOrVerticalLayoutGroup>();
@@ -165,17 +187,30 @@ namespace Cdm.Figma.UI
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    //layoutGroup.childControlHeight = true;
                     layoutElement.minHeight = childTransform.size.y;
                 }
                 else
                 {
-                    //layoutGroup.childControlWidth = true;
                     layoutElement.minWidth = childTransform.size.x;
                 }
             }
 
-            if (childLayout.layoutGrow.HasValue && childLayout.layoutGrow != 0)
+            var layoutGrow = childLayout.layoutGrow ?? LayoutGrow.Fixed;
+            
+            if (LayoutGrow.IsFixed(layoutGrow))
+            {
+                if (layoutMode == LayoutMode.Horizontal)
+                {
+                    layoutGroup.childControlWidth = true;
+                    layoutElement.minWidth = childTransform.size.x;
+                }
+                else
+                {
+                    layoutGroup.childControlHeight = true;
+                    layoutElement.minHeight = childTransform.size.y;
+                }
+            }
+            else if (LayoutGrow.IsStretch(layoutGrow))
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
@@ -190,22 +225,9 @@ namespace Cdm.Figma.UI
                     layoutElement.minHeight = 1;
                 }
             }
-            else
-            {
-                if (layoutMode == LayoutMode.Horizontal)
-                {
-                    layoutGroup.childControlWidth = true;
-                    layoutElement.minWidth = childTransform.size.x;
-                }
-                else
-                {
-                    layoutGroup.childControlHeight = true;
-                    layoutElement.minHeight = childTransform.size.y;
-                }
-            }
 
             var contentSizeFitter = child.GetComponent<ContentSizeFitter>();
-            if (contentSizeFitter)
+            if (contentSizeFitter != null)
             {
                 if (contentSizeFitter.horizontalFit == ContentSizeFitter.FitMode.PreferredSize)
                 {
@@ -219,7 +241,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void AddContentSizeFitterIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
+        private static void SetContentSizeFitterIfExist(FigmaNode nodeObject, FrameNode frameNode)
         {
             if (frameNode.layoutMode == LayoutMode.None)
                 return;
@@ -276,7 +298,7 @@ namespace Cdm.Figma.UI
             }
         }
 
-        private static void AddLayoutComponentIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
+        private static void SetLayoutGroupIfExist(FigmaNode nodeObject, FrameNode frameNode)
         {
             var layoutMode = frameNode.layoutMode;
             if (layoutMode == LayoutMode.None)
@@ -435,17 +457,18 @@ namespace Cdm.Figma.UI
             }
 
             // Set padding.
-            layoutGroup.padding = new RectOffset(
-                left: Mathf.RoundToInt(frameNode.paddingLeft),
-                right: Mathf.RoundToInt(frameNode.paddingRight),
-                top: Mathf.RoundToInt(frameNode.paddingTop),
-                bottom: Mathf.RoundToInt(frameNode.paddingBottom));
+            var left = Mathf.RoundToInt(frameNode.paddingLeft);
+            var right = Mathf.RoundToInt(frameNode.paddingRight);
+            var top = Mathf.RoundToInt(frameNode.paddingTop);
+            var bottom = Mathf.RoundToInt(frameNode.paddingBottom);
+            
+            layoutGroup.padding = new RectOffset(left, right, top, bottom);
 
             // Set spacing.
             layoutGroup.spacing = frameNode.itemSpacing;
         }
 
-        private static void AddGridIfNeeded(FigmaNode nodeObject, FrameNode frameNode)
+        private static void SetGridLayoutGroupIfExist(FigmaNode nodeObject, FrameNode frameNode)
         {
             var visibleGridLayoutCount = frameNode.layoutGrids.Count(x => x.visible);
             if (visibleGridLayoutCount == 1 || visibleGridLayoutCount == 2)

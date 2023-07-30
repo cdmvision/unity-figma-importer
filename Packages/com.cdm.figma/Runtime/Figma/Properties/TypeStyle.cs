@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -139,8 +140,25 @@ namespace Cdm.Figma
         /// </list>
         [DataMember(Name = "lineHeightUnit")]
         public string lineHeightUnit { get; set; }
+
+        /// <summary>
+        /// Whether this text node will truncate with an ellipsis when the text node size is smaller than the
+        /// text inside.
+        /// </summary>
+        [DataMember(Name = "textTruncation")]
+        public TextTruncation? textTruncation { get; set; }
+        
+        /// <summary>
+        /// The maximum number of lines a text node can reach before it truncates. Only applicable when
+        /// <see cref="textTruncation"/> is set to <see cref="TextTruncation.Ending"/>.
+        /// </summary>
+        [DataMember(Name = "maxLines")]
+        public int? maxLines { get; set; }
     }
 
+    /// <summary>
+    /// The horizontal alignment of the text with respect to the text box.
+    /// </summary>
     [DataContract]
     public enum TextAlignHorizontal
     {
@@ -156,7 +174,10 @@ namespace Cdm.Figma
         [EnumMember(Value = "RIGHT")]
         Right
     }
-
+    
+    /// <summary>
+    /// The vertical alignment of the text with respect to the text box.
+    /// </summary>
     [DataContract]
     public enum TextAlignVertical
     {
@@ -170,40 +191,101 @@ namespace Cdm.Figma
         Top
     }
     
+    /// <summary>
+    /// The behavior of how the size of the text box adjusts to fit the characters.
+    /// </summary>
     [DataContract]
     public enum TextAutoResize
     {
+        /// <summary>
+        /// The size of the text box is fixed and is independent of its content.
+        /// </summary>
         [EnumMember(Value = "NONE")]
         None,
         
+        /// <summary>
+        /// The width of the text box is fixed. Characters wrap to fit in the text box. The height of the text box
+        /// automatically adjusts to fit its content.
+        /// </summary>
         [EnumMember(Value = "HEIGHT")]
         Height,
         
+        /// <summary>
+        /// Both the width and height of the text box automatically adjusts to fit its content. Characters do not wrap.
+        /// </summary>
         [EnumMember(Value = "WIDTH_AND_HEIGHT")]
         WidthAndHeight,
         
+        /// <summary>
+        /// Like <see cref="None"/>, but text that overflows the bounds of the text node will be truncated with an
+        /// ellipsis. This value will be removed in the future - prefer reading from textTruncation instead.
+        /// </summary>
+        [Obsolete("Prefer reading from textTruncation instead.")]
         [EnumMember(Value = "TRUNCATE")]
         Truncate
+    }
+
+    /// <summary>
+    /// Whether this text node will truncate with an ellipsis when the text node size is smaller than the text inside.
+    /// </summary>
+    /// <remarks>
+    /// When <see cref="TypeStyle.textAutoResize"/> is set to <see cref="TextAutoResize.None"/>, the text will truncate
+    /// when the fixed size is smaller than the text inside. When it is <see cref="TextAutoResize.Height"/> or
+    /// <see cref="TextAutoResize.WidthAndHeight"/>, truncation will  only occur if used in conjunction with
+    /// maxHeight or maxLines.
+    /// </remarks>
+    [DataContract]
+    public enum TextTruncation
+    {
+        /// <summary>
+        /// No truncation will occur.
+        /// </summary>
+        [EnumMember(Value = "DISABLED")]
+        Disabled,
+        
+        /// <summary>
+        /// Text node will truncate with an ellipsis when the text node size is smaller than the text inside.
+        /// </summary>
+        [EnumMember(Value = "ENDING")]
+        Ending,
     }
     
     [DataContract]
     public enum TextCase
     {
+        /// <summary>
+        /// Show the text as defined, no overrides.
+        /// </summary>
         [EnumMember(Value = "ORIGINAL")]
         Original,
         
+        /// <summary>
+        /// All characters are in upper case.
+        /// </summary>
         [EnumMember(Value = "UPPER")]
         Upper,
         
+        /// <summary>
+        /// All characters are in lower case.
+        /// </summary>
         [EnumMember(Value = "LOWER")]
         Lower,
         
+        /// <summary>
+        /// The first character of each word is upper case and all other characters are in lower case.
+        /// </summary>
         [EnumMember(Value = "TITLE")]
         Title,
         
+        /// <summary>
+        /// All characters are in small upper case.
+        /// </summary>
         [EnumMember(Value = "SMALL_CAPS")]
         SmallCaps,
         
+        /// <summary>
+        /// The first character of each word is upper case and all other characters are in small upper case.
+        /// </summary>
         [EnumMember(Value = "SMALL_CAPS_FORCED")]
         SmallCapsForced
     }
@@ -211,12 +293,21 @@ namespace Cdm.Figma
     [DataContract]
     public enum TextDecoration
     {
+        /// <summary>
+        /// The text is shown without decorations.
+        /// </summary>
         [EnumMember(Value = "NONE")]
         None,
         
+        /// <summary>
+        /// The text has a horizontal line crossing it in the middle.
+        /// </summary>
         [EnumMember(Value = "STRIKETHROUGH")]
         Strikethrough,
         
+        /// <summary>
+        /// The text has a horizontal line underneath it.
+        /// </summary>
         [EnumMember(Value = "UNDERLINE")]
         Underline
     }

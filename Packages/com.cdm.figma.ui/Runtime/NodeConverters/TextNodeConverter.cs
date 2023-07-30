@@ -55,10 +55,11 @@ namespace Cdm.Figma.UI
             SetTextFont(style, textNode, args);
             SetTextAlignment(style, textNode);
             SetTextDecoration(style, textNode);
+            SetTextCase(style, textNode);
             SetTextAutoResize(style, textNode);
+            SetTextTruncation(style, textNode);
             SetFills(style, textNode);
-            SetWordWrapping(style, textNode);
-            
+
             nodeObject.styles.Add(style);
             
             // Disable text style property if localization style is added.
@@ -80,15 +81,6 @@ namespace Cdm.Figma.UI
             }
 
             return false;
-        }
-
-        private static void SetWordWrapping(TextStyle style, TextNode textNode)
-        {
-            if (textNode.style.textAutoResize == TextAutoResize.None)
-            {
-                style.wordWrapping.enabled = true;
-                style.wordWrapping.value = false;
-            }
         }
 
         private static void SetTextValue(TextStyle style, TextNode textNode, NodeConvertArgs args)
@@ -200,12 +192,32 @@ namespace Cdm.Figma.UI
                     style.fontSizeMax.enabled = true;
                     style.fontSizeMax.value = 99;
                     break;
-                case TextAutoResize.Truncate:
-                    style.enableTruncate.enabled = true;
-                    style.enableTruncate.value = TextOverflowModes.Ellipsis;
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public static void SetTextTruncation(TextStyle style, TextNode textNode)
+        {
+            var textTruncation = textNode.style.textTruncation ?? TextTruncation.Disabled;
+            
+            // Word wrapping always enabled in Figma.
+            style.wordWrapping.enabled = true;
+            style.wordWrapping.value = true;
+            
+            switch (textTruncation)
+            {
+                case TextTruncation.Disabled:
+                    style.overflowMode.enabled = true;
+                    style.overflowMode.value = TextOverflowModes.Overflow;
+                    break;
+                case TextTruncation.Ending:
+                    style.overflowMode.enabled = true;
+                    style.overflowMode.value = TextOverflowModes.Ellipsis;
+                    break;
+                default:
+                    Debug.LogWarning($"{nameof(TextTruncation)} value is not handled: '{textTruncation}'");
+                    break;
             }
         }
 
@@ -214,7 +226,6 @@ namespace Cdm.Figma.UI
             switch (textNode.style.textDecoration)
             {
                 case TextDecoration.None:
-                    style.fontStyle.enabled = false;
                     break;
                 case TextDecoration.Strikethrough:
                     style.fontStyle.enabled = true;
@@ -225,8 +236,44 @@ namespace Cdm.Figma.UI
                     style.fontStyle.value |= FontStyles.Underline;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    Debug.LogWarning(
+                        $"{nameof(TextDecoration)} value is not handled: '{textNode.style.textDecoration}'");
+                    break;
             }
+
+            style.fontStyle.enabled = true;
+        }
+
+        private static void SetTextCase(TextStyle style, TextNode textNode)
+        {
+            switch (textNode.style.textCase)
+            {
+                case TextCase.Original:
+                    break;
+                case TextCase.Upper:
+                    style.fontStyle.enabled = true;
+                    style.fontStyle.value |= FontStyles.UpperCase;
+                    break;
+                case TextCase.Lower:
+                    style.fontStyle.enabled = true;
+                    style.fontStyle.value |= FontStyles.LowerCase;
+                    break;
+                case TextCase.Title:
+                    break;
+                case TextCase.SmallCaps:
+                    style.fontStyle.enabled = true;
+                    style.fontStyle.value |= FontStyles.SmallCaps;
+                    break;
+                case TextCase.SmallCapsForced:
+                    style.fontStyle.enabled = true;
+                    style.fontStyle.value |= FontStyles.SmallCaps;
+                    break;
+                default:
+                    Debug.LogWarning($"{nameof(TextCase)} value is not handled: '{textNode.style.textCase}'");
+                    break;
+            }
+            
+            style.fontStyle.enabled = true;
         }
 
         private static void SetFills(TextStyle style, TextNode textNode)

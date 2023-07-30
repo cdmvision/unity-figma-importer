@@ -41,13 +41,25 @@ namespace Cdm.Figma
         [DataMember(Name = "layoutAlign")]
         public LayoutAlign layoutAlign { get; set; }
 
+        [DataMember(Name = "minWidth")]
+        public float? minWidth { get; set; }
+        
+        [DataMember(Name = "maxWidth")]
+        public float? maxWidth { get; set; }
+        
+        [DataMember(Name = "minHeight")]
+        public float? minHeight { get; set; }
+        
+        [DataMember(Name = "maxHeight")]
+        public float? maxHeight { get; set; }
+
         /// <summary>
         /// This property is applicable only for direct children of auto-layout frames, ignored otherwise.
         /// Determines whether a layer should stretch along the parent’s primary axis. A 0 corresponds to a fixed size
         /// and 1 corresponds to stretch.
         /// </summary>
         [DataMember(Name = "layoutGrow")]
-        public int? layoutGrow { get; set; }
+        public float? layoutGrow { get; set; }
         
         /// <summary>
         /// Horizontal and vertical layout constraints for node.
