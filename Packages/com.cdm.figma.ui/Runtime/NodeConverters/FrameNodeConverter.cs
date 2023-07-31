@@ -201,12 +201,12 @@ namespace Cdm.Figma.UI
             {
                 if (layoutMode == LayoutMode.Horizontal)
                 {
-                    layoutGroup.childControlWidth = true;
+                    //layoutGroup.childControlWidth = true;
                     layoutElement.minWidth = childTransform.size.x;
                 }
                 else
                 {
-                    layoutGroup.childControlHeight = true;
+                    //layoutGroup.childControlHeight = true;
                     layoutElement.minHeight = childTransform.size.y;
                 }
             }
@@ -443,19 +443,7 @@ namespace Cdm.Figma.UI
             layoutGroup.childScaleHeight = false;
             layoutGroup.childForceExpandWidth = false;
             layoutGroup.childForceExpandHeight = false;
-
-            if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
-            {
-                if (layoutMode == LayoutMode.Vertical)
-                {
-                    layoutGroup.childForceExpandHeight = true;
-                }
-                else if (layoutMode == LayoutMode.Horizontal)
-                {
-                    layoutGroup.childForceExpandWidth = true;
-                }
-            }
-
+            
             // Set padding.
             var left = Mathf.RoundToInt(frameNode.paddingLeft);
             var right = Mathf.RoundToInt(frameNode.paddingRight);
@@ -466,6 +454,20 @@ namespace Cdm.Figma.UI
 
             // Set spacing.
             layoutGroup.spacing = frameNode.itemSpacing;
+            
+            if (frameNode.primaryAxisAlignItems == PrimaryAxisAlignItems.SpaceBetween)
+            {
+                if (layoutMode == LayoutMode.Vertical)
+                {
+                    layoutGroup.childForceExpandHeight = true;
+                    layoutGroup.spacing = 0;
+                }
+                else if (layoutMode == LayoutMode.Horizontal)
+                {
+                    layoutGroup.childForceExpandWidth = true;
+                    layoutGroup.spacing = 0;
+                }
+            }
         }
 
         private static void SetGridLayoutGroupIfExist(FigmaNode nodeObject, FrameNode frameNode)
