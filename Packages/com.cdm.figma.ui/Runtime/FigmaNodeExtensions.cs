@@ -30,8 +30,33 @@ namespace Cdm.Figma.UI
         /// </summary>
         public static void SetPivot(this FigmaNode nodeObject)
         {
-            // Pivot location is located at top left corner in Figma.
-            nodeObject.rectTransform.pivot = new Vector2(0f, 1f);
+            var targetNode = nodeObject.referenceNode ?? nodeObject.node;
+            var nodeLayout = (INodeLayout)targetNode;
+            
+            var pivot = new Vector2(0.5f, 0.5f);
+
+            var horizontalConstraint = nodeLayout.constraints.horizontal;
+
+            if (horizontalConstraint == Horizontal.Left)
+            {
+                pivot.x -= 0.5f;
+            }
+            else if (horizontalConstraint == Horizontal.Right)
+            {
+                pivot.x += 0.5f;
+            }
+            
+            var verticalConstraint = nodeLayout.constraints.vertical;
+            if (verticalConstraint == Vertical.Top)
+            {
+                pivot.y += 0.5f;
+            }
+            else if (verticalConstraint == Vertical.Bottom)
+            {
+                pivot.y -= 0.5f;
+            }
+
+            nodeObject.rectTransform.pivot = pivot;
         }
 
         /// <summary>
@@ -39,7 +64,11 @@ namespace Cdm.Figma.UI
         /// </summary>
         public static void SetPosition(this FigmaNode nodeObject, INodeTransform nodeTransform)
         {
+            var figmaPivot = new Vector2(0f, 1f);
+            var deltaPivot = nodeObject.rectTransform.pivot - figmaPivot;
+            
             nodeObject.rectTransform.position = nodeTransform.GetPosition();
+            nodeObject.rectTransform.position += (Vector3) Vector2.Scale(nodeTransform.size, deltaPivot);
         }
 
         /// <summary>

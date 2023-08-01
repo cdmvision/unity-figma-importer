@@ -121,7 +121,7 @@ namespace Cdm.Figma.UI
                             }
 
                             childObject.rectTransform.SetParent(frameNodeObject.rectTransform, false);
-                            childObject.AdjustPosition(frameNode.size);
+                            childObject.AdjustRectTransform(frameNode.size);
                         
                             // Do not add transform style if frame has any auto layout component.
                             if (!isAutoLayout)

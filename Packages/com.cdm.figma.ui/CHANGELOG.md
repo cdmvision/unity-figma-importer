@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2023-08-01
+### Breaking Changes
+- `RectTransform.pivot` is calculated regarding to the node's `LayoutConstraint`
+
 ## [1.7.0] - 2023-07-30
 ### Breaking Changes
 - `enableTruncate` changed to `overflowMode`
@@ -77,7 +81,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.4.16] - 2023-06-18
 ### Changes
 - Added `FigmaLocalizeAttribute` for binding localization without referencing localized asset.
-- 
+
 ## [1.4.15] - 2023-06-16
 ### Fixes
 - Removed SVG debug logs
