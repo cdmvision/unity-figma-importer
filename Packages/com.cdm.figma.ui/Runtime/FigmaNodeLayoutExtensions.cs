@@ -4,6 +4,37 @@ namespace Cdm.Figma.UI
 {
     public static class FigmaNodeLayoutExtensions
     {
+        public static void SetPivot2(this FigmaNode nodeObject)
+        {
+            var targetNode = nodeObject.referenceNode ?? nodeObject.node;
+            var nodeLayout = (INodeLayout)targetNode;
+            
+            var pivot = new Vector2(0.5f, 0.5f);
+
+            var horizontalConstraint = nodeLayout.constraints.horizontal;
+
+            if (horizontalConstraint == Horizontal.Left)
+            {
+                pivot.x -= 0.5f;
+            }
+            else if (horizontalConstraint == Horizontal.Right)
+            {
+                pivot.x += 0.5f;
+            }
+            
+            var verticalConstraint = nodeLayout.constraints.vertical;
+            if (verticalConstraint == Vertical.Top)
+            {
+                pivot.y += 0.5f;
+            }
+            else if (verticalConstraint == Vertical.Bottom)
+            {
+                pivot.y -= 0.5f;
+            }
+
+            nodeObject.rectTransform.pivot = pivot;
+        }
+        
         public static void SetLayoutConstraints(this FigmaNode nodeObject, INodeTransform parentTransform)
         {
             // Anchors:
@@ -233,6 +264,14 @@ namespace Cdm.Figma.UI
             nodeObject.rectTransform.anchorMin = anchorMin;
             nodeObject.rectTransform.anchorMax = anchorMax;
         }
+        
+        public static Vector2 Foo(RectTransform rectTransform, INodeTransform nodeTransform, Vector3 position)
+        {
+            var figmaPivot = new Vector2(0f, 1f);
+
+            var deltaPivot = rectTransform.pivot - figmaPivot;
+            return rectTransform.position + (Vector3) Vector2.Scale(nodeTransform.size, deltaPivot);
+        }
 
         public static void AdjustPosition(this FigmaNode nodeObject, Vector2 parentSize)
         {
@@ -242,14 +281,33 @@ namespace Cdm.Figma.UI
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
 
+//            var relativePosition = nodeTransform.relativeTransform.GetPosition();
+
+  //          relativePosition = Foo(nodeObject.rectTransform, nodeTransform, relativePosition);
+
+            var pivot = nodeObject.rectTransform.pivot;
+            var halfSize = Vector2.Scale(pivot, nodeTransform.size) * 0.5f;
+            halfSize.y *= -1;
+            
             if (constraintX == Horizontal.Center)
             {
                 nodeObject.rectTransform.anchoredPosition =
                     new Vector3(
                         (nodeTransform.relativeTransform.GetPosition().x - parentSize.x / 2),
                         nodeObject.rectTransform.anchoredPosition.y, nodeObject.rectTransform.position.z);
+                //nodeObject.rectTransform.anchoredPosition += halfSize;
             }
 
+            if (constraintY == Vertical.Center)
+            {
+                nodeObject.rectTransform.anchoredPosition =
+                    new Vector3(nodeObject.rectTransform.anchoredPosition.x,
+                        nodeTransform.relativeTransform.GetPosition().y + parentSize.y / 2,
+                        nodeObject.rectTransform.position.z);
+                //nodeObject.rectTransform.anchoredPosition += halfSize;
+            }
+
+            
             if (constraintX == Horizontal.Right)
             {
                 var position = nodeObject.rectTransform.position;
@@ -266,20 +324,8 @@ namespace Cdm.Figma.UI
                 nodeObject.rectTransform.offsetMax = new Vector2(-right, nodeObject.rectTransform.offsetMax.y);
             }
 
-            if (constraintX == Horizontal.Scale)
-            {
-                nodeObject.rectTransform.offsetMin = new Vector2(0, nodeObject.rectTransform.offsetMin.y);
-                nodeObject.rectTransform.offsetMax = new Vector2(0, nodeObject.rectTransform.offsetMax.y);
-            }
 
-            if (constraintY == Vertical.Center)
-            {
-                nodeObject.rectTransform.anchoredPosition =
-                    new Vector3(nodeObject.rectTransform.anchoredPosition.x,
-                        -1 * (-1 * nodeTransform.relativeTransform.GetPosition().y - parentSize.y / 2),
-                        nodeObject.rectTransform.position.z);
-            }
-
+            
             if (constraintY == Vertical.Bottom)
             {
                 var position = nodeObject.rectTransform.position;
@@ -296,6 +342,12 @@ namespace Cdm.Figma.UI
                 nodeObject.rectTransform.offsetMax = new Vector2(nodeObject.rectTransform.offsetMax.x, top);
             }
 
+            if (constraintX == Horizontal.Scale)
+            {
+                nodeObject.rectTransform.offsetMin = new Vector2(0, nodeObject.rectTransform.offsetMin.y);
+                nodeObject.rectTransform.offsetMax = new Vector2(0, nodeObject.rectTransform.offsetMax.y);
+            }
+            
             if (constraintY == Vertical.Scale)
             {
                 nodeObject.rectTransform.offsetMin = new Vector2(nodeObject.rectTransform.offsetMin.x, 0);

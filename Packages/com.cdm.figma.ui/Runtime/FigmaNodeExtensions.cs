@@ -23,6 +23,8 @@ namespace Cdm.Figma.UI
             nodeObject.SetRotation(nodeTransform);
             nodeObject.SetScale(nodeTransform);
             nodeObject.SetSize(nodeTransform);
+            
+            //nodeObject.SetPivot2();
         }
 
         /// <summary>
@@ -30,8 +32,9 @@ namespace Cdm.Figma.UI
         /// </summary>
         public static void SetPivot(this FigmaNode nodeObject)
         {
+            nodeObject.SetPivot2();
             // Pivot location is located at top left corner in Figma.
-            nodeObject.rectTransform.pivot = new Vector2(0f, 1f);
+            //nodeObject.rectTransform.pivot = new Vector2(0f, 1f);
         }
 
         /// <summary>
@@ -39,7 +42,12 @@ namespace Cdm.Figma.UI
         /// </summary>
         public static void SetPosition(this FigmaNode nodeObject, INodeTransform nodeTransform)
         {
+            var figmaPivot = new Vector2(0f, 1f);
+
+            var deltaPivot = nodeObject.rectTransform.pivot - figmaPivot;
+            
             nodeObject.rectTransform.position = nodeTransform.GetPosition();
+            nodeObject.rectTransform.position += (Vector3) Vector2.Scale(nodeTransform.size, deltaPivot);
         }
 
         /// <summary>
