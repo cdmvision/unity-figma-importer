@@ -4,37 +4,6 @@ namespace Cdm.Figma.UI
 {
     public static class FigmaNodeLayoutExtensions
     {
-        public static void SetPivot2(this FigmaNode nodeObject)
-        {
-            var targetNode = nodeObject.referenceNode ?? nodeObject.node;
-            var nodeLayout = (INodeLayout)targetNode;
-            
-            var pivot = new Vector2(0.5f, 0.5f);
-
-            var horizontalConstraint = nodeLayout.constraints.horizontal;
-
-            if (horizontalConstraint == Horizontal.Left)
-            {
-                pivot.x -= 0.5f;
-            }
-            else if (horizontalConstraint == Horizontal.Right)
-            {
-                pivot.x += 0.5f;
-            }
-            
-            var verticalConstraint = nodeLayout.constraints.vertical;
-            if (verticalConstraint == Vertical.Top)
-            {
-                pivot.y += 0.5f;
-            }
-            else if (verticalConstraint == Vertical.Bottom)
-            {
-                pivot.y -= 0.5f;
-            }
-
-            nodeObject.rectTransform.pivot = pivot;
-        }
-        
         public static void SetLayoutConstraints(this FigmaNode nodeObject, INodeTransform parentTransform)
         {
             // Anchors:
@@ -45,7 +14,7 @@ namespace Cdm.Figma.UI
             var targetNode = nodeObject.referenceNode ?? nodeObject.node;
             var nodeLayout = (INodeLayout)targetNode;
             var nodeTransform = (INodeTransform)targetNode;
-            
+
             var constraintX = nodeLayout.constraints.horizontal;
             var constraintY = nodeLayout.constraints.vertical;
             var anchorMin = nodeObject.rectTransform.anchorMin;
@@ -264,95 +233,98 @@ namespace Cdm.Figma.UI
             nodeObject.rectTransform.anchorMin = anchorMin;
             nodeObject.rectTransform.anchorMax = anchorMax;
         }
-        
-        public static Vector2 Foo(RectTransform rectTransform, INodeTransform nodeTransform, Vector3 position)
-        {
-            var figmaPivot = new Vector2(0f, 1f);
 
-            var deltaPivot = rectTransform.pivot - figmaPivot;
-            return rectTransform.position + (Vector3) Vector2.Scale(nodeTransform.size, deltaPivot);
+        private static void AdjustAnchoredPosition(LayoutConstraint constraint, Vector2 parentSize,
+            RectTransform rectTransform, INodeTransform nodeTransform)
+        {
+            var size = nodeTransform.size;
+            var relativePosition = nodeTransform.relativeTransform.GetPosition();
+
+            var anchoredPosition = rectTransform.anchoredPosition;
+
+            if (constraint.horizontal == Horizontal.Center)
+            {
+                anchoredPosition.x = relativePosition.x - parentSize.x * 0.5f + size.x * 0.5f;
+            }
+
+            if (constraint.vertical == Vertical.Center)
+            {
+                anchoredPosition.y = relativePosition.y + parentSize.y * 0.5f - size.y * 0.5f;
+            }
+
+            rectTransform.anchoredPosition = anchoredPosition;
         }
 
-        public static void AdjustPosition(this FigmaNode nodeObject, Vector2 parentSize)
+        private static void AdjustPosition(LayoutConstraint constraint, Vector2 parentSize,
+            RectTransform rectTransform)
+        {
+            var position = rectTransform.position;
+
+            // There is no need any modification for Horizontal.Left and Vertical.Top.
+            
+            if (constraint.horizontal == Horizontal.Right)
+            {
+                position.x = -1 * (parentSize.x - position.x);
+            }
+
+            if (constraint.vertical == Vertical.Bottom)
+            {
+                position.y = parentSize.y + position.y;
+            }
+
+            rectTransform.position = position;
+        }
+
+        private static void AdjustOffsetMinMax(LayoutConstraint constraint, Vector2 parentSize,
+            RectTransform rectTransform, INodeTransform nodeTransform)
+        {
+            var offsetMin = rectTransform.offsetMin;
+            var offsetMax = rectTransform.offsetMax;
+            var relativePosition = nodeTransform.relativeTransform.GetPosition();
+
+            if (constraint.horizontal == Horizontal.LeftRight)
+            {
+                offsetMin.x = relativePosition.x;
+                offsetMax.x = -(parentSize.x - (relativePosition.x + nodeTransform.size.x));
+            }
+
+            if (constraint.vertical == Vertical.TopBottom)
+            {
+                offsetMin.y = parentSize.y - (-relativePosition.y + nodeTransform.size.y);
+                offsetMax.y = relativePosition.y;
+            }
+
+            if (constraint.horizontal == Horizontal.Scale)
+            {
+                offsetMin.x = 0;
+                offsetMax.x = 0;
+            }
+
+            if (constraint.vertical == Vertical.Scale)
+            {
+                offsetMin.y = 0;
+                offsetMax.y = 0;
+            }
+
+            rectTransform.offsetMin = offsetMin;
+            rectTransform.offsetMax = offsetMax;
+        }
+
+        public static void AdjustRectTransform(this FigmaNode nodeObject, Vector2 parentSize)
         {
             var targetNode = nodeObject.referenceNode ?? nodeObject.node;
             var nodeLayout = (INodeLayout)targetNode;
             var nodeTransform = (INodeTransform)targetNode;
-            var constraintX = nodeLayout.constraints.horizontal;
-            var constraintY = nodeLayout.constraints.vertical;
+            var rectTransform = nodeObject.rectTransform;
 
-//            var relativePosition = nodeTransform.relativeTransform.GetPosition();
-
-  //          relativePosition = Foo(nodeObject.rectTransform, nodeTransform, relativePosition);
-
-            var pivot = nodeObject.rectTransform.pivot;
-            var halfSize = Vector2.Scale(pivot, nodeTransform.size) * 0.5f;
-            halfSize.y *= -1;
+            // Center
+            AdjustAnchoredPosition(nodeLayout.constraints, parentSize, rectTransform, nodeTransform);
             
-            if (constraintX == Horizontal.Center)
-            {
-                nodeObject.rectTransform.anchoredPosition =
-                    new Vector3(
-                        (nodeTransform.relativeTransform.GetPosition().x - parentSize.x / 2),
-                        nodeObject.rectTransform.anchoredPosition.y, nodeObject.rectTransform.position.z);
-                //nodeObject.rectTransform.anchoredPosition += halfSize;
-            }
-
-            if (constraintY == Vertical.Center)
-            {
-                nodeObject.rectTransform.anchoredPosition =
-                    new Vector3(nodeObject.rectTransform.anchoredPosition.x,
-                        nodeTransform.relativeTransform.GetPosition().y + parentSize.y / 2,
-                        nodeObject.rectTransform.position.z);
-                //nodeObject.rectTransform.anchoredPosition += halfSize;
-            }
-
+            // Left, Top, Right, Bottom
+            AdjustPosition(nodeLayout.constraints, parentSize, rectTransform);
             
-            if (constraintX == Horizontal.Right)
-            {
-                var position = nodeObject.rectTransform.position;
-                position = new Vector3(-1 * (parentSize.x - position.x), position.y, position.z);
-                nodeObject.rectTransform.position = position;
-            }
-
-            if (constraintX == Horizontal.LeftRight)
-            {
-                float left = 0, right = 0;
-                left = nodeTransform.relativeTransform.GetPosition().x;
-                right = parentSize.x - (left + nodeTransform.size.x);
-                nodeObject.rectTransform.offsetMin = new Vector2(left, nodeObject.rectTransform.offsetMin.y);
-                nodeObject.rectTransform.offsetMax = new Vector2(-right, nodeObject.rectTransform.offsetMax.y);
-            }
-
-
-            
-            if (constraintY == Vertical.Bottom)
-            {
-                var position = nodeObject.rectTransform.position;
-                position = new Vector3(position.x, (parentSize.y + position.y), position.z);
-                nodeObject.rectTransform.position = position;
-            }
-
-            if (constraintY == Vertical.TopBottom)
-            {
-                float top = 0, bottom = 0;
-                top = nodeTransform.relativeTransform.GetPosition().y;
-                bottom = parentSize.y - (-top + nodeTransform.size.y);
-                nodeObject.rectTransform.offsetMin = new Vector2(nodeObject.rectTransform.offsetMin.x, bottom);
-                nodeObject.rectTransform.offsetMax = new Vector2(nodeObject.rectTransform.offsetMax.x, top);
-            }
-
-            if (constraintX == Horizontal.Scale)
-            {
-                nodeObject.rectTransform.offsetMin = new Vector2(0, nodeObject.rectTransform.offsetMin.y);
-                nodeObject.rectTransform.offsetMax = new Vector2(0, nodeObject.rectTransform.offsetMax.y);
-            }
-            
-            if (constraintY == Vertical.Scale)
-            {
-                nodeObject.rectTransform.offsetMin = new Vector2(nodeObject.rectTransform.offsetMin.x, 0);
-                nodeObject.rectTransform.offsetMax = new Vector2(nodeObject.rectTransform.offsetMax.x, 0);
-            }
+            // LeftRight, TopBottom, Scale
+            AdjustOffsetMinMax(nodeLayout.constraints, parentSize, rectTransform, nodeTransform);
         }
     }
 }
