@@ -30,6 +30,8 @@ namespace Cdm.Figma.Editor
         private bool _isDownloading = false;
         private bool _isDownloadingCompleted = false;
         private bool _isDownloadingDependency = false;
+        private bool _isRefreshingBranches = false;
+        private bool _isRefreshingBranchesCompleted = false;
         private string _downloadingFile = "";
         private float _downloadingProgress = 0f;
         private CancellationTokenSource _cancellationTokenSource;
@@ -51,7 +53,9 @@ namespace Cdm.Figma.Editor
 
         public override bool RequiresConstantRepaint()
         {
-            return _isDownloading || _isDownloadingCompleted || base.RequiresConstantRepaint();
+            return _isDownloading || _isDownloadingCompleted ||
+                   _isRefreshingBranches || _isRefreshingBranchesCompleted ||
+                   base.RequiresConstantRepaint();
         }
 
         public override void OnInspectorGUI()
@@ -124,6 +128,18 @@ namespace Cdm.Figma.Editor
                 AssetDatabase.Refresh();
             }
 
+            if (_isRefreshingBranches)
+            {
+                EditorUtility.DisplayProgressBar("Refresh Branches", "Fetching branches", 0f);
+            }
+            else if (_isRefreshingBranchesCompleted)
+            {
+                _isRefreshingBranchesCompleted = false;
+                
+                EditorUtility.ClearProgressBar();
+                AssetDatabase.Refresh();
+            }
+
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -165,7 +181,7 @@ namespace Cdm.Figma.Editor
                 }
             }
 
-            if (GUILayout.Button("Refresh", EditorStyles.miniButton))
+            if (GUILayout.Button(EditorGUIUtility.IconContent("d_Refresh"), EditorStyles.miniButton, GUILayout.Width(32)))
             {
                 RefreshBranchesAsync();
             }
@@ -209,9 +225,17 @@ namespace Cdm.Figma.Editor
             {
                 _isDownloading = true;
                 _downloadingProgress = 0f;
+
+                var fileKey = downloader.fileId;
+                var branch = _branch.stringValue;
+                if (!string.IsNullOrEmpty(branch))
+                {
+                    fileKey = branch;
+                }
+                
                 _downloadingFile = downloader.fileId;
 
-                await DownloadAndSaveFigmaFileAsync(downloader, _cancellationTokenSource.Token);
+                await DownloadAndSaveFigmaFileAsync(downloader, fileKey, _cancellationTokenSource.Token);
 
                 _downloadingProgress = 1f;
             }
@@ -247,8 +271,6 @@ namespace Cdm.Figma.Editor
                     var branch = _branches.GetArrayElementAtIndex(i);
                     branch.FindPropertyRelative("key").stringValue = file.branches[i].key;
                     branch.FindPropertyRelative("name").stringValue = file.branches[i].name;
-                    
-                    Debug.Log(file.branches[i].name);
                 }
                 
                 var isSelectedBranchExist = file.branches.Any(x => x.key == _branch.stringValue);
@@ -267,7 +289,24 @@ namespace Cdm.Figma.Editor
 
         private async void RefreshBranchesAsync()
         {
-            await RefreshBranchesAsync((FigmaDownloaderAsset) target);
+            try
+            {
+                _isRefreshingBranches = true;
+                await RefreshBranchesAsync((FigmaDownloaderAsset) target);
+            }
+            catch (TaskCanceledException)
+            {
+                Debug.Log("Operation cancelled.");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
+            }
+            finally
+            {
+                _isRefreshingBranches = false;
+                _isRefreshingBranchesCompleted = true;
+            }
         }
 
         private async Task RefreshBranchesAsync(FigmaDownloaderAsset downloader, 
@@ -283,14 +322,13 @@ namespace Cdm.Figma.Editor
                         }), cancellationToken);
             
             UpdateBranches(newFile);
-            Debug.Log("Branches were updated.");
         }
 
         private async Task DownloadAndSaveFigmaFileAsync(
-            FigmaDownloaderAsset downloader, CancellationToken cancellationToken)
+            FigmaDownloaderAsset downloader, string fileKey, CancellationToken cancellationToken)
         {
             var newFile = await downloader.GetDownloader()
-                .DownloadFileAsync(downloader.personalAccessToken, downloader.fileId, downloader.fileVersion,
+                .DownloadFileAsync(downloader.personalAccessToken, fileKey, downloader.fileVersion,
                     new Progress<FigmaDownloaderProgress>(
                         progress =>
                         {
@@ -298,7 +336,10 @@ namespace Cdm.Figma.Editor
                             _downloadingFile = progress.fileId;
                         }), cancellationToken);
 
-            UpdateBranches(newFile);
+            if (!newFile.IsBranch())
+            {
+                UpdateBranches(newFile);
+            }
             
             var directory = Path.Combine("Assets", downloader.assetPath);
             Directory.CreateDirectory(directory);
