@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,6 +24,8 @@ namespace Cdm.Figma.Editor
         private SerializedProperty _fileVersion;
         private SerializedProperty _fileName;
         private SerializedProperty _defaultFileName;
+        private SerializedProperty _branch;
+        private SerializedProperty _branches;
 
         private bool _isDownloading = false;
         private bool _isDownloadingCompleted = false;
@@ -42,6 +45,8 @@ namespace Cdm.Figma.Editor
             _fileVersion = serializedObject.FindProperty("_fileVersion");
             _fileName = serializedObject.FindProperty("_fileName");
             _defaultFileName = serializedObject.FindProperty("_defaultFileName");
+            _branch = serializedObject.FindProperty("_branch");
+            _branches = serializedObject.FindProperty("_branches");
         }
 
         public override bool RequiresConstantRepaint()
@@ -75,6 +80,8 @@ namespace Cdm.Figma.Editor
             EditorGUILayout.PropertyField(_fileId, new GUIContent("File ID"));
             DrawFileName();
             EditorGUILayout.PropertyField(_fileVersion);
+
+            DrawBranchInput();
 
             EditorGUILayout.Separator();
             EditorGUILayout.Separator();
@@ -118,6 +125,52 @@ namespace Cdm.Figma.Editor
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawBranchInput()
+        {
+            EditorGUILayout.BeginHorizontal();
+
+            var selectedIndex = 0;
+
+            var options = new string[_branches.arraySize + 1];
+            options[0] = "None";
+            
+            for (var i = 0; i < _branches.arraySize; i++)
+            {
+                var branch = _branches.GetArrayElementAtIndex(i);
+                var branchKey = branch.FindPropertyRelative("key").stringValue;
+                var branchName = branch.FindPropertyRelative("name").stringValue;
+                options[i + 1] = branchName;
+
+                if (branchKey == _branch.stringValue)
+                {
+                    selectedIndex = i + 1;
+                }
+            }
+            
+            var newSelectedIndex = EditorGUILayout.Popup(new GUIContent(_branch.displayName), selectedIndex, options);
+
+            if (newSelectedIndex != selectedIndex)
+            {
+                if (newSelectedIndex > 0)
+                {
+                    var branch = _branches.GetArrayElementAtIndex(newSelectedIndex - 1);
+                    var branchKey = branch.FindPropertyRelative("key").stringValue;
+                    _branch.stringValue = branchKey;    
+                }
+                else
+                {
+                    _branch.stringValue = "";
+                }
+            }
+
+            if (GUILayout.Button("Refresh", EditorStyles.miniButton))
+            {
+                RefreshBranchesAsync();
+            }
+
+            EditorGUILayout.EndHorizontal();
         }
         
         private void DrawFileName()
@@ -181,6 +234,58 @@ namespace Cdm.Figma.Editor
             }
         }
 
+        private void UpdateBranches(FigmaFile file)
+        {
+            _branches.arraySize = 0;
+
+            if (file.branches != null)
+            {
+                _branches.arraySize = file.branches.Length;
+
+                for (var i = 0; i < file.branches.Length; i++)
+                {
+                    var branch = _branches.GetArrayElementAtIndex(i);
+                    branch.FindPropertyRelative("key").stringValue = file.branches[i].key;
+                    branch.FindPropertyRelative("name").stringValue = file.branches[i].name;
+                    
+                    Debug.Log(file.branches[i].name);
+                }
+                
+                var isSelectedBranchExist = file.branches.Any(x => x.key == _branch.stringValue);
+                if (!isSelectedBranchExist)
+                {
+                    _branch.stringValue = "";
+                }
+            }
+            else
+            {
+                _branch.stringValue = "";
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private async void RefreshBranchesAsync()
+        {
+            await RefreshBranchesAsync((FigmaDownloaderAsset) target);
+        }
+
+        private async Task RefreshBranchesAsync(FigmaDownloaderAsset downloader, 
+            CancellationToken cancellationToken = default)
+        {
+            var newFile = await downloader.GetDownloader()
+                .DownloadFileAsync(downloader.personalAccessToken, downloader.fileId, downloader.fileVersion,
+                    new Progress<FigmaDownloaderProgress>(
+                        progress =>
+                        {
+                            _isDownloadingDependency = false;
+                            _downloadingFile = progress.fileId;
+                        }), cancellationToken);
+            
+            UpdateBranches(newFile);
+            Debug.Log("Branches were updated.");
+        }
+
         private async Task DownloadAndSaveFigmaFileAsync(
             FigmaDownloaderAsset downloader, CancellationToken cancellationToken)
         {
@@ -192,6 +297,8 @@ namespace Cdm.Figma.Editor
                             _isDownloadingDependency = progress.isDependency;
                             _downloadingFile = progress.fileId;
                         }), cancellationToken);
+
+            UpdateBranches(newFile);
             
             var directory = Path.Combine("Assets", downloader.assetPath);
             Directory.CreateDirectory(directory);
