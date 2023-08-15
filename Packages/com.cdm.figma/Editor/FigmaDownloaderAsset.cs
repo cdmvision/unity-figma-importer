@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Cdm.Figma.Editor
@@ -100,6 +101,24 @@ namespace Cdm.Figma.Editor
             get => _defaultFileName;
             internal set => _defaultFileName = value;
         }
+        
+        [SerializeField, Tooltip("Branch key. Optional")]
+        private string _branch;
+        
+        public string branch
+        {
+            get => _branch;
+            set => _branch = value;
+        }
+
+        [SerializeField, HideInInspector]
+        private Branch[] _branches = Array.Empty<Branch>();
+
+        internal Branch[] branches
+        {
+            get => _branches;
+            set => _branches = value;
+        }
 
         public virtual FigmaDownloader GetDownloader()
         {
@@ -108,6 +127,13 @@ namespace Cdm.Figma.Editor
                 downloadDependencies = downloadDependencies,
                 downloadImages = downloadImages
             };
+        }
+        
+        [Serializable]
+        internal struct Branch
+        {
+            public string key;
+            public string name;
         }
     }
 }
