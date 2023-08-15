@@ -6,10 +6,10 @@ namespace Cdm.Figma
 {
     public static class FigmaFileExtensions
     {
-        public static string[] GetUsedFonts(this FigmaFile fileContent)
+        public static string[] GetUsedFonts(this FigmaFile file)
         {
             var fonts = new HashSet<string>();
-            fileContent.document.TraverseDfs(node =>
+            file.document.TraverseDfs(node =>
             {
                 var style = ((TextNode)node).style;
                 var fontName = FontHelpers.GetFontDescriptor(style.fontFamily, style.fontWeight, style.italic);
@@ -18,6 +18,11 @@ namespace Cdm.Figma
             }, NodeType.Text);
 
             return fonts.ToArray();
+        }
+
+        public static bool IsBranch(this FigmaFile file)
+        {
+            return !string.IsNullOrEmpty(file.mainFileKey);
         }
     }
 }

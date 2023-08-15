@@ -30,6 +30,13 @@ namespace Cdm.Figma
         /// result in the <see cref="FigmaFile.pluginData"/> and `<see cref="FigmaFile.sharedPluginData"/> properties.
         /// </summary>
         public string[] plugins { get; set; }
+        
+        /// <summary>
+        /// Returns branch metadata for the requested file. If the file is a branch, the main file's key will be
+        /// included in the returned response. If the file has branches, their metadata will be included in the
+        /// returned response. Default: false.
+        /// </summary>
+        public bool includeBranchData { get; set; }
 
         public FileRequest(string fileId)
         {

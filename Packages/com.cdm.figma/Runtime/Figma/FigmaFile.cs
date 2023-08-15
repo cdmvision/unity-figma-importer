@@ -30,7 +30,13 @@ namespace Cdm.Figma
 
         [DataMember(Name = "version")]
         public string version { get; set; }
+        
+        [DataMember(Name = "mainFileKey")]
+        public string mainFileKey { get; set; }
 
+        [DataMember(Name = "branches")]
+        public Branch[] branches { get; set; } = Array.Empty<Branch>();
+        
         [DataMember(Name = "role")]
         public string role { get; set; }
 

@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Cdm.Figma.Json;
+using UnityEngine;
 
 namespace Cdm.Figma
 {
@@ -202,6 +203,12 @@ namespace Cdm.Figma
             if (!string.IsNullOrEmpty(request.version))
             {
                 url = $"{url}?version={request.version}";
+                firstArg = false;
+            }
+            
+            if (request.includeBranchData)
+            {
+                url = $"{url}{(firstArg ? "?" : "&")}branch_data=true";
                 firstArg = false;
             }
 

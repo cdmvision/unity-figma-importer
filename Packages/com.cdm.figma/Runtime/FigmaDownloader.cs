@@ -54,7 +54,8 @@ namespace Cdm.Figma
                 {
                     version = fileVersion,
                     geometry = "paths",
-                    plugins = new[] { PluginData.Id }
+                    plugins = new[] { PluginData.Id },
+                    includeBranchData = true
                 }, cancellationToken);
 
             var file = FigmaFile.Parse(fileContentJson);
