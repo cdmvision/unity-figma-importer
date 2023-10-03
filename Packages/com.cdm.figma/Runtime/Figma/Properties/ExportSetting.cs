@@ -1,4 +1,6 @@
 using System.Runtime.Serialization;
+using Cdm.Figma.Json;
+using Newtonsoft.Json;
 
 namespace Cdm.Figma
 {
@@ -24,7 +26,7 @@ namespace Cdm.Figma
         /// Image type.
         /// </summary>
         [DataMember(Name = "format")]
-        public ImageFormat format { get; set; }
+        public ExportImageFormat format { get; set; }
 
         /// <summary>
         /// File suffix to append to all filenames.
@@ -81,8 +83,11 @@ namespace Cdm.Figma
     /// Image format.
     /// </summary>
     [DataContract]
-    public enum ImageFormat
+    [JsonConverter(typeof(DefaultUnknownEnumConverter), Unknown)]
+    public enum ExportImageFormat
     {
+        Unknown,
+        
         [EnumMember(Value = "JPG")]
         Jpg,
 
@@ -90,6 +95,9 @@ namespace Cdm.Figma
         Png,
 
         [EnumMember(Value = "SVG")]
-        Svg
+        Svg,
+        
+        [EnumMember(Value = "PDF")]
+        Pdf
     }
 }
