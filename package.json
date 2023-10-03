@@ -1,0 +1,14 @@
+{
+  "name": "com.cdm.figma.ui",
+  "displayName": "Unity Figma Importer - UGUI",
+  "version": "1.8.2",
+  "unity": "2021.3",
+  "author": "CDM Vision",
+  "description": "Unity Figma Importer turns your Figma design into Unity UI elements and can generate code and layout files to create Unity apps.",
+  "hideInEditor": false,
+  "dependencies": {
+    "com.cdm.figma": "1.8.2",
+    "com.unity.nuget.newtonsoft-json": "2.0.2",
+    "com.unity.vectorgraphics": "2.0.0-preview.21"
+  }
+}
