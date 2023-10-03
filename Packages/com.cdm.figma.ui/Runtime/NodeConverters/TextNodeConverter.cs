@@ -295,8 +295,11 @@ namespace Cdm.Figma.UI
             {
                 if (textNode.fills[0] is SolidPaint solidPaint)
                 {
+                    var color = (UnityEngine.Color)solidPaint.color;
+                    color.a = solidPaint.opacity;
+                    
                     style.color.enabled = true;
-                    style.color.value = (UnityEngine.Color)solidPaint.color;
+                    style.color.value = color;
                 }
             }
         }
