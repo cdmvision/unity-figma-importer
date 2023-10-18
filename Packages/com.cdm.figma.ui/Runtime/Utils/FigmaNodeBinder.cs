@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Cdm.Figma.UI.Utils
@@ -54,8 +55,7 @@ namespace Cdm.Figma.UI.Utils
             if (importer == null || importer.localizationConverter == null)
                 return;
 
-            var members = obj.GetType()
-                .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var members = GetAllMembers(obj.GetType());
 
             foreach (var member in members)
             {
@@ -103,8 +103,8 @@ namespace Cdm.Figma.UI.Utils
             var binding = importer.assetBindings.FirstOrDefault(x => x.type == type);
             if (binding == null)
                 return;
-            
-            var members = type.GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            var members = GetAllMembers(type);
             
             foreach (var bindingMember in binding.memberBindings)
             {
@@ -145,8 +145,7 @@ namespace Cdm.Figma.UI.Utils
         private static void BindFigmaResourceAttributes(object obj, FigmaNode node, BindingResult bindingResult,
             FigmaImporter importer = null)
         {
-            var members = obj.GetType()
-                .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var members = GetAllMembers(obj.GetType());
 
             foreach (var member in members)
             {
@@ -180,9 +179,8 @@ namespace Cdm.Figma.UI.Utils
         private static void BindFigmaNodeAttributes(object obj, FigmaNode node, BindingResult bindingResult,
             FigmaImporter importer = null)
         {
-            var members = obj.GetType()
-                .GetMembers(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
+            var members = GetAllMembers(obj.GetType());
+            
             foreach (var member in members)
             {
                 if (member.MemberType.HasFlag(MemberTypes.Field) ||
@@ -259,6 +257,27 @@ namespace Cdm.Figma.UI.Utils
                     }
                 }
             }
+        }
+        
+        /// <summary>
+        /// Gets all members including the private members declared from base class.
+        /// </summary>
+        // https://stackoverflow.com/a/34097603/3261507
+        private static IEnumerable<MemberInfo> GetAllMembers(Type type)
+        {
+            if (type == null || type == typeof(MonoBehaviour) || !typeof(MonoBehaviour).IsAssignableFrom(type))
+            {
+                return Enumerable.Empty<MemberInfo>();
+            }
+            
+            var currentMembers = type.GetMembers(
+                BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+            var baseMembers = GetAllMembers(type.BaseType);
+            var interfacesMembers = type.GetInterfaces().SelectMany(GetAllMembers);
+            
+            return baseMembers.Concat(interfacesMembers).Concat(currentMembers)
+                .Where(x => x.GetCustomAttribute<CompilerGeneratedAttribute>() == null);
         }
 
         private static void SetMemberValue(MemberInfo member, object target, object value)
