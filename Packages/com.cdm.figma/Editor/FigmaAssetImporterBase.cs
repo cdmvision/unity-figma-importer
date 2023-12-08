@@ -1,9 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
+using UnityEngine.Profiling;
+using Debug = UnityEngine.Debug;
 
 namespace Cdm.Figma.Editor
 {
@@ -31,6 +34,41 @@ namespace Cdm.Figma.Editor
         }
 
         public override void OnImportAsset(AssetImportContext ctx)
+        {
+#if PROFILE_FIGMA_IMPORT
+            var logFile = Profiler.logFile;
+            var enabled = Profiler.enabled;
+            
+            try
+            {
+                var assetName = Path.GetFileName(assetPath);
+                var s = $"Profiler/{assetName}";
+                Directory.CreateDirectory("Profiler");
+                
+                Profiler.logFile = s;
+                Profiler.enableBinaryLog = true;
+                Profiler.enabled = true;
+                Profiler.BeginSample($"Import {assetName}");
+#endif
+                var stopwatch = Stopwatch.StartNew();
+                ImportAsset(ctx);
+                stopwatch.Stop();
+                
+                Debug.Log($"Importing '{ctx.assetPath}' took {stopwatch.ElapsedMilliseconds} ms.");
+                
+#if PROFILE_FIGMA_IMPORT
+            }
+            finally
+            {
+                
+                Profiler.EndSample();
+                Profiler.enabled = enabled;
+                Profiler.logFile = logFile;
+            }
+#endif
+        }
+
+        private void ImportAsset(AssetImportContext ctx)
         {
             FigmaFile figmaFile;
             

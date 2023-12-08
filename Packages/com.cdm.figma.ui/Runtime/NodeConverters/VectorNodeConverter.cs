@@ -107,14 +107,19 @@ namespace Cdm.Figma.UI
                 {
                     try
                     {
-                        sprite = NodeSpriteGenerator.GenerateSprite(args.file, node, generateType, spriteOptions);
+                        var generatedSprite = 
+                            args.spriteGenerator.GetOrGenerateSprite(args.file, node, generateType, spriteOptions);
                         
-                        if (sprite != null)
+                        if (generatedSprite.sprite != null)
                         {
-                            sprite.name = nodeId;
-                            args.importer.generatedAssets.Add(nodeId, sprite);
-                            args.importer.generatedAssets.Add(nodeId, sprite.texture);
-                            return sprite;
+                            if (generatedSprite.isNew)
+                            {
+                                generatedSprite.sprite.name = nodeId;
+                                args.importer.generatedAssets.Add(nodeId, generatedSprite.sprite);
+                                args.importer.generatedAssets.Add(nodeId, generatedSprite.sprite.texture);    
+                            }
+                            
+                            return generatedSprite.sprite;
                         }
                     }
                     catch (SvgImportException e)

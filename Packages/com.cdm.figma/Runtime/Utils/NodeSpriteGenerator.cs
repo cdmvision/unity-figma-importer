@@ -16,31 +16,90 @@ namespace Cdm.Figma.Utils
         Path,
         Rectangle
     }
-    
-    public static class NodeSpriteGenerator
+
+    public struct GeneratedSprite
     {
+        public Sprite sprite { get; set; }
+        public bool isNew { get; set; }
+
+        public GeneratedSprite(Sprite sprite, bool isNew)
+        {
+            this.sprite = sprite;
+            this.isNew = isNew;
+        }
+    }
+    
+    public class NodeSpriteGenerator
+    {
+        private readonly Dictionary<string, Sprite> _sprites = new Dictionary<string, Sprite>();
+
+        /// <summary>
+        /// Gets the sprite immediately if exist; otherwise sprite is generated and added to the sprite database
+        /// for later use.
+        /// </summary>
+        public GeneratedSprite GetOrGenerateSprite(FigmaFile file, SceneNode node, SpriteGenerateType spriteType, 
+            SpriteGenerateOptions? options = null)
+        {
+            return GenerateSpriteInternal(file, node, spriteType, options, _sprites);
+        }
+        
         /// <summary>
         /// Generates a sprite from the scene node.
         /// </summary>
         public static Sprite GenerateSprite(FigmaFile file, SceneNode node, SpriteGenerateType spriteType,
             SpriteGenerateOptions? options = null)
         {
-            options ??= SpriteGenerateOptions.GetDefault();
+            return GenerateSpriteInternal(file, node, spriteType, options, null).sprite;
+        }
 
+        private static GeneratedSprite GenerateSpriteInternal(FigmaFile file, SceneNode node, SpriteGenerateType spriteType,
+            SpriteGenerateOptions? options, Dictionary<string, Sprite> spriteDatabase)
+        {
+            options ??= SpriteGenerateOptions.GetDefault(); 
+            
             if (HasImageFill(node))
             {
                 var imageSprite = GenerateSpriteFromImage(file, node, options.Value);
                 if (imageSprite != null)
-                    return imageSprite;
+                    return new GeneratedSprite(imageSprite, true);
             }
 
             var svg = GenerateSpriteSvg(node, options.Value.overrideNode);
-            var sprite = GenerateSprite(node, svg, spriteType, options);
+
+            var generatedSprite = new GeneratedSprite();
+            
+            if (spriteDatabase != null)
+            {
+                // Comparing svg string is faster than calculating hashes and comparing the them.
+                // So just use svg string for the key.
+                
+                if (spriteDatabase.TryGetValue(svg, out var sprite))
+                {
+                    generatedSprite = new GeneratedSprite(sprite, false);
+                    
+                }
+                else
+                {
+                    sprite = GenerateSprite(node, svg, spriteType, options);
+
+                    if (sprite != null)
+                    {
+                        generatedSprite = new GeneratedSprite(sprite, true);
+                        spriteDatabase.Add(svg, sprite);
+                    }
+                }
+            }
+            else
+            {
+                var sprite = GenerateSprite(node, svg, spriteType, options);
+                generatedSprite = new GeneratedSprite(sprite, true);
+            }
+            
             //Debug.Log($"{node}, [Sprite Generated:{(sprite != null ? "YES": "NO")}]: {svg}");
 
-            return sprite;
+            return generatedSprite;
         }
-
+        
         /// <summary>
         /// Generates SVG string from the scene node.
         /// </summary>
@@ -144,8 +203,8 @@ namespace Cdm.Figma.Utils
             var viewBox = CalculateSvgViewBox(vectorNode, false);
 
             var svg = new StringBuilder();
-            svg.Append($@"<svg id=""{node.id}"" ");
-            svg.AppendSvgSizeAndViewBox(viewBox);
+            svg.Append($@"<svg ");
+            AppendSvgSizeAndViewBox(svg, viewBox);
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
@@ -220,8 +279,8 @@ namespace Cdm.Figma.Utils
             var path = GetRectPath(nodeTransform, nodeRect);
 
             var svg = new StringBuilder();
-            svg.Append($@"<svg id=""{node.id}"" ");
-            svg.AppendSvgSizeAndViewBox(viewBox);
+            svg.Append($@"<svg ");
+            AppendSvgSizeAndViewBox(svg, viewBox);
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
 
@@ -240,7 +299,7 @@ namespace Cdm.Figma.Utils
             return svg.ToString();
         }
 
-        private static void AppendSvgSizeAndViewBox(this StringBuilder svg, Rect viewBox)
+        private static void AppendSvgSizeAndViewBox(StringBuilder svg, Rect viewBox)
         {
             svg.Append($@"width=""{viewBox.width.ToString(CultureInfo.InvariantCulture)}"" ");
             svg.Append($@"height=""{viewBox.height.ToString(CultureInfo.InvariantCulture)}"" ");
@@ -250,8 +309,8 @@ namespace Cdm.Figma.Utils
             svg.Append($@"{viewBox.y.ToString(CultureInfo.InvariantCulture)} ");
             svg.Append($@"{viewBox.width.ToString(CultureInfo.InvariantCulture)} ");
             svg.Append($@"{viewBox.height.ToString(CultureInfo.InvariantCulture)}"" ");
-        }
-
+        } 
+        
         private static Sprite GenerateSpriteFromImage(FigmaFile file, SceneNode node, SpriteGenerateOptions options)
         {
             if (node is not INodeFill nodeFill)

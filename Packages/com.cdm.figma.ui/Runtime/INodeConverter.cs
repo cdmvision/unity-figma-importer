@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cdm.Figma.Utils;
 
 namespace Cdm.Figma.UI
 {
@@ -14,6 +15,7 @@ namespace Cdm.Figma.UI
         public FigmaImporter importer { get; }
         public FigmaFile file { get; }
         public Node overrideNode { get; private set; }
+        public NodeSpriteGenerator spriteGenerator { get; } = new NodeSpriteGenerator();
         public bool isImportingComponentSet { get; private set; }
 
         public Dictionary<string, ComponentNode> componentPropertyAssignments { get; } =

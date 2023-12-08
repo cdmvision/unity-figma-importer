@@ -62,11 +62,7 @@ namespace Cdm.Figma.Editor
 
             var guidEnabled = GUI.enabled;
             GUI.enabled = true;
-
-            EditorGUILayout.Separator();
-            EditorGUILayout.LabelField($"Figma Design", EditorStyles.boldLabel);
-            EditorGUILayout.Separator();
-
+            
             LabelField(_id.displayName, _id.stringValue);
             LabelField(_title.displayName, _title.stringValue);
             LabelField(_version.displayName, _version.stringValue);
