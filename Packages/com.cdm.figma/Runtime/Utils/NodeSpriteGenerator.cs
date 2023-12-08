@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.AccessControl;
 using System.Text;
 using Unity.VectorGraphics;
 using UnityEngine;
@@ -71,9 +70,10 @@ namespace Cdm.Figma.Utils
             
             if (spriteDatabase != null)
             {
-                var spriteHash = GetStringHash(svg);
-
-                if (spriteDatabase.TryGetValue(spriteHash, out var sprite))
+                // Comparing svg string is faster than calculating hashes and comparing the them.
+                // So just use svg string for the key.
+                
+                if (spriteDatabase.TryGetValue(svg, out var sprite))
                 {
                     generatedSprite = new GeneratedSprite(sprite, false);
                     
@@ -85,7 +85,7 @@ namespace Cdm.Figma.Utils
                     if (sprite != null)
                     {
                         generatedSprite = new GeneratedSprite(sprite, true);
-                        spriteDatabase.Add(spriteHash, sprite);
+                        spriteDatabase.Add(svg, sprite);
                     }
                 }
             }
@@ -99,15 +99,7 @@ namespace Cdm.Figma.Utils
 
             return generatedSprite;
         }
-
-        private static string GetStringHash(string value)
-        {
-            using var md5 = System.Security.Cryptography.MD5.Create();
-            var data = Encoding.UTF8.GetBytes(value);
-            var hash = md5.ComputeHash(data);
-            return string.Concat(hash.Select(x => x.ToString("X2")));
-        }
-
+        
         /// <summary>
         /// Generates SVG string from the scene node.
         /// </summary>
