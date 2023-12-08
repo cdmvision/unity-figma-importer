@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
@@ -38,18 +39,29 @@ namespace Cdm.Figma.UI.Editor
             new GUIContent("Pages"),
             new GUIContent("Fonts"),
             new GUIContent("Settings"),
-            new GUIContent("Bindings")
+            new GUIContent("Bindings"),
+            new GUIContent("Stats")
         };
 
         private const int PagesTabIndex = 0;
         private const int FontsTabIndex = 1;
         private const int SettingsTabIndex = 2;
         private const int BindingsTabIndex = 3;
+        private const int StatsTabIndex = 4;
 
+        public override bool showImportedObject => false;
+        protected override bool useAssetDrawPreview => false;
+        
+        private FigmaDesign _figmaDesign;
+        
         public override void OnEnable()
         {
             base.OnEnable();
 
+            var path = AssetDatabase.GetAssetPath(target);
+            
+            _figmaDesign = AssetDatabase.LoadAssetAtPath<FigmaDesign>(path);
+            
             _pages = serializedObject.FindProperty("_pages");
             _pageReferences = serializedObject.FindProperty("_pageReferences");
             _fonts = serializedObject.FindProperty("_fonts");
@@ -88,14 +100,28 @@ namespace Cdm.Figma.UI.Editor
                     }
                 }
             }
+
+            InitStats();
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
+            if (_figmaDesign != null)
+            {
+                EditorGUILayout.Separator();
+                EditorGUILayout.LabelField($"Figma Design", EditorStyles.boldLabel);
+                EditorGUILayout.Separator();
+                
+                LabelField("ID", _figmaDesign.id);
+                LabelField("Title", _figmaDesign.title);
+                LabelField("Version", _figmaDesign.version);
+                LabelField("Last Modified", DateTime.Parse(_figmaDesign.lastModified).ToString("F"));    
+            }
+            
+            EditorGUILayout.Space(12f, true);
             var selectedTabIndex = GUILayout.Toolbar(_selectedTabIndex, _tabs);
-
             EditorGUILayout.Space();
 
             if (selectedTabIndex == PagesTabIndex)
@@ -114,12 +140,60 @@ namespace Cdm.Figma.UI.Editor
             {
                 DrawBindingsGui(selectedTabIndex != _selectedTabIndex);
             }
+            else if (selectedTabIndex == StatsTabIndex)
+            {
+                DrawStatsGui();
+            }
 
             _selectedTabIndex = selectedTabIndex;
             serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.Separator();
             ApplyRevertGUI();
+        }
+        
+        public override bool HasPreviewGUI()
+        {
+            return _figmaDesign != null && _figmaDesign.thumbnail != null;
+        }
+
+        public override void OnPreviewGUI(Rect previewArea, GUIStyle background)
+        {
+            base.OnPreviewGUI(previewArea, background);
+
+            var thumbnail = _figmaDesign.thumbnail;
+
+            var widthRatio = (previewArea.width - 8f) / thumbnail.width;
+            var heightRatio = (previewArea.height - 8f) / thumbnail.height;
+            var ratio = widthRatio > heightRatio ? heightRatio : widthRatio;
+
+            var newWidth = thumbnail.width * ratio;
+            var newHeight = thumbnail.height * ratio;
+            var newX = previewArea.x + (previewArea.width - newWidth) * 0.5f;
+            var newY = previewArea.y + (previewArea.height - newHeight) * 0.5f;
+
+            var newPreviewArea = new Rect(newX, newY, newWidth, newHeight);
+            GUI.DrawTexture(newPreviewArea, thumbnail);
+
+            const float labelHeight = 40;
+            EditorGUI.DropShadowLabel(
+                new Rect(previewArea.x, previewArea.height - labelHeight - 6, previewArea.width, labelHeight),
+                $"{_figmaDesign.name} - {DateTime.Parse(_figmaDesign.lastModified):G}");
+        }
+        
+        private static void LabelField(string label, string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel(label);
+                EditorGUILayout.SelectableLabel(value, GUILayout.Height(EditorGUIUtility.singleLineHeight));
+                EditorGUILayout.EndHorizontal();
+            }
+            else
+            {
+                EditorGUILayout.LabelField(label, value);
+            }
         }
     }
 }
