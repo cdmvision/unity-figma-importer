@@ -64,7 +64,7 @@ namespace Cdm.Figma.Utils
                     return new GeneratedSprite(imageSprite, true);
             }
 
-            var svg = GenerateSpriteSvg(node, options.Value.overrideNode);
+            var svg = GenerateSpriteSvg(node, options.Value.overrideNode, options.Value);
 
             var generatedSprite = new GeneratedSprite();
             
@@ -103,9 +103,9 @@ namespace Cdm.Figma.Utils
         /// <summary>
         /// Generates SVG string from the scene node.
         /// </summary>
-        public static string GenerateSpriteSvg(SceneNode node, SceneNode overrideNode)
+        public static string GenerateSpriteSvg(SceneNode node, SceneNode overrideNode, SpriteGenerateOptions options)
         {
-            return GenerateSvgFromPath(node, overrideNode);
+            return GenerateSvgFromPath(node, overrideNode, options);
         }
 
         /// <summary>
@@ -153,14 +153,8 @@ namespace Cdm.Figma.Utils
             return false;
         }
 
-        private static Rect CalculateSvgViewBox(SceneNode node, bool isRectangle)
+        private static Rect CalculateSvgViewBox(SceneNode node, float width, float height, bool isRectangle)
         {
-            if (node is not INodeTransform transform)
-            {
-                Debug.LogWarning($"Node must implement {nameof(INodeTransform)}");
-                return Rect.zero;
-            }
-
             if (node is not INodeFill fill)
             {
                 Debug.LogWarning($"Node must implement {nameof(INodeFill)}");
@@ -187,20 +181,20 @@ namespace Cdm.Figma.Utils
             return new Rect(
                 x: -strokeHalfPadding,
                 y: -strokeHalfPadding,
-                width: transform.size.x + strokePadding,
-                height: transform.size.y + strokePadding);
+                width: width + strokePadding,
+                height: height + strokePadding);
         }
 
-        private static string GenerateSvgFromPath(SceneNode node, SceneNode overrideNode)
+        private static string GenerateSvgFromPath(SceneNode node, SceneNode overrideNode, SpriteGenerateOptions options)
         {
             if (node is not VectorNode vectorNode || node is RectangleNode)
             {
-                return GenerateSvgFromRect(node, overrideNode);
+                return GenerateSvgFromRect(node, overrideNode, options);
             }
 
             var width = vectorNode.size.x;
             var height = vectorNode.size.y;
-            var viewBox = CalculateSvgViewBox(vectorNode, false);
+            var viewBox = CalculateSvgViewBox(vectorNode, width, height, false);
 
             var svg = new StringBuilder();
             svg.Append($@"<svg ");
@@ -221,8 +215,8 @@ namespace Cdm.Figma.Utils
                     vectorNode.fillOverrideTable.TryGetValue(geometry.overrideId.Value, out paintOverride);
                 }
 
-                AppendSvgFillPathElement(svg, node, path, geometryIndex, size, overrideNode, paintOverride,
-                    windingRule);
+                var fills = GetSvgFills(node, overrideNode, paintOverride);
+                AppendSvgFillPathElement(svg, node, path, geometryIndex, size, fills, windingRule);
             }
 
 
@@ -260,7 +254,7 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static string GenerateSvgFromRect(SceneNode node, SceneNode overrideNode)
+        private static string GenerateSvgFromRect(SceneNode node, SceneNode overrideNode, SpriteGenerateOptions options)
         {
             if (node is not INodeRect nodeRect)
                 throw new ArgumentException("Specified node does not define a rectangle.", nameof(node));
@@ -273,18 +267,28 @@ namespace Cdm.Figma.Utils
 
             var width = nodeTransform.size.x;
             var height = nodeTransform.size.y;
+            
+            var fills = GetSvgFills(node, overrideNode, null);
+
+            var isGradientExist = fills.Any(x => x is GradientPaint);
+
+            if (!isGradientExist)
+            {
+                width = options.rectTextureSize + nodeRect.topLeftRadius + nodeRect.topRightRadius;
+                height = options.rectTextureSize + nodeRect.bottomLeftRadius + nodeRect.bottomRightRadius;
+            }
 
             var strokeWeight = nodeFill.GetStrokeWeightOrDefault();
-            var viewBox = CalculateSvgViewBox(node, true);
-            var path = GetRectPath(nodeTransform, nodeRect);
+            var viewBox = CalculateSvgViewBox(node, width, height, true);
+            var path = GetRectPath(width, height, nodeRect);
 
             var svg = new StringBuilder();
             svg.Append($@"<svg ");
             AppendSvgSizeAndViewBox(svg, viewBox);
             svg.Append($@"fill=""none"" ");
             svg.AppendLine($@"xmlns=""http://www.w3.org/2000/svg"">");
-
-            AppendSvgFillPathElement(svg, node, path, 0, new Vector2(width, height), overrideNode);
+            
+            AppendSvgFillPathElement(svg, node, path, 0, new Vector2(width, height), fills);
 
             if (strokeWeight > 0)
             {
@@ -439,11 +443,7 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static void AppendSvgFillPathElement(StringBuilder svg, SceneNode node, string fillPath,
-            int geometryIndex,
-            Vector2 size, SceneNode overrideNode = null,
-            PaintOverride paintOverride = null,
-            WindingRule? windingRule = null)
+        private static List<Paint> GetSvgFills(SceneNode node, SceneNode overrideNode, PaintOverride paintOverride)
         {
             List<Paint> fills = null;
 
@@ -462,10 +462,13 @@ namespace Cdm.Figma.Utils
                     fills = ((INodeFill)node)?.fills;
                 }
             }
+            
+            return fills ?? new List<Paint>();
+        }
 
-            if (fills == null)
-                return;
-
+        private static void AppendSvgFillPathElement(StringBuilder svg, SceneNode node, string fillPath,
+            int geometryIndex, Vector2 size, List<Paint> fills, WindingRule? windingRule = null)
+        {
             for (var fillIndex = 0; fillIndex < fills.Count; fillIndex++)
             {
                 var fill = fills[fillIndex];
@@ -740,9 +743,9 @@ namespace Cdm.Figma.Utils
             return spriteWithTexture;
         }
 
-        private static string GetRectPath(INodeTransform nodeTransform, INodeRect nodeRect)
+        private static string GetRectPath(float width, float height, INodeRect nodeRect)
         {
-            var rect = new Rect(0, 0, nodeTransform.size.x, nodeTransform.size.y);
+            var rect = new Rect(0, 0, width, height);
             var radiusTL = Vector2.one * nodeRect.topLeftRadius;
             var radiusTR = Vector2.one * nodeRect.topRightRadius;
             var radiusBR = Vector2.one * nodeRect.bottomRightRadius;

@@ -18,6 +18,7 @@ namespace Cdm.Figma.UI.Editor
         private SerializedProperty _gradientResolution;
         private SerializedProperty _minTextureSize;
         private SerializedProperty _maxTextureSize;
+        private SerializedProperty _rectTextureSize;
         private SerializedProperty _scaleFactor;
         private SerializedProperty _wrapMode;
         private SerializedProperty _filterMode;
@@ -72,6 +73,7 @@ namespace Cdm.Figma.UI.Editor
             _gradientResolution = serializedObject.FindProperty("_gradientResolution");
             _minTextureSize = serializedObject.FindProperty("_minTextureSize");
             _maxTextureSize = serializedObject.FindProperty("_maxTextureSize");
+            _rectTextureSize = serializedObject.FindProperty("_rectTextureSize");
             _scaleFactor = serializedObject.FindProperty("_scaleFactor");
             _wrapMode = serializedObject.FindProperty("_wrapMode");
             _filterMode = serializedObject.FindProperty("_filterMode");
