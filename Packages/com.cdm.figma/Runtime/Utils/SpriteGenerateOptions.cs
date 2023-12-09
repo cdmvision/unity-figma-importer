@@ -22,6 +22,12 @@ namespace Cdm.Figma.Utils
         /// The maximum size of the texture holding sprite data.
         /// </summary>
         public int maxTextureSize { get; set; }
+        
+        /// <summary>
+        /// The resolution of the texture for rectangle nodes without a gradient color
+        /// (<see cref="RectangleNode"/> and <see cref="FrameNode"/> etc).
+        /// </summary>
+        public int rectTextureSize { get; set; }
 
         /// <summary>
         /// The number of samples per pixel for anti-aliasing.
