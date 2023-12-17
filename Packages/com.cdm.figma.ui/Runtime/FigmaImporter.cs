@@ -297,9 +297,15 @@ namespace Cdm.Figma.UI
             if (componentConverter != null)
             {
                 nodeObject = componentConverter.Convert(parentObject, node, args);
-                AddBindingIfExist(nodeObject);
-                LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
-                return true;
+                
+                if (nodeObject != null)
+                {
+                    AddBindingIfExist(nodeObject);
+                    LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
+                    return true;
+                }
+                
+                return false;
             }
 
             // Try with node converters.
@@ -309,9 +315,15 @@ namespace Cdm.Figma.UI
             if (nodeConverter != null)
             {
                 nodeObject = nodeConverter.Convert(parentObject, node, args);
-                AddBindingIfExist(nodeObject);
-                LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
-                return true;
+
+                if (nodeObject != null)
+                {
+                    AddBindingIfExist(nodeObject);
+                    LogInstanceNodeInitResult(instanceNode, nodeObject, instanceNodeInitResult);
+                    return true;
+                }
+
+                return false;
             }
 
             nodeObject = null;
