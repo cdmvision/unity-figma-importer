@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.8.8] - 2024-01-04
+### Fixes
+- Minor import stats fixes
+
 ## [1.8.7] - 2023-12-17
 ### Fixes
 - Fixed a bug that `NullReferenceException` is thrown if a node converter fails to convert a node
