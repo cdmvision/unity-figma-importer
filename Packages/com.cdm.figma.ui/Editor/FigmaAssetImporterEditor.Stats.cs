@@ -34,10 +34,10 @@ namespace Cdm.Figma.UI.Editor
 
             EditorGUILayout.Space();
 
-            LabelField("Texture Count - Smallest", $"{_stats.smallestTextureCount} (= {minTextureSize})");
+            LabelField("Texture Count - Smallest", $"{_stats.smallestTextureCount} (<= {minTextureSize})");
             LabelField("Texture Count - Small", $"{_stats.smallTextureCount} (< {avgTextureSize})");
             LabelField("Texture Count - Big", $"{_stats.bigTextureCount} (>= {avgTextureSize})");
-            LabelField("Texture Count - Biggest", $"{_stats.biggestTextureCount} (= {maxTextureSize})");
+            LabelField("Texture Count - Biggest", $"{_stats.biggestTextureCount} (>= {maxTextureSize})");
         }
 
         private void InitStats()
@@ -62,8 +62,8 @@ namespace Cdm.Figma.UI.Editor
 
             _stats.smallTextureCount = _stats.textureCount - _stats.bigTextureCount;
 
-            _stats.smallestTextureCount = CountTexture(assets, (t, min, max) => t.width == min || t.height == min);
-            _stats.biggestTextureCount = CountTexture(assets, (t, min, max) => t.width == max || t.height == max);
+            _stats.smallestTextureCount = CountTexture(assets, (t, min, max) => t.width <= min || t.height <= min);
+            _stats.biggestTextureCount = CountTexture(assets, (t, min, max) => t.width >= max || t.height >= max);
 
             foreach (var asset in assets)
             {
