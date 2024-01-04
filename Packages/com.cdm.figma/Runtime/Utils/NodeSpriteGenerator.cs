@@ -64,7 +64,11 @@ namespace Cdm.Figma.Utils
                     return new GeneratedSprite(imageSprite, true);
             }
 
-            var svg = GenerateSpriteSvg(node, options.Value.overrideNode, options.Value);
+            var svg = GenerateSvgFromPath(node, options.Value.overrideNode, options.Value);
+            
+#if FIGMA_PRINT_SVG_STRING
+            Debug.Log($"{svg.node}: {svg.content}");
+#endif
 
             var generatedSprite = new GeneratedSprite();
             
@@ -73,25 +77,24 @@ namespace Cdm.Figma.Utils
                 // Comparing svg string is faster than calculating hashes and comparing the them.
                 // So just use svg string for the key.
                 
-                if (spriteDatabase.TryGetValue(svg, out var sprite))
+                if (spriteDatabase.TryGetValue(svg.content, out var sprite))
                 {
                     generatedSprite = new GeneratedSprite(sprite, false);
-                    
                 }
                 else
                 {
-                    sprite = GenerateSprite(node, svg, spriteType, options);
+                    sprite = GenerateSprite(node, svg.content, spriteType, svg.dontResize, options);
 
                     if (sprite != null)
                     {
                         generatedSprite = new GeneratedSprite(sprite, true);
-                        spriteDatabase.Add(svg, sprite);
+                        spriteDatabase.Add(svg.content, sprite);
                     }
                 }
             }
             else
             {
-                var sprite = GenerateSprite(node, svg, spriteType, options);
+                var sprite = GenerateSprite(node, svg.content, spriteType, svg.dontResize, options);
                 generatedSprite = new GeneratedSprite(sprite, true);
             }
             
@@ -105,14 +108,14 @@ namespace Cdm.Figma.Utils
         /// </summary>
         public static string GenerateSpriteSvg(SceneNode node, SceneNode overrideNode, SpriteGenerateOptions options)
         {
-            return GenerateSvgFromPath(node, overrideNode, options);
+            return GenerateSvgFromPath(node, overrideNode, options).content;
         }
 
         /// <summary>
         /// Generates a sprite from the scene node and the SVG string given.
         /// </summary>
         public static Sprite GenerateSprite(SceneNode node, string svg, SpriteGenerateType spriteType,
-            SpriteGenerateOptions? options = null)
+            bool dontResize, SpriteGenerateOptions? options = null)
         {
             options ??= SpriteGenerateOptions.GetDefault();
 
@@ -121,7 +124,7 @@ namespace Cdm.Figma.Utils
                 case SpriteGenerateType.Auto:
                     if (node is INodeRect)
                     {
-                        return GenerateRectSpriteFromSvg(node, svg, options.Value);
+                        return GenerateRectSpriteFromSvg(node, svg, dontResize, options.Value);
                     }
                     else
                     {
@@ -132,7 +135,7 @@ namespace Cdm.Figma.Utils
                     return GenerateSpriteFromSvg(node, svg, options.Value);
 
                 case SpriteGenerateType.Rectangle:
-                    return GenerateRectSpriteFromSvg(node, svg, options.Value);
+                    return GenerateRectSpriteFromSvg(node, svg, dontResize, options.Value);
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(spriteType), spriteType, null);
@@ -185,7 +188,7 @@ namespace Cdm.Figma.Utils
                 height: height + strokePadding);
         }
 
-        private static string GenerateSvgFromPath(SceneNode node, SceneNode overrideNode, SpriteGenerateOptions options)
+        private static SvgString GenerateSvgFromPath(SceneNode node, SceneNode overrideNode, SpriteGenerateOptions options)
         {
             if (node is not VectorNode vectorNode || node is RectangleNode)
             {
@@ -229,17 +232,13 @@ namespace Cdm.Figma.Utils
             }
 
             svg.AppendLine("</svg>");
-
-#if FIGMA_PRINT_SVG_STRING
-            Debug.Log($"{node}: {svg}");
-#endif
-            return svg.ToString();
+            return new SvgString(node, svg.ToString());
         }
 
         private static Sprite GenerateSpriteFromSvg(SceneNode node, string svg, SpriteGenerateOptions options)
         {
             var sceneInfo = ImportSvg(svg);
-            return CreateTexturedSprite(node, options, sceneInfo);
+            return CreateSprite(node, options, sceneInfo);
         }
 
         private static SVGParser.SceneInfo ImportSvg(string svg)
@@ -254,7 +253,8 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static string GenerateSvgFromRect(SceneNode node, SceneNode overrideNode, SpriteGenerateOptions options)
+        private static SvgString GenerateSvgFromRect(SceneNode node, SceneNode overrideNode, 
+            SpriteGenerateOptions options)
         {
             if (node is not INodeRect nodeRect)
                 throw new ArgumentException("Specified node does not define a rectangle.", nameof(node));
@@ -269,13 +269,15 @@ namespace Cdm.Figma.Utils
             var height = nodeTransform.size.y;
             
             var fills = GetSvgFills(node, overrideNode, null);
-
+            
+            var dontResize = false;
             var isGradientExist = fills.Any(x => x is GradientPaint);
 
             if (!isGradientExist)
             {
                 width = options.rectTextureSize + nodeRect.topLeftRadius + nodeRect.topRightRadius;
                 height = options.rectTextureSize + nodeRect.bottomLeftRadius + nodeRect.bottomRightRadius;
+                dontResize = true;
             }
 
             var strokeWeight = nodeFill.GetStrokeWeightOrDefault();
@@ -296,11 +298,11 @@ namespace Cdm.Figma.Utils
             }
 
             svg.AppendLine("</svg>");
-
-#if FIGMA_PRINT_SVG_STRING
-            Debug.Log($"{node}: {svg}");
-#endif
-            return svg.ToString();
+            
+            return new SvgString(node, svg.ToString())
+            {
+                dontResize = dontResize
+            };
         }
 
         private static void AppendSvgSizeAndViewBox(StringBuilder svg, Rect viewBox)
@@ -337,7 +339,8 @@ namespace Cdm.Figma.Utils
             return CreateTexturedSprite(node, options, imageTexture);
         }
 
-        private static Sprite GenerateRectSpriteFromSvg(SceneNode node, string svg, SpriteGenerateOptions options)
+        private static Sprite GenerateRectSpriteFromSvg(SceneNode node, string svg, bool dontResize,
+             SpriteGenerateOptions options)
         {
             if (node is not INodeRect nodeRect)
                 throw new ArgumentException("Specified node does not define a rectangle.", nameof(node));
@@ -363,7 +366,7 @@ namespace Cdm.Figma.Utils
             );
 
             var sceneInfo = ImportSvg(svg);
-            return CreateTexturedSprite(node, options, sceneInfo, borders);
+            return CreateSprite(node, options, sceneInfo, dontResize, borders);
         }
 
         private static void AppendSvgGradientStops(StringBuilder svg, GradientPaint gradient)
@@ -640,19 +643,8 @@ namespace Cdm.Figma.Utils
             }
         }
 
-        private static Sprite CreateTexturedSprite(SceneNode node, SpriteGenerateOptions options,
-            SVGParser.SceneInfo sceneInfo, Vector4? borders = null)
+        private static (Vector2, float) GetScaledSize(Sprite sprite, SpriteGenerateOptions options)
         {
-            var geometries =
-                VectorUtils.TessellateScene(sceneInfo.Scene, options.tessellationOptions, sceneInfo.NodeOpacity);
-
-            var sprite = VectorUtils.BuildSprite(geometries, sceneInfo.SceneViewport,
-                options.pixelsPerUnit, VectorUtils.Alignment.Center,
-                Vector2.zero, options.gradientResolution, true);
-
-            if (sprite == null)
-                return null;
-
             var spriteWidth = sprite.rect.width * options.scaleFactor;
             var spriteHeight = sprite.rect.height * options.scaleFactor;
 
@@ -681,8 +673,32 @@ namespace Cdm.Figma.Utils
                 heightScaled = spriteHeight;
             }
 
-            var textureWidth = Mathf.RoundToInt(Mathf.Max(widthScaled, 1f));
-            var textureHeight = Mathf.RoundToInt(Mathf.Max(heightScaled, 1f));
+            return (new Vector2(widthScaled, heightScaled), sizeRatio);
+        }
+
+        private static Sprite CreateSprite(SceneNode node, SpriteGenerateOptions options,
+            SVGParser.SceneInfo sceneInfo, bool dontResize = false, Vector4? borders = null)
+        {
+            var geometries =
+                VectorUtils.TessellateScene(sceneInfo.Scene, options.tessellationOptions, sceneInfo.NodeOpacity);
+
+            var sprite = VectorUtils.BuildSprite(geometries, sceneInfo.SceneViewport,
+                options.pixelsPerUnit, VectorUtils.Alignment.Center,
+                Vector2.zero, options.gradientResolution, true);
+
+            if (sprite == null)
+                return null;
+
+            var size = new Vector2(sprite.rect.width, sprite.rect.height);
+            var sizeRatio = 1f;
+            
+            if (!dontResize)
+            {
+                (size, sizeRatio) = GetScaledSize(sprite, options);
+            }
+            
+            var textureWidth = Mathf.RoundToInt(Mathf.Max(size.x, 1f));
+            var textureHeight = Mathf.RoundToInt(Mathf.Max(size.y, 1f));
 
             var expandEdges = options.expandEdges && 
                               (options.filterMode != FilterMode.Point || options.sampleCount > 1);
@@ -718,7 +734,7 @@ namespace Cdm.Figma.Utils
         }
 
         private static Sprite CreateTexturedSprite(SceneNode node, SpriteGenerateOptions options,
-            Texture2D texture, float scale = 1f, Vector4? borders = null)
+            Texture2D texture, float scale = 1f,  Vector4? borders = null)
         {
             var spriteRect = new Rect(0, 0, texture.width, texture.height);
             var spritePivot = spriteRect.center;
@@ -816,5 +832,24 @@ namespace Cdm.Figma.Utils
             return UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(SpriteMaterialPath);
 #endif
         }
+        
+        private class SvgString
+        {
+            public SceneNode node { get; }
+            public string content { get; }
+            public bool dontResize { get; set; }
+
+            public SvgString(SceneNode node, string content)
+            {
+                this.node = node;
+                this.content = content;
+            }
+
+            public override string ToString()
+            {
+                return content;
+            }
+        }
     }
+    
 }
