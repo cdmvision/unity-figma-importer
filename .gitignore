@@ -14,13 +14,13 @@
 
 ProjectSettings/boot.config
 
-# Downloaded figma files
-Assets/Resources/Figma/
-Assets/Resources/Figma.meta
+# Private Figma Downloader
+Assets/Editor\ Default\ Resources/Ignored
+Assets/Editor\ Default\ Resources/Ignored.meta
 
 # Thirdparty assets (especially paid ones)
-Assets/Thirdparty Assets/
-Assets/Thirdparty Assets.meta
+Assets/Thirdparty\ Assets/
+Assets/Thirdparty\ Assets.meta
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta

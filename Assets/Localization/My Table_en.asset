@@ -16,34 +16,144 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: b18c1e6b77167664584852610f6265ab, type: 2}
   m_Metadata:
-    m_Items:
-    - rid: 6982684293383323686
+    m_Items: []
   m_TableData:
   - m_Id: 4058893787136
-    m_Localized: Hello World!
+    m_Localized: About Package
     m_Metadata:
       m_Items: []
   - m_Id: 4145434861568
-    m_Localized: Hey how are you?
+    m_Localized: Layouts
     m_Metadata:
       m_Items: []
   - m_Id: 74997123784704
-    m_Localized: I have apples
+    m_Localized: Components
     m_Metadata:
-      m_Items:
-      - rid: 6982684293383323686
+      m_Items: []
   - m_Id: 66279647082192896
-    m_Localized: On
+    m_Localized: Typhography
     m_Metadata:
       m_Items: []
   - m_Id: 66279713184423936
-    m_Localized: Off
+    m_Localized: "Figma Importer Package \nfor Unity"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253072593998831616
+    m_Localized: Transforming your Figma designs seamlessly into Unity UI elements
+      is a breeze with the Unity Figma Importer. This powerful tool not only bridges
+      the gap between design and development but also effortlessly binds codes with
+      the layout files, empowering you to swiftly craft stunning Unity apps with
+      precision and ease.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253342497226350592
+    m_Localized: Horizontal Layouts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253072977010089984
+    m_Localized: Grid Layouts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253073110342819840
+    m_Localized: Try adding more elements
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253073280631562240
+    m_Localized: Buttons
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253073363355820032
+    m_Localized: Toggles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253073869721559040
+    m_Localized: Sliders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074054036054016
+    m_Localized: Scrollbars
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074110554300416
+    m_Localized: Dropdowns
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074190891999232
+    m_Localized: Input Fields
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074301009256448
+    m_Localized: Scrollviews
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074555813224448
+    m_Localized: This view is a scrollview!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074746234626048
+    m_Localized: Icon button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074821283307520
+    m_Localized: Compund button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074934835699712
+    m_Localized: Checkmark
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253075175509057536
+    m_Localized: Compund toggle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253075352118616064
+    m_Localized: This view has a scrollbar! Look to your left.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253075467751383040
+    m_Localized: The language selection at the top right corner is a dropdown! Try
+      changing the language.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253342615883210752
+    m_Localized: Vertical Layouts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254759056117325824
+    m_Localized: Give it a try by clicking on them
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254759160266088448
+    m_Localized: Give it a try by clicking on them
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254759195015897088
+    m_Localized: Give it a try by sliding
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254759286611107840
+    m_Localized: Give it a try by typing anything
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255102329872703488
+    m_Localized: Vectors
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255879838629355520
+    m_Localized: Vectors are imported/drawn by using Unity's Vector Graphics package.
+      You can change sprite settings from the Figma design inspector according to
+      your needs.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255880602680549376
+    m_Localized: Fonts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255880713372426240
+    m_Localized: Fonts can be set from the Figma design inspector. Search and Remap
+      function automatically finds the fonts used in folder and assigns them accordingly.
     m_Metadata:
       m_Items: []
   references:
     version: 2
-    RefIds:
-    - rid: 6982684293383323686
-      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
-      data:
-        m_Entries: 0020eca035440000
+    RefIds: []
