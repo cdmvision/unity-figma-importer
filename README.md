@@ -11,10 +11,10 @@ Transforming your Figma designs seamlessly into Unity UI elements is a breeze wi
 ## Installing Unity Figma Importer Package
 * Open Package Manager in Unity
 * Press "+" and "Add package from git URL..."
-* Enter this repository and version as <code>https://github.com/cdmvision/unity-figma-importer.git#1.1.0</code> (see latest version [here](https://github.com/cdmvision/unity-figma-importer/tags))
+* Enter this repository and version as <code>https://github.com/cdmvision/unity-figma-importer.git#1.9.0</code> (see latest version [here](https://github.com/cdmvision/unity-figma-importer/tags))
 
 ## Unity Figma Importer - UGUI
-* <code>https://github.com/cdmvision/unity-figma-importer.git#1.1.0-ugui</code> (see latest version [here](https://github.com/cdmvision/unity-figma-importer/tags))
+* <code>https://github.com/cdmvision/unity-figma-importer.git#1.9.0-ugui</code> (see latest version [here](https://github.com/cdmvision/unity-figma-importer/tags))
 
 ## Supported UI systems
 - [x] Unity UI (UGUI)
