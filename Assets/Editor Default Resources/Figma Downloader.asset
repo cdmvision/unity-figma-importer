@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bb55e0a843f0654ea77d0d420ce23a8, type: 3}
+  m_Name: Figma Downloader
+  m_EditorClassIdentifier: 
+  _personalAccessToken: 
+  _assetExtension: figma
+  _assetPath: UI
+  _downloadDependencies: 0
+  _downloadImages: 0
+  _fileId: JBnq6N50qFOnTLA4aO20B7
+  _fileVersion: 
+  _fileName: 
+  _defaultFileName: Figma Importer Demo
+  _branch: 
+  _branches: []

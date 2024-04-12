@@ -16,34 +16,148 @@ MonoBehaviour:
     m_Code: tr-TR
   m_SharedData: {fileID: 11400000, guid: b18c1e6b77167664584852610f6265ab, type: 2}
   m_Metadata:
-    m_Items:
-    - rid: 6982684293383323687
+    m_Items: []
   m_TableData:
   - m_Id: 4058893787136
-    m_Localized: "Merhaba D\xFCnya!"
+    m_Localized: "Paket Hakk\u0131nda"
     m_Metadata:
       m_Items: []
   - m_Id: 4145434861568
-    m_Localized: "Nas\u0131ls\u0131n?"
+    m_Localized: "D\xFCzenler"
     m_Metadata:
       m_Items: []
   - m_Id: 74997123784704
-    m_Localized: Benim elmam var
+    m_Localized: "Bile\u015Fenler"
     m_Metadata:
-      m_Items:
-      - rid: 6982684293383323687
+      m_Items: []
   - m_Id: 66279647082192896
-    m_Localized: "A\xE7\u0131k"
+    m_Localized: Tipografi
     m_Metadata:
       m_Items: []
   - m_Id: 66279713184423936
-    m_Localized: "Kapal\u0131"
+    m_Localized: "Unity i\xE7in Figma Importer Paketi"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253072593998831616
+    m_Localized: "Unity Figma Importer ile Figma tasar\u0131mlar\u0131n\u0131z\u0131
+      sorunsuz bir \u015Fekilde Unity UI \xF6\u011Felerine d\xF6n\xFC\u015Ft\xFCrmek
+      \xE7ok kolay. Bu g\xFC\xE7l\xFC ara\xE7 yaln\u0131zca tasar\u0131m ve geli\u015Ftirme
+      aras\u0131ndaki bo\u015Flu\u011Fu kapatmakla kalmaz, ayn\u0131 zamanda kodlar\u0131
+      d\xFCzen dosyalar\u0131yla zahmetsizce birle\u015Ftirerek \xE7arp\u0131c\u0131
+      Unity uygulamalar\u0131n\u0131 hassas ve kolay bir \u015Fekilde h\u0131zl\u0131
+      bir \u015Fekilde olu\u015Fturman\u0131za olanak tan\u0131r."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253342497226350592
+    m_Localized: "Yatay D\xFCzenler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253072977010089984
+    m_Localized: "Izgara D\xFCzenleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253073110342819840
+    m_Localized: "Yeni \xF6\u011Feler eklemeyi deneyin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253073280631562240
+    m_Localized: "D\xFC\u011Fmeler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253073363355820032
+    m_Localized: Anahtarlar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253073869721559040
+    m_Localized: "Kayd\u0131r\u0131c\u0131lar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074054036054016
+    m_Localized: "Kayd\u0131rma \xE7ubuklar\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074110554300416
+    m_Localized: "A\xE7\u0131l\u0131r Men\xFCler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074190891999232
+    m_Localized: "Giri\u015F Alanlar\u0131"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074301009256448
+    m_Localized: "Kayd\u0131r\u0131labilir \u0130\xE7erik"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074555813224448
+    m_Localized: "Bu sayfa bir kayd\u0131r\u0131labilir i\xE7erik \xF6rne\u011Fi!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074746234626048
+    m_Localized: "\u0130kon d\xFC\u011Fme"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074821283307520
+    m_Localized: "Bile\u015Fik d\xFC\u011Fme"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253074934835699712
+    m_Localized: Checkmark
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253075175509057536
+    m_Localized: "Biile\u015Fik anahtar"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253075352118616064
+    m_Localized: "Bu g\xF6r\xFCn\xFCm\xFCn bir kayd\u0131rma \xE7ubu\u011Fu var!
+      Solunuza bak\u0131n."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253075467751383040
+    m_Localized: "Sa\u011F \xFCst k\xF6\u015Fedeki dil se\xE7imi bir a\xE7\u0131l\u0131r
+      men\xFCd\xFCr! Dili de\u011Fi\u015Ftirmeyi deneyin."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 253342615883210752
+    m_Localized: "Dikey D\xFCzenler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254759056117325824
+    m_Localized: "\xDCstlerine t\u0131klayarak deneyin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254759160266088448
+    m_Localized: "\xDCstlerine t\u0131klayarak deneyin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254759195015897088
+    m_Localized: "Kayd\u0131rarak deneyin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 254759286611107840
+    m_Localized: "Herhangi bir \u015Fey yazarak deneyin"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255102329872703488
+    m_Localized: "Vekt\xF6rler"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255879838629355520
+    m_Localized: "Vekt\xF6rler, Unity'nin Vekt\xF6r Grafikleri paketi kullan\u0131larak
+      i\xE7e aktar\u0131l\u0131r/\xE7izilir. Sprite ayarlar\u0131n\u0131 Figma tasar\u0131m
+      denet\xE7isinden ihtiya\xE7lar\u0131n\u0131za g\xF6re de\u011Fi\u015Ftirebilirsiniz."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255880602680549376
+    m_Localized: "Yaz\u0131 Tipleri"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 255880713372426240
+    m_Localized: "Yaz\u0131 tipleri Figma tasar\u0131m denet\xE7isinden ayarlanabilir.
+      Search and Remap i\u015Flevi, klas\xF6rde kullan\u0131lan yaz\u0131 tiplerini
+      otomatik olarak bulur ve buna g\xF6re atar."
     m_Metadata:
       m_Items: []
   references:
     version: 2
-    RefIds:
-    - rid: 6982684293383323687
-      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
-      data:
-        m_Entries: 0020eca035440000
+    RefIds: []

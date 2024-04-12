@@ -6,7 +6,7 @@
       "source": "embedded",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "2.0.2",
-        "com.unity.vectorgraphics": "2.0.0-preview.21"
+        "com.unity.vectorgraphics": "2.0.0-preview.24"
       }
     },
     "com.cdm.figma.ui": {
@@ -14,9 +14,9 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.cdm.figma": "1.8.8",
+        "com.cdm.figma": "1.9.0",
         "com.unity.nuget.newtonsoft-json": "2.0.2",
-        "com.unity.vectorgraphics": "2.0.0-preview.21"
+        "com.unity.vectorgraphics": "2.0.0-preview.24"
       }
     },
     "com.unity.2d.sprite": {
@@ -47,7 +47,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.24",
+      "version": "3.0.28",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -56,7 +56,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.18",
+      "version": "2.0.22",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -107,7 +107,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.textmeshpro": {
-      "version": "3.0.6",
+      "version": "3.0.8",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -137,8 +137,8 @@
       }
     },
     "com.unity.vectorgraphics": {
-      "version": "2.0.0-preview.21",
-      "depth": 1,
+      "version": "2.0.0-preview.24",
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.2d.sprite": "1.0.0",
