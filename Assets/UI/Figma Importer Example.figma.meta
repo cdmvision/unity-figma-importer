@@ -1,0 +1,47 @@
+fileFormatVersion: 2
+guid: fd24bca4637654469b80ee6f2f8ad4dc
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: ac69724a0d29c2b43917235d0115eedc, type: 3}
+  _pages:
+  - enabled: 0
+    id: 0:1
+    name: Components
+  - enabled: 0
+    id: 23:19
+    name: Design
+  - enabled: 1
+    id: 172:777
+    name: Views
+  _fonts:
+  - fontName: Noto Sans-Regular
+    font: {fileID: 11400000, guid: 0461c01eb02d64191bb67b24e6f4ea1d, type: 2}
+  - fontName: Inria Serif-Bold
+    font: {fileID: 11400000, guid: cf5e6ba275320465cb6267b454327e38, type: 2}
+  _fallbackFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  _pageReferences:
+  - {instanceID: 0}
+  - {instanceID: 0}
+  - {fileID: -4066223544627792151, guid: fd24bca4637654469b80ee6f2f8ad4dc, type: 3}
+  _layer: 5
+  _pixelsPerUnit: 100
+  _scaleFactor: 1
+  _gradientResolution: 128
+  _minTextureSize: 64
+  _maxTextureSize: 1024
+  _rectTextureSize: 32
+  _wrapMode: 1
+  _filterMode: 1
+  _sampleCount: 8
+  _expandEdges: 0
+  _markExternalAssetAsDependency: 1
+  _generateUniqueNodeName: 0
+  _localizationConverter: Cdm.Figma.UI.UnityLocalizationConverter, Cdm.Figma.UI.UnityLocalization,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  _effectConverters: []
+  _assetBindings: []
