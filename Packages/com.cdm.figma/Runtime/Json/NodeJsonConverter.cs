@@ -77,6 +77,10 @@ namespace Cdm.Figma.Json
                     type = typeof(VectorNode);
                     return true;
                 
+                case NodeType.Section:
+                    type = typeof(SectionNode);
+                    return true;
+                
                 default:
                     type = typeof(Node);
                     return true;

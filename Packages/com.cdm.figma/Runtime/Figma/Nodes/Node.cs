@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Cdm.Figma.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Cdm.Figma
@@ -84,9 +86,12 @@ namespace Cdm.Figma
     /// <summary>
     /// The type of the node, refer to table below for details.
     /// </summary>
+    [JsonConverter(typeof(DefaultUnknownEnumConverter), Unknown)]
     [DataContract]
     public enum NodeType
     {
+        Unknown,
+        
         [EnumMember(Value = "BOOLEAN_OPERATION")]
         Boolean,
 
@@ -133,6 +138,9 @@ namespace Cdm.Figma
         Text,
 
         [EnumMember(Value = "VECTOR")]
-        Vector
+        Vector,
+        
+        [EnumMember(Value = "SECTION")]
+        Section
     }
 }
