@@ -212,9 +212,12 @@ namespace Cdm.Figma.UI
         {
             var textTruncation = textNode.style.textTruncation ?? TextTruncation.Disabled;
             
-            // Word wrapping always enabled in Figma.
-            style.wordWrapping.enabled = true;
-            style.wordWrapping.value = true;
+            if (textNode.style.textAutoResize == TextAutoResize.WidthAndHeight)
+            {
+                //if text autosize is set to auto width, there is no need to enable word wrapping
+                style.wordWrapping.enabled = true;
+                style.wordWrapping.value = false;
+            }
             
             switch (textTruncation)
             {

@@ -18,7 +18,7 @@ namespace Cdm.Figma.UI.Styles
         public StylePropertyFloat fontSizeMin = new StylePropertyFloat();
         public StylePropertyFloat fontSizeMax = new StylePropertyFloat();
         public StylePropertyBool enableAutoSizing = new StylePropertyBool();
-        public StylePropertyBool wordWrapping = new StylePropertyBool();
+        public StylePropertyBool wordWrapping = new StylePropertyBool(true);
         public StylePropertyBool autoSizeTextContainer = new StylePropertyBool();
         public StylePropertyFloat characterSpacing = new StylePropertyFloat(0f);
         public StylePropertyTextOverflowMode overflowMode = new StylePropertyTextOverflowMode(TextOverflowModes.Overflow);
