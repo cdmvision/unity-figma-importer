@@ -4,6 +4,11 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.9.1] - 2025-07-20
+### Fixes
+- Added default enum value Unknown to NodeType for improved deserialization safety.
+- Added new enum member Section ("SECTION") to NodeType to support additional node type handling.
+
 ## [1.8.8] - 2024-01-04
 ### Fixes
 - Fix a bug that `minTextureSize` is used instead of `rectTextureSize`
