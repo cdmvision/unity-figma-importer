@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.9.2] - 2025-08-04
+### Fixes
+- Added `rectResolutionScale` property to improve quality of 9-slice sprites by scaling corner radii and stroke weights proportionally
+
 ## [1.9.1] - 2025-07-20
 ### Fixes
 - Added default enum value Unknown to NodeType for improved deserialization safety.
