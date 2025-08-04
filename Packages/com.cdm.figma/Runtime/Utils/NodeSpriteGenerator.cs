@@ -739,7 +739,7 @@ namespace Cdm.Figma.Utils
             var spriteRect = new Rect(0, 0, texture.width, texture.height);
             var spritePivot = spriteRect.center;
 
-            var pixelsPerUnit = options.pixelsPerUnit * scale;
+            var pixelsPerUnit = options.pixelsPerUnit * scale * options.rectResolutionScale;
 
             Sprite spriteWithTexture = null;
             if (borders.HasValue)
