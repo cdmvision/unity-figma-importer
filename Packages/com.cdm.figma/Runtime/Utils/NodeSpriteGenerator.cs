@@ -156,7 +156,7 @@ namespace Cdm.Figma.Utils
             return false;
         }
 
-        private static Rect CalculateSvgViewBox(SceneNode node, float width, float height, bool isRectangle)
+        private static Rect CalculateSvgViewBox(SceneNode node, float width, float height, bool isRectangle, float resolutionScale)
         {
             if (node is not INodeFill fill)
             {
@@ -168,7 +168,7 @@ namespace Cdm.Figma.Utils
 
             if (fill.HasStroke() && fill.strokeWeight.HasValue)
             {
-                strokeWeight = fill.strokeWeight.Value;
+                strokeWeight = fill.strokeWeight.Value * resolutionScale;
             }
 
             var strokeAlign = fill.strokeAlign ?? StrokeAlign.Center;
@@ -197,7 +197,7 @@ namespace Cdm.Figma.Utils
 
             var width = vectorNode.size.x;
             var height = vectorNode.size.y;
-            var viewBox = CalculateSvgViewBox(vectorNode, width, height, false);
+            var viewBox = CalculateSvgViewBox(vectorNode, width, height, false, options.rectResolutionScale);
 
             var svg = new StringBuilder();
             svg.Append($@"<svg ");
@@ -275,14 +275,14 @@ namespace Cdm.Figma.Utils
 
             if (!isGradientExist)
             {
-                width = options.rectTextureSize + nodeRect.topLeftRadius + nodeRect.topRightRadius;
-                height = options.rectTextureSize + nodeRect.bottomLeftRadius + nodeRect.bottomRightRadius;
+                width = options.rectTextureSize + (nodeRect.topLeftRadius + nodeRect.topRightRadius) * options.rectResolutionScale;
+                height = options.rectTextureSize + (nodeRect.bottomLeftRadius + nodeRect.bottomRightRadius) * options.rectResolutionScale;
                 dontResize = true;
             }
 
-            var strokeWeight = nodeFill.GetStrokeWeightOrDefault();
-            var viewBox = CalculateSvgViewBox(node, width, height, true);
-            var path = GetRectPath(width, height, nodeRect);
+            var strokeWeight = nodeFill.GetStrokeWeightOrDefault() * options.rectResolutionScale;
+            var viewBox = CalculateSvgViewBox(node, width, height, true, options.rectResolutionScale);
+            var path = GetRectPath(width, height, nodeRect, options.rectResolutionScale);
 
             var svg = new StringBuilder();
             svg.Append($@"<svg ");
@@ -294,7 +294,7 @@ namespace Cdm.Figma.Utils
 
             if (strokeWeight > 0)
             {
-                AppendSvgStrokeRectElement(svg, node, path, 0, new Vector2(width, height));
+                AppendSvgStrokeRectElement(svg, node, path, 0, new Vector2(width, height), options.rectResolutionScale);
             }
 
             svg.AppendLine("</svg>");
@@ -359,10 +359,10 @@ namespace Cdm.Figma.Utils
 
             // Left, bottom, right and top.
             var borders = new Vector4(
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
-                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
-                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
+                Mathf.Max(nodeRect.topLeftRadius * options.rectResolutionScale, nodeRect.bottomLeftRadius * options.rectResolutionScale, strokePadding),
+                Mathf.Max(nodeRect.bottomLeftRadius * options.rectResolutionScale, nodeRect.bottomRightRadius * options.rectResolutionScale, strokePadding),
+                Mathf.Max(nodeRect.topRightRadius * options.rectResolutionScale, nodeRect.bottomRightRadius * options.rectResolutionScale, strokePadding),
+                Mathf.Max(nodeRect.topLeftRadius * options.rectResolutionScale, nodeRect.topRightRadius * options.rectResolutionScale, strokePadding)
             );
 
             var sceneInfo = ImportSvg(svg);
@@ -602,13 +602,13 @@ namespace Cdm.Figma.Utils
         }
 
         private static void AppendSvgStrokeRectElement(StringBuilder svg, SceneNode node, string strokePath,
-            int geometryIndex, Vector2 size)
+            int geometryIndex, Vector2 size, float strokeWidthMultiplier)
         {
             var nodeFill = (INodeFill)node;
             Debug.Assert(nodeFill != null);
 
             var strokeAlign = SvgHelpers.GetSvgValue(nodeFill.strokeAlign);
-            var strokeWidth = nodeFill.strokeWeight ?? 0;
+            var strokeWidth = (nodeFill.strokeWeight ?? 0) * strokeWidthMultiplier;
             for (var strokeIndex = 0; strokeIndex < nodeFill.strokes.Count; strokeIndex++)
             {
                 var stroke = nodeFill.strokes[strokeIndex];
@@ -759,13 +759,13 @@ namespace Cdm.Figma.Utils
             return spriteWithTexture;
         }
 
-        private static string GetRectPath(float width, float height, INodeRect nodeRect)
+        private static string GetRectPath(float width, float height, INodeRect nodeRect, float rectCornerMultiplier)
         {
             var rect = new Rect(0, 0, width, height);
-            var radiusTL = Vector2.one * nodeRect.topLeftRadius;
-            var radiusTR = Vector2.one * nodeRect.topRightRadius;
-            var radiusBR = Vector2.one * nodeRect.bottomRightRadius;
-            var radiusBL = Vector2.one * nodeRect.bottomLeftRadius;
+            var radiusTL = Vector2.one * nodeRect.topLeftRadius * rectCornerMultiplier;
+            var radiusTR = Vector2.one * nodeRect.topRightRadius * rectCornerMultiplier;
+            var radiusBR = Vector2.one * nodeRect.bottomRightRadius * rectCornerMultiplier;
+            var radiusBL = Vector2.one * nodeRect.bottomLeftRadius * rectCornerMultiplier;
             var contour = VectorUtils.BuildRectangleContour(rect, radiusTL, radiusTR, radiusBR, radiusBL);
             var segments = contour.Segments;
 

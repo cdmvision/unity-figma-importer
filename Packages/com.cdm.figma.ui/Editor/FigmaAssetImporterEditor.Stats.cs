@@ -23,6 +23,7 @@ namespace Cdm.Figma.UI.Editor
             LabelField("Min Texture Size", minTextureSize.ToString());
             LabelField("Max Texture Size", maxTextureSize.ToString());
             LabelField("Rectangle Texture Size", assetImporter.rectTextureSize.ToString());
+            LabelField("Rectangle Resolution Size Multiplier", assetImporter.rectResolutionScale.ToString());
 
             EditorGUILayout.Space();
 

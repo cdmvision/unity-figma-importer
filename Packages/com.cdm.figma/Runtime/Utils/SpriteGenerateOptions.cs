@@ -28,6 +28,11 @@ namespace Cdm.Figma.Utils
         /// (<see cref="RectangleNode"/> and <see cref="FrameNode"/> etc).
         /// </summary>
         public int rectTextureSize { get; set; }
+        
+        /// <summary>
+        /// Scale factor for rectangle corner radii and stroke weights when generating 9-slice sprites.
+        /// </summary>
+        public float rectResolutionScale { get; set; }
 
         /// <summary>
         /// The number of samples per pixel for anti-aliasing.

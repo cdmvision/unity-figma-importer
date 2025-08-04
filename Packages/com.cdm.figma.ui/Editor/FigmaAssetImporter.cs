@@ -115,6 +115,16 @@ namespace Cdm.Figma.UI.Editor
             get => _rectTextureSize;
             set => _rectTextureSize = value;
         }
+        
+        [SerializeField]
+        private float _rectResolutionScale = 1;
+
+        /// <inheritdoc cref="SpriteGenerateOptions.rectResolutionScale"/>
+        public float rectResolutionScale
+        {
+            get => _rectResolutionScale;
+            set => _rectResolutionScale = value;
+        }
 
         [SerializeField]
         private TextureWrapMode _wrapMode = TextureWrapMode.Clamp;
@@ -300,6 +310,7 @@ namespace Cdm.Figma.UI.Editor
             spriteOptions.minTextureSize = minTextureSize;
             spriteOptions.maxTextureSize = maxTextureSize;
             spriteOptions.rectTextureSize = rectTextureSize;
+            spriteOptions.rectResolutionScale = rectResolutionScale;
             spriteOptions.wrapMode = wrapMode;
             spriteOptions.filterMode = filterMode;
             spriteOptions.sampleCount = sampleCount;
