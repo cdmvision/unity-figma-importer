@@ -52,6 +52,7 @@ namespace Cdm.Figma.UI.Editor
             EditorGUILayout.PropertyField(_minTextureSize);
             EditorGUILayout.PropertyField(_maxTextureSize);
             EditorGUILayout.PropertyField(_rectTextureSize);
+            EditorGUILayout.PropertyField(_rectResolutionScale);
             EditorGUILayout.PropertyField(_wrapMode);
             EditorGUILayout.PropertyField(_filterMode);
             EditorGUILayout.PropertyField(_expandEdges);
