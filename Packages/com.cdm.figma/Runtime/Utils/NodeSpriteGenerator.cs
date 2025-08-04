@@ -156,7 +156,7 @@ namespace Cdm.Figma.Utils
             return false;
         }
 
-        private static Rect CalculateSvgViewBox(SceneNode node, float width, float height, bool isRectangle, float resolutionScale)
+        private static Rect CalculateSvgViewBox(SceneNode node, float width, float height, bool isRectangle, float resolutionScale = 1.0f)
         {
             if (node is not INodeFill fill)
             {
@@ -197,7 +197,7 @@ namespace Cdm.Figma.Utils
 
             var width = vectorNode.size.x;
             var height = vectorNode.size.y;
-            var viewBox = CalculateSvgViewBox(vectorNode, width, height, false, options.rectResolutionScale);
+            var viewBox = CalculateSvgViewBox(vectorNode, width, height, false);
 
             var svg = new StringBuilder();
             svg.Append($@"<svg ");
@@ -359,11 +359,13 @@ namespace Cdm.Figma.Utils
 
             // Left, bottom, right and top.
             var borders = new Vector4(
-                Mathf.Max(nodeRect.topLeftRadius * options.rectResolutionScale, nodeRect.bottomLeftRadius * options.rectResolutionScale, strokePadding),
-                Mathf.Max(nodeRect.bottomLeftRadius * options.rectResolutionScale, nodeRect.bottomRightRadius * options.rectResolutionScale, strokePadding),
-                Mathf.Max(nodeRect.topRightRadius * options.rectResolutionScale, nodeRect.bottomRightRadius * options.rectResolutionScale, strokePadding),
-                Mathf.Max(nodeRect.topLeftRadius * options.rectResolutionScale, nodeRect.topRightRadius * options.rectResolutionScale, strokePadding)
+                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
+                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
+                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
+                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
             );
+
+            borders *= options.rectResolutionScale;
 
             var sceneInfo = ImportSvg(svg);
             return CreateSprite(node, options, sceneInfo, dontResize, borders);
