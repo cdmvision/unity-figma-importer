@@ -359,13 +359,16 @@ namespace Cdm.Figma.Utils
 
             // Left, bottom, right and top.
             var borders = new Vector4(
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius, strokePadding),
-                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius, strokePadding),
-                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius, strokePadding),
-                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius, strokePadding)
+                Mathf.Max(nodeRect.topLeftRadius, nodeRect.bottomLeftRadius) + strokePadding/2,
+                Mathf.Max(nodeRect.bottomLeftRadius, nodeRect.bottomRightRadius) + strokePadding/2,
+                Mathf.Max(nodeRect.topRightRadius, nodeRect.bottomRightRadius) + strokePadding/2,
+                Mathf.Max(nodeRect.topLeftRadius, nodeRect.topRightRadius) + strokePadding/2
             );
 
             borders *= options.rectResolutionScale;
+            
+            // add 1pixel for each border to prevent bleeding
+            borders += new Vector4(1, 1, 1, 1);
 
             var sceneInfo = ImportSvg(svg);
             return CreateSprite(node, options, sceneInfo, dontResize, borders);

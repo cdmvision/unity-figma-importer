@@ -14,6 +14,12 @@ namespace Cdm.Figma.UI
         protected const string TextComponentKey = BindingPrefix + "Text";
         protected const string PlaceholderKey = BindingPrefix + "Placeholder";
 
+        /*
+        * MASK_PADDING_OFFSET provides a small safety margin for the TextArea's RectMask2D.
+        * Without it, the text can render at the input field’s border
+        */
+        private const int MASK_PADDING_OFFSET = 3;
+
         protected override FigmaNode Convert(FigmaNode parentObject, InstanceNode instanceNode, NodeConvertArgs args)
         {
             var figmaNode = base.Convert(parentObject, instanceNode, args);
@@ -25,13 +31,13 @@ namespace Cdm.Figma.UI
                 {
                     return figmaNode;
                 }
-
+                
                 textComponent.DisableTextStyleTextOverride();
-
+                
                 var inputField = figmaNode.GetComponent<TMP_InputField>();
                 inputField.textViewport = textViewport;
                 inputField.textComponent = textComponent;
-
+                
                 if (figmaNode.TryFindOptionalNode<Graphic>(PlaceholderKey, out var placeholder))
                 {
                     inputField.placeholder = placeholder;
@@ -56,12 +62,43 @@ namespace Cdm.Figma.UI
                     }
                 }
 
+                AppendPaddingToMask(figmaNode, textComponent, inputField);
+                
                 // Force to refresh input field.
                 inputField.enabled = false;
                 inputField.enabled = true;
             }
 
             return figmaNode;
+        }
+        
+        private void AppendPaddingToMask(FigmaNode figmaNode, TMP_Text textComponent, TMP_InputField inputField)
+        {
+            float horizontalPadding = GetPadding(figmaNode.rectTransform, textComponent.rectTransform, RectTransform.Axis.Horizontal);
+            var maskPaddingHorizontal = horizontalPadding - MASK_PADDING_OFFSET;
+            
+            float verticalPadding = GetPadding(figmaNode.rectTransform, textComponent.rectTransform, RectTransform.Axis.Vertical);
+            var maskPaddingVertical = verticalPadding - MASK_PADDING_OFFSET;
+            
+            maskPaddingHorizontal = Mathf.Max(maskPaddingHorizontal, 0);
+            maskPaddingVertical = Mathf.Max(maskPaddingVertical, 0);
+            
+            var mask = inputField.textViewport.gameObject.GetOrAddComponent<RectMask2D>();
+            mask.padding = new Vector4(-maskPaddingHorizontal, -maskPaddingVertical, -maskPaddingHorizontal, -maskPaddingVertical);
+        }
+        
+        private float GetPadding(RectTransform parent, RectTransform child, RectTransform.Axis axis)
+        {
+            Vector3[] p = new Vector3[4];
+            Vector3[] c = new Vector3[4];
+
+            parent.GetWorldCorners(p);
+            child.GetWorldCorners(c);
+
+            if(axis == RectTransform.Axis.Horizontal)
+                return p[2].x - c[2].x;
+            
+            return c[0].y - p[0].y;
         }
     }
 
