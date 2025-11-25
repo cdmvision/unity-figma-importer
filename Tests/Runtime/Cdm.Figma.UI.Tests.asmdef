@@ -1,0 +1,22 @@
+{
+    "name": "Cdm.Figma.UI.Tests",
+    "rootNamespace": "Cdm.Figma.UI.Tests",
+    "references": [
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:c056ef373796b584d9465e6529ebe4ac",
+        "GUID:1a523f89bafde864fbc2bcbabf4df19d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
