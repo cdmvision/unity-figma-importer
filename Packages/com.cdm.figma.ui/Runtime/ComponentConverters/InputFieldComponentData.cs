@@ -12,14 +12,14 @@ namespace Cdm.Figma.UI
         public Color selectionColor { get; set; }
 
         [DataMember]
-        public int selectionColorOpacity { get; set; } = 75;
-        
+        public string selectionColorOpacity { get; set; } = "75";
+
         [DataMember]
         [JsonConverter(typeof(ColorHexJsonConverter))]
         public Color caretColor { get; set; }
 
         [DataMember]
-        public int caretColorOpacity { get; set; } = 100;
+        public string caretColorOpacity { get; set; } = "100";
 
         [DataMember]
         public int caretWidth { get; set; } = 1;
