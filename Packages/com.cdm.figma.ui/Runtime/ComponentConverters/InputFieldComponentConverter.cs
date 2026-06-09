@@ -1,4 +1,5 @@
-﻿using Cdm.Figma.UI.Utils;
+﻿using System.Globalization;
+using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,13 +51,15 @@ namespace Cdm.Figma.UI
                     if (componentData != null)
                     {
                         var selectionColor = (UnityEngine.Color)componentData.selectionColor;
-                        if (float.TryParse(componentData.selectionColorOpacity, out var selectionOpacity))
-                            selectionColor.a = selectionOpacity / 100f;
+                        selectionColor.a = float.TryParse(componentData.selectionColorOpacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var selectionOpacity)
+                            ? selectionOpacity / 100f
+                            : 0.75f;
                         inputField.selectionColor = selectionColor;
 
                         var caretColor = (UnityEngine.Color)componentData.caretColor;
-                        if (float.TryParse(componentData.caretColorOpacity, out var caretOpacity))
-                            caretColor.a = caretOpacity / 100f;
+                        caretColor.a = float.TryParse(componentData.caretColorOpacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var caretOpacity)
+                            ? caretOpacity / 100f
+                            : 1f;
                         inputField.caretColor = caretColor;
 
                         inputField.caretWidth = componentData.caretWidth;
