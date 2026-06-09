@@ -4,6 +4,9 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.9.4] - 2026-06-08
+- Update input field component data to store selection and caret color opacity values as strings instead of integers. This change ensures compatibility with string-based plugin data and resolves a silent JSON deserialization failure that prevented all input field plugin data from being retrieved.
+
 ## [1.9.3] - 2025-11-25
 - Text Area's RectMask2D of InputField component now has padding so that the caret is not at the border of text at the left most or right most position.
 

@@ -1,4 +1,5 @@
-﻿using Cdm.Figma.UI.Utils;
+﻿using System.Globalization;
+using Cdm.Figma.UI.Utils;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,11 +51,15 @@ namespace Cdm.Figma.UI
                     if (componentData != null)
                     {
                         var selectionColor = (UnityEngine.Color)componentData.selectionColor;
-                        componentData.selectionColor.a = componentData.selectionColorOpacity / 100f;
+                        selectionColor.a = float.TryParse(componentData.selectionColorOpacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var selectionOpacity)
+                            ? selectionOpacity / 100f
+                            : 0.75f;
                         inputField.selectionColor = selectionColor;
 
                         var caretColor = (UnityEngine.Color)componentData.caretColor;
-                        componentData.caretColor.a = componentData.caretColorOpacity / 100f;
+                        caretColor.a = float.TryParse(componentData.caretColorOpacity, NumberStyles.Float, CultureInfo.InvariantCulture, out var caretOpacity)
+                            ? caretOpacity / 100f
+                            : 1f;
                         inputField.caretColor = caretColor;
 
                         inputField.caretWidth = componentData.caretWidth;
@@ -71,7 +76,7 @@ namespace Cdm.Figma.UI
 
             return figmaNode;
         }
-        
+
         private void AppendPaddingToMask(FigmaNode figmaNode, TMP_Text textComponent, TMP_InputField inputField)
         {
             float horizontalPadding = GetPadding(figmaNode.rectTransform, textComponent.rectTransform, RectTransform.Axis.Horizontal);
