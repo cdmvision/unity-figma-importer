@@ -4,6 +4,19 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-08-16
+### Changes
+- Importing a large design takes less than half the time it did.
+- Colour variants of a shape painted in one solid colour now share a sprite and a texture, roughly halving the number of sprites generated. The colour is applied through the image style.
+- Tessellation is coarser, so generated sprites differ from those of earlier versions.
+- Pages switched off in the importer settings are no longer parsed.
+- Downloading shows progress and checks the file version first, so an unchanged design can be skipped. Refreshing the branch list no longer downloads the document.
+- A thumbnail that cannot be decoded is skipped, so a design has none rather than a broken one. Figma serves WebP, which Unity cannot load.
+
+### API
+- Added `FigmaDownloader.DownloadFileMetadataAsync`, `FigmaFile.ParseBinary(Stream, ISet<string>)`, `NodeSpriteGenerator.TryGetSolidTint` and `IFigmaImporter.Options.onPageProgress`.
+- `FigmaApi.GetFileAsync` takes an optional download progress callback, and `FigmaDownloaderProgress` carries the bytes received and the current stage.
+
 ## [1.9.5] - 2026-08-14
 - No changes
 

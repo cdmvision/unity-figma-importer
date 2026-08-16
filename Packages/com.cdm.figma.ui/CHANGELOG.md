@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-08-16
+### Changes
+- Every design is reimported once after upgrading, because this version produces different sprites, tessellation and thumbnails.
+- Import results can be cached by the Unity Accelerator. Where a cache server is configured, returning to a design that has already been imported no longer costs a full import.
+- The colour of a shape painted in one solid colour is applied through its image style, so colour variants can share a sprite.
+
 ## [1.9.5] - 2026-08-14
 - Fix NullReferenceException when autoSizeTextContainer is applied to a text that has not awakened.
 
