@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Cdm.Figma.Json;
@@ -39,7 +41,12 @@ namespace Cdm.Figma
         /// The components key contains a mapping from node IDs to component metadata. This is to help you
         /// determine which components each instance comes from.
         /// </summary>
-        public async Task<string> GetFileAsync(FileRequest fileRequest, CancellationToken cancellationToken = default)
+        /// <param name="downloadProgress">
+        /// Called with the bytes received so far, and the total if the server sent one. The total is
+        /// often absent on a chunked response, so callers must cope without it.
+        /// </param>
+        public async Task<string> GetFileAsync(FileRequest fileRequest,
+            CancellationToken cancellationToken = default, Action<long, long?> downloadProgress = null)
         {
             if (string.IsNullOrEmpty(fileRequest.fileId))
                 throw new ArgumentException("File ID cannot be empty.");
@@ -47,10 +54,45 @@ namespace Cdm.Figma
             var url = GetFileRequestUrl(fileRequest);
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            // ResponseHeadersRead so the body can be read as it arrives. The default buffers the
+            // whole response first, leaving nothing to report until it is already done.
+            using var response = await _httpClient
+                .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                .ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var contentLength = response.Content.Headers.ContentLength;
+
+            using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var buffer = new MemoryStream(
+                contentLength.HasValue ? (int)Math.Min(contentLength.Value, int.MaxValue) : 1 << 20);
+
+            var chunk = new byte[1 << 16];
+            var lastReported = 0L;
+
+            while (true)
+            {
+                var read = await stream.ReadAsync(chunk, 0, chunk.Length, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (read <= 0)
+                    break;
+
+                buffer.Write(chunk, 0, read);
+
+                // Throttled: a report per chunk would be thousands of repaints.
+                if (downloadProgress != null && buffer.Length - lastReported >= (1 << 20))
+                {
+                    lastReported = buffer.Length;
+                    downloadProgress(buffer.Length, contentLength);
+                }
+            }
+
+            // Through a reader rather than Encoding.UTF8.GetString, which would leave a byte order
+            // mark in place and make the document unparseable.
+            buffer.Position = 0;
+            using var bufferReader = new StreamReader(buffer, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+            return await bufferReader.ReadToEndAsync().ConfigureAwait(false);
         }
 
         /// <summary>
