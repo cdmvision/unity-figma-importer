@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -72,9 +73,16 @@ namespace Cdm.Figma.Editor
         {
             FigmaFile figmaFile;
             
+            // Pages switched off in the settings. A list of what to drop, not what to keep, so a
+            // page that is new in the file is parsed rather than imported empty. Null on a first
+            // import, which is what populates the page list in the first place.
+            var skipPageIds = importSettingsMissing || _pages == null
+                ? null
+                : new HashSet<string>(_pages.Where(p => !p.enabled).Select(p => p.id));
+
             using (var compressedStream = File.Open(ctx.assetPath, FileMode.Open))
             {
-                figmaFile = FigmaFile.ParseBinary(compressedStream);    
+                figmaFile = FigmaFile.ParseBinary(compressedStream, skipPageIds);
             }
             
             UpdatePages(figmaFile);
