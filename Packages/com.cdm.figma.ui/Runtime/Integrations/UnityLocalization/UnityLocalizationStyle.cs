@@ -4,6 +4,7 @@ using Cdm.Figma.UI.Styles.Properties;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
+using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.SmartFormat.Core.Formatting;
 
 namespace Cdm.Figma.UI
@@ -12,6 +13,10 @@ namespace Cdm.Figma.UI
     public class UnityLocalizationStyle : StyleWithSetter<UnityLocalizationStyleSetter>
     {
         public StylePropertyLocalizedString localizedString = new StylePropertyLocalizedString();
+
+#if UNITY_EDITOR
+        private static bool _resolveFailureWarned;
+#endif
 
         protected override void MergeTo(Style other, bool force)
         {
@@ -43,14 +48,30 @@ namespace Cdm.Figma.UI
                 }
                 else
                 {
-                    // Importing fails while smart strings are being calculated without args.
-                    // So ignore the error in Editor.
+                    // Assigning the reference resolves the entry straight away, which an import
+                    // has no use for. The reference is stored before the resolve is attempted,
+                    // so what gets imported is the same whether or not the resolve throws.
                     try
                     {
                         stringEvent.StringReference = localizedString.value;
                     }
                     catch (FormattingException)
                     {
+                        // Smart strings are formatted without their arguments during an import.
+                    }
+                    catch (Exception e)
+                    {
+                        // The database can return a table Unity has already destroyed, and that
+                        // would otherwise take the whole import down. Resetting reloads the
+                        // tables so the remaining text nodes do not hit the same thing.
+                        LocalizationSettings.Instance.ResetState();
+
+                        if (!_resolveFailureWarned)
+                        {
+                            _resolveFailureWarned = true;
+                            Debug.LogWarning(
+                                $"Localization state was reset while importing: {e.Message}");
+                        }
                     }
                 }
 #endif
