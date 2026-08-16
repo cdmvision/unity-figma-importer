@@ -1,0 +1,20 @@
+{
+    "name": "Cdm.Figma.UI.LetTaiShadow",
+    "rootNamespace": "Cdm.Figma.UI.LetTaiShadow",
+    "references": [
+        "GUID:c056ef373796b584d9465e6529ebe4ac",
+        "GUID:1a523f89bafde864fbc2bcbabf4df19d",
+        "GUID:7ab3663edede26740845931880bf22af"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "LETAI_TRUESHADOW"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
