@@ -94,7 +94,14 @@ namespace Cdm.Figma.UI.Styles
                     textComponent.enableWordWrapping = wordWrapping.value;
 
                 if (autoSizeTextContainer.enabled)
-                    textComponent.autoSizeTextContainer = autoSizeTextContainer.value;
+                {
+                    // Setting this to true registers the text with the CanvasUpdateRegistry right away,
+                    // and Rebuild() then dereferences m_rectTransform, which is only cached in Awake().
+                    // Skip it while the component is not live; the field is not serialized, so setting
+                    // it on a prefab asset would not persist anyway.
+                    if (!autoSizeTextContainer.value || textComponent.isActiveAndEnabled)
+                        textComponent.autoSizeTextContainer = autoSizeTextContainer.value;
+                }
 
                 if (horizontalAlignment.enabled)
                     textComponent.horizontalAlignment = horizontalAlignment.value;
