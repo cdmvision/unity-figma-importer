@@ -278,6 +278,26 @@ namespace Cdm.Figma.UI
             }
         }
 
+        /// <summary>
+        /// Whether this converter is in the ignore list.
+        /// </summary>
+        /// <remarks>
+        /// Uses the default comparer rather than reference equality, because a converter outside
+        /// this package may override <see cref="object.Equals(object)"/>.
+        /// </remarks>
+        private static bool IsIgnored(INodeConverter converter, INodeConverter[] ignoredConverters)
+        {
+            var comparer = EqualityComparer<INodeConverter>.Default;
+
+            for (var i = 0; i < ignoredConverters.Length; i++)
+            {
+                if (comparer.Equals(ignoredConverters[i], converter))
+                    return true;
+            }
+
+            return false;
+        }
+
         internal bool TryConvertNode(FigmaNode parentObject, Node node, NodeConvertArgs args,
             out FigmaNode nodeObject, params INodeConverter[] ignoredConverters)
         {
@@ -290,9 +310,18 @@ namespace Cdm.Figma.UI
                 instanceNodeInitResult = args.file.InitInstanceNode(instanceNode);
             }
 
-            // Try with component converters first.
-            var componentConverter = componentConverters.FirstOrDefault(
-                c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
+            // Try with component converters first. Plain loops here and below: this runs for every
+            // node in the document, and a LINQ predicate allocates a closure on each call.
+            ComponentConverter componentConverter = null;
+            for (var i = 0; i < componentConverters.Count; i++)
+            {
+                var candidate = componentConverters[i];
+                if (!IsIgnored(candidate, ignoredConverters) && candidate.CanConvert(node, args))
+                {
+                    componentConverter = candidate;
+                    break;
+                }
+            }
 
             if (componentConverter != null)
             {
@@ -309,8 +338,16 @@ namespace Cdm.Figma.UI
             }
 
             // Try with node converters.
-            var nodeConverter = nodeConverters.FirstOrDefault(
-                c => !ignoredConverters.Contains(c) && c.CanConvert(node, args));
+            INodeConverter nodeConverter = null;
+            for (var i = 0; i < nodeConverters.Count; i++)
+            {
+                var candidate = nodeConverters[i];
+                if (!IsIgnored(candidate, ignoredConverters) && candidate.CanConvert(node, args))
+                {
+                    nodeConverter = candidate;
+                    break;
+                }
+            }
 
             if (nodeConverter != null)
             {
