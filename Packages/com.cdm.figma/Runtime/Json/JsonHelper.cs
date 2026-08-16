@@ -12,12 +12,20 @@ namespace Cdm.Figma.Json
     {
         public static T Deserialize<T>(string json)
         {
-            var serializer = JsonSerializer.Create(CreateSettings());
+            var serializer = CreateSerializer();
 
             using (var reader = new JsonTextReader(new StringReader(json)))
             {
                 return serializer.Deserialize<T>(reader);
             }
+        }
+
+        /// <summary>
+        /// Creates a serializer configured the same way <see cref="Deserialize{T}"/> configures one.
+        /// </summary>
+        public static JsonSerializer CreateSerializer()
+        {
+            return JsonSerializer.Create(CreateSettings());
         }
 
         public static string Serialize(object value, Formatting formatting = Formatting.None)
