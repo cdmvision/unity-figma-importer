@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.0.0] - 2026-08-16
 ### Changes
 - Every design is reimported once after upgrading, because this version produces different sprites, tessellation and thumbnails.
-- Import results can be cached by the Unity Accelerator. Where a cache server is configured, returning to a design that has already been imported no longer costs a full import.
 - The colour of a shape painted in one solid colour is applied through its image style, so colour variants can share a sprite.
 - A design still imports when Unity Localization cannot resolve an entry. That used to abandon the import and leave the design with nothing in it.
 

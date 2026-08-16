@@ -14,9 +14,8 @@ using Object = UnityEngine.Object;
 namespace Cdm.Figma.UI.Editor
 {
     // Raise the version whenever a change alters what is imported, otherwise projects keep the
-    // artifacts built by the previous code. AllowCaching shares those artifacts through the Unity
-    // Accelerator, so the version is also what stops one machine being served another machine's.
-    [ScriptedImporter(2, DefaultExtension, ImportQueueOffset, AllowCaching = true)]
+    // artifacts built by the previous code.
+    [ScriptedImporter(2, DefaultExtension, ImportQueueOffset)]
     public class FigmaAssetImporter : FigmaAssetImporterBase
     {
         private const string TextMeshProSettingsAssetPath = "Assets/TextMesh Pro/Resources/TMP Settings.asset";
