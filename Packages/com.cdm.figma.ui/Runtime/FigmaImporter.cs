@@ -194,11 +194,22 @@ namespace Cdm.Figma.UI
                 figmaDocument.rectTransform.offsetMax = new Vector2(0, 0);
 
                 var pageNodes = file.document.children;
+
+                // Only for reporting how far along the conversion is.
+                var pagesToConvert = options.selectedPages != null
+                    ? pageNodes.Count(p => options.selectedPages.Contains(p.id))
+                    : pageNodes.Length;
+                var pagesConverted = 0;
+
                 foreach (var pageNode in pageNodes)
                 {
                     // Do not import ignored pages.
                     if (options.selectedPages != null && options.selectedPages.All(p => p != pageNode.id))
                         continue;
+
+                    options.onPageProgress?.Invoke(pageNode.name,
+                        pagesToConvert > 0 ? pagesConverted / (float)pagesToConvert : 0f);
+                    pagesConverted++;
 
                     if (!TryConvertNode(figmaDocument, pageNode, conversionArgs, out var figmaNode))
                         continue;

@@ -52,9 +52,19 @@ namespace Cdm.Figma.Editor
                 Profiler.BeginSample($"Import {assetName}");
 #endif
                 var stopwatch = Stopwatch.StartNew();
-                ImportAsset(ctx);
+
+                try
+                {
+                    ImportAsset(ctx);
+                }
+                finally
+                {
+                    // Also when the import throws: a bar left up blocks the editor.
+                    EditorUtility.ClearProgressBar();
+                }
+
                 stopwatch.Stop();
-                
+
                 Debug.Log($"Importing '{ctx.assetPath}' took {stopwatch.ElapsedMilliseconds} ms.");
                 
 #if PROFILE_FIGMA_IMPORT
@@ -69,10 +79,25 @@ namespace Cdm.Figma.Editor
 #endif
         }
 
+        /// <summary>
+        /// Shows where the import has got to. An import blocks the main thread, so this call is
+        /// also what forces the repaint.
+        /// </summary>
+        /// <remarks>
+        /// Keep this to once per phase and once per page. A repaint is not free, and reporting per
+        /// node or per sprite would show up in the import time.
+        /// </remarks>
+        private static void ReportProgress(string assetPath, string step, float progress)
+        {
+            EditorUtility.DisplayProgressBar($"Importing {Path.GetFileName(assetPath)}", step, progress);
+        }
+
         private void ImportAsset(AssetImportContext ctx)
         {
             FigmaFile figmaFile;
-            
+
+            ReportProgress(ctx.assetPath, "Reading file", 0f);
+
             // Pages switched off in the settings. A list of what to drop, not what to keep, so a
             // page that is new in the file is parsed rather than imported empty. Null on a first
             // import, which is what populates the page list in the first place.
@@ -87,13 +112,20 @@ namespace Cdm.Figma.Editor
             
             UpdatePages(figmaFile);
 
+            ReportProgress(ctx.assetPath, "Preparing converters", 0.2f);
+
             var figmaImporter = GetFigmaImporter(ctx);
             OnAssetImporting(ctx, figmaImporter, figmaFile);
 
+            // Page conversion is the long part, so it drives 0.25 to 0.9 of the bar.
             var figmaDesign = figmaImporter.ImportFile(figmaFile, new IFigmaImporter.Options()
             {
-                selectedPages = _pages.Where(p => p.enabled).Select(p => p.id).ToArray()
+                selectedPages = _pages.Where(p => p.enabled).Select(p => p.id).ToArray(),
+                onPageProgress = (pageName, fraction) =>
+                    ReportProgress(ctx.assetPath, $"Converting {pageName}", 0.25f + fraction * 0.65f)
             });
+
+            ReportProgress(ctx.assetPath, "Finalizing", 0.95f);
 
             OnAssetImported(ctx, figmaImporter, figmaFile, figmaDesign);
 
