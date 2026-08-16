@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Pages switched off in the importer settings are no longer parsed.
 - Downloading shows progress and checks the file version first, so an unchanged design can be skipped. Refreshing the branch list no longer downloads the document.
 - A thumbnail that cannot be decoded is skipped, so a design has none rather than a broken one. Figma serves WebP, which Unity cannot load.
+- A downloaded design is imported on the next editor tick rather than from inside the download, which left the asset pipeline holding objects from the previous import.
 
 ### API
 - Added `FigmaDownloader.DownloadFileMetadataAsync`, `FigmaFile.ParseBinary(Stream, ISet<string>)`, `NodeSpriteGenerator.TryGetSolidTint` and `IFigmaImporter.Options.onPageProgress`.
