@@ -329,33 +329,41 @@ namespace Cdm.Figma.Editor
             }
         }
 
-        private void UpdateBranches(FigmaFile file)
+        private static void UpdateBranches(FigmaDownloaderAsset downloader, FigmaFile file)
         {
-            _branches.arraySize = 0;
+            // Through its own serialized object rather than the inspector's: a download outlives
+            // the inspector that started it whenever the editor rebuilds one, and the properties
+            // held there are disposed with it. OnInspectorGUI calls Update() before it draws, so
+            // the inspector picks this up rather than writing a stale copy back over it.
+            var serializedDownloader = new SerializedObject(downloader);
+            var branches = serializedDownloader.FindProperty("_branches");
+            var selectedBranch = serializedDownloader.FindProperty("_branch");
+
+            branches.arraySize = 0;
 
             if (file.branches != null)
             {
-                _branches.arraySize = file.branches.Length;
+                branches.arraySize = file.branches.Length;
 
                 for (var i = 0; i < file.branches.Length; i++)
                 {
-                    var branch = _branches.GetArrayElementAtIndex(i);
+                    var branch = branches.GetArrayElementAtIndex(i);
                     branch.FindPropertyRelative("key").stringValue = file.branches[i].key;
                     branch.FindPropertyRelative("name").stringValue = file.branches[i].name;
                 }
-                
-                var isSelectedBranchExist = file.branches.Any(x => x.key == _branch.stringValue);
+
+                var isSelectedBranchExist = file.branches.Any(x => x.key == selectedBranch.stringValue);
                 if (!isSelectedBranchExist)
                 {
-                    _branch.stringValue = "";
+                    selectedBranch.stringValue = "";
                 }
             }
             else
             {
-                _branch.stringValue = "";
+                selectedBranch.stringValue = "";
             }
 
-            serializedObject.ApplyModifiedProperties();
+            serializedDownloader.ApplyModifiedProperties();
         }
 
         private async void RefreshBranchesAsync()
@@ -390,7 +398,7 @@ namespace Cdm.Figma.Editor
                     downloader.personalAccessToken, downloader.fileId, downloader.fileVersion,
                     cancellationToken);
 
-            UpdateBranches(newFile);
+            UpdateBranches(downloader, newFile);
         }
 
         /// <summary>
@@ -471,7 +479,7 @@ namespace Cdm.Figma.Editor
 
             if (!newFile.IsBranch())
             {
-                UpdateBranches(newFile);
+                UpdateBranches(downloader, newFile);
             }
             
             var directory = Path.Combine("Assets", downloader.assetPath);
