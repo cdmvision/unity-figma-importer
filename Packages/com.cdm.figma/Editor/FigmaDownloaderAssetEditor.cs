@@ -508,11 +508,17 @@ namespace Cdm.Figma.Editor
 
             // Explicitly, rather than leaving it to the AssetDatabase.Refresh() in OnInspectorGUI:
             // that needs a repaint, and does nothing at all with auto refresh off. The streams above
-            // must be closed first or the importer reads a partial file. Deferred rather than
-            // imported here, because importing from a task continuation leaves the asset pipeline
-            // holding objects from the previous import.
-            EditorApplication.delayCall +=
-                () => AssetDatabase.ImportAsset(figmaAssetPath, ImportAssetOptions.ForceUpdate);
+            // must be closed first or the importer reads a partial file. On the next editor tick
+            // rather than here, so that downloading reports its own progress and importing reports
+            // its own. Through update rather than delayCall, which does not run while the editor
+            // sits in the background, and a long download is exactly when it does.
+            EditorApplication.CallbackFunction importOnce = null;
+            importOnce = () =>
+            {
+                EditorApplication.update -= importOnce;
+                AssetDatabase.ImportAsset(figmaAssetPath, ImportAssetOptions.ForceUpdate);
+            };
+            EditorApplication.update += importOnce;
         }
 
         private static string GetFigmaAssetPath(FigmaDownloaderAsset downloader, string fileName)
