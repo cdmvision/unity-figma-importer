@@ -56,8 +56,13 @@ namespace Cdm.Figma
 
         public static T Create<T>(FigmaFile file) where T : FigmaDesign
         {
-            var go = new GameObject(file.name);
-            
+            // A constant, not file.name. Unity derives the local file ids of the components on this
+            // object from its name, and a Figma branch carries its own document name, so switching
+            // branches moved those ids and every reference stored elsewhere in the project turned
+            // into None. The importer renames this object to the asset file name anyway, and the
+            // document name is kept on title just below.
+            var go = new GameObject(nameof(FigmaDesign));
+
             var figmaFile = go.AddComponent<T>();
             figmaFile.id = file.fileId;
             figmaFile.title = file.name;
