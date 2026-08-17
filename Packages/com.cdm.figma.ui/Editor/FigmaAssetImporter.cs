@@ -13,7 +13,9 @@ using Object = UnityEngine.Object;
 
 namespace Cdm.Figma.UI.Editor
 {
-    [ScriptedImporter(1, DefaultExtension, ImportQueueOffset)]
+    // Raise the version whenever a change alters what is imported, otherwise projects keep the
+    // artifacts built by the previous code.
+    [ScriptedImporter(2, DefaultExtension, ImportQueueOffset)]
     public class FigmaAssetImporter : FigmaAssetImporterBase
     {
         private const string TextMeshProSettingsAssetPath = "Assets/TextMesh Pro/Resources/TMP Settings.asset";
@@ -449,8 +451,7 @@ namespace Cdm.Figma.UI.Editor
 
         private void SearchAndAddFigmaNodeBehaviours(FigmaImporter figmaImporter)
         {
-            var nodeBehaviours = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes().Where(t => t.IsDefined(typeof(FigmaNodeAttribute))));
+            var nodeBehaviours = AttributedTypes.With(typeof(FigmaNodeAttribute));
 
             foreach (var type in nodeBehaviours)
             {
@@ -484,8 +485,7 @@ namespace Cdm.Figma.UI.Editor
 
         private void SearchAndAddFigmaComponentBehaviours(FigmaImporter figmaImporter)
         {
-            var componentBehaviours = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes().Where(t => t.IsDefined(typeof(FigmaComponentAttribute))));
+            var componentBehaviours = AttributedTypes.With(typeof(FigmaComponentAttribute));
 
             foreach (var type in componentBehaviours)
             {
@@ -510,8 +510,7 @@ namespace Cdm.Figma.UI.Editor
 
         private void SearchAndAddComponentConverters(FigmaImporter figmaImporter)
         {
-            var componentConverters = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes().Where(t => t.IsDefined(typeof(FigmaComponentConverterAttribute))));
+            var componentConverters = AttributedTypes.With(typeof(FigmaComponentConverterAttribute));
 
             foreach (var type in componentConverters)
             {
@@ -536,8 +535,7 @@ namespace Cdm.Figma.UI.Editor
 
         private void SearchAndAddNodeConverters(FigmaImporter figmaImporter)
         {
-            var nodeConverters = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes().Where(t => t.IsDefined(typeof(FigmaNodeConverterAttribute))));
+            var nodeConverters = AttributedTypes.With(typeof(FigmaNodeConverterAttribute));
 
             foreach (var type in nodeConverters)
             {
@@ -648,6 +646,75 @@ namespace Cdm.Figma.UI.Editor
             /// The asset is being assigned to the <see cref="MemberInfo"/>.
             /// </summary>
             public LazyLoadReference<Object> asset;
+        }
+    }
+
+    /// <summary>
+    /// Types carrying the importer's marker attributes, found in a single pass over the loaded
+    /// assemblies and cached. Rescanned when an assembly is added to the domain.
+    /// </summary>
+    internal static class AttributedTypes
+    {
+        private static readonly Type[] Attributes =
+        {
+            typeof(FigmaNodeAttribute),
+            typeof(FigmaComponentAttribute),
+            typeof(FigmaComponentConverterAttribute),
+            typeof(FigmaNodeConverterAttribute)
+        };
+
+        private static readonly Type[] None = Array.Empty<Type>();
+
+        private static Dictionary<Type, List<Type>> _byAttribute;
+        private static int _scannedAssemblyCount;
+
+        public static IReadOnlyList<Type> With(Type attributeType)
+        {
+            var assemblyCount = AppDomain.CurrentDomain.GetAssemblies().Length;
+
+            if (_byAttribute == null || assemblyCount != _scannedAssemblyCount)
+            {
+                _byAttribute = Scan();
+                _scannedAssemblyCount = assemblyCount;
+            }
+
+            return _byAttribute.TryGetValue(attributeType, out var types) ? types : None;
+        }
+
+        private static Dictionary<Type, List<Type>> Scan()
+        {
+            var result = new Dictionary<Type, List<Type>>();
+            foreach (var attribute in Attributes)
+            {
+                result[attribute] = new List<Type>();
+            }
+
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                Type[] types;
+                try
+                {
+                    types = assembly.GetTypes();
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    // One assembly that cannot fully load should not take the whole import with it.
+                    types = e.Types.Where(t => t != null).ToArray();
+                }
+
+                foreach (var type in types)
+                {
+                    foreach (var attribute in Attributes)
+                    {
+                        if (type.IsDefined(attribute))
+                        {
+                            result[attribute].Add(type);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

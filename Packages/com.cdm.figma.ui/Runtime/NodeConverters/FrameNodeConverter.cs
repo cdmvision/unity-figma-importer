@@ -57,6 +57,9 @@ namespace Cdm.Figma.UI
 
                 style.imageType.enabled = true;
                 style.imageType.value = sprite.GetImageType();
+
+                VectorNodeConverter.ApplySolidTint(style, node, args);
+
                 nodeObject.styles.Add(style);
             }
             

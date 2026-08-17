@@ -4,6 +4,23 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-08-16
+### Changes
+- Importing a large design takes less than half the time it did.
+- Colour variants of a shape painted in one solid colour now share a sprite and a texture, roughly halving the number of sprites generated. The colour is applied through the image style.
+- Tessellation is coarser, so generated sprites differ from those of earlier versions.
+- Pages switched off in the importer settings are no longer parsed.
+- Downloading shows progress and checks the file version first, so an unchanged design can be skipped. Refreshing the branch list no longer downloads the document.
+- A thumbnail that cannot be decoded is skipped, so a design has none rather than a broken one. Figma serves WebP, which Unity cannot load.
+- A downloaded design is imported on the next editor tick rather than from inside the download, which left the asset pipeline holding objects from the previous import.
+- A download no longer fails when the editor rebuilds the downloader's inspector while it is running. The branch list was written through that inspector, and losing it took the file with it.
+- Switching a Figma branch no longer breaks references to the design. The design object was named after the Figma document, and Unity derives the local file ids of its components from that name, so a branch turned every stored reference into None. References that already exist need re-assigning once after upgrading.
+- A field that takes a design can be filled from a picker. The design sits on a game object inside the asset rather than as a visible sub asset, so Unity's own picker never listed it and the only way to fill the field was to drag the asset onto it.
+
+### API
+- Added `FigmaDownloader.DownloadFileMetadataAsync`, `FigmaFile.ParseBinary(Stream, ISet<string>)`, `NodeSpriteGenerator.TryGetSolidTint` and `IFigmaImporter.Options.onPageProgress`.
+- `FigmaApi.GetFileAsync` takes an optional download progress callback, and `FigmaDownloaderProgress` carries the bytes received and the current stage.
+
 ## [1.9.5] - 2026-08-14
 - No changes
 

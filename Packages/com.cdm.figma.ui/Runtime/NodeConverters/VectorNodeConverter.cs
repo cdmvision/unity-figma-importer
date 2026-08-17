@@ -67,6 +67,9 @@ namespace Cdm.Figma.UI
 
                 style.imageType.enabled = true;
                 style.imageType.value = sprite.GetImageType();
+
+                ApplySolidTint(style, vectorNode, args);
+
                 nodeObject.styles.Add(style);
             }
 
@@ -80,7 +83,21 @@ namespace Cdm.Figma.UI
             args.importer.ConvertEffects(nodeObject, vectorNode.effects);
         }
         
-        public static Sprite GenerateSprite(SceneNode node, FigmaNode figmaNode, 
+        /// <summary>
+        /// Applies the colour <see cref="NodeSpriteGenerator"/> leaves out of the texture when a
+        /// shape is painted in a single solid colour. Call this wherever that generator is used,
+        /// or such a shape renders white.
+        /// </summary>
+        internal static void ApplySolidTint(ImageStyle style, SceneNode node, NodeConvertArgs args)
+        {
+            if (!NodeSpriteGenerator.TryGetSolidTint(node, args.overrideNode as SceneNode, out var tint))
+                return;
+
+            style.color.enabled = true;
+            style.color.value = tint;
+        }
+
+        public static Sprite GenerateSprite(SceneNode node, FigmaNode figmaNode,
             SpriteGenerateType generateType, NodeConvertArgs args)
         {
             if (node is not INodeFill)

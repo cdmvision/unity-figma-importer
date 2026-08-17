@@ -46,7 +46,7 @@ namespace Cdm.Figma
 
         public static PluginData FromJson(JObject json)
         {
-            return FromString(json.ToString());
+            return json.ToObject<PluginData>(JsonHelper.CreateSerializer());
         }
 
         public T GetComponentDataAs<T>() where T : class

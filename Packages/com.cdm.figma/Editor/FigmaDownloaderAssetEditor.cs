@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
@@ -34,6 +35,8 @@ namespace Cdm.Figma.Editor
         private bool _isRefreshingBranchesCompleted = false;
         private string _downloadingFile = "";
         private float _downloadingProgress = 0f;
+        private long _downloadedBytes = 0;
+        private string _downloadingStage = "";
         private CancellationTokenSource _cancellationTokenSource;
 
         protected virtual void OnEnable()
@@ -110,9 +113,16 @@ namespace Cdm.Figma.Editor
 
             if (_isDownloading)
             {
-                var description = !_isDownloadingDependency
-                    ? $"File: {_downloadingFile}"
-                    : $"File dependency: {_downloadingFile}";
+                var what = !_isDownloadingDependency ? _downloadingFile : $"dependency {_downloadingFile}";
+                var description = string.IsNullOrEmpty(_downloadingStage)
+                    ? what
+                    : $"{_downloadingStage}: {what}";
+
+                // Usually no content length to build a fraction from, so show the byte count.
+                if (_downloadedBytes > 0)
+                {
+                    description += $"  ({_downloadedBytes / 1024f / 1024f:F1} MB)";
+                }
 
                 if (EditorUtility.DisplayCancelableProgressBar(
                         "Downloading Figma File", description, _downloadingProgress))
@@ -219,12 +229,64 @@ namespace Cdm.Figma.Editor
             await DownloadFilesAsync((FigmaDownloaderAsset)target);
         }
 
+        /// <summary>
+        /// Checks whether the remote file differs from the one on disk, and if it does not, lets the
+        /// user decide whether to download it anyway.
+        /// </summary>
+        /// <remarks>
+        /// Asks rather than decides: downloading anyway is the escape hatch when the file on disk
+        /// is suspected to have drifted, and it writes the file like any other download so that it
+        /// can repair one. Every failure path returns true, because a check that cannot answer must
+        /// not be the reason a download does not happen.
+        /// </remarks>
+        private static async Task<bool> ShouldDownloadAsync(FigmaDownloaderAsset downloader,
+            string fileKey, CancellationToken cancellationToken)
+        {
+            var fileName = string.IsNullOrEmpty(downloader.fileName)
+                ? downloader.defaultFileName
+                : downloader.fileName;
+
+            if (string.IsNullOrEmpty(fileName))
+                return true;
+
+            var storedVersion = ReadStoredVersion(GetFigmaAssetPath(downloader, fileName));
+            if (string.IsNullOrEmpty(storedVersion))
+                return true;
+
+            string remoteVersion;
+            try
+            {
+                remoteVersion = await GetRemoteVersionAsync(downloader, fileKey, cancellationToken);
+            }
+            catch (TaskCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Could not check the Figma file version, downloading anyway: {e.Message}");
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(remoteVersion) || remoteVersion != storedVersion)
+                return true;
+
+            return EditorUtility.DisplayDialog(
+                "Figma file is up to date",
+                $"'{fileName}' is already at the latest version ({storedVersion}).\n\n" +
+                "Downloading again will fetch the same content and reimport the asset.",
+                "Download anyway", "Skip");
+        }
+
         private async Task DownloadFilesAsync(FigmaDownloaderAsset downloader)
         {
             try
             {
                 _isDownloading = true;
                 _downloadingProgress = 0f;
+                _downloadedBytes = 0;
+
+                _downloadingStage = "";
 
                 var fileKey = downloader.fileId;
                 var branch = _branch.stringValue;
@@ -234,6 +296,12 @@ namespace Cdm.Figma.Editor
                 }
                 
                 _downloadingFile = downloader.fileId;
+
+                if (!await ShouldDownloadAsync(downloader, fileKey, _cancellationTokenSource.Token))
+                {
+                    Debug.Log("Figma file is already up to date, download skipped.");
+                    return;
+                }
 
                 await DownloadAndSaveFigmaFileAsync(downloader, fileKey, _cancellationTokenSource.Token);
 
@@ -253,38 +321,49 @@ namespace Cdm.Figma.Editor
                 _isDownloadingCompleted = true;
                 _isDownloadingDependency = false;
                 _downloadingProgress = 0f;
+                _downloadedBytes = 0;
+
+                _downloadingStage = "";
 
                 _cancellationTokenSource.Dispose();
             }
         }
 
-        private void UpdateBranches(FigmaFile file)
+        private static void UpdateBranches(FigmaDownloaderAsset downloader, FigmaFile file)
         {
-            _branches.arraySize = 0;
+            // Through its own serialized object rather than the inspector's: a download outlives
+            // the inspector that started it whenever the editor rebuilds one, and the properties
+            // held there are disposed with it. OnInspectorGUI calls Update() before it draws, so
+            // the inspector picks this up rather than writing a stale copy back over it.
+            var serializedDownloader = new SerializedObject(downloader);
+            var branches = serializedDownloader.FindProperty("_branches");
+            var selectedBranch = serializedDownloader.FindProperty("_branch");
+
+            branches.arraySize = 0;
 
             if (file.branches != null)
             {
-                _branches.arraySize = file.branches.Length;
+                branches.arraySize = file.branches.Length;
 
                 for (var i = 0; i < file.branches.Length; i++)
                 {
-                    var branch = _branches.GetArrayElementAtIndex(i);
+                    var branch = branches.GetArrayElementAtIndex(i);
                     branch.FindPropertyRelative("key").stringValue = file.branches[i].key;
                     branch.FindPropertyRelative("name").stringValue = file.branches[i].name;
                 }
-                
-                var isSelectedBranchExist = file.branches.Any(x => x.key == _branch.stringValue);
+
+                var isSelectedBranchExist = file.branches.Any(x => x.key == selectedBranch.stringValue);
                 if (!isSelectedBranchExist)
                 {
-                    _branch.stringValue = "";
+                    selectedBranch.stringValue = "";
                 }
             }
             else
             {
-                _branch.stringValue = "";
+                selectedBranch.stringValue = "";
             }
 
-            serializedObject.ApplyModifiedProperties();
+            serializedDownloader.ApplyModifiedProperties();
         }
 
         private async void RefreshBranchesAsync()
@@ -309,19 +388,77 @@ namespace Cdm.Figma.Editor
             }
         }
 
-        private async Task RefreshBranchesAsync(FigmaDownloaderAsset downloader, 
+        private async Task RefreshBranchesAsync(FigmaDownloaderAsset downloader,
             CancellationToken cancellationToken = default)
         {
+            // Metadata only: a full download would pull the document, images and dependencies to
+            // read two strings per branch out of the result.
             var newFile = await downloader.GetDownloader()
-                .DownloadFileAsync(downloader.personalAccessToken, downloader.fileId, downloader.fileVersion,
-                    new Progress<FigmaDownloaderProgress>(
-                        progress =>
-                        {
-                            _isDownloadingDependency = false;
-                            _downloadingFile = progress.fileId;
-                        }), cancellationToken);
-            
-            UpdateBranches(newFile);
+                .DownloadFileMetadataAsync(
+                    downloader.personalAccessToken, downloader.fileId, downloader.fileVersion,
+                    cancellationToken);
+
+            UpdateBranches(downloader, newFile);
+        }
+
+        /// <summary>
+        /// The version of the file already on disk, or null if there is none to read.
+        /// </summary>
+        /// <remarks>
+        /// Read from the stored json rather than the imported asset, so it still works when the
+        /// last import failed, and stops at <c>version</c> instead of reading the document.
+        /// <para>Parsed rather than pattern matched: a pattern would also match a <c>version</c>
+        /// nested inside the document, and a wrong value that happens to equal the remote one
+        /// skips a real update silently.</para>
+        /// </remarks>
+        private static string ReadStoredVersion(string path)
+        {
+            if (!File.Exists(path))
+                return null;
+
+            try
+            {
+                using var file = File.OpenRead(path);
+                using var decompressor = new GZipStream(file, CompressionMode.Decompress);
+                using var streamReader = new StreamReader(decompressor);
+                // Defaults, so this reads the field the same way the remote side parses it.
+                using var reader = new JsonTextReader(streamReader);
+
+                if (!reader.Read() || reader.TokenType != JsonToken.StartObject)
+                    return null;
+
+                while (reader.Read() && reader.TokenType == JsonToken.PropertyName)
+                {
+                    if ((string)reader.Value == "version")
+                        return reader.ReadAsString();
+
+                    // Step over the value without descending into it.
+                    reader.Read();
+                    reader.Skip();
+                }
+
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Asks Figma for the file's current version without downloading the document.
+        /// </summary>
+        /// <remarks>
+        /// Figma changes version only when the document changes.
+        /// </remarks>
+        private static async Task<string> GetRemoteVersionAsync(FigmaDownloaderAsset downloader,
+            string fileKey, CancellationToken cancellationToken)
+        {
+            var file = await downloader.GetDownloader()
+                .DownloadFileMetadataAsync(
+                    downloader.personalAccessToken, fileKey, downloader.fileVersion, cancellationToken);
+
+            return file.version;
         }
 
         private async Task DownloadAndSaveFigmaFileAsync(
@@ -334,11 +471,15 @@ namespace Cdm.Figma.Editor
                         {
                             _isDownloadingDependency = progress.isDependency;
                             _downloadingFile = progress.fileId;
+
+                            _downloadingProgress = progress.progress;
+                            _downloadedBytes = progress.bytesDownloaded;
+                            _downloadingStage = progress.stage;
                         }), cancellationToken);
 
             if (!newFile.IsBranch())
             {
-                UpdateBranches(newFile);
+                UpdateBranches(downloader, newFile);
             }
             
             var directory = Path.Combine("Assets", downloader.assetPath);
@@ -356,14 +497,28 @@ namespace Cdm.Figma.Editor
             var figmaAssetPath = GetFigmaAssetPath(downloader, fileName);
 
             // Save as compressed file.
-            using var content = new MemoryStream(Encoding.UTF8.GetBytes(newFile.ToString("N")));
-            await using var compressedFileStream = File.Create(figmaAssetPath);
-            await using var compressor = new GZipStream(compressedFileStream, CompressionLevel.Optimal);
-            await content.CopyToAsync(compressor, cancellationToken);
-
-            //await File.WriteAllTextAsync(figmaAssetPath, newFile.ToString("N"), cancellationToken);
+            using (var content = new MemoryStream(Encoding.UTF8.GetBytes(newFile.ToString("N"))))
+            await using (var compressedFileStream = File.Create(figmaAssetPath))
+            await using (var compressor = new GZipStream(compressedFileStream, CompressionLevel.Optimal))
+            {
+                await content.CopyToAsync(compressor, cancellationToken);
+            }
 
             Debug.Log($"Figma file saved at: {figmaAssetPath}");
+
+            // Explicitly, rather than leaving it to the AssetDatabase.Refresh() in OnInspectorGUI:
+            // that needs a repaint, and does nothing at all with auto refresh off. The streams above
+            // must be closed first or the importer reads a partial file. On the next editor tick
+            // rather than here, so that downloading reports its own progress and importing reports
+            // its own. Through update rather than delayCall, which does not run while the editor
+            // sits in the background, and a long download is exactly when it does.
+            EditorApplication.CallbackFunction importOnce = null;
+            importOnce = () =>
+            {
+                EditorApplication.update -= importOnce;
+                AssetDatabase.ImportAsset(figmaAssetPath, ImportAssetOptions.ForceUpdate);
+            };
+            EditorApplication.update += importOnce;
         }
 
         private static string GetFigmaAssetPath(FigmaDownloaderAsset downloader, string fileName)

@@ -52,10 +52,17 @@ namespace Cdm.Figma
             private set => _thumbnail = value;
         }
         
+        private static bool _thumbnailDecodeWarned;
+
         public static T Create<T>(FigmaFile file) where T : FigmaDesign
         {
-            var go = new GameObject(file.name);
-            
+            // A constant, not file.name. Unity derives the local file ids of the components on this
+            // object from its name, and a Figma branch carries its own document name, so switching
+            // branches moved those ids and every reference stored elsewhere in the project turned
+            // into None. The importer renames this object to the asset file name anyway, and the
+            // document name is kept on title just below.
+            var go = new GameObject(nameof(FigmaDesign));
+
             var figmaFile = go.AddComponent<T>();
             figmaFile.id = file.fileId;
             figmaFile.title = file.name;
@@ -67,10 +74,32 @@ namespace Cdm.Figma
                 try
                 {
                     var thumbnailData = Convert.FromBase64String(file.thumbnail);
-                    figmaFile.thumbnail = new Texture2D(1, 1);
-                    figmaFile.thumbnail.name = "Thumbnail";
-                    figmaFile.thumbnail.LoadImage(thumbnailData);
-                    
+
+                    var texture = new Texture2D(1, 1);
+                    texture.name = "Thumbnail";
+
+                    // LoadImage handles PNG and JPEG only. Figma serves WebP, so this fails and
+                    // leaves an 8x8 placeholder behind. Better no thumbnail than a broken one.
+                    if (texture.LoadImage(thumbnailData))
+                    {
+                        figmaFile.thumbnail = texture;
+                    }
+                    else
+                    {
+                        DestroyTexture(texture);
+
+                        // Once per domain. With Figma serving WebP this is the usual outcome, and
+                        // repeating it on every import would just be noise.
+                        if (!_thumbnailDecodeWarned)
+                        {
+                            _thumbnailDecodeWarned = true;
+
+                            Debug.LogWarning(
+                                $"Thumbnail of '{file.name}' could not be decoded and has been skipped. " +
+                                "Unity loads PNG and JPEG only, and Figma serves thumbnails as WebP.");
+                        }
+                    }
+
 #if UNITY_EDITOR
                     figmaFile.hideFlags = HideFlags.NotEditable;
 #endif
@@ -82,6 +111,21 @@ namespace Cdm.Figma
             }
 
             return figmaFile;
+        }
+
+        /// <summary>
+        /// Disposes of a texture that is not going to be used.
+        /// </summary>
+        private static void DestroyTexture(Texture2D texture)
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                UnityEngine.Object.DestroyImmediate(texture);
+                return;
+            }
+#endif
+            UnityEngine.Object.Destroy(texture);
         }
     }
 }

@@ -64,7 +64,11 @@ namespace Cdm.Figma.Utils
             {
                 tessellationOptions = new VectorUtils.TessellationOptions()
                 {
-                    StepDistance = 1.0f,
+                    // One segment per this many units of arc length, and arcs are subdivided by
+                    // StepDistance / radius, so curve quality stays proportional to size.
+                    // float.MaxValue is a sentinel that drops the radius term and facets large
+                    // circles badly, so keep this a real value.
+                    StepDistance = 2.0f,
                     MaxCordDeviation = 0.5f,
                     MaxTanAngleDeviation = 0.1f,
                     SamplingStepSize = 0.01f
