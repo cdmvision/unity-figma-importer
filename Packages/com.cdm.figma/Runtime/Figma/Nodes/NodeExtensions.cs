@@ -181,14 +181,20 @@ namespace Cdm.Figma
 
         public static bool TryGetPluginData(this Node node, out PluginData pluginData)
         {
-            if (node.pluginData != null && node.pluginData.TryGetValue(PluginData.Id, out var data))
+            // Parsed once per node: conversion asks each candidate converter, so this is called
+            // several times for the same node.
+            if (!node.cachedPluginDataResolved)
             {
-                pluginData = PluginData.FromJson(data);
-                return pluginData != null;
+                if (node.pluginData != null && node.pluginData.TryGetValue(PluginData.Id, out var data))
+                {
+                    node.cachedPluginData = PluginData.FromJson(data);
+                }
+
+                node.cachedPluginDataResolved = true;
             }
 
-            pluginData = null;
-            return false;
+            pluginData = node.cachedPluginData;
+            return pluginData != null;
         }
     }
 }

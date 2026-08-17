@@ -33,7 +33,7 @@ namespace Cdm.Figma
                 {
                     _downloadedFiles = new Dictionary<string, FigmaFile>();
                     return await DownloadFileAsyncInternal(
-                        personalAccessToken, fileId, fileVersion, false, progress, cancellationToken);
+                        personalAccessToken, fileId, fileVersion, false, progress, 0f, 1f, cancellationToken);
                 }
             }
             finally
@@ -43,12 +43,74 @@ namespace Cdm.Figma
             }
         }
 
+        /// <summary>
+        /// Downloads a file's metadata: its name, version and branches, without the document.
+        /// </summary>
+        /// <remarks>
+        /// Uses <c>depth=1</c>, which returns the pages and nothing below them. Branch data is
+        /// unaffected by depth.
+        /// </remarks>
+        public virtual async Task<FigmaFile> DownloadFileMetadataAsync(
+            string personalAccessToken, string fileId, string fileVersion = "",
+            CancellationToken cancellationToken = default)
+        {
+            using var api = new FigmaApi(personalAccessToken);
+
+            var fileContentJson = await api.GetFileAsync(
+                new FileRequest(fileId)
+                {
+                    version = fileVersion,
+                    depth = 1,
+                    includeBranchData = true
+                }, cancellationToken);
+
+            var file = FigmaFile.Parse(fileContentJson);
+            file.fileId = fileId;
+            return file;
+        }
+
+        /// <summary>
+        /// How far through the transfer to report, out of the 40% of a file's progress it covers.
+        /// </summary>
+        /// <remarks>
+        /// Figma usually sends these chunked, with no content length to build a fraction from, so
+        /// without a length this approaches the limit without reaching it: always moving, never
+        /// claiming to be done.
+        /// </remarks>
+        private static float DownloadFraction(long bytesRead, long? totalBytes)
+        {
+            const float downloadShare = 0.4f;
+
+            if (totalBytes.HasValue && totalBytes.Value > 0)
+                return (float)(bytesRead / (double)totalBytes.Value) * downloadShare;
+
+            // Half way to the limit at 16 MB, the rough order of these files.
+            const double scale = 16.0 * 1024 * 1024;
+            return (float)(downloadShare * (1.0 - scale / (scale + bytesRead)));
+        }
+
+        /// <param name="progressStart">Where this file's own 0 to 1 sits in the reported bar.</param>
+        /// <param name="progressSpan">
+        /// How much of the reported bar this file's own 0 to 1 covers.
+        /// </param>
+        /// <remarks>
+        /// A dependency recurses into here, so without a range it would report from zero again and
+        /// send the bar backwards.
+        /// </remarks>
         private async Task<FigmaFile> DownloadFileAsyncInternal(
             string personalAccessToken, string fileId, string fileVersion,
-            bool isDependency, IProgress<FigmaDownloaderProgress> progress, CancellationToken cancellationToken)
+            bool isDependency, IProgress<FigmaDownloaderProgress> progress,
+            float progressStart, float progressSpan, CancellationToken cancellationToken)
         {
-            progress?.Report(new FigmaDownloaderProgress(fileId, 0f, isDependency));
+            void Report(float fraction, long bytesDownloaded, string stage)
+            {
+                progress?.Report(new FigmaDownloaderProgress(
+                    fileId, progressStart + fraction * progressSpan, isDependency, bytesDownloaded, stage));
+            }
 
+            Report(0f, 0, "Connecting");
+
+            // The transfer covers the first 40% of this file, the rest covers what follows it.
             var fileContentJson = await _figmaApi.GetFileAsync(
                 new FileRequest(fileId)
                 {
@@ -56,7 +118,12 @@ namespace Cdm.Figma
                     geometry = "paths",
                     plugins = new[] { PluginData.Id },
                     includeBranchData = true
-                }, cancellationToken);
+                }, cancellationToken,
+                (bytesRead, totalBytes) => Report(DownloadFraction(bytesRead, totalBytes), bytesRead, "Downloading"));
+
+            // Deserializing a large document takes seconds, so name the stage rather than
+            // leaving the bar sitting at the end of the transfer.
+            Report(0.45f, fileContentJson.Length, "Reading file");
 
             var file = FigmaFile.Parse(fileContentJson);
             file.fileId = fileId;
@@ -65,6 +132,8 @@ namespace Cdm.Figma
             {
                 if (!string.IsNullOrEmpty(file.thumbnailUrl))
                 {
+                    Report(0.6f, 0, "Downloading thumbnail");
+
                     try
                     {
                         var thumbnail = await _figmaApi.GetThumbnailImageAsync(file.thumbnailUrl, cancellationToken);
@@ -81,6 +150,9 @@ namespace Cdm.Figma
 
                 if (downloadImages)
                 {
+                    // One request for every image fill, which is slow on a design with many.
+                    Report(0.65f, 0, "Downloading images");
+
                     var images = await _figmaApi.GetImageFillsAsync(new ImageFillsRequest(fileId), cancellationToken);
 
                     foreach (var image in images)
@@ -96,19 +168,21 @@ namespace Cdm.Figma
 
             if (downloadDependencies)
             {
-                progress?.Report(new FigmaDownloaderProgress(fileId, 0.5f, isDependency));
+                Report(0.75f, 0, "Downloading dependencies");
 
-                file.fileDependencies =
-                    await DownloadFileDependenciesAsync(file, personalAccessToken, progress, cancellationToken);
+                // Dependencies share the last quarter of this file's range.
+                file.fileDependencies = await DownloadFileDependenciesAsync(
+                    file, personalAccessToken, progress,
+                    progressStart + 0.75f * progressSpan, 0.25f * progressSpan, cancellationToken);
             }
 
-            progress?.Report(new FigmaDownloaderProgress(fileId, 1f, isDependency));
+            Report(1f, 0, "");
             return file;
         }
 
         private async Task<FigmaFileDependency[]> DownloadFileDependenciesAsync(
             FigmaFile mainFile, string personalAccessToken, IProgress<FigmaDownloaderProgress> progress,
-            CancellationToken cancellationToken)
+            float progressStart, float progressSpan, CancellationToken cancellationToken)
         {
             // Find external components.
             var missingComponents = new Dictionary<string, List<string>>();
@@ -116,8 +190,15 @@ namespace Cdm.Figma
 
             var fileDependencies = new Dictionary<string, FigmaFileDependency>();
 
+            // An equal slice per lookup, so the bar moves forwards however many files this pulls.
+            var componentSpan = missingComponents.Count > 0 ? progressSpan / missingComponents.Count : 0f;
+            var componentIndex = 0;
+
             foreach (var missingComponent in missingComponents)
             {
+                var componentStart = progressStart + componentIndex * componentSpan;
+                componentIndex++;
+
                 try
                 {
                     var componentMetadata =
@@ -130,7 +211,8 @@ namespace Cdm.Figma
                         if (!_downloadedFiles.ContainsKey(componentMetadata.fileKey))
                         {
                             await DownloadFileAsyncInternal(
-                                personalAccessToken, componentMetadata.fileKey, "", true, progress, cancellationToken);
+                                personalAccessToken, componentMetadata.fileKey, "", true, progress,
+                                componentStart, componentSpan, cancellationToken);
                         }
 
                         {

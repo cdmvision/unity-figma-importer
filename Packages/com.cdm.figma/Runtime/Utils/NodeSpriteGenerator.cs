@@ -31,6 +31,11 @@ namespace Cdm.Figma.Utils
     
     public class NodeSpriteGenerator
     {
+        /// <summary>
+        /// White, in the form <c>AppendSvgSolid</c> writes a paint.
+        /// </summary>
+        private const string WhiteSvgColor = "#FFFFFF";
+
         private readonly Dictionary<string, Sprite> _sprites = new Dictionary<string, Sprite>();
 
         /// <summary>
@@ -65,7 +70,20 @@ namespace Cdm.Figma.Utils
             }
 
             var svg = GenerateSvgFromPath(node, options.Value.overrideNode, options.Value);
-            
+
+            // A shape painted in one solid colour is rasterized white and coloured through its
+            // style instead, so colour variants share a single entry in the sprite cache below.
+            // The converter applies the colour: see VectorNodeConverter.ApplySolidTint.
+            if (TryGetSolidTint(node, options.Value.overrideNode, out _, out var svgColor))
+            {
+                var neutralized = svg.content.Replace(svgColor, WhiteSvgColor);
+
+                if (!ReferenceEquals(neutralized, svg.content))
+                {
+                    svg = new SvgString(svg.node, neutralized) { dontResize = svg.dontResize };
+                }
+            }
+
 #if FIGMA_PRINT_SVG_STRING
             Debug.Log($"{svg.node}: {svg.content}");
 #endif
@@ -103,6 +121,98 @@ namespace Cdm.Figma.Utils
             return generatedSprite;
         }
         
+        /// <summary>
+        /// Whether every visible paint on this node is the same single solid colour, which is the
+        /// condition for rasterizing the shape white and applying the colour through the style.
+        /// A gradient, an image fill, or a fill and stroke of different colours all disqualify it,
+        /// because <see cref="UnityEngine.UI.Graphic.color"/> multiplies the whole sprite and
+        /// cannot reproduce two colours.
+        /// </summary>
+        /// <remarks>
+        /// Called by both the SVG generation and the converter that writes the style, so the two
+        /// always agree. Paints are compared by the text they produce in the SVG, through the same
+        /// <c>rgb-hex</c> call <c>AppendSvgSolid</c> uses, which keeps the comparison exact and
+        /// makes <paramref name="svgColor"/> match what is in the document.
+        /// <para>An unqualified <c>Color</c> in this namespace is Figma's own colour type.</para>
+        /// </remarks>
+        public static bool TryGetSolidTint(SceneNode node, SceneNode overrideNode,
+            out UnityEngine.Color tint)
+        {
+            return TryGetSolidTint(node, overrideNode, out tint, out _);
+        }
+
+        /// <param name="svgColor">
+        /// How that colour is written in the generated SVG, so the generator can take it back out.
+        /// </param>
+        /// <inheritdoc cref="TryGetSolidTint(SceneNode,SceneNode,out UnityEngine.Color)"/>
+        public static bool TryGetSolidTint(SceneNode node, SceneNode overrideNode,
+            out UnityEngine.Color tint, out string svgColor)
+        {
+            tint = UnityEngine.Color.white;
+            svgColor = null;
+
+            if (node is not INodeFill nodeFill)
+                return false;
+
+            var fills = nodeFill.fills;
+            var strokes = nodeFill.strokes;
+
+            if (overrideNode is INodeFill overrideNodeFill)
+            {
+                fills = overrideNodeFill.fills;
+                strokes = overrideNodeFill.strokes;
+            }
+
+            var color = default(Color);
+
+            if (!CollectSolidColor(fills, ref svgColor, ref color))
+                return false;
+
+            if (!CollectSolidColor(strokes, ref svgColor, ref color))
+                return false;
+
+            if (svgColor == null)
+                return false;
+
+            // Per paint opacity stays baked into the texture's alpha, so only RGB is hoisted.
+            tint = (UnityEngine.Color)color;
+            tint.a = 1f;
+            return true;
+        }
+
+        /// <summary>
+        /// Accumulates the single colour shared by every visible paint, or reports failure as soon
+        /// as a second colour or a non solid paint shows up.
+        /// </summary>
+        private static bool CollectSolidColor(List<Paint> paints, ref string svgColor, ref Color color)
+        {
+            if (paints == null)
+                return true;
+
+            foreach (var paint in paints)
+            {
+                if (!paint.visible)
+                    continue;
+
+                if (paint is not SolidPaint solid)
+                    return false;
+
+                var current = solid.color.ToString("rgb-hex");
+
+                if (svgColor == null)
+                {
+                    svgColor = current;
+                    color = solid.color;
+                }
+                else if (!string.Equals(current, svgColor, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Generates SVG string from the scene node.
         /// </summary>

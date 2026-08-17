@@ -57,6 +57,14 @@ namespace Cdm.Figma
         public ComponentPropertyReferences componentPropertyReferences { get; set; }
 
         /// <summary>
+        /// Parsed <see cref="PluginData"/> for this node, resolved on first use. Only valid while
+        /// <see cref="pluginData"/> is left alone, which it is after deserialization.
+        /// </summary>
+        internal PluginData cachedPluginData { get; set; }
+
+        internal bool cachedPluginDataResolved { get; set; }
+
+        /// <summary>
         /// Parent of the node.
         /// </summary>
         public Node parent { get; set; }

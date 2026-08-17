@@ -30,11 +30,30 @@ namespace Cdm.Figma
         /// </summary>
         public float progress { get; }
 
+        /// <summary>
+        /// Bytes received so far, or 0 when that is not being tracked. Separate from
+        /// <see cref="progress"/>, which has no content length to work from on a chunked response.
+        /// </summary>
+        public long bytesDownloaded { get; }
+
+        /// <summary>
+        /// What is happening right now, for display. Empty when not reported.
+        /// </summary>
+        public string stage { get; }
+
         public FigmaDownloaderProgress(string fileId, float progress, bool isDependency)
+            : this(fileId, progress, isDependency, 0, "")
+        {
+        }
+
+        public FigmaDownloaderProgress(string fileId, float progress, bool isDependency,
+            long bytesDownloaded, string stage = "")
         {
             this.fileId = fileId;
             this.progress = progress;
             this.isDependency = isDependency;
+            this.bytesDownloaded = bytesDownloaded;
+            this.stage = stage;
         }
     }
 }

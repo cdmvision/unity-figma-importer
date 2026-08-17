@@ -309,15 +309,90 @@ namespace Cdm.Figma
         
         public static FigmaFile ParseBinary(Stream stream)
         {
-            using var decompressedStream = new MemoryStream();
-            using var decompressor = new GZipStream(stream, CompressionMode.Decompress);
-            decompressor.CopyTo(decompressedStream);
+            return ParseBinary(stream, null);
+        }
 
-            decompressedStream.Position = 0;
-            using var streamReader = new StreamReader(decompressedStream);
-            var fileJson = streamReader.ReadToEnd();
-            
-            return Parse(fileJson);
+        /// <summary>
+        /// Parses the file without materialising the contents of the pages in
+        /// <paramref name="skipPageIds"/>.
+        /// </summary>
+        /// <remarks>
+        /// Skipped pages keep their page node, emptied, so the importer's page list still offers
+        /// them, and keep any component definitions inside them, so instances on imported pages
+        /// still resolve. Pass null to parse everything.
+        /// <para>Takes the pages to skip rather than the pages to keep, so a page that is new in
+        /// the file, and therefore in no selection yet, is parsed rather than silently emptied.
+        /// </para>
+        /// </remarks>
+        public static FigmaFile ParseBinary(Stream stream, ISet<string> skipPageIds)
+        {
+            using var decompressor = new GZipStream(stream, CompressionMode.Decompress);
+            using var streamReader = new StreamReader(decompressor);
+
+            // Leave the reader's date handling alone. Turning it off hands IsoDateTimeConverter the
+            // raw string, and that converter is configured AssumeUniversal without
+            // AdjustToUniversal, which shifts a UTC timestamp into local time and then stamps a Z
+            // on it.
+            using var jsonReader = new JsonTextReader(streamReader);
+
+            // The node converter calls JToken.Load, so the document becomes a token tree either
+            // way. Building it here costs nothing extra and keeps one path for both cases.
+            var root = JObject.Load(jsonReader);
+
+            if (skipPageIds != null && skipPageIds.Count > 0)
+            {
+                PruneUnselectedPages(root, skipPageIds);
+            }
+
+            return root.ToObject<FigmaFile>(JsonHelper.CreateSerializer());
+        }
+
+        /// <summary>
+        /// Empties the pages that are not being imported, keeping the page node and any component
+        /// definitions found anywhere inside it.
+        /// </summary>
+        private static void PruneUnselectedPages(JObject root, ISet<string> skipPageIds)
+        {
+            if (root["document"]?["children"] is not JArray pages)
+                return;
+
+            foreach (var page in pages)
+            {
+                var id = (string)page["id"];
+                if (id == null || !skipPageIds.Contains(id))
+                    continue;
+
+                if (page["children"] is not JArray children)
+                    continue;
+
+                var components = new JArray();
+                foreach (var child in children)
+                {
+                    CollectComponents(child, components);
+                }
+
+                // Flattened rather than kept in place: the page is never converted, so only lookup
+                // by id matters, and BuildHierarchy indexes at any depth.
+                page["children"] = components;
+            }
+        }
+
+        private static void CollectComponents(JToken node, JArray into)
+        {
+            var type = (string)node["type"];
+            if (type == "COMPONENT" || type == "COMPONENT_SET")
+            {
+                into.Add(node);
+                return;
+            }
+
+            if (node["children"] is JArray children)
+            {
+                foreach (var child in children)
+                {
+                    CollectComponents(child, into);
+                }
+            }
         }
 
         public override string ToString()
