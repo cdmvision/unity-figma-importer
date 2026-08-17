@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - A downloaded design is imported on the next editor tick rather than from inside the download, which left the asset pipeline holding objects from the previous import.
 - A download no longer fails when the editor rebuilds the downloader's inspector while it is running. The branch list was written through that inspector, and losing it took the file with it.
 - Switching a Figma branch no longer breaks references to the design. The design object was named after the Figma document, and Unity derives the local file ids of its components from that name, so a branch turned every stored reference into None. References that already exist need re-assigning once after upgrading.
+- A field that takes a design can be filled from a picker. The design sits on a game object inside the asset rather than as a visible sub asset, so Unity's own picker never listed it and the only way to fill the field was to drag the asset onto it.
 
 ### API
 - Added `FigmaDownloader.DownloadFileMetadataAsync`, `FigmaFile.ParseBinary(Stream, ISet<string>)`, `NodeSpriteGenerator.TryGetSolidTint` and `IFigmaImporter.Options.onPageProgress`.
