@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-08-21
+### Changes
+- The `ApplySolidTint` method now consistently enables the `style.color` property. If no specific solid tint is found for the node, the color is explicitly set to `UnityEngine.Color.white`. This prevents UI states from implicitly retaining and multiplying previous states' tint values into the sprite texture, which could result in unintended black rendering of strokes and fills.
+
 ## [2.0.0] - 2026-08-16
 ### Changes
 - Every design is reimported once after upgrading, because this version produces different sprites, tessellation and thumbnails.
