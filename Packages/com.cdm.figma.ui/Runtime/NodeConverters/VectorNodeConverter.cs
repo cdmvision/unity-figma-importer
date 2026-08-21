@@ -88,13 +88,26 @@ namespace Cdm.Figma.UI
         /// shape is painted in a single solid colour. Call this wherever that generator is used,
         /// or such a shape renders white.
         /// </summary>
+        /// <remarks>
+        /// The colour is always enabled, even when there is no solid tint to hoist. A selectable's
+        /// per-state styles only write the properties they enable, so a state that left the colour
+        /// disabled would keep whatever tint the previous state applied and multiply it into this
+        /// state's sprite, turning strokes and fills black on hover. Falling back to opaque white,
+        /// which multiplies to a no-op, keeps every state resetting the colour to a known value
+        /// while shapes that carry their own colours in the texture stay unchanged.
+        /// </remarks>
         internal static void ApplySolidTint(ImageStyle style, SceneNode node, NodeConvertArgs args)
         {
-            if (!NodeSpriteGenerator.TryGetSolidTint(node, args.overrideNode as SceneNode, out var tint))
-                return;
-
             style.color.enabled = true;
-            style.color.value = tint;
+
+            if (NodeSpriteGenerator.TryGetSolidTint(node, args.overrideNode as SceneNode, out var tint))
+            {
+                style.color.value = tint;
+            }
+            else
+            {
+                style.color.value = UnityEngine.Color.white;
+            }
         }
 
         public static Sprite GenerateSprite(SceneNode node, FigmaNode figmaNode,
